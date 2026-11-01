@@ -1,9 +1,9 @@
 # SDD ledger — plan: docs/superpowers/plans/2026-11-01-kura-scroll-master-plan.md
 
-- **Status:** Complete & Iterating (Sprint 13 Verified, 335 Tests Passing)
+- **Status:** Complete & Iterating (Sprint 14 Verified, 350 Tests Passing)
 - **Orchestrator:** Antigravity AI Orchestrator
 - **Branch:** main (isolated in `C:\Users\Admin\dev\kura-scroll`)
-- **Total Test Suites:** 55 test files, 335 passing tests (217 backend + 118 frontend, 100% PASS)
+- **Total Test Suites:** 58 test files, 350 passing tests (217 backend + 133 frontend, 100% PASS)
 
 ## Rulings & Decisions
 - Ruling: Standalone Sibling Project ("Proyecto Hermano") chosen as requested by Carlos to prevent monolithic coupling with KuraStream while sharing branding/logo (KS).
@@ -58,9 +58,14 @@
   - [x] Task 12.1: Multi-Mode Ingestion CLI (`--volume`, `--backup`, `--chap`, 5/5 tests)
   - [x] Task 12.2: Hardened Windows 1-Click Production Launcher (`scripts/start-local.ps1`)
   - [x] Task 12.3: Master E2E System Verification Suite (`sprint12-master-verification.test.ts`, 5/5 tests)
-- [x] Part 13: Perpetual System Maintenance, Real-Time SSE Bus & Sister Companion
+- [x] Part 13: Perpetual System Maintenance, Real-Time SSE Bus & Sister Companion (Commit dd613ec)
   - [x] Task 13.1: Real-Time In-Memory EventBus & SSE Stream (`src/backend/events/event-bus.ts`, 5/5 tests)
   - [x] Task 13.2: Automated Background Maintenance Daemon (`src/backend/daemon/maintenance-daemon.ts`, 4/4 tests)
   - [x] Task 13.3: Sister Platform KuraStream Modal (`SisterPlatformModal.tsx`, 8/8 tests)
   - [x] Task 13.4: Navbar Companion Integration (`Navbar.tsx`, `App.tsx`, 4/4 tests)
-- [ ] Part 14: Cross-Platform Reader Gestures & Progressive Image Loading Enhancements
+- [x] Part 14: Cross-Platform Reader Gestures & Hands-Free Webtoon Auto-Scroll
+  - [x] Task 14.1: Continuous Webtoon Auto-Scroll Engine (`useAutoScroll.ts`, 3/3 tests)
+  - [x] Task 14.2: RTL/LTR Touch Swipe Gestures Hook (`useSwipeGestures.ts`, 5/5 tests)
+  - [x] Task 14.3: Reading Speed & Time-to-Finish Estimator (`reading-stats-service.ts`, 5/5 tests)
+  - [x] Task 14.4: Reader UI Integration in MangaReader, ReaderControls & ReaderPage (11/11 tests)
+- [ ] Part 15: Offline PWA Background Sync & Storage Footprint Telemetry

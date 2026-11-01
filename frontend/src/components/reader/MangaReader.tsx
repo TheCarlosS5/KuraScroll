@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState, useMemo } from 'react';
 import gsap from 'gsap';
 import { ReaderPageItem } from './WebtoonReader.js';
 import { ReaderDisplaySettings, buildImageFilter } from './ReaderVisualSettingsModal.js';
+import { useSwipeGestures } from '../../hooks/useSwipeGestures.js';
 import {
   ChevronLeft,
   ChevronRight,
@@ -148,6 +149,14 @@ export const MangaReader: React.FC<MangaReaderProps> = ({
       }
     }
   };
+
+  // Touch and pointer swipe gestures (with RTL support)
+  useSwipeGestures(containerRef, {
+    onSwipeLeft: () => handleNext(),
+    onSwipeRight: () => handlePrev(),
+    isRtl: mode === 'RTL',
+    enabled: true,
+  });
 
   // Keyboard navigation & shortcuts
   useEffect(() => {

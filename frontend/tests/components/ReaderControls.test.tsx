@@ -163,4 +163,45 @@ describe('ReaderControls Component', () => {
     fireEvent.click(helpBtn);
     expect(handleOpenShortcuts).toHaveBeenCalled();
   });
+
+  it('renders and triggers auto-scroll button when onToggleAutoScroll provided', () => {
+    const handleToggleAutoScroll = vi.fn();
+    const { rerender } = render(
+      <ReaderControls
+        {...defaultProps}
+        isAutoScrollActive={false}
+        onToggleAutoScroll={handleToggleAutoScroll}
+      />
+    );
+
+    const autoBtn = screen.getByTestId('toggle-autoscroll-btn');
+    expect(autoBtn).toBeDefined();
+    expect(autoBtn.getAttribute('title')).toBe('Iniciar auto-scroll');
+
+    fireEvent.click(autoBtn);
+    expect(handleToggleAutoScroll).toHaveBeenCalledTimes(1);
+
+    // Re-render in active auto-scroll state
+    rerender(
+      <ReaderControls
+        {...defaultProps}
+        isAutoScrollActive={true}
+        onToggleAutoScroll={handleToggleAutoScroll}
+      />
+    );
+    expect(autoBtn.getAttribute('title')).toBe('Pausar auto-scroll');
+  });
+
+  it('renders reading pace pill when readingPaceText is passed', () => {
+    render(
+      <ReaderControls
+        {...defaultProps}
+        readingPaceText="~3 min restantes"
+      />
+    );
+
+    const pacePill = screen.getByTestId('reading-pace-pill');
+    expect(pacePill).toBeDefined();
+    expect(pacePill.textContent).toContain('~3 min restantes');
+  });
 });

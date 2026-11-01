@@ -11,6 +11,8 @@ import {
   HelpCircle,
   GalleryHorizontal,
   Sliders,
+  Play,
+  Pause,
 } from 'lucide-react';
 
 export type ReaderBackgroundTheme = '#000000' | '#000' | '#080c14' | '#1a1612' | string;
@@ -54,6 +56,10 @@ export interface ReaderControlsProps {
   // Sprint 10.3: Visual customizer & Ambilight settings
   isVisualSettingsOpen?: boolean;
   onOpenVisualSettings?: () => void;
+  // Sprint 14: Auto-scroll & reading pace
+  isAutoScrollActive?: boolean;
+  onToggleAutoScroll?: () => void;
+  readingPaceText?: string;
 }
 
 export const ReaderControls: React.FC<ReaderControlsProps> = ({
@@ -78,6 +84,9 @@ export const ReaderControls: React.FC<ReaderControlsProps> = ({
   onOpenShortcuts,
   isVisualSettingsOpen = false,
   onOpenVisualSettings,
+  isAutoScrollActive = false,
+  onToggleAutoScroll,
+  readingPaceText,
 }) => {
   const [internalBg, setInternalBg] = useState<string>(currentBackground || '#080c14');
   const [isFullscreen, setIsFullscreen] = useState(false);
@@ -240,6 +249,35 @@ export const ReaderControls: React.FC<ReaderControlsProps> = ({
             </span>
           )}
         </div>
+
+        {/* Reading Pace Estimate (Sprint 14) */}
+        {readingPaceText && (
+          <div
+            data-testid="reading-pace-pill"
+            className="hidden sm:flex items-center gap-1 px-2.5 py-1 rounded-full bg-slate-900/90 border border-slate-700/60 text-slate-300 text-[11px] font-mono select-none"
+            title="Velocidad y tiempo estimado de lectura"
+          >
+            <span>{readingPaceText}</span>
+          </div>
+        )}
+
+        {/* Auto-Scroll Toggle (Sprint 14) */}
+        {onToggleAutoScroll && (
+          <button
+            data-testid="toggle-autoscroll-btn"
+            onClick={onToggleAutoScroll}
+            className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl border text-xs font-semibold transition-all ${
+              isAutoScrollActive
+                ? 'bg-emerald-500/20 text-emerald-400 border-emerald-500/50 shadow-[0_0_12px_rgba(16,185,129,0.3)] animate-pulse'
+                : 'bg-gray-900 hover:bg-gray-800 border-gray-800 text-gray-300 hover:text-white'
+            }`}
+            title={isAutoScrollActive ? 'Pausar auto-scroll' : 'Iniciar auto-scroll'}
+            aria-label={isAutoScrollActive ? 'Pausar auto-scroll' : 'Iniciar auto-scroll'}
+          >
+            {isAutoScrollActive ? <Pause className="w-3.5 h-3.5 text-emerald-400" /> : <Play className="w-3.5 h-3.5 text-emerald-400" />}
+            <span className="hidden md:inline">Auto</span>
+          </button>
+        )}
 
         {/* Shortcuts HUD trigger button */}
         <button

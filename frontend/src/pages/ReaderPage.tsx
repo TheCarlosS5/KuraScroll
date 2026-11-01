@@ -9,6 +9,8 @@ import {
   loadReaderDisplaySettings,
 } from '../components/reader/ReaderVisualSettingsModal.js';
 import { useReadingProgress } from '../hooks/useReadingProgress.js';
+import { useAutoScroll } from '../hooks/useAutoScroll.js';
+import { ReadingStatsTracker } from '../services/reading-stats-service.js';
 
 export interface ReaderPageProps {
   chapterId: string;
@@ -45,6 +47,14 @@ export const ReaderPage: React.FC<ReaderPageProps> = ({
     } catch {
       return '#080c14';
     }
+  });
+
+  const [readingTracker] = useState(() => new ReadingStatsTracker(18));
+  const [readingPaceText, setReadingPaceText] = useState<string>('');
+
+  const autoScroll = useAutoScroll({
+    speed: 50,
+    pauseOnUserInteraction: true,
   });
 
   const handleBackgroundChange = (bg: string) => {
@@ -87,6 +97,11 @@ export const ReaderPage: React.FC<ReaderPageProps> = ({
   const handlePageChange = (page: number) => {
     setCurrentPage(page);
     saveProgress(chapterId, page, 0, page === manifest?.pages?.length);
+
+    readingTracker.recordPageAdvance();
+    const total = manifest?.pages?.length || 1;
+    const estimate = readingTracker.estimateRemainingChapterTime(page, total);
+    setReadingPaceText(estimate.formattedRemaining);
   };
 
   const handleSelectPageFromScrubber = (pageNumber: number) => {
@@ -175,6 +190,9 @@ export const ReaderPage: React.FC<ReaderPageProps> = ({
           onOpenShortcuts={() => setShowShortcuts(true)}
           isVisualSettingsOpen={isVisualSettingsOpen}
           onOpenVisualSettings={() => setIsVisualSettingsOpen(true)}
+          isAutoScrollActive={autoScroll.isActive}
+          onToggleAutoScroll={readerMode === 'webtoon' ? autoScroll.toggle : undefined}
+          readingPaceText={readingPaceText}
         />
       )}
 

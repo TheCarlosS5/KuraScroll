@@ -13,6 +13,15 @@ export interface SyncQueueItem extends LocalReadingProgress {
   queuedAt: number;
 }
 
+export type SeriesShelfType = 'reading' | 'completed' | 'plan_to_read' | 'dropped' | 'none';
+
+export interface SeriesShelfItem {
+  seriesId: string;
+  shelf: SeriesShelfType;
+  favorite: boolean;
+  updatedAt: number;
+}
+
 export class LocalStorageService {
   private db: IDBPDatabase | null = null;
 
@@ -21,7 +30,7 @@ export class LocalStorageService {
   async init(): Promise<void> {
     if (this.db) return;
 
-    this.db = await openDB(this.dbName, 2, {
+    this.db = await openDB(this.dbName, 3, {
       upgrade(db) {
         if (!db.objectStoreNames.contains('reading_progress')) {
           db.createObjectStore('reading_progress', { keyPath: 'seriesId' });
@@ -31,6 +40,9 @@ export class LocalStorageService {
         }
         if (!db.objectStoreNames.contains('sync_queue')) {
           db.createObjectStore('sync_queue', { keyPath: 'seriesId' });
+        }
+        if (!db.objectStoreNames.contains('series_shelves')) {
+          db.createObjectStore('series_shelves', { keyPath: 'seriesId' });
         }
       },
     });
@@ -105,6 +117,61 @@ export class LocalStorageService {
     if (!this.db) return [];
     const rows = await this.db.getAll('bookmarks');
     return rows.map((r: any) => r.seriesId);
+  }
+
+  // Sprint 10.4: User Bookshelf & Collections
+  async setSeriesShelf(
+    seriesId: string,
+    shelf: 'reading' | 'completed' | 'plan_to_read' | 'dropped' | 'none',
+    favorite?: boolean
+  ): Promise<void> {
+    await this.init();
+    if (!this.db) return;
+
+    const existing = await this.getSeriesShelf(seriesId);
+    const favValue = favorite !== undefined ? favorite : (existing?.favorite ?? false);
+
+    if (shelf === 'none' && !favValue) {
+      await this.db.delete('series_shelves', seriesId);
+      await this.toggleBookmark(seriesId, false);
+    } else {
+      await this.db.put('series_shelves', {
+        seriesId,
+        shelf,
+        favorite: favValue,
+        updatedAt: Date.now(),
+      });
+      if (favValue) {
+        await this.toggleBookmark(seriesId, true);
+      } else if (existing?.favorite) {
+        await this.toggleBookmark(seriesId, false);
+      }
+    }
+  }
+
+  async getSeriesShelf(seriesId: string): Promise<{ shelf: string; favorite: boolean } | null> {
+    await this.init();
+    if (!this.db) return null;
+    const item = await this.db.get('series_shelves', seriesId);
+    if (!item) return null;
+    return {
+      shelf: item.shelf,
+      favorite: !!item.favorite,
+    };
+  }
+
+  async getAllShelvedSeries(): Promise<Record<string, { shelf: string; favorite: boolean }>> {
+    await this.init();
+    if (!this.db) return {};
+    const items = await this.db.getAll('series_shelves');
+    const record: Record<string, { shelf: string; favorite: boolean }> = {};
+    for (const item of items) {
+      record[item.seriesId] = {
+        shelf: item.shelf,
+        favorite: !!item.favorite,
+      };
+    }
+    return record;
   }
 
   async close(): Promise<void> {

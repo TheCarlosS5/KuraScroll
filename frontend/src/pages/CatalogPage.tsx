@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { SearchBar } from '../components/catalog/SearchBar.js';
-import { MangaCard } from '../components/catalog/MangaCard.js';
+import { SeriesCard } from '../components/catalog/SeriesCard.js';
 import { CatalogFilters } from '../components/catalog/CatalogFilters.js';
 import { localClientStorage } from '../services/local-storage-service.js';
 import { BookOpen } from 'lucide-react';
@@ -17,6 +17,7 @@ export const CatalogPage: React.FC<CatalogPageProps> = ({
   onSelectSeries,
 }) => {
   const [items, setItems] = useState<any[]>([]);
+  const [shelves, setShelves] = useState<Record<string, { shelf: string; favorite: boolean }>>({});
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
 
@@ -26,12 +27,39 @@ export const CatalogPage: React.FC<CatalogPageProps> = ({
   );
   const [selectedStatus, setSelectedStatus] = useState<string>('all');
   const [selectedGenre, setSelectedGenre] = useState<string>('all');
+  const [selectedShelf, setSelectedShelf] = useState<string>('all');
+  const [onlyFavorites, setOnlyFavorites] = useState<boolean>(false);
 
   useEffect(() => {
     if (selectedCategory) {
       setSelectedType(selectedCategory.toLowerCase());
     }
   }, [selectedCategory]);
+
+  // Load user shelves from IndexedDB
+  const refreshShelves = async () => {
+    try {
+      const shelved = await localClientStorage.getAllShelvedSeries();
+      const bookmarks = await localClientStorage.getBookmarks();
+
+      // Ensure bookmarks are recognized as favorites even if not in shelves yet
+      const combined: Record<string, { shelf: string; favorite: boolean }> = { ...shelved };
+      for (const b of bookmarks) {
+        if (!combined[b]) {
+          combined[b] = { shelf: 'none', favorite: true };
+        } else {
+          combined[b].favorite = true;
+        }
+      }
+      setShelves(combined);
+    } catch {
+      // IndexedDB fallback
+    }
+  };
+
+  useEffect(() => {
+    refreshShelves();
+  }, []);
 
   useEffect(() => {
     async function loadSeries() {
@@ -70,34 +98,61 @@ export const CatalogPage: React.FC<CatalogPageProps> = ({
     loadSeries();
   }, [searchQuery, isBookmarksView]);
 
+  const handleToggleFavorite = async (slug: string, isFav: boolean) => {
+    const existing = shelves[slug] || { shelf: 'none', favorite: false };
+    await localClientStorage.setSeriesShelf(slug, existing.shelf as any, isFav);
+    await refreshShelves();
+  };
+
   const handleResetFilters = () => {
     setSelectedType('all');
     setSelectedStatus('all');
     setSelectedGenre('all');
+    setSelectedShelf('all');
+    setOnlyFavorites(false);
   };
 
-  // Client-side filtering across Type, Status, and Genres
+  // Client-side filtering across Shelf, Favorites, Type, Status, and Genres
   const filteredItems = useMemo(() => {
     return items.filter((item) => {
-      // Type matching
+      const seriesKey = item.slug || item.id;
+      const shelfInfo = shelves[seriesKey] || shelves[item.id] || shelves[item.slug];
+      const isFav = !!shelfInfo?.favorite;
+      const currentShelf = shelfInfo?.shelf || 'none';
+
+      // 1. Only Favorites filter
+      if (onlyFavorites && !isFav) {
+        return false;
+      }
+
+      // 2. Shelf / Collection filter
+      if (selectedShelf !== 'all') {
+        if (selectedShelf === 'favorites') {
+          if (!isFav) return false;
+        } else if (currentShelf !== selectedShelf) {
+          return false;
+        }
+      }
+
+      // 3. Type matching
       if (selectedType !== 'all') {
         if ((item.type || '').toLowerCase() !== selectedType.toLowerCase()) {
           return false;
         }
       }
 
-      // Status matching
+      // 4. Status matching
       if (selectedStatus !== 'all') {
         if ((item.status || '').toLowerCase() !== selectedStatus.toLowerCase()) {
           return false;
         }
       }
 
-      // Genre matching
+      // 5. Genre matching
       if (selectedGenre !== 'all') {
         const target = selectedGenre.toLowerCase();
 
-        // 1. Check genres array
+        // Check genres array
         if (Array.isArray(item.genres)) {
           const found = item.genres.some((g: any) => {
             const name = (typeof g === 'string' ? g : g?.name || '').toLowerCase();
@@ -106,22 +161,22 @@ export const CatalogPage: React.FC<CatalogPageProps> = ({
           if (found) return true;
         }
 
-        // 2. Check single genre string
+        // Check single genre string
         if (item.genre && typeof item.genre === 'string' && item.genre.toLowerCase().includes(target)) {
           return true;
         }
 
-        // 3. Check demographic (e.g. Shonen vs shounen)
+        // Check demographic (e.g. Shonen vs shounen)
         if (target.includes('shonen') && item.demographic && item.demographic.toLowerCase().includes('shou')) {
           return true;
         }
 
-        // 4. Check synopsis fallback
+        // Check synopsis fallback
         if (item.synopsis && typeof item.synopsis === 'string' && item.synopsis.toLowerCase().includes(target)) {
           return true;
         }
 
-        // 5. Check tags array
+        // Check tags array
         if (Array.isArray(item.tags)) {
           if (item.tags.some((t: any) => String(t).toLowerCase().includes(target))) {
             return true;
@@ -133,7 +188,7 @@ export const CatalogPage: React.FC<CatalogPageProps> = ({
 
       return true;
     });
-  }, [items, selectedType, selectedStatus, selectedGenre]);
+  }, [items, shelves, onlyFavorites, selectedShelf, selectedType, selectedStatus, selectedGenre]);
 
   return (
     <div className="max-w-7xl mx-auto px-4 lg:px-8 py-8">
@@ -156,7 +211,7 @@ export const CatalogPage: React.FC<CatalogPageProps> = ({
       {/* Multilingual Search Bar */}
       {!isBookmarksView && <SearchBar onSearch={setSearchQuery} />}
 
-      {/* Pill Filter Bar (Tipo, Estado, Géneros) */}
+      {/* Pill Filter Bar (Colección, Tipo, Estado, Géneros) */}
       <CatalogFilters
         selectedType={selectedType}
         onSelectType={setSelectedType}
@@ -164,12 +219,16 @@ export const CatalogPage: React.FC<CatalogPageProps> = ({
         onSelectStatus={setSelectedStatus}
         selectedGenre={selectedGenre}
         onSelectGenre={setSelectedGenre}
+        selectedShelf={selectedShelf}
+        onSelectShelf={setSelectedShelf}
+        onlyFavorites={onlyFavorites}
+        onToggleOnlyFavorites={setOnlyFavorites}
         filteredCount={filteredItems.length}
         totalCount={items.length}
         onResetFilters={handleResetFilters}
       />
 
-      {/* Grid of Manga Cards */}
+      {/* Grid of Series Cards */}
       {loading ? (
         <div className="flex flex-col items-center justify-center py-24">
           <div className="w-10 h-10 border-4 border-cyan-500/20 border-t-cyan-400 rounded-full animate-spin mb-4" />
@@ -186,10 +245,14 @@ export const CatalogPage: React.FC<CatalogPageProps> = ({
               ? 'No hay series que coincidan con los filtros seleccionados.'
               : 'Usa el comando CLI para importar tu primer capítulo a la biblioteca.'}
           </p>
-          {(selectedType !== 'all' || selectedStatus !== 'all' || selectedGenre !== 'all') && (
+          {(selectedType !== 'all' ||
+            selectedStatus !== 'all' ||
+            selectedGenre !== 'all' ||
+            selectedShelf !== 'all' ||
+            onlyFavorites) && (
             <button
               onClick={handleResetFilters}
-              className="px-4 py-2 rounded-xl bg-gray-800 hover:bg-gray-700 text-cyan-400 text-xs font-semibold transition-colors"
+              className="px-4 py-2 rounded-xl bg-gray-800 hover:bg-gray-700 text-cyan-400 text-xs font-semibold transition-colors cursor-pointer"
             >
               Restablecer filtros
             </button>
@@ -197,18 +260,26 @@ export const CatalogPage: React.FC<CatalogPageProps> = ({
         </div>
       ) : (
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4 md:gap-6">
-          {filteredItems.map((item) => (
-            <MangaCard
-              key={item.id}
-              id={item.id}
-              slug={item.slug}
-              titlePrimary={item.titlePrimary || item.title_primary}
-              type={item.type}
-              status={item.status}
-              coverImage={item.coverImage || item.cover_image}
-              onClick={onSelectSeries}
-            />
-          ))}
+          {filteredItems.map((item) => {
+            const seriesKey = item.slug || item.id;
+            const shelfInfo = shelves[seriesKey] || shelves[item.id] || shelves[item.slug];
+
+            return (
+              <SeriesCard
+                key={item.id}
+                id={item.id}
+                slug={item.slug}
+                titlePrimary={item.titlePrimary || item.title_primary}
+                type={item.type}
+                status={item.status}
+                coverImage={item.coverImage || item.cover_image}
+                shelf={shelfInfo?.shelf}
+                isFavorite={!!shelfInfo?.favorite}
+                onClick={onSelectSeries}
+                onToggleFavorite={handleToggleFavorite}
+              />
+            );
+          })}
         </div>
       )}
     </div>

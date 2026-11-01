@@ -14,6 +14,10 @@ describe('CatalogFilters Component', () => {
     filteredCount: 12,
     totalCount: 45,
     onResetFilters: vi.fn(),
+    selectedShelf: 'all',
+    onSelectShelf: vi.fn(),
+    onlyFavorites: false,
+    onToggleOnlyFavorites: vi.fn(),
   };
 
   it('renders all filter groups and pill options', () => {
@@ -21,6 +25,13 @@ describe('CatalogFilters Component', () => {
 
     // Check main container
     expect(screen.getByTestId('catalog-filters')).toBeDefined();
+
+    // Check Shelf / Collection options
+    expect(screen.getByTestId('filter-shelf-all')).toBeDefined();
+    expect(screen.getByTestId('filter-shelf-favorites')).toBeDefined();
+    expect(screen.getByTestId('filter-shelf-reading')).toBeDefined();
+    expect(screen.getByTestId('filter-shelf-plan_to_read')).toBeDefined();
+    expect(screen.getByTestId('filter-shelf-completed')).toBeDefined();
 
     // Check Type options
     expect(screen.getByTestId('filter-type-all')).toBeDefined();
@@ -60,6 +71,7 @@ describe('CatalogFilters Component', () => {
         selectedType="manhwa"
         selectedStatus="ongoing"
         selectedGenre="Isekai"
+        selectedShelf="reading"
       />
     );
 
@@ -78,12 +90,16 @@ describe('CatalogFilters Component', () => {
 
     const activeGenre = screen.getByTestId('filter-genre-isekai');
     expect(activeGenre.className).toContain('border-[#dc2626]');
+
+    const activeShelf = screen.getByTestId('filter-shelf-reading');
+    expect(activeShelf.className).toContain('border-[#dc2626]');
   });
 
-  it('calls onSelectType, onSelectStatus, and onSelectGenre when pills are clicked', () => {
+  it('calls onSelectType, onSelectStatus, onSelectGenre, and onSelectShelf when pills are clicked', () => {
     const handleSelectType = vi.fn();
     const handleSelectStatus = vi.fn();
     const handleSelectGenre = vi.fn();
+    const handleSelectShelf = vi.fn();
 
     render(
       <CatalogFilters
@@ -91,6 +107,7 @@ describe('CatalogFilters Component', () => {
         onSelectType={handleSelectType}
         onSelectStatus={handleSelectStatus}
         onSelectGenre={handleSelectGenre}
+        onSelectShelf={handleSelectShelf}
       />
     );
 
@@ -102,6 +119,26 @@ describe('CatalogFilters Component', () => {
 
     fireEvent.click(screen.getByTestId('filter-genre-fantasía'));
     expect(handleSelectGenre).toHaveBeenCalledWith('Fantasía');
+
+    fireEvent.click(screen.getByTestId('filter-shelf-completed'));
+    expect(handleSelectShelf).toHaveBeenCalledWith('completed');
+  });
+
+  it('toggles favorites filter when "Mis Favoritos" button is clicked', () => {
+    const handleToggleFavs = vi.fn();
+
+    render(
+      <CatalogFilters
+        {...defaultProps}
+        onlyFavorites={false}
+        onToggleOnlyFavorites={handleToggleFavs}
+      />
+    );
+
+    const favBtn = screen.getByTestId('toggle-favorites-filter');
+    fireEvent.click(favBtn);
+
+    expect(handleToggleFavs).toHaveBeenCalledWith(true);
   });
 
   it('shows reset button when filters are active and calls onResetFilters', () => {
@@ -113,6 +150,8 @@ describe('CatalogFilters Component', () => {
         selectedType="all"
         selectedStatus="all"
         selectedGenre="all"
+        selectedShelf="all"
+        onlyFavorites={false}
         onResetFilters={handleReset}
       />
     );

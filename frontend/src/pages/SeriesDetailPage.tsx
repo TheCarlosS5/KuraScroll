@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { localClientStorage } from '../services/local-storage-service.js';
-import { ArrowLeft, BookOpen, Bookmark, CheckCircle2, Clock, Globe } from 'lucide-react';
+import { localClientStorage, SeriesShelfType } from '../services/local-storage-service.js';
+import { ArrowLeft, BookOpen, Heart, Library, CheckCircle2, Clock, Globe } from 'lucide-react';
 
 export interface SeriesDetailPageProps {
   slug: string;
@@ -15,7 +15,8 @@ export const SeriesDetailPage: React.FC<SeriesDetailPageProps> = ({
 }) => {
   const [series, setSeries] = useState<any | null>(null);
   const [loading, setLoading] = useState(true);
-  const [isBookmarked, setIsBookmarked] = useState(false);
+  const [shelf, setShelf] = useState<SeriesShelfType>('none');
+  const [isFavorite, setIsFavorite] = useState(false);
   const [lastReadChapterId, setLastReadChapterId] = useState<string | null>(null);
 
   useEffect(() => {
@@ -27,9 +28,18 @@ export const SeriesDetailPage: React.FC<SeriesDetailPageProps> = ({
           const data = await res.json();
           setSeries(data);
 
-          // Check local bookmark & progress
-          const bookmarks = await localClientStorage.getBookmarks();
-          setIsBookmarked(bookmarks.includes(slug));
+          // Check local bookshelf & favorite status
+          const shelfData = await localClientStorage.getSeriesShelf(slug);
+          if (shelfData) {
+            setShelf((shelfData.shelf as SeriesShelfType) || 'none');
+            setIsFavorite(shelfData.favorite);
+          } else {
+            // Backward compatibility fallback to bookmarks
+            const bookmarks = await localClientStorage.getBookmarks();
+            if (bookmarks.includes(slug)) {
+              setIsFavorite(true);
+            }
+          }
 
           const progress = await localClientStorage.getProgress(data.id || slug);
           if (progress) {
@@ -46,10 +56,15 @@ export const SeriesDetailPage: React.FC<SeriesDetailPageProps> = ({
     loadDetail();
   }, [slug]);
 
-  const handleToggleBookmark = async () => {
-    const nextState = !isBookmarked;
-    setIsBookmarked(nextState);
-    await localClientStorage.toggleBookmark(slug, nextState);
+  const handleShelfChange = async (newShelf: SeriesShelfType) => {
+    setShelf(newShelf);
+    await localClientStorage.setSeriesShelf(slug, newShelf, isFavorite);
+  };
+
+  const handleToggleFavorite = async () => {
+    const nextFav = !isFavorite;
+    setIsFavorite(nextFav);
+    await localClientStorage.setSeriesShelf(slug, shelf, nextFav);
   };
 
   if (loading) {
@@ -78,6 +93,14 @@ export const SeriesDetailPage: React.FC<SeriesDetailPageProps> = ({
   const chapters = series.chapters || [];
   const firstChapterId = chapters[0]?.id;
   const continueChapterId = lastReadChapterId || firstChapterId;
+
+  const shelfLabels: Record<SeriesShelfType, string> = {
+    none: 'Añadir a Biblioteca...',
+    reading: 'Leyendo',
+    plan_to_read: 'Por Leer',
+    completed: 'Completado',
+    dropped: 'Pausado',
+  };
 
   return (
     <div className="max-w-6xl mx-auto px-4 lg:px-8 py-8">
@@ -119,6 +142,11 @@ export const SeriesDetailPage: React.FC<SeriesDetailPageProps> = ({
               <span className="text-xs font-semibold uppercase px-2.5 py-0.5 rounded-md bg-gray-800 text-gray-300">
                 {series.status}
               </span>
+              {shelf !== 'none' && (
+                <span className="text-xs font-bold px-2.5 py-0.5 rounded-md bg-cyan-950/80 text-cyan-300 border border-cyan-600/70">
+                  {shelfLabels[shelf]}
+                </span>
+              )}
             </div>
 
             <h1 className="text-2xl md:text-4xl font-extrabold text-white tracking-tight mb-3">
@@ -148,28 +176,64 @@ export const SeriesDetailPage: React.FC<SeriesDetailPageProps> = ({
             </p>
           </div>
 
-          {/* Action Buttons */}
-          <div className="flex flex-wrap items-center gap-4 mt-6 pt-6 border-t border-gray-800/80">
+          {/* Action Buttons: Read, Shelf Selector & Favorite */}
+          <div className="flex flex-wrap items-center gap-3.5 mt-6 pt-6 border-t border-gray-800/80">
             {continueChapterId && (
               <button
                 onClick={() => onReadChapter(continueChapterId)}
-                className="px-6 py-3 rounded-xl bg-gradient-to-r from-cyan-500 to-indigo-600 hover:from-cyan-400 hover:to-indigo-500 text-white font-bold text-sm shadow-[0_0_20px_rgba(0,229,255,0.3)] transition-all flex items-center gap-2"
+                className="px-6 py-3 rounded-xl bg-gradient-to-r from-cyan-500 to-indigo-600 hover:from-cyan-400 hover:to-indigo-500 text-white font-bold text-sm shadow-[0_0_20px_rgba(0,229,255,0.3)] transition-all flex items-center gap-2 cursor-pointer"
               >
                 <BookOpen className="w-4 h-4" />
                 {lastReadChapterId ? 'Continuar Leyendo' : 'Empezar a Leer'}
               </button>
             )}
 
+            {/* Bookshelf Selector Dropdown */}
+            <div className="relative flex items-center bg-gray-900 border border-gray-800 rounded-xl px-3 py-1.5 hover:border-gray-700 transition-colors">
+              <Library className="w-4 h-4 text-cyan-400 mr-2 shrink-0 pointer-events-none" />
+              <select
+                data-testid="shelf-select"
+                value={shelf}
+                onChange={(e) => handleShelfChange(e.target.value as SeriesShelfType)}
+                aria-label="Seleccionar estado en biblioteca"
+                className="bg-transparent text-sm font-semibold text-gray-200 outline-none cursor-pointer pr-2 py-1.5"
+              >
+                <option value="none" className="bg-gray-900 text-gray-400">
+                  Quitar de Biblioteca
+                </option>
+                <option value="reading" className="bg-gray-900 text-cyan-300 font-medium">
+                  Leyendo
+                </option>
+                <option value="plan_to_read" className="bg-gray-900 text-violet-300 font-medium">
+                  Por Leer
+                </option>
+                <option value="completed" className="bg-gray-900 text-emerald-300 font-medium">
+                  Completado
+                </option>
+                <option value="dropped" className="bg-gray-900 text-amber-300 font-medium">
+                  Pausado
+                </option>
+              </select>
+            </div>
+
+            {/* Favorite Toggle Button */}
             <button
-              onClick={handleToggleBookmark}
-              className={`px-4 py-3 rounded-xl border text-sm font-semibold transition-all flex items-center gap-2 ${
-                isBookmarked
-                  ? 'bg-violet-900/40 border-violet-600 text-violet-300'
-                  : 'bg-gray-900 border-gray-800 text-gray-300 hover:text-white'
+              data-testid="favorite-toggle-btn"
+              onClick={handleToggleFavorite}
+              className={`px-4 py-3 rounded-xl border text-sm font-semibold transition-all flex items-center gap-2 cursor-pointer ${
+                isFavorite
+                  ? 'bg-[#dc2626]/20 border-[#dc2626]/70 text-[#dc2626] shadow-[0_0_15px_rgba(220,38,38,0.3)]'
+                  : 'bg-gray-900 border-gray-800 text-gray-300 hover:text-white hover:bg-gray-800'
               }`}
+              title={isFavorite ? 'Quitar de favoritos' : 'Añadir a favoritos'}
+              aria-label={isFavorite ? 'Quitar de favoritos' : 'Añadir a favoritos'}
             >
-              <Bookmark className={`w-4 h-4 ${isBookmarked ? 'fill-violet-400 text-violet-400' : ''}`} />
-              {isBookmarked ? 'Guardado en Favoritos' : 'Añadir a Favoritos'}
+              <Heart
+                className={`w-4 h-4 transition-transform duration-200 ${
+                  isFavorite ? 'fill-[#dc2626] text-[#dc2626] scale-110' : 'text-gray-400'
+                }`}
+              />
+              <span>{isFavorite ? 'En Favoritos' : 'Añadir a Favoritos'}</span>
             </button>
           </div>
         </div>
@@ -179,36 +243,49 @@ export const SeriesDetailPage: React.FC<SeriesDetailPageProps> = ({
       <div className="mt-10">
         <h2 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
           <span>Capítulos Disponibles</span>
-          <span className="text-xs px-2 py-0.5 rounded-full bg-gray-800 text-gray-400 font-mono">
+          <span className="text-xs px-2 py-0.5 rounded-full bg-gray-800 text-gray-400">
             {chapters.length}
           </span>
         </h2>
 
         {chapters.length === 0 ? (
-          <div className="p-8 text-center bg-gray-900/40 rounded-2xl border border-gray-800 text-gray-500 text-sm">
-            No hay capítulos cargados todavía. Usa el CLI de ingesta para añadir archivos CBZ o imágenes.
+          <div className="p-8 text-center bg-gray-900/40 rounded-2xl border border-gray-800 text-gray-400 text-sm">
+            No hay capítulos cargados para esta serie todavía.
           </div>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
-            {chapters.map((c: any) => (
-              <div
-                key={c.id}
-                onClick={() => onReadChapter(c.id)}
-                className="p-4 rounded-xl bg-[#0c121e] border border-gray-800/80 hover:border-cyan-500/50 hover:bg-gray-900/80 cursor-pointer transition-all flex items-center justify-between group"
-              >
-                <div>
-                  <h4 className="font-bold text-sm text-gray-200 group-hover:text-cyan-400 transition-colors">
-                    Capítulo {c.chapterNumber}
-                  </h4>
-                  <p className="text-xs text-gray-500 line-clamp-1">
-                    {c.title || `${c.pageCount} páginas`}
-                  </p>
+            {chapters.map((ch: any) => {
+              const isCurrent = lastReadChapterId === ch.id;
+
+              return (
+                <div
+                  key={ch.id}
+                  onClick={() => onReadChapter(ch.id)}
+                  className={`p-4 rounded-xl border cursor-pointer transition-all duration-200 flex items-center justify-between ${
+                    isCurrent
+                      ? 'bg-cyan-950/40 border-cyan-500/50 hover:bg-cyan-950/60'
+                      : 'bg-[#0e1422] border-gray-800/80 hover:border-gray-700 hover:bg-[#131b2e]'
+                  }`}
+                >
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <span className="font-bold text-sm text-gray-200">
+                        Capítulo {ch.chapterNumber}
+                      </span>
+                      {isCurrent && (
+                        <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded bg-cyan-900/60 text-cyan-400 border border-cyan-700/50">
+                          Último leído
+                        </span>
+                      )}
+                    </div>
+                    {ch.title && (
+                      <p className="text-xs text-gray-400 line-clamp-1 mt-0.5">{ch.title}</p>
+                    )}
+                  </div>
+                  <div className="text-xs text-cyan-400 font-medium">Leer →</div>
                 </div>
-                <span className="text-xs text-gray-400 group-hover:text-cyan-400 font-medium">
-                  Leer →
-                </span>
-              </div>
-            ))}
+              );
+            })}
           </div>
         )}
       </div>

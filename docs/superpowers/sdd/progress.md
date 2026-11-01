@@ -1,9 +1,9 @@
 # SDD ledger — plan: docs/superpowers/plans/2026-11-01-kura-scroll-master-plan.md
 
-- **Status:** Complete & Iterating (Sprint 11 Verified, 310 Tests Passing)
+- **Status:** Complete & Iterating (Sprint 12 Verified, 317 Tests Passing)
 - **Orchestrator:** Antigravity AI Orchestrator
 - **Branch:** main (isolated in `C:\Users\Admin\dev\kura-scroll`)
-- **Total Test Suites:** 51 test files, 310 passing tests (201 backend + 109 frontend, 100% PASS)
+- **Total Test Suites:** 52 test files, 317 passing tests (208 backend + 109 frontend, 100% PASS)
 
 ## Rulings & Decisions
 - Ruling: Standalone Sibling Project ("Proyecto Hermano") chosen as requested by Carlos to prevent monolithic coupling with KuraStream while sharing branding/logo (KS).
@@ -54,4 +54,8 @@
   - [x] Task 11.4: Fastify Backup Routes (`POST /api/v1/backup/import` & `GET /api/v1/backup/export`)
   - [x] Task 11.5: Frontend Backup Modal & Drag-and-Drop Ingestion (`BackupModal.tsx`, 15/15 tests)
   - [x] Task 11.6: Accessibility Audit & Focus Trap Hooks (`useFocusTrap.ts`, `ShortcutsModal.tsx`)
-- [ ] Part 12: Continuous Autonomous Polish & End-to-End User Ergonomics
+- [x] Part 12: Continuous Autonomous Polish & End-to-End User Ergonomics (Commit bf6d93d)
+  - [x] Task 12.1: Multi-Mode Ingestion CLI (`--volume`, `--backup`, `--chap`, 5/5 tests)
+  - [x] Task 12.2: Hardened Windows 1-Click Production Launcher (`scripts/start-local.ps1`)
+  - [x] Task 12.3: Master E2E System Verification Suite (`sprint12-master-verification.test.ts`, 5/5 tests)
+- [ ] Part 13: Perpetual System Maintenance & Standing Orchestration Heartbeat

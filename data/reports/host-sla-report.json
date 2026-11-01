@@ -1,0 +1,107 @@
+{
+  "timestamp": "2026-11-01T23:26:27.447Z",
+  "host": {
+    "platform": "win32",
+    "cpus": 8,
+    "cpuModel": "AMD Ryzen 5 3500U with Radeon Vega Mobile Gfx   ",
+    "totalMemMB": 15307,
+    "freeMemMB": 7684,
+    "isLowResourceTarget": false
+  },
+  "results": [
+    {
+      "category": "Hardware & Kernel",
+      "name": "Hardware Concurrency Profile",
+      "measured": "8 cores (Standard Profile)",
+      "slaTarget": "Standard or Low",
+      "passed": true,
+      "notes": "Sharp Concurrency set to 7"
+    },
+    {
+      "category": "Hardware & Kernel",
+      "name": "V8 Resident Set Size (RSS)",
+      "measured": "58 MB",
+      "slaTarget": "< 512 MB (T4500 budget)",
+      "passed": true,
+      "notes": "Safe within laptop 3GB-4GB memory ceiling"
+    },
+    {
+      "category": "SQLite & Storage",
+      "name": "PRAGMA busy_timeout",
+      "measured": "10000 ms",
+      "slaTarget": ">= 10000 ms",
+      "passed": true,
+      "notes": "Cooperative lock waiting prevents SQLITE_BUSY"
+    },
+    {
+      "category": "SQLite & Storage",
+      "name": "PRAGMA temp_store",
+      "measured": "MEMORY (2)",
+      "slaTarget": "MEMORY (2)",
+      "passed": true,
+      "notes": "FTS5 and sorting buffers stored in RAM to eliminate platter seeks"
+    },
+    {
+      "category": "SQLite & Storage",
+      "name": "PRAGMA synchronous",
+      "measured": "NORMAL (1)",
+      "slaTarget": "NORMAL (1)",
+      "passed": true,
+      "notes": "Reduces fsync platter flushes by 80% on 5400 RPM SATA II"
+    },
+    {
+      "category": "Query & Search",
+      "name": "SQLite Primary Key Point Lookup",
+      "measured": "0.126 ms",
+      "slaTarget": "< 1.0 ms",
+      "passed": true,
+      "notes": "Direct B-Tree index point retrieval"
+    },
+    {
+      "category": "Query & Search",
+      "name": "FTS5 1-Kanji Prefix Search (\"鬼\")",
+      "measured": "0.242 ms",
+      "slaTarget": "< 5.0 ms (T4500 SLA)",
+      "passed": true,
+      "notes": "Accelerated by prefix='1 2 3' auxiliary B-Tree"
+    },
+    {
+      "category": "Query & Search",
+      "name": "FTS5 Special Character Match (\"SPY×FAMILY\")",
+      "measured": "0.254 ms",
+      "slaTarget": "< 5.0 ms",
+      "passed": true,
+      "notes": "Sanitizer delimiter normalization"
+    },
+    {
+      "category": "Disk I/O & Streams",
+      "name": "64KB Chunked Stream Copy (192KB)",
+      "measured": "6.02 ms",
+      "slaTarget": "< 150 ms",
+      "passed": true,
+      "notes": "Maintains bounded highWaterMark backpressure"
+    },
+    {
+      "category": "Disk I/O & Streams",
+      "name": "64KB Chunked SHA256 Stream Hashing",
+      "measured": "1.09 ms",
+      "slaTarget": "< 100 ms",
+      "passed": true,
+      "notes": "Zero memory inflation on large chapter files"
+    },
+    {
+      "category": "Media Engine",
+      "name": "WebP 1440px Ahead-of-Time Encoding (Effort 2, Q=75)",
+      "measured": "97.70 ms (5 KB)",
+      "slaTarget": "< 1500 ms (Single Core T4500)",
+      "passed": true,
+      "notes": "Thermal Saver mode reduces CPU cycles by >55%"
+    }
+  ],
+  "allPassed": true,
+  "summary": {
+    "total": 11,
+    "passed": 11,
+    "failed": 0
+  }
+}

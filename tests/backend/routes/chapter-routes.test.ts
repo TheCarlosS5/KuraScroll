@@ -60,4 +60,28 @@ describe('Chapter Routes & Navigation Pointers', () => {
     const res = await app.inject({ method: 'GET', url: '/api/v1/chapters/nonexistent' });
     expect(res.statusCode).toBe(404);
   });
+
+  it('GET /api/v1/metrics/cache returns live ByteLRU statistics', async () => {
+    // Call manifest to trigger a cache populate
+    await app.inject({ method: 'GET', url: '/api/v1/chapters/c1' });
+    // Call again to hit the cache
+    await app.inject({ method: 'GET', url: '/api/v1/chapters/c1' });
+
+    const res = await app.inject({ method: 'GET', url: '/api/v1/metrics/cache' });
+    expect(res.statusCode).toBe(200);
+    const body = res.json();
+
+    expect(body.manifestCache).toBeDefined();
+    expect(body.imageCache).toBeDefined();
+    expect(body.manifestCache.hits).toBeGreaterThanOrEqual(1);
+    expect(body.manifestCache.maxBytes).toBe(32 * 1024 * 1024);
+  });
+
+  it('blocks path traversal attempts on page retrieval', async () => {
+    const res = await app.inject({
+      method: 'GET',
+      url: '/api/v1/chapters/c1/pages/..%2F..%2Fsensitive.txt',
+    });
+    expect(res.statusCode).toBe(400);
+  });
 });

@@ -1,7 +1,10 @@
 import { FastifyInstance } from 'fastify';
+import path from 'node:path';
+import fs from 'node:fs';
 import { DatabaseInstance } from '../db/database.js';
 import { ChapterRepository } from '../repositories/chapter-repository.js';
 import { ingestChapter } from '../services/chapter-ingestion-service.js';
+import { manifestLoader, imageLoader, manifestCache, imageCache } from '../cache/media-cache.js';
 
 export function registerChapterRoutes(
   app: FastifyInstance,
@@ -10,10 +13,24 @@ export function registerChapterRoutes(
 ): void {
   const repo = new ChapterRepository(db);
 
-  // Get chapter manifest with zero-CLS page dimensions & navigation pointers
+  // Cache metrics endpoint
+  app.get('/api/v1/metrics/cache', async () => {
+    return {
+      manifestCache: manifestCache.getMetrics(),
+      imageCache: imageCache.getMetrics(),
+    };
+  });
+
+  // Get chapter manifest with zero-CLS page dimensions & navigation pointers (LRU cached)
   app.get('/api/v1/chapters/:chapterId', async (req, reply) => {
     const { chapterId } = req.params as { chapterId: string };
-    const detail = repo.getChapterWithPages(chapterId);
+
+    const detail = await manifestLoader.getOrLoad(chapterId, async () => {
+      const dbResult = repo.getChapterWithPages(chapterId);
+      if (!dbResult) return null;
+      const sizeBytes = Buffer.byteLength(JSON.stringify(dbResult), 'utf8') * 2;
+      return { value: dbResult, size: sizeBytes };
+    });
 
     if (!detail) {
       reply.status(404);
@@ -25,6 +42,43 @@ export function registerChapterRoutes(
     }
 
     return detail;
+  });
+
+  // Get chapter page image directly with ByteLRU memory caching for 4TB HDD de-thrashing
+  app.get('/api/v1/chapters/:chapterId/pages/:pageFile', async (req, reply) => {
+    const { chapterId, pageFile } = req.params as { chapterId: string; pageFile: string };
+
+    // Prevent directory traversal on pageFile
+    if (pageFile.includes('..') || pageFile.includes('/') || pageFile.includes('\\')) {
+      reply.status(400);
+      return { statusCode: 400, error: 'Bad Request', message: 'Invalid page file name' };
+    }
+
+    const cacheKey = `${chapterId}/${pageFile}`;
+    const buffer = await imageLoader.getOrLoad(cacheKey, async () => {
+      const chapter = repo.getChapter(chapterId);
+      if (!chapter) return null;
+
+      const physicalPath = path.join(storageRoot, chapter.storagePath, pageFile);
+      if (!fs.existsSync(physicalPath)) return null;
+
+      const fileBuffer = await fs.promises.readFile(physicalPath);
+      return { value: fileBuffer, size: fileBuffer.length };
+    });
+
+    if (!buffer) {
+      reply.status(404);
+      return {
+        statusCode: 404,
+        error: 'Not Found',
+        message: `Page '${pageFile}' not found for chapter '${chapterId}'`,
+      };
+    }
+
+    reply
+      .header('Content-Type', 'image/webp')
+      .header('Cache-Control', 'public, max-age=31536000, immutable')
+      .send(buffer);
   });
 
   // Trigger chapter ingestion & optimization

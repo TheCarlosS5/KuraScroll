@@ -11,10 +11,15 @@ import { registerProgressRoutes } from './routes/progress-routes.js';
 export interface AppOptions {
   db?: DatabaseInstance;
   storageRoot?: string;
+  bodyLimit?: number;
 }
 
 export function buildApp(options: AppOptions = {}): FastifyInstance {
-  const app = Fastify({ logger: false });
+  const bodyLimit = options.bodyLimit ?? 1048576; // Default: 1MB body limit
+  const app = Fastify({
+    logger: false,
+    bodyLimit,
+  });
 
   const storageRoot = options.storageRoot
     ? path.resolve(options.storageRoot)

@@ -102,6 +102,15 @@ export class ByteLRU<T = unknown> {
     }
   }
 
+  resetStats(): void {
+    this.stats = {
+      hits: 0,
+      misses: 0,
+      evictions: 0,
+      rejected: 0,
+    };
+  }
+
   getMetrics(): ByteLRUMetrics {
     const totalRequests = this.stats.hits + this.stats.misses;
     return {

@@ -131,4 +131,36 @@ describe('ReaderControls Component', () => {
     fireEvent.click(nextBtn);
     expect(handleSelectChapter).toHaveBeenCalledWith('ch-43');
   });
+
+  it('renders double-page toggle button when in manga mode and handles toggling', () => {
+    const handleToggleDoublePage = vi.fn();
+    render(
+      <ReaderControls
+        {...defaultProps}
+        readerMode="manga-rtl"
+        doublePage={false}
+        onToggleDoublePage={handleToggleDoublePage}
+      />
+    );
+
+    const toggleBtn = screen.getByTestId('toggle-double-page-btn');
+    expect(toggleBtn).toBeDefined();
+    fireEvent.click(toggleBtn);
+    expect(handleToggleDoublePage).toHaveBeenCalledWith(true);
+  });
+
+  it('handles shortcuts help button click', () => {
+    const handleOpenShortcuts = vi.fn();
+    render(
+      <ReaderControls
+        {...defaultProps}
+        onOpenShortcuts={handleOpenShortcuts}
+      />
+    );
+
+    const helpBtn = screen.getByTestId('shortcuts-help-btn');
+    expect(helpBtn).toBeDefined();
+    fireEvent.click(helpBtn);
+    expect(handleOpenShortcuts).toHaveBeenCalled();
+  });
 });

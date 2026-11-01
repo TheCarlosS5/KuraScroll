@@ -82,6 +82,17 @@ export class ChapterRepository {
     this.db.prepare('UPDATE chapters SET page_count = ? WHERE id = ?').run(pages.length, chapterId);
   }
 
+  getChapter(chapterId: string): { id: string; seriesId: string; storagePath: string } | null {
+    const stmt = this.db.prepare('SELECT id, series_id, storage_path FROM chapters WHERE id = ?');
+    const row = stmt.get(chapterId) as any;
+    if (!row) return null;
+    return {
+      id: row.id,
+      seriesId: row.series_id,
+      storagePath: row.storage_path,
+    };
+  }
+
   getChapterWithPages(chapterId: string): ChapterDetail | null {
     const chapStmt = this.db.prepare('SELECT * FROM chapters WHERE id = ?');
     const chapRow = chapStmt.get(chapterId) as any;

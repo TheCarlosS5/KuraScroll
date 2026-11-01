@@ -10,3 +10,5 @@ data/kura-scroll.db*
 .superpowers/sdd/*
 !docs/superpowers/sdd/progress.md
 *.log
+tests/**/tmp-*/
+tmp-*/

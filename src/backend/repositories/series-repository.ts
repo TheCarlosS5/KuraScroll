@@ -126,16 +126,21 @@ export class SeriesRepository {
       return this.listSeries({ limit }).items;
     }
 
-    const stmt = this.db.prepare(`
-      SELECT DISTINCT s.*
-      FROM series_search_fts fts
-      JOIN series s ON s.id = fts.series_id
-      WHERE series_search_fts MATCH ?
-      LIMIT ?
-    `);
+    try {
+      const stmt = this.db.prepare(`
+        SELECT DISTINCT s.*
+        FROM series_search_fts fts
+        JOIN series s ON s.id = fts.series_id
+        WHERE series_search_fts MATCH ?
+        LIMIT ?
+      `);
 
-    const rows = stmt.all(fts, limit) as any[];
-    return rows.map(this.mapSeriesRow);
+      const rows = stmt.all(fts, limit) as any[];
+      return rows.map(this.mapSeriesRow);
+    } catch {
+      // Gracefully catch any FTS5 syntax or query evaluation failures
+      return [];
+    }
   }
 
   listSeries(options: { type?: string; status?: string; page?: number; limit?: number } = {}): { items: Series[]; total: number } {

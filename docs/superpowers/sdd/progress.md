@@ -125,4 +125,10 @@
   - [x] Task 24.3: Chunked Stream Copy & Hashing Utilities with 64KB highWaterMark (`stream-copy.ts`, 5/5 tests)
   - [x] Task 24.4: Differential Mirror Service Migration to Non-blocking 64KB Stream Hashing & Copy
   - [x] Task 24.5: Monorepo Verification (72 test files, 420 passed tests, 100% PASS)
-- [ ] Part 25: SQLite FTS5 CJK & Short Prefix Subquery Optimization (Empirical Benchmark < 5ms on Pentium T4500)
+- [x] Part 25: SQLite FTS5 CJK & Short Prefix Subquery Optimization (Commit 7c9f274)
+  - [x] Task 25.1: Empirical Benchmark on 5,000 series / 15,250 titles from `metadata-deep-researcher` (`fts5-cjk-performance-research.md`)
+  - [x] Task 25.2: SQLite Schema Upgrade with `prefix = '1 2 3'`, `unicode61 remove_diacritics 2`, and title/updated_at indexes
+  - [x] Task 25.3: Sanitizer Symbol Delimiter Normalization (`fts-sanitizer.ts`, math symbols `×`, punctuation `/`, `-`, `_`, `'`, `:`)
+  - [x] Task 25.4: Subquery Deduplication (`series-repository.ts`, eliminates full table `DISTINCT s.*`, 8.6x throughput gain to 3657 q/s)
+  - [x] Task 25.5: Monorepo Verification (72 test files, 420 passed tests, 100% PASS)
+- [ ] Part 26: Continuous Automated Diagnostic & Host SLA Verification Harness (`scripts/benchmark-sla.ts`)

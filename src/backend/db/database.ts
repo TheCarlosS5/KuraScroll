@@ -15,8 +15,14 @@ export function createDatabase(dbPath = ':memory:'): DatabaseInstance {
 
   const db = new DatabaseSync(dbPath);
   db.exec('PRAGMA foreign_keys = ON;');
+  db.exec('PRAGMA busy_timeout = 10000;');
+  db.exec('PRAGMA temp_store = MEMORY;');
+  db.exec('PRAGMA cache_size = -1024;');
+  db.exec('PRAGMA mmap_size = 0;');
   if (dbPath !== ':memory:') {
     db.exec('PRAGMA journal_mode = WAL;');
+    db.exec('PRAGMA synchronous = NORMAL;');
+    db.exec('PRAGMA wal_autocheckpoint = 1000;');
   }
   return db;
 }

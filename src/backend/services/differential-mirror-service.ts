@@ -3,6 +3,7 @@ import path from 'node:path';
 import crypto from 'node:crypto';
 import { DatabaseInstance } from '../db/database.js';
 import { AdaptiveIngestionController } from './adaptive-ingestion-controller.js';
+import { copyFileWithBackpressure, calculateFileHashStream } from '../utils/stream-copy.js';
 
 export interface DifferentialMirrorOptions {
   db: DatabaseInstance;
@@ -80,9 +81,8 @@ export class DifferentialMirrorService {
     const dbStats = await fs.stat(tempDbPath);
     const dbSizeBytes = dbStats.size;
 
-    // Calculate database SHA256 checksum
-    const dbBuffer = await fs.readFile(tempDbPath);
-    const checksum = crypto.createHash('sha256').update(dbBuffer).digest('hex');
+    // Calculate database SHA256 checksum using 64KB chunked stream (SATA II & low RAM optimization)
+    const checksum = await calculateFileHashStream(tempDbPath);
 
     // Atomic move to target destination
     try {
@@ -119,7 +119,7 @@ export class DifferentialMirrorService {
 
           if (needsCopy) {
             await fs.mkdir(path.dirname(destCover), { recursive: true });
-            await fs.copyFile(srcCover, destCover);
+            await copyFileWithBackpressure(srcCover, destCover);
             filesCopied++;
             bytesCopied += coverStat.size;
           }
@@ -181,7 +181,7 @@ export class DifferentialMirrorService {
             }
 
             if (fileNeedsCopy) {
-              await fs.copyFile(srcFile, destFile);
+              await copyFileWithBackpressure(srcFile, destFile);
               filesCopied++;
               bytesCopied += stat.size;
             }

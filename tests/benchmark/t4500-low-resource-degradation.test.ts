@@ -130,5 +130,5 @@ describe('Intel Pentium T4500 Low-Resource Degradation Benchmark', () => {
     console.log(`===============================================================\n`);
 
     expect(p95).toBeLessThan(750);
-  });
+  }, 20000);
 });

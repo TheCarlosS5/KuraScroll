@@ -46,4 +46,15 @@ describe('Database and Migrations', () => {
     expect(ftsResults[0].series_id).toBe('kny');
     expect(ftsResults[0].title).toBe('Guardianes de la Noche');
   });
+
+  it('enforces SATA II hardening pragmas (busy_timeout 10s, temp_store MEMORY, foreign_keys ON)', () => {
+    const busyTimeoutRow: any = db.prepare('PRAGMA busy_timeout').get();
+    expect(busyTimeoutRow.timeout).toBe(10000);
+
+    const tempStoreRow: any = db.prepare('PRAGMA temp_store').get();
+    expect(tempStoreRow.temp_store).toBe(2); // 2 = MEMORY
+
+    const foreignKeysRow: any = db.prepare('PRAGMA foreign_keys').get();
+    expect(foreignKeysRow.foreign_keys).toBe(1);
+  });
 });

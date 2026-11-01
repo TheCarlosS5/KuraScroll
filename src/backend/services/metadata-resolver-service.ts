@@ -1,5 +1,6 @@
 import { MangaDexClient, MangaDexSearchResult } from '../clients/mangadex-client.js';
 import { AniListClient, AniListSearchResult } from '../clients/anilist-client.js';
+import { KitsuClient, KitsuSearchResult } from '../clients/kitsu-client.js';
 
 export interface LocalizedTitle {
   languageCode: string;
@@ -18,6 +19,7 @@ export interface ResolvedSeriesMetadata {
   genres: string[];
   anilistId: number | null;
   mangadexId: string | null;
+  kitsuId: string | null;
 }
 
 export function slugify(text: string): string {
@@ -33,36 +35,48 @@ export function slugify(text: string): string {
 export class MetadataResolverService {
   constructor(
     private mangaDexClient: MangaDexClient = new MangaDexClient(),
-    private aniListClient: AniListClient = new AniListClient()
+    private aniListClient: AniListClient = new AniListClient(),
+    private kitsuClient: KitsuClient = new KitsuClient()
   ) {}
 
   async resolve(query: string): Promise<ResolvedSeriesMetadata | null> {
-    const [mdResults, aniResults] = await Promise.all([
+    const [mdResults, aniResults, kitsuResults] = await Promise.all([
       this.mangaDexClient.search(query, 3).catch(() => [] as MangaDexSearchResult[]),
       this.aniListClient.search(query, 3).catch(() => [] as AniListSearchResult[]),
+      this.kitsuClient.search(query, 3).catch(() => [] as KitsuSearchResult[]),
     ]);
 
     const md = mdResults[0] || null;
     const ani = aniResults[0] || null;
+    const kitsu = kitsuResults[0] || null;
 
-    if (!md && !ani) {
+    if (!md && !ani && !kitsu) {
       return null;
     }
 
-    const titlePrimary = md?.primaryTitle || ani?.titleEnglish || ani?.titleRomaji || query;
+    const titlePrimary =
+      md?.primaryTitle ||
+      ani?.titleEnglish ||
+      ani?.titleRomaji ||
+      kitsu?.canonicalTitle ||
+      query;
     const slug = slugify(titlePrimary);
 
     // Determine series medium type
     let type: 'manga' | 'manhwa' | 'manhua' | 'comic' = 'manga';
-    if (md?.originalLanguage === 'ko') {
+    if (md?.originalLanguage === 'ko' || kitsu?.subtype === 'manhwa') {
       type = 'manhwa';
-    } else if (md?.originalLanguage === 'zh' || md?.originalLanguage === 'zh-hk') {
+    } else if (
+      md?.originalLanguage === 'zh' ||
+      md?.originalLanguage === 'zh-hk' ||
+      kitsu?.subtype === 'manhua'
+    ) {
       type = 'manhua';
     }
 
     // Determine publication status
     let status: 'ongoing' | 'completed' | 'hiatus' | 'cancelled' = 'ongoing';
-    const rawStatus = (md?.status || ani?.status || '').toLowerCase();
+    const rawStatus = (md?.status || ani?.status || kitsu?.status || '').toLowerCase();
     if (rawStatus === 'completed' || rawStatus === 'finished') {
       status = 'completed';
     } else if (rawStatus === 'hiatus') {
@@ -100,8 +114,18 @@ export class MetadataResolverService {
       }
     }
 
-    const synopsis = md?.synopsis || ani?.description || null;
-    const coverImage = md?.coverUrl || ani?.coverUrl || null;
+    if (kitsu) {
+      if (kitsu.canonicalTitle) addTitle('canonical', kitsu.canonicalTitle);
+      for (const t of kitsu.titles) {
+        addTitle(t.languageCode, t.title);
+      }
+      for (const syn of kitsu.abbreviatedTitles) {
+        addTitle('synonym', syn);
+      }
+    }
+
+    const synopsis = md?.synopsis || ani?.description || kitsu?.synopsis || null;
+    const coverImage = md?.coverUrl || ani?.coverUrl || kitsu?.coverUrl || kitsu?.posterUrl || null;
     const genres = ani?.genres || [];
 
     return {
@@ -115,6 +139,7 @@ export class MetadataResolverService {
       genres,
       anilistId: ani?.anilistId || null,
       mangadexId: md?.id || null,
+      kitsuId: kitsu?.id || null,
     };
   }
 }

@@ -118,3 +118,15 @@ CREATE TABLE IF NOT EXISTS folder_sync_state (
     last_mtime INTEGER NOT NULL,
     updated_at TEXT DEFAULT (datetime('now'))
 );
+
+-- Library Snapshots & Differential Mirroring State
+CREATE TABLE IF NOT EXISTS library_snapshots (
+    id TEXT PRIMARY KEY,
+    snapshot_type TEXT NOT NULL CHECK(snapshot_type IN ('full', 'differential')),
+    created_at TEXT DEFAULT (datetime('now')),
+    total_series INTEGER NOT NULL,
+    total_chapters INTEGER NOT NULL,
+    file_count INTEGER NOT NULL,
+    total_bytes INTEGER NOT NULL,
+    destination_path TEXT NOT NULL
+);

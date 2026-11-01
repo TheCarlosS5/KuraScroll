@@ -2,11 +2,13 @@ import { FastifyInstance } from 'fastify';
 import { DatabaseInstance } from '../db/database.js';
 import { importToSqlite, exportFromSqlite } from '../backup-import/import/import-to-sqlite.js';
 import { BackupDaemon } from '../daemon/backup-daemon.js';
+import { DifferentialMirrorService } from '../services/differential-mirror-service.js';
 
 export function registerBackupRoutes(
   app: FastifyInstance,
   db: DatabaseInstance,
-  backupDaemon?: BackupDaemon
+  backupDaemon?: BackupDaemon,
+  differentialMirror?: DifferentialMirrorService
 ): void {
   // POST /api/v1/backup/import: Ingests backup (JSON or buffer) and commits to SQLite + FTS5
   app.post('/api/v1/backup/import', async (req, reply) => {
@@ -66,5 +68,56 @@ export function registerBackupRoutes(
         message: err.message,
       };
     }
+  });
+
+  // POST /api/v1/backup/mirror: Creates differential or full offline disk mirror snapshot
+  app.post('/api/v1/backup/mirror', async (req, reply) => {
+    try {
+      const body = req.body as { destinationDir?: string; differential?: boolean };
+      if (!body?.destinationDir) {
+        reply.status(400);
+        return {
+          success: false,
+          error: 'BadRequest',
+          message: 'Missing destinationDir parameter',
+        };
+      }
+      if (!differentialMirror) {
+        reply.status(500);
+        return {
+          success: false,
+          error: 'Unavailable',
+          message: 'DifferentialMirrorService not available',
+        };
+      }
+
+      const report = await differentialMirror.createSnapshot({
+        destinationDir: body.destinationDir,
+        differential: body.differential,
+      });
+
+      return {
+        success: true,
+        report,
+      };
+    } catch (err: any) {
+      reply.status(500);
+      return {
+        success: false,
+        error: 'MirrorFailed',
+        message: err.message,
+      };
+    }
+  });
+
+  // GET /api/v1/backup/mirror/history: Retrieves historical snapshot records
+  app.get('/api/v1/backup/mirror/history', async () => {
+    if (!differentialMirror) {
+      return { success: false, history: [] };
+    }
+    return {
+      success: true,
+      history: differentialMirror.getSnapshotHistory(),
+    };
   });
 }

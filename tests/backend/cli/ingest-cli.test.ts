@@ -34,7 +34,16 @@ describe('parseCliArgs', () => {
     expect(parsed.file).toBe('C:/backups/mihon_backup.tachibk');
   });
 
+  it('parses mirror mode with --mirror and --full flags', () => {
+    const args = ['--mirror', 'D:/usb-backup', '--full'];
+    const parsed = parseCliArgs(args);
+    expect(parsed.mode).toBe('mirror');
+    expect(parsed.destination).toBe('D:/usb-backup');
+    expect(parsed.full).toBe(true);
+  });
+
   it('throws descriptive error when required arguments are omitted', () => {
     expect(() => parseCliArgs(['--series', 'chainsaw-man'])).toThrow(/Faltan parámetros requeridos/i);
+    expect(() => parseCliArgs(['--mirror'])).toThrow(/Faltan parámetros requeridos para mirror/i);
   });
 });

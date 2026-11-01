@@ -13,6 +13,7 @@ import { BackupDaemon } from './daemon/backup-daemon.js';
 import { registerEventRoutes, EventBus } from './events/event-bus.js';
 import { registerTelemetryRoutes } from './routes/telemetry-routes.js';
 import { AdaptiveIngestionController } from './services/adaptive-ingestion-controller.js';
+import { DifferentialMirrorService } from './services/differential-mirror-service.js';
 
 export interface AppOptions {
   db?: DatabaseInstance;
@@ -22,6 +23,7 @@ export interface AppOptions {
   eventBus?: EventBus;
   folderWatcher?: { active: boolean; incomingDir?: string };
   adaptiveController?: AdaptiveIngestionController;
+  differentialMirror?: DifferentialMirrorService;
 }
 
 export function buildApp(options: AppOptions = {}): FastifyInstance {
@@ -103,7 +105,15 @@ export function buildApp(options: AppOptions = {}): FastifyInstance {
     backupDaemon,
   });
 
-  registerBackupRoutes(app, db, backupDaemon);
+  const differentialMirror =
+    options.differentialMirror ??
+    new DifferentialMirrorService({
+      db,
+      storageRoot,
+      adaptiveController: options.adaptiveController,
+    });
+
+  registerBackupRoutes(app, db, backupDaemon, differentialMirror);
   registerEventRoutes(app, options.eventBus);
   registerTelemetryRoutes(app, { db, storageRoot, adaptiveController: options.adaptiveController });
 

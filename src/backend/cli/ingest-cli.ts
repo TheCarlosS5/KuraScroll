@@ -6,16 +6,19 @@ import { ChapterRepository } from '../repositories/chapter-repository.js';
 import { ingestChapter } from '../services/chapter-ingestion-service.js';
 import { ingestVolumeArchive } from '../services/volume-extractor.js';
 import { importToSqlite } from '../backup-import/import/import-to-sqlite.js';
+import { DifferentialMirrorService } from '../services/differential-mirror-service.js';
 
 export interface CliArgs {
-  mode: 'chapter' | 'volume' | 'backup';
+  mode: 'chapter' | 'volume' | 'backup' | 'mirror';
   series?: string;
   chapter?: number;
-  file: string;
+  file?: string;
   volume: number;
   title?: string;
   storageRoot?: string;
   dbPath?: string;
+  destination?: string;
+  full?: boolean;
 }
 
 export function parseCliArgs(args: string[]): CliArgs {
@@ -38,6 +41,15 @@ export function parseCliArgs(args: string[]): CliArgs {
     } else if (arg === '--backup' && args[i + 1]) {
       result.mode = 'backup';
       result.file = args[++i];
+    } else if (arg === '--mirror') {
+      result.mode = 'mirror';
+      if (args[i + 1] && !args[i + 1].startsWith('--')) {
+        result.destination = args[++i];
+      }
+    } else if (arg === '--dest' && args[i + 1]) {
+      result.destination = args[++i];
+    } else if (arg === '--full') {
+      result.full = true;
     } else if (arg === '--vol' && args[i + 1]) {
       result.volume = Number.parseFloat(args[++i]);
     } else if (arg === '--title' && args[i + 1]) {
@@ -47,6 +59,14 @@ export function parseCliArgs(args: string[]): CliArgs {
     } else if (arg === '--db' && args[i + 1]) {
       result.dbPath = args[++i];
     }
+  }
+
+  // Mirror mode validation
+  if (result.mode === 'mirror') {
+    if (!result.destination) {
+      throw new Error('Faltan parámetros requeridos para mirror: --mirror <carpeta-destino> o --dest <carpeta-destino>');
+    }
+    return result as CliArgs;
   }
 
   // Backup mode validation
@@ -91,13 +111,24 @@ export async function runCli(): Promise<void> {
   const storageRoot = parsed.storageRoot || process.env.STORAGE_ROOT || path.resolve('./data/storage');
   const dbPath = parsed.dbPath || path.resolve('./data/kura-scroll.db');
 
-  if (!fs.existsSync(parsed.file)) {
+  if (parsed.mode !== 'mirror' && parsed.file && !fs.existsSync(parsed.file)) {
     console.error(`\x1b[31m[ERROR]\x1b[0m El archivo o carpeta fuente no existe: ${parsed.file}`);
     process.exit(1);
   }
 
   const db = createDatabase(dbPath);
   runMigrations(db);
+
+  if (parsed.mode === 'mirror') {
+    console.log(`\x1b[36m[KuraScroll Mirror CLI]\x1b[0m Generando snapshot ${parsed.full ? 'COMPLETO' : 'DIFERENCIAL'} hacia '${parsed.destination}'...`);
+    const mirrorService = new DifferentialMirrorService({ db, storageRoot });
+    const report = await mirrorService.createSnapshot({
+      destinationDir: parsed.destination!,
+      differential: !parsed.full,
+    });
+    console.log(`\x1b[32m✔ Snapshot completado!\x1b[0m Tipo: ${report.type}, Capítulos copiados: ${report.chaptersCopied}, Omitidos: ${report.chaptersSkipped}, Bytes: ${report.bytesCopied} (${report.durationMs}ms)`);
+    return;
+  }
 
   if (parsed.mode === 'backup') {
     console.log(`\x1b[36m[KuraScroll Ingest CLI]\x1b[0m Importando backup desde '${parsed.file}'...`);

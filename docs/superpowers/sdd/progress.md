@@ -1,9 +1,9 @@
 # SDD ledger — plan: docs/superpowers/plans/2026-11-01-kura-scroll-master-plan.md
 
-- **Status:** Complete & Iterating (Sprint 10 Verified, 253 Tests Passing)
+- **Status:** Complete & Iterating (Sprint 11 Verified, 310 Tests Passing)
 - **Orchestrator:** Antigravity AI Orchestrator
 - **Branch:** main (isolated in `C:\Users\Admin\dev\kura-scroll`)
-- **Total Test Suites:** 47 test files, 253 passing tests (159 backend + 94 frontend, 100% PASS)
+- **Total Test Suites:** 51 test files, 310 passing tests (201 backend + 109 frontend, 100% PASS)
 
 ## Rulings & Decisions
 - Ruling: Standalone Sibling Project ("Proyecto Hermano") chosen as requested by Carlos to prevent monolithic coupling with KuraStream while sharing branding/logo (KS).
@@ -47,4 +47,11 @@
   - [x] Task 10.4: User Bookshelf & Collections ("Favorites", "Reading", "Completed", user-perspective-critic)
   - [x] Task 10.5: Webtoon Continuous Virtualization & Memory Leak Stress Benchmark (backend-performance-tester)
   - [x] Task 10.6: System Health Metrics & Automated Online SQLite Backup Daemon (devops-watcher)
-- [ ] Part 11: Decoupled Tachiyomi/Mihon Backup Migration Pipeline (Next Sprint)
+- [x] Part 11: Decoupled Tachiyomi/Mihon Backup Migration Pipeline (Commits 8eb16f6, 72600ee, 1040120)
+  - [x] Task 11.1: Standalone Format Detection & Parser Engine (`detect-format.ts`, `tachiyomi-adapter.ts`, `normalize-backup.ts`, 12/12 tests)
+  - [x] Task 11.2: Backup Validation & Fuzzing Suite (`validate-backup.ts`, `backup-validation-fuzzing.test.ts`, 23/23 tests)
+  - [x] Task 11.3: Transactional Batch Staging & SQLite FTS5 Importer (`import-to-sqlite.ts`, 17,032 chapters/s benchmark, 5/5 tests)
+  - [x] Task 11.4: Fastify Backup Routes (`POST /api/v1/backup/import` & `GET /api/v1/backup/export`)
+  - [x] Task 11.5: Frontend Backup Modal & Drag-and-Drop Ingestion (`BackupModal.tsx`, 15/15 tests)
+  - [x] Task 11.6: Accessibility Audit & Focus Trap Hooks (`useFocusTrap.ts`, `ShortcutsModal.tsx`)
+- [ ] Part 12: Continuous Autonomous Polish & End-to-End User Ergonomics

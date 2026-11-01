@@ -6,6 +6,7 @@
 - **Target Hardware:** 4TB 3.5" Mechanical Hard Disk Drive (SATA III, 7200 RPM)
 - **Test Suite:** `tests/benchmark/storage-stress.test.ts`
 - **Execution Engine:** Vitest v3.2.7 | Node.js v24.19.0 | Fastify v5.2.1 | SQLite 3 (WAL Mode)
+- **Sprint:** Sprint 8 (Fastify ByteLRU Memory Caching & Hit Ratio Verification)
 - **Date:** 2026-11-01
 - **Status:** Verified & Complete
 

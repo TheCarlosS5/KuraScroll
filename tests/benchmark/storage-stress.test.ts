@@ -775,7 +775,7 @@ describe('KuraScroll Storage & SQLite WAL Concurrency Stress Benchmark', () => {
   }, 30000);
 
   // ==========================================================================
-  // Benchmark 7: Fastify ByteLRU In-Memory Cache Hit Ratio & Latency
+  // Benchmark 7: Fastify ByteLRU In-Memory Cache Hit Ratio & Latency (Sprint 8)
   // ==========================================================================
   it('benchmarks Fastify ByteLRU in-memory cache hit ratio and latency', async () => {
     // 1. Reset and flush cache to guarantee clean baseline

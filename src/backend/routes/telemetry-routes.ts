@@ -5,12 +5,14 @@ import { calculateStorageTelemetry } from '../services/storage-telemetry.js';
 import { imageCache, manifestCache } from '../cache/media-cache.js';
 import { AdaptiveIngestionController } from '../services/adaptive-ingestion-controller.js';
 import { SelfHealingIndexer } from '../services/self-healing-indexer.js';
+import { ImageIntegrityService } from '../services/image-integrity-service.js';
 
 export interface TelemetryRoutesOptions {
   db: DatabaseInstance;
   storageRoot?: string;
   adaptiveController?: AdaptiveIngestionController;
   selfHealingIndexer?: SelfHealingIndexer;
+  imageIntegrityService?: ImageIntegrityService;
 }
 
 export function registerTelemetryRoutes(
@@ -25,6 +27,14 @@ export function registerTelemetryRoutes(
   const selfHealingIndexer =
     options.selfHealingIndexer ??
     new SelfHealingIndexer({
+      db,
+      storageRoot,
+      adaptiveController,
+    });
+
+  const integrityService =
+    options.imageIntegrityService ??
+    new ImageIntegrityService({
       db,
       storageRoot,
       adaptiveController,
@@ -114,4 +124,39 @@ export function registerTelemetryRoutes(
       report,
     };
   });
+
+  // GET /api/v1/telemetry/integrity
+  app.get('/api/v1/telemetry/integrity', async (_req: FastifyRequest, _reply: FastifyReply) => {
+    return {
+      success: true,
+      corruptFiles: integrityService.getCorruptFiles(),
+    };
+  });
+
+  // POST /api/v1/telemetry/integrity/scan
+  app.post(
+    '/api/v1/telemetry/integrity/scan',
+    async (req: FastifyRequest<{ Body: { chapterId?: string; deep?: boolean } }>, reply: FastifyReply) => {
+      const chapterId = req.body?.chapterId;
+      if (!chapterId) {
+        return reply.status(400).send({
+          success: false,
+          message: 'Missing chapterId parameter',
+        });
+      }
+
+      try {
+        const report = await integrityService.scanChapter(chapterId, req.body?.deep ?? false);
+        return {
+          success: true,
+          report,
+        };
+      } catch (err: any) {
+        return reply.status(400).send({
+          success: false,
+          message: err.message,
+        });
+      }
+    }
+  );
 }

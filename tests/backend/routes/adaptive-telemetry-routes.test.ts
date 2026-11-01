@@ -115,4 +115,22 @@ describe('Adaptive Ingestion Controller Telemetry & Fastify Routes', () => {
     expect(body.report.integrity.checkpointOk).toBe(true);
     expect(body.report.durationMs).toBeGreaterThanOrEqual(0);
   });
+
+  it('GET /api/v1/telemetry/integrity returns corrupt files log', async () => {
+    const app = buildApp({
+      db,
+      storageRoot: testDir,
+      adaptiveController: controller,
+    });
+
+    const res = await app.inject({
+      method: 'GET',
+      url: '/api/v1/telemetry/integrity',
+    });
+
+    expect(res.statusCode).toBe(200);
+    const body = JSON.parse(res.body);
+    expect(body.success).toBe(true);
+    expect(Array.isArray(body.corruptFiles)).toBe(true);
+  });
 });

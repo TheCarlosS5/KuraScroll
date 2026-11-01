@@ -5,6 +5,7 @@ import { DatabaseInstance } from '../db/database.js';
 import { ChapterRepository } from '../repositories/chapter-repository.js';
 import { ingestChapter } from '../services/chapter-ingestion-service.js';
 import { manifestLoader, imageLoader, manifestCache, imageCache } from '../cache/media-cache.js';
+import { ImageIntegrityService } from '../services/image-integrity-service.js';
 
 export function registerChapterRoutes(
   app: FastifyInstance,
@@ -12,6 +13,7 @@ export function registerChapterRoutes(
   storageRoot: string
 ): void {
   const repo = new ChapterRepository(db);
+  const integrityService = new ImageIntegrityService({ db, storageRoot });
 
   // Cache metrics endpoint
   app.get('/api/v1/metrics/cache', async () => {
@@ -62,8 +64,20 @@ export function registerChapterRoutes(
       const physicalPath = path.join(storageRoot, chapter.storagePath, pageFile);
       if (!fs.existsSync(physicalPath)) return null;
 
-      const fileBuffer = await fs.promises.readFile(physicalPath);
-      return { value: fileBuffer, size: fileBuffer.length };
+      try {
+        const fileBuffer = await fs.promises.readFile(physicalPath);
+        // Fast header check for zeroed-out bad sector
+        if (fileBuffer.length < 16 || fileBuffer.subarray(0, 4).toString('ascii') !== 'RIFF') {
+          integrityService.logCorruptFile(physicalPath, chapterId, 'bad_block_or_corrupted_magic_header');
+          const fallback = integrityService.getFallbackPlaceholderWebP();
+          return { value: fallback, size: fallback.length };
+        }
+        return { value: fileBuffer, size: fileBuffer.length };
+      } catch (err: any) {
+        integrityService.logCorruptFile(physicalPath, chapterId, `disk_io_error: ${err.message}`);
+        const fallback = integrityService.getFallbackPlaceholderWebP();
+        return { value: fallback, size: fallback.length };
+      }
     });
 
     if (!buffer) {

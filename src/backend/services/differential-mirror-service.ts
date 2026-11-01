@@ -67,23 +67,28 @@ export class DifferentialMirrorService {
     const snapshotType: 'full' | 'differential' = isDifferential ? 'differential' : 'full';
     const snapshotId = `snap_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
 
-    // 1. Hot SQLite Database Snapshot using VACUUM INTO
+    // 1. Hot SQLite Database Snapshot using VACUUM INTO via atomic temporary file
     const targetDbPath = path.join(destDir, 'kura-scroll.db');
+    const tempDbPath = path.join(destDir, `kura-scroll.db.tmp.${Date.now()}`);
     try {
-      await fs.unlink(targetDbPath);
-    } catch {
-      // File may not exist yet
-    }
+      await fs.unlink(tempDbPath);
+    } catch {}
 
-    const sanitizedTargetDbPath = targetDbPath.replace(/'/g, "''");
-    this.db.exec(`VACUUM INTO '${sanitizedTargetDbPath}';`);
+    const sanitizedTempDbPath = tempDbPath.replace(/'/g, "''");
+    this.db.exec(`VACUUM INTO '${sanitizedTempDbPath}';`);
 
-    const dbStats = await fs.stat(targetDbPath);
+    const dbStats = await fs.stat(tempDbPath);
     const dbSizeBytes = dbStats.size;
 
     // Calculate database SHA256 checksum
-    const dbBuffer = await fs.readFile(targetDbPath);
+    const dbBuffer = await fs.readFile(tempDbPath);
     const checksum = crypto.createHash('sha256').update(dbBuffer).digest('hex');
+
+    // Atomic move to target destination
+    try {
+      await fs.unlink(targetDbPath);
+    } catch {}
+    await fs.rename(tempDbPath, targetDbPath);
 
     let filesCopied = 1; // SQLite db counts as file 1
     let bytesCopied = dbSizeBytes;

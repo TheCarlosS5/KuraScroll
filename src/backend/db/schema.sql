@@ -130,3 +130,13 @@ CREATE TABLE IF NOT EXISTS library_snapshots (
     total_bytes INTEGER NOT NULL,
     destination_path TEXT NOT NULL
 );
+
+-- Corrupt Files & Bad Sector Audit Log
+CREATE TABLE IF NOT EXISTS corrupt_files_log (
+    id TEXT PRIMARY KEY,
+    file_path TEXT NOT NULL,
+    chapter_id TEXT,
+    error_reason TEXT NOT NULL,
+    detected_at TEXT DEFAULT (datetime('now')),
+    status TEXT DEFAULT 'pending_repair' CHECK(status IN ('pending_repair', 'repaired', 'quarantined'))
+);

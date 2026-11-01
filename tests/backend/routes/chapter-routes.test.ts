@@ -102,4 +102,26 @@ describe('Chapter Routes & Navigation Pointers', () => {
     expect(res.headers['x-save-data']).toBe('active');
     expect(res.headers['vary']).toContain('Save-Data');
   });
+
+  it('serves graceful fallback WebP and logs corruption when disk file is corrupted (bad sector)', async () => {
+    const fs = await import('node:fs/promises');
+    const path = await import('node:path');
+    const targetDir = path.resolve('./tmp/series/one-piece/v1/c1');
+    await fs.mkdir(targetDir, { recursive: true });
+    await fs.writeFile(path.join(targetDir, '002.webp'), Buffer.alloc(50));
+
+    const res = await app.inject({
+      method: 'GET',
+      url: '/api/v1/chapters/c1/pages/002.webp',
+    });
+
+    expect(res.statusCode).toBe(200);
+    expect(res.headers['content-type']).toBe('image/webp');
+    const bodyBuf = res.rawPayload;
+    expect(bodyBuf.subarray(0, 4).toString('ascii')).toBe('RIFF');
+    expect(bodyBuf.subarray(8, 12).toString('ascii')).toBe('WEBP');
+
+    const row: any = db.prepare('SELECT * FROM corrupt_files_log WHERE chapter_id = ?').get('c1');
+    expect(row).toBeTruthy();
+  });
 });

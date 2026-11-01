@@ -204,4 +204,22 @@ describe('ReaderControls Component', () => {
     expect(pacePill).toBeDefined();
     expect(pacePill.textContent).toContain('~3 min restantes');
   });
+
+  it('renders zen mode button and fires onToggleZenMode on click', () => {
+    const handleToggleZen = vi.fn();
+    render(
+      <ReaderControls
+        {...defaultProps}
+        isZenMode={false}
+        onToggleZenMode={handleToggleZen}
+      />
+    );
+
+    const zenBtn = screen.getByTestId('zen-mode-btn');
+    expect(zenBtn).toBeDefined();
+    expect(zenBtn.getAttribute('title')).toContain('Modo Zen Inmersivo');
+
+    fireEvent.click(zenBtn);
+    expect(handleToggleZen).toHaveBeenCalledTimes(1);
+  });
 });

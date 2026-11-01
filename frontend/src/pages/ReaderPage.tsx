@@ -10,6 +10,7 @@ import {
 } from '../components/reader/ReaderVisualSettingsModal.js';
 import { useReadingProgress } from '../hooks/useReadingProgress.js';
 import { useAutoScroll } from '../hooks/useAutoScroll.js';
+import { useZenModeGSAP } from '../hooks/useZenModeGSAP.js';
 import { ReadingStatsTracker } from '../services/reading-stats-service.js';
 
 export interface ReaderPageProps {
@@ -55,6 +56,17 @@ export const ReaderPage: React.FC<ReaderPageProps> = ({
   const autoScroll = useAutoScroll({
     speed: 50,
     pauseOnUserInteraction: true,
+  });
+
+  const {
+    isZen,
+    toggleZen,
+    registerUiElement,
+    canvasRef,
+    ambilightRef,
+  } = useZenModeGSAP({
+    enableNativeFullscreen: true,
+    lowResourceMode: displaySettings?.thermalSaverEnabled || false,
   });
 
   const handleBackgroundChange = (bg: string) => {
@@ -167,38 +179,56 @@ export const ReaderPage: React.FC<ReaderPageProps> = ({
       className="min-h-screen text-white relative transition-colors duration-200"
       style={{ backgroundColor: readingBackground }}
     >
+      {/* Zen Mode Ambilight Ambient Aura Backdrop (Sprint 23) */}
+      <div
+        ref={ambilightRef}
+        data-testid="zen-ambilight-backdrop"
+        className={`pointer-events-none fixed inset-0 transition-opacity duration-700 z-0 ${
+          isZen ? 'opacity-100' : 'opacity-0'
+        }`}
+        style={{
+          background:
+            'radial-gradient(circle at 50% 50%, rgba(99, 102, 241, 0.18) 0%, rgba(168, 85, 247, 0.09) 55%, transparent 85%)',
+        }}
+      />
+
       {/* Floating Header Controls */}
       {showControls && (
-        <ReaderControls
-          seriesTitle={manifest.chapter.seriesId}
-          chapterNumber={manifest.chapter.chapterNumber}
-          chapterTitle={manifest.chapter.title}
-          readerMode={readerMode}
-          prevChapterId={manifest.prevChapterId}
-          nextChapterId={manifest.nextChapterId}
-          onBack={onBack}
-          onSelectChapter={onSelectChapter}
-          onChangeMode={setReaderMode}
-          currentBackground={readingBackground}
-          onChangeBackground={handleBackgroundChange}
-          currentPage={currentPage}
-          totalPages={totalPages}
-          isScrubberOpen={isScrubberOpen}
-          onToggleScrubber={() => setIsScrubberOpen((prev) => !prev)}
-          doublePage={doublePage}
-          onToggleDoublePage={handleToggleDoublePage}
-          onOpenShortcuts={() => setShowShortcuts(true)}
-          isVisualSettingsOpen={isVisualSettingsOpen}
-          onOpenVisualSettings={() => setIsVisualSettingsOpen(true)}
-          isAutoScrollActive={autoScroll.isActive}
-          onToggleAutoScroll={readerMode === 'webtoon' ? autoScroll.toggle : undefined}
-          readingPaceText={readingPaceText}
-        />
+        <div ref={registerUiElement} className="relative z-30">
+          <ReaderControls
+            seriesTitle={manifest.chapter.seriesId}
+            chapterNumber={manifest.chapter.chapterNumber}
+            chapterTitle={manifest.chapter.title}
+            readerMode={readerMode}
+            prevChapterId={manifest.prevChapterId}
+            nextChapterId={manifest.nextChapterId}
+            onBack={onBack}
+            onSelectChapter={onSelectChapter}
+            onChangeMode={setReaderMode}
+            currentBackground={readingBackground}
+            onChangeBackground={handleBackgroundChange}
+            currentPage={currentPage}
+            totalPages={totalPages}
+            isScrubberOpen={isScrubberOpen}
+            onToggleScrubber={() => setIsScrubberOpen((prev) => !prev)}
+            doublePage={doublePage}
+            onToggleDoublePage={handleToggleDoublePage}
+            onOpenShortcuts={() => setShowShortcuts(true)}
+            isVisualSettingsOpen={isVisualSettingsOpen}
+            onOpenVisualSettings={() => setIsVisualSettingsOpen(true)}
+            isAutoScrollActive={autoScroll.isActive}
+            onToggleAutoScroll={readerMode === 'webtoon' ? autoScroll.toggle : undefined}
+            readingPaceText={readingPaceText}
+            isZenMode={isZen}
+            onToggleZenMode={toggleZen}
+          />
+        </div>
       )}
 
-      {/* Main Reader Engine */}
+      {/* Main Reader Engine Canvas */}
       <div
-        className="pt-16 pb-12 cursor-default"
+        ref={canvasRef}
+        className="pt-16 pb-12 cursor-default relative z-10"
         onClick={() => setShowControls((prev) => !prev)}
       >
         {readerMode === 'webtoon' ? (

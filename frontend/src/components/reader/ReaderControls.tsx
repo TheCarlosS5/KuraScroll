@@ -13,6 +13,7 @@ import {
   Sliders,
   Play,
   Pause,
+  Sparkles,
 } from 'lucide-react';
 
 export type ReaderBackgroundTheme = '#000000' | '#000' | '#080c14' | '#1a1612' | string;
@@ -60,6 +61,9 @@ export interface ReaderControlsProps {
   isAutoScrollActive?: boolean;
   onToggleAutoScroll?: () => void;
   readingPaceText?: string;
+  // Sprint 23: Fullscreen & Zen Immersion Mode
+  isZenMode?: boolean;
+  onToggleZenMode?: () => void;
 }
 
 export const ReaderControls: React.FC<ReaderControlsProps> = ({
@@ -87,6 +91,8 @@ export const ReaderControls: React.FC<ReaderControlsProps> = ({
   isAutoScrollActive = false,
   onToggleAutoScroll,
   readingPaceText,
+  isZenMode = false,
+  onToggleZenMode,
 }) => {
   const [internalBg, setInternalBg] = useState<string>(currentBackground || '#080c14');
   const [isFullscreen, setIsFullscreen] = useState(false);
@@ -343,6 +349,24 @@ export const ReaderControls: React.FC<ReaderControlsProps> = ({
         >
           <ChevronRight className="w-4 h-4" />
         </button>
+
+        {/* Zen Immersion Mode Button (Sprint 23) */}
+        {onToggleZenMode && (
+          <button
+            data-testid="zen-mode-btn"
+            onClick={onToggleZenMode}
+            className={`p-2 rounded-xl transition-all border ${
+              isZenMode
+                ? 'bg-purple-600/30 text-purple-300 border-purple-500/60 shadow-[0_0_12px_rgba(168,85,247,0.4)]'
+                : 'bg-gray-900 hover:bg-gray-800 border-gray-800 text-gray-400 hover:text-purple-400'
+            }`}
+            title={isZenMode ? 'Salir de Modo Zen (F)' : 'Modo Zen Inmersivo (Tecla F)'}
+            aria-label={isZenMode ? 'Salir de Modo Zen (F)' : 'Modo Zen Inmersivo (Tecla F)'}
+          >
+            <Sparkles className="w-4 h-4" />
+          </button>
+        )}
+
         <button
           onClick={toggleFullscreen}
           className="p-2 rounded-xl bg-gray-900 hover:bg-gray-800 border border-gray-800 text-gray-300 hover:text-white transition-colors ml-1"

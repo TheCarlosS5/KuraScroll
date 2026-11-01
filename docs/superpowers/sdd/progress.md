@@ -100,4 +100,10 @@
   - [x] Task 20.3: Client-Side Prefetch Throttling Hook (`useAdaptivePrefetch.ts`, clamps window to 1 page on `saveData`, 2/2 tests)
   - [x] Task 20.4: HTTP Header `Save-Data` & `Vary: Save-Data` Support (`chapter-routes.ts`, 5/5 tests)
   - [x] Task 20.5: Reader Visual Settings Modal Thermal Saver Toggle (`ReaderVisualSettingsModal.tsx`, 20/20 tests)
-- [ ] Part 21: Autonomous Differential Library Snapshot & Export Mirroring (CLI & Hot Backup)
+- [x] Part 21: Autonomous Differential Library Snapshot & Export Mirroring (Commit d7f8f3f)
+  - [x] Task 21.1: Consultation with ChatGPT on SATA II Differential Mirroring & High-Watermark (`docs/brainstorming/chatgpt-differential-snapshot-blueprint.md`)
+  - [x] Task 21.2: SQLite Table `library_snapshots` & Online Atomic Snapshot (`VACUUM INTO`)
+  - [x] Task 21.3: Differential File Mirror Engine & Checksum Generator (`differential-mirror-service.ts`, 2/2 tests)
+  - [x] Task 21.4: Fastify API Routes (`POST /api/v1/backup/mirror` & `GET /api/v1/backup/mirror/history`, 2/2 tests)
+  - [x] Task 21.5: Multi-Mode Ingest CLI Flags (`--mirror <dest>`, `--full`, 6/6 tests)
+- [ ] Part 22: Offline Image Integrity Verifier & Bad Block Resilience Scanner

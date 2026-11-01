@@ -7,6 +7,9 @@ import {
   ChevronRight,
   LayoutList,
   Layers,
+  BookOpen,
+  HelpCircle,
+  GalleryHorizontal,
 } from 'lucide-react';
 
 export type ReaderBackgroundTheme = '#000000' | '#000' | '#080c14' | '#1a1612' | string;
@@ -41,6 +44,12 @@ export interface ReaderControlsProps {
   currentPage?: number;
   totalPages?: number;
   progressPercent?: number;
+  isScrubberOpen?: boolean;
+  onToggleScrubber?: () => void;
+  // Sprint 8: Double-page spread and shortcuts HUD
+  doublePage?: boolean;
+  onToggleDoublePage?: (enabled: boolean) => void;
+  onOpenShortcuts?: () => void;
 }
 
 export const ReaderControls: React.FC<ReaderControlsProps> = ({
@@ -58,6 +67,11 @@ export const ReaderControls: React.FC<ReaderControlsProps> = ({
   currentPage,
   totalPages,
   progressPercent,
+  isScrubberOpen,
+  onToggleScrubber,
+  doublePage = false,
+  onToggleDoublePage,
+  onOpenShortcuts,
 }) => {
   const [internalBg, setInternalBg] = useState<string>(currentBackground || '#080c14');
   const [isFullscreen, setIsFullscreen] = useState(false);
@@ -117,8 +131,8 @@ export const ReaderControls: React.FC<ReaderControlsProps> = ({
         </div>
       </div>
 
-      {/* Middle: Reader Mode Toggle Buttons */}
-      <div className="hidden sm:flex items-center gap-1 bg-gray-900/90 p-1 rounded-xl border border-gray-800">
+      {/* Middle: Reader Mode Toggle Buttons & Double-Page Spread */}
+      <div className="hidden sm:flex items-center gap-1.5 bg-gray-900/90 p-1 rounded-xl border border-gray-800">
         <button
           onClick={() => onChangeMode('webtoon')}
           className={`flex items-center gap-1.5 px-3 py-1 rounded-lg text-xs font-semibold transition-all ${
@@ -152,9 +166,27 @@ export const ReaderControls: React.FC<ReaderControlsProps> = ({
           <Layers className="w-3.5 h-3.5 rotate-180" />
           Comic (LTR)
         </button>
+
+        {/* Double-page spread toggle (only in page reader modes) */}
+        {readerMode !== 'webtoon' && (
+          <button
+            data-testid="toggle-double-page-btn"
+            onClick={() => onToggleDoublePage?.(!doublePage)}
+            className={`flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-semibold border transition-all ml-1 ${
+              doublePage
+                ? 'bg-cyan-500/25 text-cyan-300 border-cyan-500/50 shadow-sm'
+                : 'text-gray-400 hover:text-white border-transparent hover:bg-gray-800/60'
+            }`}
+            title={doublePage ? 'Modo página individual' : 'Modo doble página (Spread enfrentadas)'}
+            aria-label="Alternar modo doble página"
+          >
+            <BookOpen className="w-3.5 h-3.5" />
+            <span className="hidden xl:inline">Doble Página</span>
+          </button>
+        )}
       </div>
 
-      {/* Right: Background Selector, Reading Progress Pill, Chapter Switcher & Fullscreen */}
+      {/* Right: Background Selector, Reading Progress Pill, Shortcuts HUD, Chapter Switcher & Fullscreen */}
       <div className="flex items-center gap-2 shrink-0">
         {/* Background Theme Selector */}
         <div
@@ -202,6 +234,34 @@ export const ReaderControls: React.FC<ReaderControlsProps> = ({
             </span>
           )}
         </div>
+
+        {/* Shortcuts HUD trigger button */}
+        <button
+          data-testid="shortcuts-help-btn"
+          onClick={onOpenShortcuts}
+          className="p-2 rounded-xl bg-gray-900 hover:bg-gray-800 border border-gray-800 text-gray-400 hover:text-cyan-400 transition-colors"
+          title="Atajos de teclado (?)"
+          aria-label="Atajos de teclado"
+        >
+          <HelpCircle className="w-4 h-4" />
+        </button>
+
+        {/* Thumbnail Scrubber Toggle Button */}
+        {onToggleScrubber && (
+          <button
+            data-testid="toggle-scrubber-btn"
+            onClick={onToggleScrubber}
+            className={`p-2 rounded-xl transition-all border ${
+              isScrubberOpen
+                ? 'bg-[#dc2626]/20 border-[#dc2626]/60 text-[#dc2626] shadow-[0_0_10px_rgba(220,38,38,0.3)]'
+                : 'bg-gray-900 hover:bg-gray-800 border-gray-800 text-gray-300 hover:text-white'
+            }`}
+            title={isScrubberOpen ? 'Ocultar miniaturas' : 'Ver miniaturas del capítulo'}
+            aria-label={isScrubberOpen ? 'Ocultar miniaturas' : 'Ver miniaturas del capítulo'}
+          >
+            <GalleryHorizontal className="w-4 h-4" />
+          </button>
+        )}
 
         {/* Chapter Switcher & Fullscreen */}
         <button

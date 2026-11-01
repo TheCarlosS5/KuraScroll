@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { WebtoonReader } from '../components/reader/WebtoonReader.js';
 import { MangaReader } from '../components/reader/MangaReader.js';
 import { ReaderControls } from '../components/reader/ReaderControls.js';
+import { ThumbnailScrubber } from '../components/reader/ThumbnailScrubber.js';
 import { useReadingProgress } from '../hooks/useReadingProgress.js';
 
 export interface ReaderPageProps {
@@ -20,6 +21,15 @@ export const ReaderPage: React.FC<ReaderPageProps> = ({
   const [currentPage, setCurrentPage] = useState(1);
   const [readerMode, setReaderMode] = useState<'webtoon' | 'manga-rtl' | 'manga-ltr'>('webtoon');
   const [showControls, setShowControls] = useState(true);
+  const [isScrubberOpen, setIsScrubberOpen] = useState(false);
+  const [doublePage, setDoublePage] = useState<boolean>(() => {
+    try {
+      return localStorage.getItem('kura-scroll-double-page') === 'true';
+    } catch {
+      return false;
+    }
+  });
+  const [showShortcuts, setShowShortcuts] = useState(false);
   const [readingBackground, setReadingBackground] = useState<string>(() => {
     try {
       return localStorage.getItem('kura-scroll-reader-bg') || '#080c14';
@@ -70,6 +80,16 @@ export const ReaderPage: React.FC<ReaderPageProps> = ({
     saveProgress(chapterId, page, 0, page === manifest?.pages?.length);
   };
 
+  const handleSelectPageFromScrubber = (pageNumber: number) => {
+    handlePageChange(pageNumber);
+    if (readerMode === 'webtoon') {
+      const el = document.getElementById(`page-${pageNumber}`);
+      if (el) {
+        el.scrollIntoView({ behavior: 'smooth' });
+      }
+    }
+  };
+
   if (loading) {
     return (
       <div className="flex flex-col items-center justify-center min-h-screen bg-black text-white">
@@ -96,6 +116,28 @@ export const ReaderPage: React.FC<ReaderPageProps> = ({
   const storageBaseUrl = `/storage/${manifest.chapter.storagePath}`;
   const totalPages = manifest.pages?.length || 1;
 
+  const handleToggleDoublePage = (enabled: boolean) => {
+    setDoublePage(enabled);
+    try {
+      localStorage.setItem('kura-scroll-double-page', String(enabled));
+    } catch {}
+  };
+
+  const cycleReaderMode = () => {
+    setReaderMode((prev) => {
+      if (prev === 'webtoon') return 'manga-rtl';
+      if (prev === 'manga-rtl') return 'manga-ltr';
+      return 'webtoon';
+    });
+  };
+
+  const cycleBackgroundTheme = () => {
+    const themes = ['#080c14', '#000000', '#1a1612'];
+    const currentIndex = themes.indexOf(readingBackground);
+    const nextIndex = (currentIndex + 1) % themes.length;
+    handleBackgroundChange(themes[nextIndex]);
+  };
+
   return (
     <div
       className="min-h-screen text-white relative transition-colors duration-200"
@@ -117,6 +159,11 @@ export const ReaderPage: React.FC<ReaderPageProps> = ({
           onChangeBackground={handleBackgroundChange}
           currentPage={currentPage}
           totalPages={totalPages}
+          isScrubberOpen={isScrubberOpen}
+          onToggleScrubber={() => setIsScrubberOpen((prev) => !prev)}
+          doublePage={doublePage}
+          onToggleDoublePage={handleToggleDoublePage}
+          onOpenShortcuts={() => setShowShortcuts(true)}
         />
       )}
 
@@ -139,9 +186,26 @@ export const ReaderPage: React.FC<ReaderPageProps> = ({
             storageBaseUrl={storageBaseUrl}
             onPageChange={handlePageChange}
             onToggleControls={() => setShowControls((prev) => !prev)}
+            doublePage={doublePage}
+            onToggleDoublePage={handleToggleDoublePage}
+            showShortcutsHUD={showShortcuts}
+            onToggleShortcutsHUD={setShowShortcuts}
+            onCycleMode={cycleReaderMode}
+            onCycleTheme={cycleBackgroundTheme}
           />
         )}
       </div>
+
+      {/* Bottom Horizontal Thumbnail Scrubber Drawer */}
+      <ThumbnailScrubber
+        pages={manifest.pages || []}
+        currentPage={currentPage}
+        storageBaseUrl={storageBaseUrl}
+        isOpen={isScrubberOpen}
+        onSelectPage={handleSelectPageFromScrubber}
+        onClose={() => setIsScrubberOpen(false)}
+        onToggle={() => setIsScrubberOpen((prev) => !prev)}
+      />
     </div>
   );
 };

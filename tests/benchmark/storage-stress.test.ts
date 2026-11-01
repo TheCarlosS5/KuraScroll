@@ -235,7 +235,7 @@ function printAsciiTable(title: string, rows: [string, string | number][]) {
 // ============================================================================
 
 describe('KuraScroll Storage & SQLite WAL Concurrency Stress Benchmark', () => {
-  const testBaseDir = path.resolve(__dirname, '../../tmp/benchmark-storage-stress');
+  const testBaseDir = path.resolve(__dirname, `../../tmp/benchmark-storage-${Date.now()}`);
   const storageRoot = path.join(testBaseDir, 'storage');
   const dbPath = path.join(testBaseDir, 'sqlite-wal-stress.db');
 
@@ -250,9 +250,11 @@ describe('KuraScroll Storage & SQLite WAL Concurrency Stress Benchmark', () => {
   const pageFiles: string[] = [];
 
   beforeAll(async () => {
-    if (fsSync.existsSync(testBaseDir)) {
-      await fs.rm(testBaseDir, { recursive: true, force: true });
-    }
+    try {
+      if (fsSync.existsSync(testBaseDir)) {
+        await fs.rm(testBaseDir, { recursive: true, force: true });
+      }
+    } catch {}
     await fs.mkdir(storageRoot, { recursive: true });
 
     // 1. Generate realistic WebP image buffer (~380KB manga page density)
@@ -430,6 +432,9 @@ describe('KuraScroll Storage & SQLite WAL Concurrency Stress Benchmark', () => {
 
       latencies.push(reqEnd - reqStart);
       totalBytesTransferred += res.rawPayload.length;
+      if (res.statusCode !== 200) {
+        console.error('FAILED URL:', url, 'STATUS:', res.statusCode, 'BODY:', res.body, 'storageRoot exists:', fsSync.existsSync(storageRoot));
+      }
       expect(res.statusCode).toBe(200);
     });
 
@@ -506,6 +511,9 @@ describe('KuraScroll Storage & SQLite WAL Concurrency Stress Benchmark', () => {
 
       latencies.push(reqEnd - reqStart);
       totalBytesTransferred += res.rawPayload.length;
+      if (res.statusCode !== 200) {
+        console.error('FAILED URL:', url, 'STATUS:', res.statusCode, 'BODY:', res.body, 'storageRoot exists:', fsSync.existsSync(storageRoot));
+      }
       expect(res.statusCode).toBe(200);
       expect(res.headers['x-kurascroll-cache']).toBe('HIT');
     });

@@ -106,4 +106,10 @@
   - [x] Task 21.3: Differential File Mirror Engine & Checksum Generator (`differential-mirror-service.ts`, 2/2 tests)
   - [x] Task 21.4: Fastify API Routes (`POST /api/v1/backup/mirror` & `GET /api/v1/backup/mirror/history`, 2/2 tests)
   - [x] Task 21.5: Multi-Mode Ingest CLI Flags (`--mirror <dest>`, `--full`, 6/6 tests)
-- [ ] Part 22: Offline Image Integrity Verifier & Bad Block Resilience Scanner
+- [x] Part 22: Offline Image Integrity Verifier & Bad Block Resilience Scanner (Commit 1b2d77b)
+  - [x] Task 22.1: Consultation with ChatGPT on SATA II 4TB Bad Blocks & Microsecond RIFF/WEBP Header Checks (`docs/brainstorming/chatgpt-bad-block-resilience-blueprint.md`)
+  - [x] Task 22.2: Two-Phase Image Integrity Service (`image-integrity-service.ts`, fast header + deep metadata check, 5/5 tests)
+  - [x] Task 22.3: SQLite Table `corrupt_files_log` for Bad Block & Truncated Page Tracking
+  - [x] Task 22.4: Graceful Fastify Reader Fallback on EIO / Broken Headers (`chapter-routes.ts`, zero-crash reader UX, 6/6 tests)
+  - [x] Task 22.5: Fastify Telemetry Integrity Endpoints (`GET /api/v1/telemetry/integrity` & `POST /api/v1/telemetry/integrity/scan`, 5/5 tests)
+- [ ] Part 23: Reader Fullscreen & Zen Immersion Mode with GSAP Kinetic Page Transition

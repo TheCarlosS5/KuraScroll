@@ -1,9 +1,9 @@
 # SDD ledger — plan: docs/superpowers/plans/2026-11-01-kura-scroll-master-plan.md
 
-- **Status:** In Progress
-- **Active Sprint:** Part 4 - Reader UI & Dual-Engine Frontend
+- **Status:** Complete
 - **Orchestrator:** Antigravity AI Orchestrator
 - **Branch:** main (isolated in `C:\Users\Admin\dev\kura-scroll`)
+- **Total Test Suites:** 21 test files, 39 passing tests (100% PASS)
 
 ## Rulings & Decisions
 - Ruling: Standalone Sibling Project ("Proyecto Hermano") chosen as requested by Carlos to prevent monolithic coupling with KuraStream while sharing branding/logo (KS).
@@ -11,6 +11,7 @@
 - Ruling: Ahead-of-time WebP optimization (q=82, max width 1440px) chosen to guarantee ~85% disk reduction for the 4TB HDD constraint.
 - Ruling: Native `node:sqlite` (`DatabaseSync` in Node v24) chosen instead of `better-sqlite3` to eliminate C++ compiler requirements on Windows while delivering native WAL mode, FTS5 full-text search, and zero-latency prepared statements.
 - Ruling: Fastify 5 + `@fastify/static` with `maxAge: '1y'` and `immutable: true` configured to maximize client-side caching and eliminate disk seek latency on mechanical HDDs.
+- Ruling: Dual-Engine React Reader built with Webtoon vertical strip (virtualized windowing & zero-CLS aspect ratio skeletons) and Manga RTL/LTR flipbook with keyboard navigation (`←`/`→`/`A`/`D`/`Space`).
 
 ## Task Execution State
 - [x] Part 1: Storage & Ingestion Pipeline
@@ -28,12 +29,12 @@
   - [x] Task 3.2: Series & Catalog API Routes (commits c104b41)
   - [x] Task 3.3: Chapter Manifest & Navigation Routes (commits c104b41)
   - [x] Task 3.4: Reading Progress Synchronization Routes (commits c104b41, 27/27 unit tests passing)
-- [ ] Part 4: Reader UI & Dual-Engine Frontend
-  - [ ] Task 4.1: Frontend App Scaffolding & Design System (KS Monogram)
-  - [ ] Task 4.2: Multilingual Search & Catalog Grid
-  - [ ] Task 4.3: Dual-Engine Reader Component (Webtoon + Manga RTL/LTR)
-  - [ ] Task 4.4: Client-Side IndexedDB Storage & Progress Sync
-- [ ] Part 5: Master Orchestration & Integration
-  - [ ] Task 5.1: Root Workspace Orchestration & Environment Configuration
-  - [ ] Task 5.2: CLI Ingestion Tool for 4TB Hard Drive Operations
-  - [ ] Task 5.3: Full End-to-End Pipeline Verification
+- [x] Part 4: Reader UI & Dual-Engine Frontend
+  - [x] Task 4.1: Frontend App Scaffolding & Design System (KS Monogram) (commits 701de7f)
+  - [x] Task 4.2: Multilingual Search & Catalog Grid (commits 701de7f)
+  - [x] Task 4.3: Dual-Engine Reader Component (Webtoon + Manga RTL/LTR) (commits 701de7f)
+  - [x] Task 4.4: Client-Side IndexedDB Storage & Progress Sync (commits 701de7f, 35/35 tests passing)
+- [x] Part 5: Master Orchestration & Integration
+  - [x] Task 5.1: Root Workspace Orchestration & Environment Configuration
+  - [x] Task 5.2: CLI Ingestion Tool for 4TB Hard Drive Operations
+  - [x] Task 5.3: Full End-to-End Pipeline Verification (39/39 tests passing across backend, frontend, and E2E)

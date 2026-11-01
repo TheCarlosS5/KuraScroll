@@ -102,3 +102,8 @@ export async function ingestChapter(params: IngestChapterParams): Promise<Chapte
     totalBytes,
   };
 }
+
+export const ChapterIngestionService = {
+  ingestChapter,
+};
+

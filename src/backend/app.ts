@@ -10,12 +10,14 @@ import { registerProgressRoutes } from './routes/progress-routes.js';
 import { registerHealthRoutes } from './routes/health-routes.js';
 import { registerBackupRoutes } from './routes/backup-routes.js';
 import { BackupDaemon } from './daemon/backup-daemon.js';
+import { registerEventRoutes, EventBus } from './events/event-bus.js';
 
 export interface AppOptions {
   db?: DatabaseInstance;
   storageRoot?: string;
   bodyLimit?: number;
   backupDaemon?: BackupDaemon;
+  eventBus?: EventBus;
   folderWatcher?: { active: boolean; incomingDir?: string };
 }
 
@@ -83,6 +85,7 @@ export function buildApp(options: AppOptions = {}): FastifyInstance {
   });
 
   registerBackupRoutes(app, db, backupDaemon);
+  registerEventRoutes(app, options.eventBus);
 
   return app;
 }

@@ -28,4 +28,16 @@ describe('Navbar Component', () => {
     historyBtn.click();
     expect(handleNavigate).toHaveBeenCalledWith('history');
   });
+
+  it('renders KuraStream sister button and triggers callback', () => {
+    const handleSisterModal = vi.fn();
+    render(<Navbar onNavigate={() => {}} onOpenSisterModal={handleSisterModal} currentView="catalog" />);
+
+    const sisterBtn = screen.getByTestId('nav-sister-btn');
+    expect(sisterBtn).toBeDefined();
+    expect(screen.getByText('KuraStream')).toBeDefined();
+
+    sisterBtn.click();
+    expect(handleSisterModal).toHaveBeenCalledTimes(1);
+  });
 });

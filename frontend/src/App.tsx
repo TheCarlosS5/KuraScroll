@@ -5,6 +5,7 @@ import { SeriesDetailPage } from './pages/SeriesDetailPage.js';
 import { ReaderPage } from './pages/ReaderPage.js';
 import { HistoryPage } from './pages/HistoryPage.js';
 import { BackupModal } from './components/settings/BackupModal.js';
+import { SisterPlatformModal } from './components/common/SisterPlatformModal.js';
 
 export function App() {
   const [view, setView] = useState<'catalog' | 'bookmarks' | 'history' | 'detail' | 'reader'>('catalog');
@@ -12,6 +13,7 @@ export function App() {
   const [selectedSeriesSlug, setSelectedSeriesSlug] = useState<string | null>(null);
   const [selectedChapterId, setSelectedChapterId] = useState<string | null>(null);
   const [isBackupOpen, setIsBackupOpen] = useState(false);
+  const [isSisterModalOpen, setIsSisterModalOpen] = useState(false);
 
   const handleNavigate = (newView: string, category?: string) => {
     setSelectedCategory(category);
@@ -43,6 +45,7 @@ export function App() {
           selectedCategory={selectedCategory}
           onNavigate={handleNavigate}
           onOpenBackup={() => setIsBackupOpen(true)}
+          onOpenSisterModal={() => setIsSisterModalOpen(true)}
         />
       )}
 
@@ -90,6 +93,12 @@ export function App() {
       <BackupModal
         isOpen={isBackupOpen}
         onClose={() => setIsBackupOpen(false)}
+      />
+
+      {/* KuraStream Sister Companion Dialog */}
+      <SisterPlatformModal
+        isOpen={isSisterModalOpen}
+        onClose={() => setIsSisterModalOpen(false)}
       />
     </div>
   );

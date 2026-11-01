@@ -1,11 +1,12 @@
 import React from 'react';
-import { BookOpen, Bookmark, Sparkles, History, Database } from 'lucide-react';
+import { BookOpen, Bookmark, Sparkles, History, Database, Film } from 'lucide-react';
 
 export interface NavbarProps {
   currentView?: string;
   selectedCategory?: string;
   onNavigate?: (view: string, category?: string) => void;
   onOpenBackup?: () => void;
+  onOpenSisterModal?: () => void;
 }
 
 export const Navbar: React.FC<NavbarProps> = ({
@@ -13,6 +14,7 @@ export const Navbar: React.FC<NavbarProps> = ({
   selectedCategory,
   onNavigate,
   onOpenBackup,
+  onOpenSisterModal,
 }) => {
   return (
     <header className="sticky top-0 z-50 bg-[#080c14]/90 backdrop-blur-md border-b border-gray-800/80 px-4 lg:px-8 py-3.5 transition-all">
@@ -121,6 +123,19 @@ export const Navbar: React.FC<NavbarProps> = ({
             >
               <Database className="w-4 h-4 text-cyan-400" />
               <span className="hidden sm:inline">Respaldos</span>
+            </button>
+          )}
+
+          {onOpenSisterModal && (
+            <button
+              data-testid="nav-sister-btn"
+              onClick={onOpenSisterModal}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-sm font-medium transition-all bg-gray-900/80 text-gray-300 border border-gray-800 hover:border-purple-500/50 hover:text-purple-400"
+              title="Ecosistema Hermano KuraStream"
+              aria-label="Ecosistema Hermano KuraStream"
+            >
+              <Film className="w-4 h-4 text-purple-400" />
+              <span className="hidden sm:inline">KuraStream</span>
             </button>
           )}
 

@@ -26,6 +26,28 @@ export interface DatabaseMaintenanceResult {
   timestamp: string;
 }
 
+export interface MaintenanceReport {
+  integrity: string;
+  checkpointResult: WalCheckpointResult;
+  walTruncated: boolean;
+  metrics: DatabaseMetrics;
+  timestamp: string;
+}
+
+/**
+ * Executes a full database maintenance cycle and returns a typed MaintenanceReport.
+ */
+export function executeMaintenance(db: DatabaseInstance): MaintenanceReport {
+  const result = runDatabaseMaintenance(db);
+  return {
+    integrity: result.ok ? 'ok' : 'failed',
+    checkpointResult: result.walCheckpoint,
+    walTruncated: result.walCheckpoint.busy === 0,
+    metrics: result.metrics,
+    timestamp: result.timestamp,
+  };
+}
+
 /**
  * Runs automated autonomous maintenance on a SQLite database instance:
  * 1. PRAGMA integrity_check to verify B-Tree integrity and index health.

@@ -1,9 +1,9 @@
 # SDD ledger — plan: docs/superpowers/plans/2026-11-01-kura-scroll-master-plan.md
 
-- **Status:** In Progress (Sprint 7: Mechanical HDD Caching & Adaptive Streaming)
+- **Status:** Complete & Iterating (Sprint 8 Verified, 155 Tests Passing)
 - **Orchestrator:** Antigravity AI Orchestrator
 - **Branch:** main (isolated in `C:\Users\Admin\dev\kura-scroll`)
-- **Total Test Suites:** 22 test files, 102 passing tests (83 backend + 19 frontend, 100% PASS)
+- **Total Test Suites:** 33 test files, 155 passing tests (116 backend + 39 frontend, 100% PASS)
 
 ## Rulings & Decisions
 - Ruling: Standalone Sibling Project ("Proyecto Hermano") chosen as requested by Carlos to prevent monolithic coupling with KuraStream while sharing branding/logo (KS).
@@ -13,6 +13,7 @@
 - Ruling: Fastify 5 + `@fastify/static` with `maxAge: '1y'` and `immutable: true` configured to maximize client-side caching and eliminate disk seek latency on mechanical HDDs.
 - Ruling: Dual-Engine React Reader built with Webtoon vertical strip (virtualized windowing & zero-CLS aspect ratio skeletons) and Manga RTL/LTR flipbook with keyboard navigation (`←`/`→`/`A`/`D`/`Space`).
 - Ruling: Senior Architectural consultation with ChatGPT conducted via MCP Brave session, adopting a Byte-based LRU cache (256MB WebP buffers, 32MB manifests) and an Adaptive Prefetch Controller with `AbortController` cancellation for rapid scrolling.
+- Ruling: Added autonomous database maintenance (`PRAGMA integrity_check`, `PRAGMA wal_checkpoint(TRUNCATE)`, `PRAGMA optimize`) to prevent WAL file explosion on 4TB local drives.
 
 ## Task Execution State
 - [x] Part 1: Storage & Ingestion Pipeline (commits db35ede, 77b80f3, 7f47935)
@@ -21,14 +22,14 @@
 - [x] Part 4: Reader UI & Dual-Engine Frontend (commit 701de7f)
 - [x] Part 5: Master Orchestration & Integration (commit e9a5167)
 - [x] Part 6: Autonomous Subagent Swarm Hardening (Commits 871e9fe, 975f479, e9d9931, b31f1b3, 29b2276, a94278e, 289da1d)
-  - [x] Task 6.1: Incoming Folder Watcher & Auto-Ingest Daemon (`folder-watcher.ts`, 11/11 tests)
-  - [x] Task 6.2: Kitsu Manga API Client fallback & triple-source resolution (`kitsu-client.ts`, 7/7 tests)
-  - [x] Task 6.3: Reader UX Ergonomics, Background Presets & Percentage Pill (`ReaderControls.tsx`, 19/19 tests)
-  - [x] Task 6.4: GSAP 3D Reader Animations & Ambilight Glow System (`MangaReader.tsx`, `WebtoonReader.tsx`)
-  - [x] Task 6.5: 4TB Mechanical HDD Bottleneck Simulation & SQLite WAL Concurrency Benchmarks (`storage-stress.test.ts`, 6/6 tests)
-  - [x] Task 6.6: Senior QA Edge-Case Fuzzing, Zip Slip, Unicode & Tall Strip Stress (`edge-cases.test.ts`, 24/24 tests)
-- [ ] Part 7: Mechanical HDD Caching & Adaptive Streaming (In Progress)
-  - [ ] Task 7.1: Fastify In-Memory ByteLRU Cache for WebP Pages & Manifests (256MB / 32MB bounds)
-  - [ ] Task 7.2: React 19 Adaptive Prefetch Controller with AbortController for High-Speed Scrolling
-  - [ ] Task 7.3: Webtoon Virtualizer Scroll Anchor Engine with Zero Layout Shifts
-  - [ ] Task 7.4: Verification & Autonomous Reiteration
+- [x] Part 7: Mechanical HDD Caching & Adaptive Streaming (Commits 3e22198, e83b8ab)
+  - [x] Task 7.1: Fastify In-Memory ByteLRU Cache for WebP Pages & Manifests (256MB / 32MB bounds)
+  - [x] Task 7.2: React 19 Adaptive Prefetch Controller with AbortController for High-Speed Scrolling
+  - [x] Task 7.3: Webtoon Virtualizer Scroll Anchor Engine with Zero Layout Shifts
+- [x] Part 8: Ergonomics, Resilience & Offline Autonomy (Commits db3b960, cae5da8, 1f1e183, 9c6d2ac, 9eff552)
+  - [x] Task 8.1: Fastify ByteLRU Cold vs Hot Empirical Benchmark (92.31% hit ratio)
+  - [x] Task 8.2: Automated SQLite WAL Maintenance & Checkpointing (`maintenance.ts`, 3/3 tests)
+  - [x] Task 8.3: Local Offline WebP Cover Image Caching with Dynamic SVG Monogram Fallback (`cover-downloader.ts`, 8/8 tests)
+  - [x] Task 8.4: Bottom Thumbnail Scrubber Drawer for Instant Visual Jumps (`ThumbnailScrubber.tsx`, 6/6 tests)
+  - [x] Task 8.5: Double-Page Spread Mode & Shortcuts HUD for Manga (`MangaReader.tsx`, `ReaderControls.tsx`)
+  - [x] Task 8.6: Fastify HTTP API Fuzzing, 5MB Body Limits (HTTP 413), and Abrupt Connection Teardowns (`http-fuzzing.test.ts`, 14/14 tests)

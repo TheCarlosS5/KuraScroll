@@ -6,6 +6,7 @@ frontend/tsconfig.tsbuildinfo
 data/storage/
 data/kura-scroll.db*
 .tmp/
+tmp/
 .env
 .superpowers/sdd/*
 !docs/superpowers/sdd/progress.md

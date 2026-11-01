@@ -3,9 +3,10 @@ import { Navbar } from './components/common/Navbar.js';
 import { CatalogPage } from './pages/CatalogPage.js';
 import { SeriesDetailPage } from './pages/SeriesDetailPage.js';
 import { ReaderPage } from './pages/ReaderPage.js';
+import { HistoryPage } from './pages/HistoryPage.js';
 
 export function App() {
-  const [view, setView] = useState<'catalog' | 'bookmarks' | 'detail' | 'reader'>('catalog');
+  const [view, setView] = useState<'catalog' | 'bookmarks' | 'history' | 'detail' | 'reader'>('catalog');
   const [selectedCategory, setSelectedCategory] = useState<string | undefined>(undefined);
   const [selectedSeriesSlug, setSelectedSeriesSlug] = useState<string | null>(null);
   const [selectedChapterId, setSelectedChapterId] = useState<string | null>(null);
@@ -14,6 +15,8 @@ export function App() {
     setSelectedCategory(category);
     if (newView === 'bookmarks') {
       setView('bookmarks');
+    } else if (newView === 'history') {
+      setView('history');
     } else {
       setView('catalog');
     }
@@ -52,6 +55,14 @@ export function App() {
           <CatalogPage
             isBookmarksView={true}
             onSelectSeries={handleSelectSeries}
+          />
+        )}
+
+        {view === 'history' && (
+          <HistoryPage
+            onSelectSeries={handleSelectSeries}
+            onContinueReading={handleReadChapter}
+            onExploreCatalog={() => setView('catalog')}
           />
         )}
 

@@ -16,4 +16,16 @@ describe('Navbar Component', () => {
     expect(screen.getByText('Manhwa')).toBeDefined();
     expect(screen.getByText('Manhua')).toBeDefined();
   });
+
+  it('renders Historial navigation button and responds to click', () => {
+    const handleNavigate = vi.fn();
+    render(<Navbar onNavigate={handleNavigate} currentView="catalog" />);
+
+    const historyBtn = screen.getByTestId('nav-history-btn');
+    expect(historyBtn).toBeDefined();
+    expect(screen.getByText('Historial')).toBeDefined();
+
+    historyBtn.click();
+    expect(handleNavigate).toHaveBeenCalledWith('history');
+  });
 });

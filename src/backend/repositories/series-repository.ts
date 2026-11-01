@@ -16,6 +16,7 @@ export interface InsertSeriesInput {
   releaseYear?: number;
   anilistId?: number;
   mangadexId?: string;
+  genres?: string[];
 }
 
 export interface SeriesTitleInput {
@@ -45,6 +46,16 @@ export interface Series {
 
 export interface SeriesDetail extends Series {
   titles: Array<{ languageCode: string; title: string; isPrimary: boolean }>;
+  genres: string[];
+}
+
+export interface ListSeriesOptions {
+  q?: string;
+  type?: string;
+  status?: string;
+  genre?: string;
+  page?: number;
+  limit?: number;
 }
 
 export class SeriesRepository {
@@ -74,6 +85,10 @@ export class SeriesRepository {
       input.anilistId ?? null,
       input.mangadexId ?? null
     );
+
+    if (input.genres && input.genres.length > 0) {
+      this.addSeriesGenres(input.id, input.genres);
+    }
   }
 
   addSeriesTitles(seriesId: string, titles: SeriesTitleInput[]): void {
@@ -87,6 +102,39 @@ export class SeriesRepository {
     }
   }
 
+  addSeriesGenres(seriesId: string, genres: string[]): void {
+    const insertGenreStmt = this.db.prepare(`
+      INSERT OR IGNORE INTO genres (name, slug)
+      VALUES (?, ?)
+    `);
+
+    const getGenreStmt = this.db.prepare(`
+      SELECT id FROM genres WHERE slug = ? OR name = ?
+    `);
+
+    const linkStmt = this.db.prepare(`
+      INSERT OR IGNORE INTO series_genres (series_id, genre_id)
+      VALUES (?, ?)
+    `);
+
+    for (const rawGenre of genres) {
+      const name = rawGenre.trim();
+      if (!name) continue;
+      const slug = name
+        .toLowerCase()
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '')
+        .replace(/[^a-z0-9]+/g, '-')
+        .replace(/^-+|-+$/g, '');
+
+      insertGenreStmt.run(name, slug);
+      const genreRow = getGenreStmt.get(slug, name) as any;
+      if (genreRow?.id) {
+        linkStmt.run(seriesId, genreRow.id);
+      }
+    }
+  }
+
   getSeriesBySlug(slug: string): SeriesDetail | null {
     const stmt = this.db.prepare('SELECT * FROM series WHERE slug = ?');
     const row = stmt.get(slug) as any;
@@ -94,6 +142,15 @@ export class SeriesRepository {
 
     const titlesStmt = this.db.prepare('SELECT language_code, title, is_primary FROM series_titles WHERE series_id = ?');
     const titleRows = titlesStmt.all(row.id) as any[];
+
+    const genresStmt = this.db.prepare(`
+      SELECT g.name
+      FROM genres g
+      JOIN series_genres sg ON sg.genre_id = g.id
+      WHERE sg.series_id = ?
+      ORDER BY g.name ASC
+    `);
+    const genreRows = genresStmt.all(row.id) as any[];
 
     return {
       id: row.id,
@@ -117,66 +174,93 @@ export class SeriesRepository {
         title: t.title,
         isPrimary: Boolean(t.is_primary),
       })),
+      genres: genreRows.map((g) => g.name),
     };
   }
 
-  searchSeries(query: string, limit = 20): Series[] {
-    const fts = sanitizeFtsQuery(query);
-    if (!fts) {
-      return this.listSeries({ limit }).items;
+  searchSeries(
+    query: string,
+    optionsOrLimit: number | { type?: string; status?: string; genre?: string; limit?: number } = 20
+  ): Series[] {
+    if (typeof optionsOrLimit === 'number') {
+      return this.listSeries({ q: query, limit: optionsOrLimit }).items;
     }
-
-    try {
-      const stmt = this.db.prepare(`
-        SELECT DISTINCT s.*
-        FROM series_search_fts fts
-        JOIN series s ON s.id = fts.series_id
-        WHERE series_search_fts MATCH ?
-        LIMIT ?
-      `);
-
-      const rows = stmt.all(fts, limit) as any[];
-      return rows.map(this.mapSeriesRow);
-    } catch {
-      // Gracefully catch any FTS5 syntax or query evaluation failures
-      return [];
-    }
+    return this.listSeries({
+      q: query,
+      type: optionsOrLimit?.type,
+      status: optionsOrLimit?.status,
+      genre: optionsOrLimit?.genre,
+      limit: optionsOrLimit?.limit,
+    }).items;
   }
 
-  listSeries(options: { type?: string; status?: string; page?: number; limit?: number } = {}): { items: Series[]; total: number } {
+  listSeries(options: ListSeriesOptions = {}): { items: Series[]; total: number } {
     const page = Math.max(1, options.page ?? 1);
     const limit = Math.min(100, Math.max(1, options.limit ?? 20));
     const offset = (page - 1) * limit;
 
     const conditions: string[] = [];
     const params: any[] = [];
+    let fromClause = 'FROM series s';
+    let isDistinct = false;
 
-    if (options.type) {
-      conditions.push('type = ?');
-      params.push(options.type);
+    if (options.q && options.q.trim()) {
+      const fts = sanitizeFtsQuery(options.q.trim());
+      if (fts) {
+        fromClause = 'FROM series_search_fts fts JOIN series s ON s.id = fts.series_id';
+        conditions.push('series_search_fts MATCH ?');
+        params.push(fts);
+        isDistinct = true;
+      }
     }
-    if (options.status) {
-      conditions.push('status = ?');
-      params.push(options.status);
+
+    if (options.type && options.type.trim()) {
+      conditions.push('s.type = ?');
+      params.push(options.type.trim().toLowerCase());
+    }
+
+    if (options.status && options.status.trim()) {
+      conditions.push('s.status = ?');
+      params.push(options.status.trim().toLowerCase());
+    }
+
+    if (options.genre && options.genre.trim()) {
+      const genrePattern = `%${options.genre.trim()}%`;
+      conditions.push(`
+        EXISTS (
+          SELECT 1 FROM series_genres sg
+          JOIN genres g ON g.id = sg.genre_id
+          WHERE sg.series_id = s.id AND (g.name LIKE ? OR g.slug LIKE ?)
+        )
+      `);
+      params.push(genrePattern, genrePattern);
     }
 
     const where = conditions.length > 0 ? `WHERE ${conditions.join(' AND ')}` : '';
+    const distinctKeyword = isDistinct ? 'DISTINCT ' : '';
 
-    const countStmt = this.db.prepare(`SELECT COUNT(*) as count FROM series ${where}`);
-    const total = (countStmt.get(...params) as any).count as number;
+    try {
+      const countStmt = this.db.prepare(
+        `SELECT COUNT(${isDistinct ? 'DISTINCT s.id' : '*'}) as count ${fromClause} ${where}`
+      );
+      const total = (countStmt.get(...params) as any)?.count as number || 0;
 
-    const queryStmt = this.db.prepare(`
-      SELECT * FROM series
-      ${where}
-      ORDER BY updated_at DESC
-      LIMIT ? OFFSET ?
-    `);
+      const queryStmt = this.db.prepare(`
+        SELECT ${distinctKeyword}s.*
+        ${fromClause}
+        ${where}
+        ORDER BY s.updated_at DESC
+        LIMIT ? OFFSET ?
+      `);
 
-    const rows = queryStmt.all(...params, limit, offset) as any[];
-    return {
-      items: rows.map(this.mapSeriesRow),
-      total,
-    };
+      const rows = queryStmt.all(...params, limit, offset) as any[];
+      return {
+        items: rows.map(this.mapSeriesRow),
+        total,
+      };
+    } catch {
+      return { items: [], total: 0 };
+    }
   }
 
   private mapSeriesRow(row: any): Series {

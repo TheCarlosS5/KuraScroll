@@ -56,6 +56,12 @@ CREATE TABLE IF NOT EXISTS series_genres (
     PRIMARY KEY (series_id, genre_id)
 );
 
+-- Indexes for performance
+CREATE INDEX IF NOT EXISTS idx_series_type_status ON series(type, status);
+CREATE INDEX IF NOT EXISTS idx_series_genres_genre_id ON series_genres(genre_id);
+CREATE INDEX IF NOT EXISTS idx_genres_name ON genres(name);
+CREATE INDEX IF NOT EXISTS idx_genres_slug ON genres(slug);
+
 -- Volumes / Seasons
 CREATE TABLE IF NOT EXISTS volumes (
     id TEXT PRIMARY KEY,

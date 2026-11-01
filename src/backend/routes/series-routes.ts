@@ -11,6 +11,7 @@ export function registerSeriesRoutes(app: FastifyInstance, db: DatabaseInstance)
       q?: string;
       type?: string;
       status?: string;
+      genre?: string;
       page?: string;
       limit?: string;
     };
@@ -18,14 +19,11 @@ export function registerSeriesRoutes(app: FastifyInstance, db: DatabaseInstance)
     const limit = query.limit ? Number.parseInt(query.limit, 10) : 20;
     const page = query.page ? Number.parseInt(query.page, 10) : 1;
 
-    if (query.q && query.q.trim()) {
-      const items = repo.searchSeries(query.q.trim(), limit);
-      return { items, total: items.length, page: 1, limit };
-    }
-
     const result = repo.listSeries({
+      q: query.q,
       type: query.type,
       status: query.status,
+      genre: query.genre,
       page,
       limit,
     });

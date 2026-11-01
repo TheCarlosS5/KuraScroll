@@ -1,5 +1,5 @@
 import React from 'react';
-import { BookOpen, Bookmark, Sparkles } from 'lucide-react';
+import { BookOpen, Bookmark, Sparkles, History } from 'lucide-react';
 
 export interface NavbarProps {
   currentView?: string;
@@ -80,8 +80,23 @@ export const Navbar: React.FC<NavbarProps> = ({
           </button>
         </nav>
 
-        {/* Bookmarks & Storage Info */}
-        <div className="flex items-center gap-3">
+        {/* Bookmarks, History & Storage Info */}
+        <div className="flex items-center gap-2 sm:gap-3">
+          <button
+            data-testid="nav-history-btn"
+            onClick={() => onNavigate?.('history')}
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-sm font-medium transition-all ${
+              currentView === 'history'
+                ? 'bg-cyan-600 text-white shadow-[0_0_15px_rgba(0,229,255,0.4)]'
+                : 'bg-gray-900/80 text-gray-300 border border-gray-800 hover:border-gray-700 hover:text-white'
+            }`}
+            title="Historial de lectura"
+            aria-label="Historial de lectura"
+          >
+            <History className="w-4 h-4 text-cyan-400" />
+            <span className="hidden sm:inline">Historial</span>
+          </button>
+
           <button
             onClick={() => onNavigate?.('bookmarks')}
             className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-sm font-medium transition-all ${

@@ -112,4 +112,17 @@
   - [x] Task 22.3: SQLite Table `corrupt_files_log` for Bad Block & Truncated Page Tracking
   - [x] Task 22.4: Graceful Fastify Reader Fallback on EIO / Broken Headers (`chapter-routes.ts`, zero-crash reader UX, 6/6 tests)
   - [x] Task 22.5: Fastify Telemetry Integrity Endpoints (`GET /api/v1/telemetry/integrity` & `POST /api/v1/telemetry/integrity/scan`, 5/5 tests)
-- [ ] Part 23: Reader Fullscreen & Zen Immersion Mode with GSAP Kinetic Page Transition
+- [x] Part 23: Reader Fullscreen & Zen Immersion Mode with GSAP 3 Kinetic Transitions (Commit d0e9b9a)
+  - [x] Task 23.1: UI/UX Choreography Specification from `manga-ux-designer` subagent
+  - [x] Task 23.2: Custom React 19 Hook `useZenModeGSAP` with finite state machine (`INACTIVE | ENTERING | ACTIVE | EXITING`) and keyboard 'F' / Escape guards (8/8 tests)
+  - [x] Task 23.3: Intel GMA 4500MHD GPU Optimization (single ambient aura gradient, no expensive animated filter blur, 0 CLS reflows)
+  - [x] Task 23.4: ReaderControls Integration with Zen Mode toggle button & visual status feedback (12/12 tests)
+  - [x] Task 23.5: ReaderPage Canvas & Ambilight Backdrop Mount with GSAP 3 animation choreography
+  - [x] Task 23.6: Vitest Frontend Suite (24 test files, 156 passed) & Vite Production Build (11.59s)
+- [x] Part 24: Backend SATA II & SQLite I/O Hardening with 64KB Chunked Streams & PRAGMA Profile (Commit bceb647)
+  - [x] Task 24.1: Consultation with ChatGPT on SATA II 5400 RPM Platter Seeking & Single Writer Architecture (`docs/brainstorming/chatgpt-zen-mode-and-sata2-io-hardening-blueprint.md`)
+  - [x] Task 24.2: SQLite Connection Hardening PRAGMAs (`busy_timeout = 10000`, `synchronous = NORMAL`, `temp_store = MEMORY`, `cache_size = -1024`, `mmap_size = 0`, `wal_autocheckpoint = 1000`)
+  - [x] Task 24.3: Chunked Stream Copy & Hashing Utilities with 64KB highWaterMark (`stream-copy.ts`, 5/5 tests)
+  - [x] Task 24.4: Differential Mirror Service Migration to Non-blocking 64KB Stream Hashing & Copy
+  - [x] Task 24.5: Monorepo Verification (72 test files, 420 passed tests, 100% PASS)
+- [ ] Part 25: SQLite FTS5 CJK & Short Prefix Subquery Optimization (Empirical Benchmark < 5ms on Pentium T4500)

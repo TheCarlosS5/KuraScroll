@@ -1,9 +1,9 @@
 # SDD ledger — plan: docs/superpowers/plans/2026-11-01-kura-scroll-master-plan.md
 
-- **Status:** Complete & Iterating (Sprint 15 Verified, 363 Tests Passing)
+- **Status:** Complete & Iterating (Sprint 16 Verified, 368 Tests Passing)
 - **Orchestrator:** Antigravity AI Orchestrator
 - **Branch:** main (isolated in `C:\Users\Admin\dev\kura-scroll`)
-- **Total Test Suites:** 61 test files, 363 passing tests (220 backend + 143 frontend, 100% PASS)
+- **Total Test Suites:** 63 test files, 368 passing tests (225 backend + 143 frontend, 100% PASS)
 
 ## Rulings & Decisions
 - Ruling: Standalone Sibling Project ("Proyecto Hermano") chosen as requested by Carlos to prevent monolithic coupling with KuraStream while sharing branding/logo (KS).
@@ -68,9 +68,14 @@
   - [x] Task 14.2: RTL/LTR Touch Swipe Gestures Hook (`useSwipeGestures.ts`, 5/5 tests)
   - [x] Task 14.3: Reading Speed & Time-to-Finish Estimator (`reading-stats-service.ts`, 5/5 tests)
   - [x] Task 14.4: Reader UI Integration in MangaReader, ReaderControls & ReaderPage (11/11 tests)
-- [x] Part 15: Offline PWA Background Sync & Storage Footprint Telemetry
+- [x] Part 15: Offline PWA Background Sync & Storage Footprint Telemetry (Commit 32c8758)
   - [x] Task 15.1: Storage Footprint & 4TB Projection Telemetry (`storage-telemetry.ts`, 3/3 tests)
   - [x] Task 15.2: Fastify Telemetry & Cache Flush Endpoints (`telemetry-routes.ts`)
   - [x] Task 15.3: Offline Mutation Background Sync Outbox (`background-sync.ts`, 4/4 tests)
   - [x] Task 15.4: Storage Telemetry Modal & Navbar Integration (`StorageTelemetryModal.tsx`, `Navbar.tsx`, `App.tsx`, 5/5 tests)
-- [ ] Part 16: Automated Metadata Synchronization & Self-Healing Archive Indexer
+- [x] Part 16: Intel Pentium T4500 Hardware Profile Tuning & Degradation Benchmark
+  - [x] Task 16.1: Senior Architectural Blueprint with ChatGPT (`docs/brainstorming/chatgpt-pentium-t4500-low-resource-blueprint.md`)
+  - [x] Task 16.2: Low-Resource Profile Detection & OS Priority Setting (`hardware-profile.ts`, 3/3 tests)
+  - [x] Task 16.3: Windows 1-Click Launcher Auto-tuning for T4500 & <=4GB RAM (`scripts/start-local.ps1`)
+  - [x] Task 16.4: T4500 Ingestion vs 10 Concurrent Readers Degradation Benchmark (`t4500-low-resource-degradation.test.ts`, 2/2 tests, P95 28.86ms)
+- [ ] Part 17: Adaptive Ingestion Controller with Memory Pressure Backoff & Hysteresis

@@ -1,0 +1,12 @@
+node_modules/
+frontend/node_modules/
+dist/
+frontend/dist/
+frontend/tsconfig.tsbuildinfo
+data/storage/
+data/kura-scroll.db*
+.tmp/
+.env
+.superpowers/sdd/*
+!docs/superpowers/sdd/progress.md
+*.log

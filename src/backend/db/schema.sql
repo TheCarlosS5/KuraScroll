@@ -27,11 +27,12 @@ CREATE TABLE IF NOT EXISTS series_titles (
     is_primary INTEGER DEFAULT 0
 );
 
--- Full Text Search Virtual Table
+-- Full Text Search Virtual Table with Prefix Indexing (1 2 3) and Diacritic Normalization
 CREATE VIRTUAL TABLE IF NOT EXISTS series_search_fts USING fts5(
     series_id UNINDEXED,
     title,
-    tokenize = 'unicode61'
+    tokenize = 'unicode61 remove_diacritics 2',
+    prefix = '1 2 3'
 );
 
 -- Triggers to keep FTS index synchronized
@@ -57,6 +58,9 @@ CREATE TABLE IF NOT EXISTS series_genres (
 );
 
 -- Indexes for performance
+CREATE INDEX IF NOT EXISTS idx_series_titles_series_id ON series_titles(series_id);
+CREATE INDEX IF NOT EXISTS idx_series_titles_title ON series_titles(title);
+CREATE INDEX IF NOT EXISTS idx_series_updated_at ON series(updated_at DESC);
 CREATE INDEX IF NOT EXISTS idx_series_type_status ON series(type, status);
 CREATE INDEX IF NOT EXISTS idx_series_genres_genre_id ON series_genres(genre_id);
 CREATE INDEX IF NOT EXISTS idx_genres_name ON genres(name);

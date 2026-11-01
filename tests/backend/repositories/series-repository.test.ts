@@ -76,6 +76,11 @@ describe('SeriesRepository multilingual search and taxonomy filtering', () => {
     expect(byKanji.length).toBe(1);
     expect(byKanji[0].id).toBe('demon-slayer');
 
+    // Single Kanji prefix lookup (prefix = '1 2 3' optimization)
+    const bySingleKanji = repo.searchSeries('鬼');
+    expect(bySingleKanji.length).toBe(1);
+    expect(bySingleKanji[0].id).toBe('demon-slayer');
+
     const byEnglish = repo.searchSeries('Demon Slayer');
     expect(byEnglish.length).toBe(1);
     expect(byEnglish[0].id).toBe('demon-slayer');

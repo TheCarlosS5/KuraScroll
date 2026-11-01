@@ -4,6 +4,9 @@ import { sanitizeFtsQuery } from '../../../src/backend/utils/fts-sanitizer';
 describe('sanitizeFtsQuery', () => {
   it('strips special FTS characters and formats words into prefix tokens', () => {
     expect(sanitizeFtsQuery('SPY x FAMILY')).toBe('"SPY"* "x"* "FAMILY"*');
+    expect(sanitizeFtsQuery('SPY×FAMILY')).toBe('"SPY"* "FAMILY"*');
+    expect(sanitizeFtsQuery('Fate/stay night')).toBe('"Fate"* "stay"* "night"*');
+    expect(sanitizeFtsQuery("JoJo's Bizarre")).toBe('"JoJo"* "s"* "Bizarre"*');
     expect(sanitizeFtsQuery('Re:Zero - Starting')).toBe('"Re"* "Zero"* "Starting"*');
   });
 

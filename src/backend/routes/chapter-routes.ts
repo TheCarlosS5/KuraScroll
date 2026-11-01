@@ -6,6 +6,8 @@ import { ChapterRepository } from '../repositories/chapter-repository.js';
 import { ingestChapter } from '../services/chapter-ingestion-service.js';
 import { manifestLoader, imageLoader, manifestCache, imageCache } from '../cache/media-cache.js';
 import { ImageIntegrityService } from '../services/image-integrity-service.js';
+import { sharedIOCoordinator } from '../storage/io/io-coordinator.js';
+import { IOPriority } from '../storage/io/io-priority.js';
 
 export function registerChapterRoutes(
   app: FastifyInstance,
@@ -58,26 +60,31 @@ export function registerChapterRoutes(
 
     const cacheKey = `${chapterId}/${pageFile}`;
     const buffer = await imageLoader.getOrLoad(cacheKey, async () => {
-      const chapter = repo.getChapter(chapterId);
-      if (!chapter) return null;
+      return sharedIOCoordinator.run(
+        { priority: IOPriority.CRITICAL, label: `read-${cacheKey}` },
+        async () => {
+          const chapter = repo.getChapter(chapterId);
+          if (!chapter) return null;
 
-      const physicalPath = path.join(storageRoot, chapter.storagePath, pageFile);
-      if (!fs.existsSync(physicalPath)) return null;
+          const physicalPath = path.join(storageRoot, chapter.storagePath, pageFile);
+          if (!fs.existsSync(physicalPath)) return null;
 
-      try {
-        const fileBuffer = await fs.promises.readFile(physicalPath);
-        // Fast header check for zeroed-out bad sector
-        if (fileBuffer.length < 16 || fileBuffer.subarray(0, 4).toString('ascii') !== 'RIFF') {
-          integrityService.logCorruptFile(physicalPath, chapterId, 'bad_block_or_corrupted_magic_header');
-          const fallback = integrityService.getFallbackPlaceholderWebP();
-          return { value: fallback, size: fallback.length };
+          try {
+            const fileBuffer = await fs.promises.readFile(physicalPath);
+            // Fast header check for zeroed-out bad sector
+            if (fileBuffer.length < 16 || fileBuffer.subarray(0, 4).toString('ascii') !== 'RIFF') {
+              integrityService.logCorruptFile(physicalPath, chapterId, 'bad_block_or_corrupted_magic_header');
+              const fallback = integrityService.getFallbackPlaceholderWebP();
+              return { value: fallback, size: fallback.length };
+            }
+            return { value: fileBuffer, size: fileBuffer.length };
+          } catch (err: any) {
+            integrityService.logCorruptFile(physicalPath, chapterId, `disk_io_error: ${err.message}`);
+            const fallback = integrityService.getFallbackPlaceholderWebP();
+            return { value: fallback, size: fallback.length };
+          }
         }
-        return { value: fileBuffer, size: fileBuffer.length };
-      } catch (err: any) {
-        integrityService.logCorruptFile(physicalPath, chapterId, `disk_io_error: ${err.message}`);
-        const fallback = integrityService.getFallbackPlaceholderWebP();
-        return { value: fallback, size: fallback.length };
-      }
+      );
     });
 
     if (!buffer) {

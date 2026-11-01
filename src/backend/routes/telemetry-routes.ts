@@ -6,6 +6,7 @@ import { imageCache, manifestCache } from '../cache/media-cache.js';
 import { AdaptiveIngestionController } from '../services/adaptive-ingestion-controller.js';
 import { SelfHealingIndexer } from '../services/self-healing-indexer.js';
 import { ImageIntegrityService } from '../services/image-integrity-service.js';
+import { sharedIOCoordinator } from '../storage/io/io-coordinator.js';
 
 export interface TelemetryRoutesOptions {
   db: DatabaseInstance;
@@ -159,4 +160,12 @@ export function registerTelemetryRoutes(
       }
     }
   );
+
+  // GET /api/v1/telemetry/io - Shared I/O Concurrency Coordinator Live Metrics
+  app.get('/api/v1/telemetry/io', async () => {
+    return {
+      success: true,
+      coordinator: sharedIOCoordinator.getMetrics(),
+    };
+  });
 }

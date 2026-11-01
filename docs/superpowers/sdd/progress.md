@@ -1,9 +1,9 @@
 # SDD ledger — plan: docs/superpowers/plans/2026-11-01-kura-scroll-master-plan.md
 
-- **Status:** Complete & Iterating (Sprint 27 Verified, 434 Tests Passing)
+- **Status:** Complete & Iterating (Sprint 28 Verified, 446 Tests Passing)
 - **Orchestrator:** Antigravity AI Orchestrator
 - **Branch:** main (isolated in `C:\Users\Admin\dev\kura-scroll`)
-- **Total Test Suites:** 75 test files, 434 passing tests (272 backend + 162 frontend, 100% PASS)
+- **Total Test Suites:** 78 test files, 446 passing tests (284 backend + 162 frontend, 100% PASS)
 
 ## Rulings & Decisions
 - Ruling: Standalone Sibling Project ("Proyecto Hermano") chosen as requested by Carlos to prevent monolithic coupling with KuraStream while sharing branding/logo (KS).
@@ -144,4 +144,12 @@
   - [x] Task 27.4: React 19 Frontend Component `SmartResumePointer.tsx` with strict 0 CLS aspect ratios, `contain: layout paint`, relative time badges, and `Space` / `Enter` keyboard resume
   - [x] Task 27.5: Floating Preview Tooltip in `ThumbnailScrubber.tsx` with dynamic coordinates, page numbers, and smooth hover feedback
   - [x] Task 27.6: Backend and Frontend Test Suites (20 tests: `progress-routes.test.ts`, `smart-reading-bookmarks.test.ts`, `SmartResumePointer.test.tsx`, `ThumbnailScrubber.test.tsx`)
-- [ ] Part 28: Cooperative Shared I/O Concurrency Coordinator & Long-Session Soak Benchmark
+- [x] Part 28: Cooperative Shared I/O Concurrency Coordinator & Long-Session Soak Benchmark (Commit Sprint 28)
+  - [x] Task 28.1: Architectural Consultation with ChatGPT on Cooperative PauseGate vs AbortSignal (`docs/brainstorming/chatgpt-resume-thumbnails-and-io-coordinator-blueprint.md`)
+  - [x] Task 28.2: 4-Level Priority Hierarchy (`CRITICAL = 0`, `HIGH = 1`, `NORMAL = 2`, `BACKGROUND = 3` in `io-priority.ts`)
+  - [x] Task 28.3: Cooperative PauseGate with Signal Abort Guards & Waiter Cleanup (`pause-gate.ts`)
+  - [x] Task 28.4: Shared Singleton `IOCoordinator` with Preemption, Strict Concurrency Limits (2 Interactive / 1 Background), and Metrics (`io-coordinator.ts`)
+  - [x] Task 28.5: Fastify Chapter Route Integration (disk misses execute as `CRITICAL`, automatically pausing background tasks) and `GET /api/v1/telemetry/io`
+  - [x] Task 28.6: Unit & Resilience Test Suites (`io-coordinator.test.ts`, `pause-gate-coordinator.test.ts`, 10/10 tests PASS)
+  - [x] Task 28.7: Concurrent Soak Test Benchmark (`io-coordination-soak.test.ts`, P95 < 16ms, 0% error rate under 100 interleaved requests)
+- [ ] Part 29: Reading Streak Analytics, Offline Sync Diagnostics HUD & Monorepo Delivery Refinement

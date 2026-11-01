@@ -133,4 +133,25 @@ describe('Adaptive Ingestion Controller Telemetry & Fastify Routes', () => {
     expect(body.success).toBe(true);
     expect(Array.isArray(body.corruptFiles)).toBe(true);
   });
+
+  it('GET /api/v1/telemetry/io returns Shared I/O Concurrency Coordinator metrics', async () => {
+    const app = buildApp({
+      db,
+      storageRoot: testDir,
+      adaptiveController: controller,
+    });
+
+    const res = await app.inject({
+      method: 'GET',
+      url: '/api/v1/telemetry/io',
+    });
+
+    expect(res.statusCode).toBe(200);
+    const body = JSON.parse(res.body);
+    expect(body.success).toBe(true);
+    expect(body.coordinator).toBeDefined();
+    expect(typeof body.coordinator.activeInteractive).toBe('number');
+    expect(typeof body.coordinator.activeBackground).toBe('number');
+    expect(typeof body.coordinator.queuedCount).toBe('number');
+  });
 });

@@ -135,15 +135,30 @@ export const MangaReader: React.FC<MangaReaderProps> = ({
           ? slideDistance
           : -slideDistance;
 
+      const tiltAngle =
+        mode === 'RTL'
+          ? isAdvancing
+            ? -2.5
+            : 2.5
+          : isAdvancing
+          ? 2.5
+          : -2.5;
+
       if (pageWrapperRef.current) {
         gsap.fromTo(
           pageWrapperRef.current,
-          { opacity: 0, x: xOffset, scale: 0.99 },
+          {
+            opacity: 0,
+            x: xOffset,
+            rotateY: tiltAngle,
+            scale: 0.99,
+          },
           {
             opacity: 1,
             x: 0,
+            rotateY: 0,
             scale: 1,
-            duration: 0.35,
+            duration: 0.38,
             ease: 'power3.out',
             clearProps: 'transform',
           }
@@ -194,7 +209,8 @@ export const MangaReader: React.FC<MangaReaderProps> = ({
   return (
     <div
       ref={containerRef}
-      className="relative w-full h-[calc(100vh-60px)] flex items-center justify-center bg-transparent overflow-hidden select-none"
+      style={{ perspective: '1200px' }}
+      className="relative w-full h-[calc(100vh-60px)] flex items-center justify-center bg-[#080c14] overflow-hidden select-none"
     >
       {/* Soft Ambient Lighting reflecting comic mood behind active page */}
       <div className="absolute inset-0 flex items-center justify-center pointer-events-none overflow-hidden select-none z-0">
@@ -211,7 +227,10 @@ export const MangaReader: React.FC<MangaReaderProps> = ({
       {/* Current Page Display with Zero CLS */}
       <div
         ref={pageWrapperRef}
-        style={{ aspectRatio: activePage.aspectRatio > 0 ? activePage.aspectRatio : 0.666 }}
+        style={{
+          aspectRatio: activePage.aspectRatio > 0 ? activePage.aspectRatio : 0.666,
+          transformStyle: 'preserve-3d',
+        }}
         className="max-h-full max-w-full flex items-center justify-center relative shadow-2xl z-10 transform-gpu"
       >
         {/* Zero CLS Skeleton Placeholder */}

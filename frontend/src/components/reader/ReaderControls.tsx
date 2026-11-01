@@ -1,5 +1,29 @@
-import React from 'react';
-import { ArrowLeft, Maximize2, Minimize2, ChevronLeft, ChevronRight, LayoutList, Layers } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import {
+  ArrowLeft,
+  Maximize2,
+  Minimize2,
+  ChevronLeft,
+  ChevronRight,
+  LayoutList,
+  Layers,
+} from 'lucide-react';
+
+export type ReaderBackgroundTheme = '#000000' | '#000' | '#080c14' | '#1a1612' | string;
+
+export interface BackgroundThemeOption {
+  id: string;
+  name: string;
+  hex: string;
+  shortHex: string;
+  label: string;
+}
+
+export const BACKGROUND_THEMES: readonly BackgroundThemeOption[] = [
+  { id: 'pure-black', name: 'Pure Black', hex: '#000000', shortHex: '#000', label: 'Pure Black' },
+  { id: 'deep-void', name: 'Deep Void', hex: '#080c14', shortHex: '#080c14', label: 'Deep Void' },
+  { id: 'warm-sepia', name: 'Warm Sepia', hex: '#1a1612', shortHex: '#1a1612', label: 'Warm Sepia' },
+] as const;
 
 export interface ReaderControlsProps {
   seriesTitle: string;
@@ -11,6 +35,12 @@ export interface ReaderControlsProps {
   onBack: () => void;
   onSelectChapter: (chapterId: string) => void;
   onChangeMode: (mode: 'webtoon' | 'manga-rtl' | 'manga-ltr') => void;
+  // Customizable user settings
+  currentBackground?: ReaderBackgroundTheme;
+  onChangeBackground?: (bg: string) => void;
+  currentPage?: number;
+  totalPages?: number;
+  progressPercent?: number;
 }
 
 export const ReaderControls: React.FC<ReaderControlsProps> = ({
@@ -23,7 +53,42 @@ export const ReaderControls: React.FC<ReaderControlsProps> = ({
   onBack,
   onSelectChapter,
   onChangeMode,
+  currentBackground,
+  onChangeBackground,
+  currentPage,
+  totalPages,
+  progressPercent,
 }) => {
+  const [internalBg, setInternalBg] = useState<string>(currentBackground || '#080c14');
+  const [isFullscreen, setIsFullscreen] = useState(false);
+
+  useEffect(() => {
+    const handleFullscreenChange = () => {
+      setIsFullscreen(!!document.fullscreenElement);
+    };
+    document.addEventListener('fullscreenchange', handleFullscreenChange);
+    return () => document.removeEventListener('fullscreenchange', handleFullscreenChange);
+  }, []);
+
+  const activeBg = currentBackground !== undefined ? currentBackground : internalBg;
+
+  const handleSelectBackground = (hex: string) => {
+    setInternalBg(hex);
+    onChangeBackground?.(hex);
+  };
+
+  const isMatch = (theme: BackgroundThemeOption) => {
+    const normActive = activeBg.toLowerCase();
+    return normActive === theme.hex.toLowerCase() || normActive === theme.shortHex.toLowerCase();
+  };
+
+  const calculatedPercent =
+    progressPercent !== undefined
+      ? Math.min(100, Math.max(0, Math.round(progressPercent)))
+      : totalPages && totalPages > 0 && currentPage !== undefined
+      ? Math.min(100, Math.max(0, Math.round((currentPage / totalPages) * 100)))
+      : 0;
+
   const toggleFullscreen = () => {
     if (!document.fullscreenElement) {
       document.documentElement.requestFullscreen().catch(() => {});
@@ -33,19 +98,20 @@ export const ReaderControls: React.FC<ReaderControlsProps> = ({
   };
 
   return (
-    <div className="fixed top-0 inset-x-0 z-50 bg-[#080c14]/95 backdrop-blur-md border-b border-gray-800 px-4 py-3 flex items-center justify-between text-white transition-all shadow-xl">
+    <div className="fixed top-0 inset-x-0 z-50 bg-[#080c14]/95 backdrop-blur-md border-b border-gray-800 px-4 py-2.5 flex items-center justify-between text-white transition-all shadow-xl">
       {/* Left: Back & Titles */}
-      <div className="flex items-center gap-3">
+      <div className="flex items-center gap-3 min-w-0">
         <button
           onClick={onBack}
-          className="p-2 rounded-xl bg-gray-900 hover:bg-gray-800 text-gray-300 hover:text-white transition-colors border border-gray-800"
+          className="p-2 rounded-xl bg-gray-900 hover:bg-gray-800 text-gray-300 hover:text-white transition-colors border border-gray-800 shrink-0"
           title="Volver a la serie"
+          aria-label="Volver a la serie"
         >
           <ArrowLeft className="w-5 h-5" />
         </button>
-        <div>
-          <h2 className="text-sm font-bold text-gray-200 line-clamp-1">{seriesTitle}</h2>
-          <p className="text-xs text-cyan-400 font-medium">
+        <div className="min-w-0">
+          <h2 className="text-sm font-bold text-gray-200 truncate">{seriesTitle}</h2>
+          <p className="text-xs text-cyan-400 font-medium truncate">
             Capítulo {chapterNumber} {chapterTitle ? `• ${chapterTitle}` : ''}
           </p>
         </div>
@@ -88,13 +154,62 @@ export const ReaderControls: React.FC<ReaderControlsProps> = ({
         </button>
       </div>
 
-      {/* Right: Chapter Switcher & Fullscreen */}
-      <div className="flex items-center gap-2">
+      {/* Right: Background Selector, Reading Progress Pill, Chapter Switcher & Fullscreen */}
+      <div className="flex items-center gap-2 shrink-0">
+        {/* Background Theme Selector */}
+        <div
+          data-testid="background-theme-selector"
+          className="flex items-center gap-1 bg-gray-900/90 p-1 rounded-xl border border-gray-800"
+          role="group"
+          aria-label="Color de fondo de lectura"
+        >
+          {BACKGROUND_THEMES.map((theme) => {
+            const selected = isMatch(theme);
+            return (
+              <button
+                key={theme.id}
+                data-testid={`bg-theme-${theme.id}`}
+                onClick={() => handleSelectBackground(theme.hex)}
+                className={`flex items-center gap-1.5 px-2 py-1 rounded-lg text-xs font-medium transition-all ${
+                  selected
+                    ? 'bg-cyan-500/20 text-cyan-300 border border-cyan-500/50 shadow-sm'
+                    : 'text-gray-400 hover:text-white border border-transparent hover:bg-gray-800/60'
+                }`}
+                title={`${theme.name} (${theme.shortHex})`}
+                aria-label={`${theme.name} (${theme.shortHex})`}
+              >
+                <span
+                  className="w-3 h-3 rounded-full border border-gray-600 shrink-0 inline-block"
+                  style={{ backgroundColor: theme.hex }}
+                />
+                <span className="hidden xl:inline">{theme.label}</span>
+              </button>
+            );
+          })}
+        </div>
+
+        {/* Reading progress percentage pill */}
+        <div
+          data-testid="reading-progress-pill"
+          className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-cyan-950/80 border border-cyan-500/40 text-cyan-300 text-xs font-semibold shadow-sm select-none"
+          title={`Progreso: ${calculatedPercent}%${currentPage && totalPages ? ` (${currentPage}/${totalPages})` : ''}`}
+        >
+          <span className="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-pulse" />
+          <span>{calculatedPercent}%</span>
+          {currentPage !== undefined && totalPages !== undefined && totalPages > 0 && (
+            <span className="text-cyan-400/70 text-[10px] hidden md:inline font-mono">
+              {currentPage}/{totalPages}
+            </span>
+          )}
+        </div>
+
+        {/* Chapter Switcher & Fullscreen */}
         <button
           disabled={!prevChapterId}
           onClick={() => prevChapterId && onSelectChapter(prevChapterId)}
           className="p-2 rounded-xl bg-gray-900 hover:bg-gray-800 disabled:opacity-40 disabled:cursor-not-allowed border border-gray-800 text-gray-300 hover:text-white transition-colors"
           title="Capítulo Anterior"
+          aria-label="Capítulo Anterior"
         >
           <ChevronLeft className="w-4 h-4" />
         </button>
@@ -103,15 +218,17 @@ export const ReaderControls: React.FC<ReaderControlsProps> = ({
           onClick={() => nextChapterId && onSelectChapter(nextChapterId)}
           className="p-2 rounded-xl bg-gray-900 hover:bg-gray-800 disabled:opacity-40 disabled:cursor-not-allowed border border-gray-800 text-gray-300 hover:text-white transition-colors"
           title="Capítulo Siguiente"
+          aria-label="Capítulo Siguiente"
         >
           <ChevronRight className="w-4 h-4" />
         </button>
         <button
           onClick={toggleFullscreen}
           className="p-2 rounded-xl bg-gray-900 hover:bg-gray-800 border border-gray-800 text-gray-300 hover:text-white transition-colors ml-1"
-          title="Pantalla Completa"
+          title={isFullscreen ? 'Salir de pantalla completa' : 'Pantalla Completa'}
+          aria-label={isFullscreen ? 'Salir de pantalla completa' : 'Pantalla Completa'}
         >
-          <Maximize2 className="w-4 h-4" />
+          {isFullscreen ? <Minimize2 className="w-4 h-4" /> : <Maximize2 className="w-4 h-4" />}
         </button>
       </div>
     </div>

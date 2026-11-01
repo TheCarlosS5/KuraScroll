@@ -20,6 +20,22 @@ export const ReaderPage: React.FC<ReaderPageProps> = ({
   const [currentPage, setCurrentPage] = useState(1);
   const [readerMode, setReaderMode] = useState<'webtoon' | 'manga-rtl' | 'manga-ltr'>('webtoon');
   const [showControls, setShowControls] = useState(true);
+  const [readingBackground, setReadingBackground] = useState<string>(() => {
+    try {
+      return localStorage.getItem('kura-scroll-reader-bg') || '#080c14';
+    } catch {
+      return '#080c14';
+    }
+  });
+
+  const handleBackgroundChange = (bg: string) => {
+    setReadingBackground(bg);
+    try {
+      localStorage.setItem('kura-scroll-reader-bg', bg);
+    } catch {
+      // LocalStorage access restricted in certain sandbox frames
+    }
+  };
 
   const seriesId = manifest?.chapter?.seriesId || '';
   const { saveProgress } = useReadingProgress(seriesId);
@@ -78,9 +94,13 @@ export const ReaderPage: React.FC<ReaderPageProps> = ({
   }
 
   const storageBaseUrl = `/storage/${manifest.chapter.storagePath}`;
+  const totalPages = manifest.pages?.length || 1;
 
   return (
-    <div className="min-h-screen bg-black text-white relative">
+    <div
+      className="min-h-screen text-white relative transition-colors duration-200"
+      style={{ backgroundColor: readingBackground }}
+    >
       {/* Floating Header Controls */}
       {showControls && (
         <ReaderControls
@@ -93,6 +113,10 @@ export const ReaderPage: React.FC<ReaderPageProps> = ({
           onBack={onBack}
           onSelectChapter={onSelectChapter}
           onChangeMode={setReaderMode}
+          currentBackground={readingBackground}
+          onChangeBackground={handleBackgroundChange}
+          currentPage={currentPage}
+          totalPages={totalPages}
         />
       )}
 

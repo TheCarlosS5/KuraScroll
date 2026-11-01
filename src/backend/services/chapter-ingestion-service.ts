@@ -109,7 +109,11 @@ export async function ingestChapter(params: IngestChapterParams): Promise<Chapte
   }
 }
 
+import { ingestVolumeArchive } from './volume-extractor.js';
+export { ingestVolumeArchive };
+
 export const ChapterIngestionService = {
   ingestChapter,
+  ingestVolumeArchive,
 };
 

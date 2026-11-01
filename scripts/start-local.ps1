@@ -8,8 +8,16 @@ $ProjectRoot = Split-Path -Parent $CurrentDir
 Set-Location $ProjectRoot
 
 # Ensure data storage directories exist
-if (!(Test-Path "$ProjectRoot\data\storage\covers")) {
-    New-Item -ItemType Directory -Force -Path "$ProjectRoot\data\storage\covers" | Out-Null
+$StorageDirs = @(
+    "$ProjectRoot\data\storage\covers",
+    "$ProjectRoot\data\storage\incoming",
+    "$ProjectRoot\data\storage\backups",
+    "$ProjectRoot\data\storage\series"
+)
+foreach ($dir in $StorageDirs) {
+    if (!(Test-Path $dir)) {
+        New-Item -ItemType Directory -Force -Path $dir | Out-Null
+    }
 }
 
 Write-Host "[1/2] Iniciando KuraScroll Backend API en puerto 4000..." -ForegroundColor Yellow

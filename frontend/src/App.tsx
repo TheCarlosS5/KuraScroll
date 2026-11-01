@@ -4,12 +4,14 @@ import { CatalogPage } from './pages/CatalogPage.js';
 import { SeriesDetailPage } from './pages/SeriesDetailPage.js';
 import { ReaderPage } from './pages/ReaderPage.js';
 import { HistoryPage } from './pages/HistoryPage.js';
+import { BackupModal } from './components/settings/BackupModal.js';
 
 export function App() {
   const [view, setView] = useState<'catalog' | 'bookmarks' | 'history' | 'detail' | 'reader'>('catalog');
   const [selectedCategory, setSelectedCategory] = useState<string | undefined>(undefined);
   const [selectedSeriesSlug, setSelectedSeriesSlug] = useState<string | null>(null);
   const [selectedChapterId, setSelectedChapterId] = useState<string | null>(null);
+  const [isBackupOpen, setIsBackupOpen] = useState(false);
 
   const handleNavigate = (newView: string, category?: string) => {
     setSelectedCategory(category);
@@ -40,6 +42,7 @@ export function App() {
           currentView={view}
           selectedCategory={selectedCategory}
           onNavigate={handleNavigate}
+          onOpenBackup={() => setIsBackupOpen(true)}
         />
       )}
 
@@ -82,6 +85,12 @@ export function App() {
           />
         )}
       </main>
+
+      {/* Backup Import & Export Dialog */}
+      <BackupModal
+        isOpen={isBackupOpen}
+        onClose={() => setIsBackupOpen(false)}
+      />
     </div>
   );
 }

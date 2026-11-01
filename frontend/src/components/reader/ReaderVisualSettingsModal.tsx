@@ -1,5 +1,6 @@
 import React, { useEffect, useRef } from 'react';
 import gsap from 'gsap';
+import { useFocusTrap } from '../../hooks/useFocusTrap.js';
 import {
   Sun,
   Contrast,
@@ -96,7 +97,10 @@ export const ReaderVisualSettingsModal: React.FC<ReaderVisualSettingsModalProps>
   onChangeSettings,
   readerMode = 'manga-rtl',
 }) => {
-  const modalRef = useRef<HTMLDivElement>(null);
+  const modalRef = useFocusTrap<HTMLDivElement>({
+    isOpen,
+    onClose,
+  });
 
   useEffect(() => {
     if (isOpen && modalRef.current) {
@@ -107,18 +111,6 @@ export const ReaderVisualSettingsModal: React.FC<ReaderVisualSettingsModalProps>
       );
     }
   }, [isOpen]);
-
-  // Handle Escape key to close
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (isOpen && (e.key === 'Escape' || e.key === 'Esc')) {
-        e.preventDefault();
-        onClose();
-      }
-    };
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [isOpen, onClose]);
 
   if (!isOpen) return null;
 
@@ -142,15 +134,17 @@ export const ReaderVisualSettingsModal: React.FC<ReaderVisualSettingsModalProps>
     <div
       role="dialog"
       aria-modal="true"
-      aria-label="Ajustes visuales del lector"
+      aria-labelledby="visual-settings-title"
+      aria-describedby="visual-settings-desc"
       data-testid="reader-visual-settings-modal"
       className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-md transition-opacity select-none"
       onClick={onClose}
     >
       <div
         ref={modalRef}
+        tabIndex={-1}
         onClick={(e) => e.stopPropagation()}
-        className="w-full max-w-lg bg-[#0f172a]/95 border border-white/10 rounded-3xl p-6 shadow-2xl text-white transform-gpu relative max-h-[90vh] overflow-y-auto"
+        className="w-full max-w-lg bg-[#0f172a]/95 border border-white/10 rounded-3xl p-6 shadow-2xl text-white transform-gpu relative max-h-[90vh] overflow-y-auto outline-none"
       >
         {/* Header */}
         <div className="flex items-center justify-between pb-4 border-b border-gray-800 mb-5">
@@ -159,8 +153,12 @@ export const ReaderVisualSettingsModal: React.FC<ReaderVisualSettingsModalProps>
               <Sliders className="w-5 h-5" />
             </div>
             <div>
-              <h3 className="text-base font-bold text-gray-100">Ajustes Visuales & Ambilight</h3>
-              <p className="text-xs text-slate-400">Ergonomía, filtros de imagen y atmósfera</p>
+              <h3 id="visual-settings-title" className="text-base font-bold text-gray-100">
+                Ajustes Visuales & Ambilight
+              </h3>
+              <p id="visual-settings-desc" className="text-xs text-slate-400">
+                Ergonomía, filtros de imagen y atmósfera
+              </p>
             </div>
           </div>
           <button

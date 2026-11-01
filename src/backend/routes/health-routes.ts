@@ -23,6 +23,18 @@ export interface DatabaseHealthInfo {
   integrity: string;
 }
 
+export interface BackupFileInfo {
+  filename: string;
+  sizeBytes: number;
+  createdAt: string;
+}
+
+export interface BackupsTelemetry {
+  backupDir: string;
+  totalBackups: number;
+  latestBackup: BackupFileInfo | null;
+}
+
 export interface HealthRoutesOptions {
   db: DatabaseInstance;
   storageRoot?: string;
@@ -168,7 +180,69 @@ export function getAggregatedCounts(db: DatabaseInstance): { series: number; cha
 }
 
 /**
- * Registers GET /api/v1/health and optional administrative backup route.
+ * Scans the backups directory and returns summary telemetry of existing database snapshots.
+ */
+export async function getBackupsTelemetry(backupDir: string): Promise<BackupsTelemetry> {
+  const resolved = path.resolve(backupDir);
+  if (!fs.existsSync(resolved)) {
+    return {
+      backupDir: resolved,
+      totalBackups: 0,
+      latestBackup: null,
+    };
+  }
+
+  try {
+    const entries = await fs.promises.readdir(resolved, { withFileTypes: true });
+    const dbFiles: Array<{ filename: string; sizeBytes: number; mtimeMs: number; createdAt: string }> = [];
+
+    for (const entry of entries) {
+      if (entry.isFile() && entry.name.endsWith('.db')) {
+        const fullPath = path.join(resolved, entry.name);
+        try {
+          const stat = await fs.promises.stat(fullPath);
+          dbFiles.push({
+            filename: entry.name,
+            sizeBytes: stat.size,
+            mtimeMs: stat.mtimeMs,
+            createdAt: stat.birthtime ? stat.birthtime.toISOString() : new Date(stat.mtimeMs).toISOString(),
+          });
+        } catch {}
+      }
+    }
+
+    if (dbFiles.length === 0) {
+      return {
+        backupDir: resolved,
+        totalBackups: 0,
+        latestBackup: null,
+      };
+    }
+
+    // Sort newest first
+    dbFiles.sort((a, b) => b.mtimeMs - a.mtimeMs);
+    const newest = dbFiles[0];
+
+    return {
+      backupDir: resolved,
+      totalBackups: dbFiles.length,
+      latestBackup: {
+        filename: newest.filename,
+        sizeBytes: newest.sizeBytes,
+        createdAt: newest.createdAt,
+      },
+    };
+  } catch {
+    return {
+      backupDir: resolved,
+      totalBackups: 0,
+      latestBackup: null,
+    };
+  }
+}
+
+/**
+ * Registers GET /api/v1/health and administrative backup routes.
  */
 export function registerHealthRoutes(app: FastifyInstance, options: HealthRoutesOptions): void {
   const { db } = options;
@@ -176,6 +250,7 @@ export function registerHealthRoutes(app: FastifyInstance, options: HealthRoutes
     ? path.resolve(options.storageRoot)
     : path.resolve(process.env.STORAGE_ROOT || './data/storage');
   const serverStartTime = options.startTime ?? Date.now();
+  const backupDir = options.backupDaemon?.backupDir ?? path.resolve(storageRoot, 'backups');
 
   if (options.backupDaemon) {
     registerBackupRoutes(app, options.backupDaemon);
@@ -187,6 +262,7 @@ export function registerHealthRoutes(app: FastifyInstance, options: HealthRoutes
     const database = getDatabaseHealth(db);
     const cache = getLiveCacheMetrics();
     const counts = getAggregatedCounts(db);
+    const backups = await getBackupsTelemetry(backupDir);
 
     const uptime = Number(((Date.now() - serverStartTime) / 1000).toFixed(2));
     const watcherRef = options.folderWatcher ?? activeFolderWatcherRef;
@@ -204,6 +280,7 @@ export function registerHealthRoutes(app: FastifyInstance, options: HealthRoutes
       cache,
       counts,
       watcher,
+      backups,
     };
   });
 }

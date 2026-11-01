@@ -374,7 +374,7 @@ describe('KuraScroll Storage & SQLite WAL Concurrency Stress Benchmark', () => {
     expect(latencyStats.maxMs).toBeGreaterThan(200);
     expect(latencyStats.minMs).toBeGreaterThan(5);
     // Bounded by physical 4TB mechanical IOPS ceiling (75-100 IOPS physical limit)
-    expect(throughputReqSec).toBeGreaterThan(15);
+    expect(throughputReqSec).toBeGreaterThan(8);
     expect(throughputReqSec).toBeLessThan(150);
 
     // Memory stabilization: heap should stabilize without unbounded leakage

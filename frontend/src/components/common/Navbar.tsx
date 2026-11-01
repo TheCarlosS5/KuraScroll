@@ -1,16 +1,18 @@
 import React from 'react';
-import { BookOpen, Bookmark, Sparkles, History } from 'lucide-react';
+import { BookOpen, Bookmark, Sparkles, History, Database } from 'lucide-react';
 
 export interface NavbarProps {
   currentView?: string;
   selectedCategory?: string;
   onNavigate?: (view: string, category?: string) => void;
+  onOpenBackup?: () => void;
 }
 
 export const Navbar: React.FC<NavbarProps> = ({
   currentView = 'catalog',
   selectedCategory,
   onNavigate,
+  onOpenBackup,
 }) => {
   return (
     <header className="sticky top-0 z-50 bg-[#080c14]/90 backdrop-blur-md border-b border-gray-800/80 px-4 lg:px-8 py-3.5 transition-all">
@@ -108,6 +110,19 @@ export const Navbar: React.FC<NavbarProps> = ({
             <Bookmark className="w-4 h-4 text-violet-400" />
             <span className="hidden sm:inline">Guardados</span>
           </button>
+
+          {onOpenBackup && (
+            <button
+              data-testid="nav-backup-btn"
+              onClick={onOpenBackup}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-sm font-medium transition-all bg-gray-900/80 text-gray-300 border border-gray-800 hover:border-cyan-500/50 hover:text-cyan-400"
+              title="Copias de Seguridad y Migración"
+              aria-label="Copias de Seguridad y Migración"
+            >
+              <Database className="w-4 h-4 text-cyan-400" />
+              <span className="hidden sm:inline">Respaldos</span>
+            </button>
+          )}
 
           <div className="hidden lg:flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-gray-950/80 border border-cyan-500/20 text-xs text-gray-400">
             <Sparkles className="w-3.5 h-3.5 text-cyan-400" />

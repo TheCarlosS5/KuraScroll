@@ -102,6 +102,44 @@ describe('BackupDaemon (Hot Online SQLite VACUUM INTO)', () => {
     expect(dbFiles).toContain('kura-scroll-backup-005.db');
   });
 
+  it('verifyAllBackups validates all snapshots and catches corrupt files', async () => {
+    const daemon = new BackupDaemon({
+      db,
+      backupDir: BACKUP_DIR,
+      retentionCount: 5,
+    });
+
+    // 1. Initial state: no backups
+    const emptySummary = await daemon.verifyAllBackups();
+    expect(emptySummary.totalChecked).toBe(0);
+    expect(emptySummary.allValid).toBe(true);
+
+    // 2. Create 2 valid backups
+    await daemon.createBackup('backup-valid-1.db');
+    await daemon.createBackup('backup-valid-2.db');
+
+    const healthySummary = await daemon.verifyAllBackups();
+    expect(healthySummary.totalChecked).toBe(2);
+    expect(healthySummary.healthyCount).toBe(2);
+    expect(healthySummary.corruptCount).toBe(0);
+    expect(healthySummary.allValid).toBe(true);
+
+    // 3. Inject a corrupted .db file into the backup directory
+    const corruptPath = path.join(BACKUP_DIR, 'backup-corrupted.db');
+    await fs.writeFile(corruptPath, Buffer.from('NOT-AN-SQLITE-DATABASE-GARBAGE'));
+
+    const mixedSummary = await daemon.verifyAllBackups();
+    expect(mixedSummary.totalChecked).toBe(3);
+    expect(mixedSummary.healthyCount).toBe(2);
+    expect(mixedSummary.corruptCount).toBe(1);
+    expect(mixedSummary.allValid).toBe(false);
+
+    const corruptItem = mixedSummary.results.find((r) => r.filename === 'backup-corrupted.db');
+    expect(corruptItem).toBeDefined();
+    expect(corruptItem!.valid).toBe(false);
+    expect(corruptItem!.integrity).toContain('Corrupt');
+  });
+
   it('starts and stops background interval timer cleanly', () => {
     const daemon = new BackupDaemon({
       db,

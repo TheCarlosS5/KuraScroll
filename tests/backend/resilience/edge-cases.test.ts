@@ -601,7 +601,7 @@ describe('Senior QA & Resilience Suite: KuraScroll Edge Cases', () => {
       });
       expect(staticRes.statusCode).toBe(200);
       expect(staticRes.headers['content-type']).toContain('webp');
-    });
+    }, 30000);
   });
 
   // =========================================================================

@@ -14,6 +14,23 @@ export interface BackupResult {
   timestamp: string;
 }
 
+export interface BackupVerificationItem {
+  filename: string;
+  backupPath: string;
+  sizeBytes: number;
+  integrity: string;
+  valid: boolean;
+}
+
+export interface BackupVerificationSummary {
+  totalChecked: number;
+  healthyCount: number;
+  corruptCount: number;
+  allValid: boolean;
+  results: BackupVerificationItem[];
+  timestamp: string;
+}
+
 export interface BackupDaemonOptions {
   db: DatabaseInstance;
   backupDir?: string;
@@ -118,16 +135,79 @@ export class BackupDaemon {
    * Validates integrity on a backup SQLite file using `PRAGMA integrity_check`.
    */
   public verifyBackupIntegrity(backupPath: string): string {
-    const backupDb = new DatabaseSync(backupPath);
+    let backupDb: DatabaseSync | null = null;
     try {
+      backupDb = new DatabaseSync(backupPath);
       const rows = backupDb.prepare('PRAGMA integrity_check;').all() as Array<{ integrity_check: string }>;
       if (rows.length === 1 && rows[0].integrity_check === 'ok') {
         return 'ok';
       }
       return rows.map((r) => r.integrity_check).join('; ');
+    } catch (err: any) {
+      return `Corrupt: ${err.message}`;
     } finally {
-      backupDb.close();
+      if (backupDb) {
+        try {
+          backupDb.close();
+        } catch {}
+      }
     }
+  }
+
+  /**
+   * Verifies all existing backups in the backup directory and returns an integrity summary.
+   */
+  public async verifyAllBackups(): Promise<BackupVerificationSummary> {
+    if (!fsSync.existsSync(this.backupDir)) {
+      return {
+        totalChecked: 0,
+        healthyCount: 0,
+        corruptCount: 0,
+        allValid: true,
+        results: [],
+        timestamp: new Date().toISOString(),
+      };
+    }
+
+    const entries = await fs.readdir(this.backupDir, { withFileTypes: true });
+    const results: BackupVerificationItem[] = [];
+
+    for (const entry of entries) {
+      if (entry.isFile() && entry.name.endsWith('.db')) {
+        const fullPath = path.join(this.backupDir, entry.name);
+        let sizeBytes = 0;
+        try {
+          const stat = await fs.stat(fullPath);
+          sizeBytes = stat.size;
+        } catch {}
+
+        const integrity = this.verifyBackupIntegrity(fullPath);
+        const valid = integrity === 'ok';
+
+        results.push({
+          filename: entry.name,
+          backupPath: fullPath,
+          sizeBytes,
+          integrity,
+          valid,
+        });
+      }
+    }
+
+    // Sort newest first by filename or path
+    results.sort((a, b) => b.filename.localeCompare(a.filename));
+
+    const healthyCount = results.filter((r) => r.valid).length;
+    const corruptCount = results.filter((r) => !r.valid).length;
+
+    return {
+      totalChecked: results.length,
+      healthyCount,
+      corruptCount,
+      allValid: corruptCount === 0,
+      results,
+      timestamp: new Date().toISOString(),
+    };
   }
 
   /**
@@ -209,8 +289,9 @@ export class BackupDaemon {
 }
 
 /**
- * Registers administrative endpoint for manual backup trigger:
+ * Registers administrative endpoints for manual backup trigger and verification:
  * POST /api/v1/admin/backup -> { success: true, backupPath, sizeBytes, integrity, timestamp }
+ * POST /api/v1/admin/backup/verify -> { success: true, totalChecked, healthyCount, corruptCount, allValid, results, timestamp }
  */
 export function registerBackupRoutes(app: FastifyInstance, daemon: BackupDaemon): void {
   app.post('/api/v1/admin/backup', async (_req, reply) => {
@@ -228,6 +309,23 @@ export function registerBackupRoutes(app: FastifyInstance, daemon: BackupDaemon)
       return {
         success: false,
         error: 'BackupFailed',
+        message: err.message,
+      };
+    }
+  });
+
+  app.post('/api/v1/admin/backup/verify', async (_req, reply) => {
+    try {
+      const summary = await daemon.verifyAllBackups();
+      return {
+        success: true,
+        ...summary,
+      };
+    } catch (err: any) {
+      reply.status(500);
+      return {
+        success: false,
+        error: 'VerificationFailed',
         message: err.message,
       };
     }

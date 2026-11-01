@@ -8,7 +8,8 @@ import { registerSeriesRoutes } from './routes/series-routes.js';
 import { registerChapterRoutes } from './routes/chapter-routes.js';
 import { registerProgressRoutes } from './routes/progress-routes.js';
 import { registerHealthRoutes } from './routes/health-routes.js';
-import { BackupDaemon, registerBackupRoutes } from './daemon/backup-daemon.js';
+import { registerBackupRoutes } from './routes/backup-routes.js';
+import { BackupDaemon } from './daemon/backup-daemon.js';
 
 export interface AppOptions {
   db?: DatabaseInstance;
@@ -80,6 +81,8 @@ export function buildApp(options: AppOptions = {}): FastifyInstance {
     folderWatcher: options.folderWatcher,
     backupDaemon,
   });
+
+  registerBackupRoutes(app, db, backupDaemon);
 
   return app;
 }

@@ -66,7 +66,7 @@ describe('Health Routes (/api/v1/health & /api/v1/admin/backup)', () => {
     await fs.rm(TEST_DIR, { recursive: true, force: true });
   });
 
-  it('GET /api/v1/health returns 200 with disk, database, cache, counts, and uptime', async () => {
+  it('GET /api/v1/health returns 200 with disk, database, cache, counts, uptime, and backups telemetry', async () => {
     const response = await app.inject({
       method: 'GET',
       url: '/api/v1/health',
@@ -115,16 +115,22 @@ describe('Health Routes (/api/v1/health & /api/v1/admin/backup)', () => {
     expect(data.watcher).toBeDefined();
     expect(data.watcher.active).toBe(true);
     expect(data.watcher.incomingDir).toBe(path.join(STORAGE_ROOT, 'incoming'));
+
+    // 7. Backups telemetry
+    expect(data.backups).toBeDefined();
+    expect(data.backups.backupDir).toBe(BACKUP_DIR);
+    expect(data.backups.totalBackups).toBe(0);
+    expect(data.backups.latestBackup).toBeNull();
   });
 
-  it('POST /api/v1/admin/backup triggers consistent hot backup and returns details', async () => {
-    const response = await app.inject({
+  it('POST /api/v1/admin/backup triggers consistent hot backup and updates health telemetry', async () => {
+    const backupRes = await app.inject({
       method: 'POST',
       url: '/api/v1/admin/backup',
     });
 
-    expect(response.statusCode).toBe(200);
-    const data = JSON.parse(response.payload);
+    expect(backupRes.statusCode).toBe(200);
+    const data = JSON.parse(backupRes.payload);
 
     expect(data.success).toBe(true);
     expect(data.backupPath).toBeDefined();
@@ -133,5 +139,44 @@ describe('Health Routes (/api/v1/health & /api/v1/admin/backup)', () => {
     expect(data.timestamp).toBeDefined();
 
     expect(fsSync.existsSync(data.backupPath)).toBe(true);
+
+    // Verify GET /api/v1/health reflects the new backup in telemetry
+    const healthRes = await app.inject({
+      method: 'GET',
+      url: '/api/v1/health',
+    });
+    expect(healthRes.statusCode).toBe(200);
+    const healthData = JSON.parse(healthRes.payload);
+
+    expect(healthData.backups.totalBackups).toBe(1);
+    expect(healthData.backups.latestBackup).not.toBeNull();
+    expect(healthData.backups.latestBackup.filename).toBe(path.basename(data.backupPath));
+    expect(healthData.backups.latestBackup.sizeBytes).toBe(data.sizeBytes);
+  });
+
+  it('POST /api/v1/admin/backup/verify returns verification summary of all snapshots', async () => {
+    // 1. Create a backup first
+    await app.inject({
+      method: 'POST',
+      url: '/api/v1/admin/backup',
+    });
+
+    // 2. Run verification endpoint
+    const verifyRes = await app.inject({
+      method: 'POST',
+      url: '/api/v1/admin/backup/verify',
+    });
+
+    expect(verifyRes.statusCode).toBe(200);
+    const verifyData = JSON.parse(verifyRes.payload);
+
+    expect(verifyData.success).toBe(true);
+    expect(verifyData.totalChecked).toBe(1);
+    expect(verifyData.healthyCount).toBe(1);
+    expect(verifyData.corruptCount).toBe(0);
+    expect(verifyData.allValid).toBe(true);
+    expect(verifyData.results.length).toBe(1);
+    expect(verifyData.results[0].valid).toBe(true);
+    expect(verifyData.results[0].integrity).toBe('ok');
   });
 });

@@ -1,9 +1,9 @@
 # SDD ledger — plan: docs/superpowers/plans/2026-11-01-kura-scroll-master-plan.md
 
-- **Status:** Complete & Iterating (Sprint 9 Verified, Sprint 10 In Flight)
+- **Status:** Complete & Iterating (Sprint 10 Verified, 253 Tests Passing)
 - **Orchestrator:** Antigravity AI Orchestrator
 - **Branch:** main (isolated in `C:\Users\Admin\dev\kura-scroll`)
-- **Total Test Suites:** 38 test files, 195 passing tests (133 backend + 62 frontend, 100% PASS)
+- **Total Test Suites:** 47 test files, 253 passing tests (159 backend + 94 frontend, 100% PASS)
 
 ## Rulings & Decisions
 - Ruling: Standalone Sibling Project ("Proyecto Hermano") chosen as requested by Carlos to prevent monolithic coupling with KuraStream while sharing branding/logo (KS).
@@ -40,10 +40,11 @@
   - [x] Task 9.3: Reading History & Analytics Page with Staggered GSAP Animations
   - [x] Task 9.4: Resilient Offline Service Worker with CacheFirst / NetworkFirst Caching
   - [x] Task 9.5: 100-Concurrent Multilingual FTS5 & Combined Filter Benchmark (851+ queries/s, P95 < 105ms)
-- [ ] Part 10: Advanced Media Engine & Reader Enhancements (In Flight)
-  - [ ] Task 10.1: Multi-Chapter Volume Archive Detector & Splitter (`volume-extractor.ts`, metadata-deep-researcher)
-  - [ ] Task 10.2: Heavy-Duty Volume Archive & Corruption Fuzzing (`volume-ingestion-fuzzing.test.ts`, qa-resilience-tester)
+- [x] Part 10: Advanced Media Engine & Reader Enhancements (Commits e7d3040, 37009fe, d642177, 1cf888f, c817ccf, 009c477)
+  - [x] Task 10.1: Multi-Chapter Volume Archive Detector & Splitter (`volume-extractor.ts`, metadata-deep-researcher)
+  - [x] Task 10.2: Heavy-Duty Volume Archive & Corruption Fuzzing (`volume-ingestion-fuzzing.test.ts`, qa-resilience-tester)
   - [x] Task 10.3: Reader Visual Customizer & Ambilight Depth System (`ReaderVisualSettingsModal.tsx`, manga-ux-designer)
-  - [ ] Task 10.4: User Bookshelf & Collections ("Favorites", "Reading", "Completed", user-perspective-critic)
-  - [ ] Task 10.5: Webtoon Continuous Virtualization & Memory Leak Stress Benchmark (backend-performance-tester)
-  - [ ] Task 10.6: System Health Metrics & Automated Online SQLite Backup Daemon (devops-watcher)
+  - [x] Task 10.4: User Bookshelf & Collections ("Favorites", "Reading", "Completed", user-perspective-critic)
+  - [x] Task 10.5: Webtoon Continuous Virtualization & Memory Leak Stress Benchmark (backend-performance-tester)
+  - [x] Task 10.6: System Health Metrics & Automated Online SQLite Backup Daemon (devops-watcher)
+- [ ] Part 11: Decoupled Tachiyomi/Mihon Backup Migration Pipeline (Next Sprint)

@@ -94,4 +94,10 @@
   - [x] Task 19.2: Real-time P95 & V8 RSS Memory Gauges
   - [x] Task 19.3: One-Click Autonomous Healing Trigger & State Feedback
   - [x] Task 19.4: Unit Tests & Production Vite Bundle Compilation (6/6 tests, 4.16s build)
-- [ ] Part 20: Bandwidth & Thermal Saver Mode: Dynamic Image Quality Throttling under CPU Load
+- [x] Part 20: Bandwidth & Thermal Saver Mode: Dynamic Image Quality Throttling under CPU Load (Commit f8e7966)
+  - [x] Task 20.1: Consultation with ChatGPT on Penryn 45nm thermal throttling & SATA II seek contention (`docs/brainstorming/chatgpt-thermal-bandwidth-saver-blueprint.md`)
+  - [x] Task 20.2: Sharp Dynamic Compression Profiles (`image-processor.ts`, effort 2 vs 4, quality 75 vs 82, width 1280, 3/3 tests)
+  - [x] Task 20.3: Client-Side Prefetch Throttling Hook (`useAdaptivePrefetch.ts`, clamps window to 1 page on `saveData`, 2/2 tests)
+  - [x] Task 20.4: HTTP Header `Save-Data` & `Vary: Save-Data` Support (`chapter-routes.ts`, 5/5 tests)
+  - [x] Task 20.5: Reader Visual Settings Modal Thermal Saver Toggle (`ReaderVisualSettingsModal.tsx`, 20/20 tests)
+- [ ] Part 21: Autonomous Differential Library Snapshot & Export Mirroring (CLI & Hot Backup)

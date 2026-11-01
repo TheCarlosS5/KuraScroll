@@ -73,9 +73,25 @@
   - [x] Task 15.2: Fastify Telemetry & Cache Flush Endpoints (`telemetry-routes.ts`)
   - [x] Task 15.3: Offline Mutation Background Sync Outbox (`background-sync.ts`, 4/4 tests)
   - [x] Task 15.4: Storage Telemetry Modal & Navbar Integration (`StorageTelemetryModal.tsx`, `Navbar.tsx`, `App.tsx`, 5/5 tests)
-- [x] Part 16: Intel Pentium T4500 Hardware Profile Tuning & Degradation Benchmark
+- [x] Part 16: Intel Pentium T4500 Hardware Profile Tuning & Degradation Benchmark (Commit 3a51725)
   - [x] Task 16.1: Senior Architectural Blueprint with ChatGPT (`docs/brainstorming/chatgpt-pentium-t4500-low-resource-blueprint.md`)
   - [x] Task 16.2: Low-Resource Profile Detection & OS Priority Setting (`hardware-profile.ts`, 3/3 tests)
   - [x] Task 16.3: Windows 1-Click Launcher Auto-tuning for T4500 & <=4GB RAM (`scripts/start-local.ps1`)
-  - [x] Task 16.4: T4500 Ingestion vs 10 Concurrent Readers Degradation Benchmark (`t4500-low-resource-degradation.test.ts`, 2/2 tests, P95 28.86ms)
-- [ ] Part 17: Adaptive Ingestion Controller with Memory Pressure Backoff & Hysteresis
+  - [x] Task 16.4: T4500 Ingestion vs 10 Concurrent Readers Degradation Benchmark (`t4500-low-resource-degradation.test.ts`, 2/2 tests, P95 24.93ms)
+- [x] Part 17: Adaptive Ingestion Controller with Memory Pressure Backoff & Hysteresis (Commit 16e627f)
+  - [x] Task 17.1: Architectural Consultation with ChatGPT on Brave (`docs/brainstorming/chatgpt-adaptive-controller-and-self-healing-blueprint.md`)
+  - [x] Task 17.2: Sliding P95 Window & RSS Memory Backoff Engine (`adaptive-ingestion-controller.ts`, 9/9 tests)
+  - [x] Task 17.3: Fastify onResponse Request Latency Hooks & API Overrides (`app.ts`, `telemetry-routes.ts`, 4/4 tests)
+  - [x] Task 17.4: Cooperative Sleep Integration in Volume & Chapter Ingestion (`volume-ingestion-service.ts`, `chapter-ingestion-service.ts`)
+- [x] Part 18: Automated Metadata Refresh & Self-Healing Indexer (Commit 16e627f)
+  - [x] Task 18.1: Orphaned .tmp & .part File Cleanup Engine (`self-healing-indexer.ts`, 6/6 tests)
+  - [x] Task 18.2: SQLite WAL Checkpoint & Quick Integrity Checks (`PRAGMA wal_checkpoint(TRUNCATE)`)
+  - [x] Task 18.3: Incremental Folder Mtime High-Watermark Table (`folder_sync_state`) avoiding 4TB recursive scans
+  - [x] Task 18.4: Missing Cover Self-Healing & Unindexed Chapter DB Reconciler
+  - [x] Task 18.5: MaintenanceDaemon & Fastify Integration (`POST /api/v1/admin/self-heal`)
+- [x] Part 19: Frontend Low-Resource Mode Indicator, Live AIC Gauge & Self-Healing Action (Commit 16e627f)
+  - [x] Task 19.1: Low-Resource Mode Host Badge & Status in `StorageTelemetryModal.tsx`
+  - [x] Task 19.2: Real-time P95 & V8 RSS Memory Gauges
+  - [x] Task 19.3: One-Click Autonomous Healing Trigger & State Feedback
+  - [x] Task 19.4: Unit Tests & Production Vite Bundle Compilation (6/6 tests, 4.16s build)
+- [ ] Part 20: Bandwidth & Thermal Saver Mode: Dynamic Image Quality Throttling under CPU Load

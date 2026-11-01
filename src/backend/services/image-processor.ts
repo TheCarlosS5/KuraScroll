@@ -6,6 +6,8 @@ export interface OptimizeOptions {
   pageNumber?: number;
   maxImageWidth?: number;
   webpQuality?: number;
+  effort?: number;
+  thermalSaver?: boolean;
 }
 
 export interface PageMetadata {
@@ -22,8 +24,10 @@ export async function optimizeImageToWebP(
   outputPath: string,
   options: OptimizeOptions = {}
 ): Promise<PageMetadata> {
-  const maxImageWidth = options.maxImageWidth ?? 1440;
-  const webpQuality = options.webpQuality ?? 82;
+  const isThermal = options.thermalSaver === true;
+  const maxImageWidth = options.maxImageWidth ?? (isThermal ? 1280 : 1440);
+  const webpQuality = options.webpQuality ?? (isThermal ? 75 : 82);
+  const effort = options.effort ?? (isThermal ? 2 : 4);
   const pageNumber = options.pageNumber ?? 1;
 
   let pipeline = sharp(input).rotate(); // auto-orient based on EXIF
@@ -42,7 +46,7 @@ export async function optimizeImageToWebP(
 
   pipeline = pipeline.webp({
     quality: webpQuality,
-    effort: 4,
+    effort,
   });
 
   await fs.mkdir(path.dirname(outputPath), { recursive: true });

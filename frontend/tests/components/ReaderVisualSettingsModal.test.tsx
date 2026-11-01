@@ -299,6 +299,7 @@ describe('ReaderVisualSettingsModal Component & Utilities', () => {
         webtoonGap: '24px',
         ambilightEnabled: false,
         ambilightIntensity: 50,
+        thermalSaverEnabled: true,
       };
 
       render(
@@ -352,6 +353,7 @@ describe('ReaderVisualSettingsModal Component & Utilities', () => {
         webtoonGap: '8px',
         ambilightEnabled: true,
         ambilightIntensity: 75,
+        thermalSaverEnabled: false,
       };
 
       saveReaderDisplaySettings(custom);
@@ -454,6 +456,24 @@ describe('ReaderVisualSettingsModal Component & Utilities', () => {
       // Press 'v' key
       fireEvent.keyDown(window, { key: 'v' });
       expect(onOpenVisualSettings).toHaveBeenCalledTimes(2);
+    });
+
+    it('toggles thermalSaverEnabled setting when thermal saver button is clicked', () => {
+      const onChangeSettings = vi.fn();
+      render(
+        <ReaderVisualSettingsModal
+          isOpen={true}
+          onClose={vi.fn()}
+          settings={DEFAULT_DISPLAY_SETTINGS}
+          onChangeSettings={onChangeSettings}
+        />
+      );
+
+      const thermalBtn = screen.getByTestId('toggle-thermal-saver-btn');
+      fireEvent.click(thermalBtn);
+      expect(onChangeSettings).toHaveBeenCalledWith(
+        expect.objectContaining({ thermalSaverEnabled: true })
+      );
     });
   });
 });

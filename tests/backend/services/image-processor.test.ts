@@ -67,4 +67,20 @@ describe('optimizeImageToWebP', () => {
     expect(meta.width).toBe(800);
     expect(meta.height).toBe(1200);
   });
+
+  it('applies thermalSaver profile (maxWidth 1280, effort 2, quality 75) to protect Pentium T4500 CPU', async () => {
+    const thermalOutput = path.join(tmpDir, '003_thermal.webp');
+    const meta = await optimizeImageToWebP(dummyInput, thermalOutput, {
+      pageNumber: 3,
+      thermalSaver: true,
+    });
+
+    expect(meta.width).toBe(1280);
+    expect(meta.height).toBe(1920);
+    expect(meta.aspectRatio).toBeCloseTo(1280 / 1920, 2);
+
+    const outInfo = await sharp(thermalOutput).metadata();
+    expect(outInfo.format).toBe('webp');
+    expect(outInfo.width).toBe(1280);
+  });
 });

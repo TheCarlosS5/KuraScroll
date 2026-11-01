@@ -11,6 +11,8 @@ import {
   X,
   Eye,
   Check,
+  Flame,
+  Cpu,
 } from 'lucide-react';
 
 export interface ReaderDisplaySettings {
@@ -23,6 +25,7 @@ export interface ReaderDisplaySettings {
   webtoonGap: '0px' | '8px' | '16px' | '24px'; // default '0px'
   ambilightEnabled: boolean; // default true
   ambilightIntensity: number; // 20 to 100, default 100 (%)
+  thermalSaverEnabled: boolean; // default false
 }
 
 export const STORAGE_KEY = 'kura_reader_display_settings';
@@ -37,6 +40,7 @@ export const DEFAULT_DISPLAY_SETTINGS: ReaderDisplaySettings = {
   webtoonGap: '0px',
   ambilightEnabled: true,
   ambilightIntensity: 100,
+  thermalSaverEnabled: false,
 };
 
 export function loadReaderDisplaySettings(): ReaderDisplaySettings {
@@ -380,6 +384,35 @@ export const ReaderVisualSettingsModal: React.FC<ReaderVisualSettingsModalProps>
                   </button>
                 ))}
               </div>
+            </div>
+
+            {/* Thermal & Bandwidth Saver Mode Toggle (Pentium T4500) */}
+            <div className="pt-2 border-t border-gray-800/80">
+              <div className="flex items-center justify-between mb-1.5">
+                <span className="text-xs font-semibold text-slate-200 flex items-center gap-1.5">
+                  <Cpu className="w-3.5 h-3.5 text-cyan-400" />
+                  Ahorro Térmico & Precarga (Pentium T4500)
+                </span>
+                <button
+                  data-testid="toggle-thermal-saver-btn"
+                  onClick={() => updateField('thermalSaverEnabled', !settings.thermalSaverEnabled)}
+                  className={`px-2.5 py-1 rounded-xl text-xs font-semibold border flex items-center gap-1.5 transition-all ${
+                    settings.thermalSaverEnabled
+                      ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500/50 shadow-sm'
+                      : 'bg-gray-900/80 text-gray-400 border-gray-800 hover:text-white'
+                  }`}
+                >
+                  <Check
+                    className={`w-3.5 h-3.5 ${
+                      settings.thermalSaverEnabled ? 'text-emerald-400 opacity-100' : 'opacity-0'
+                    }`}
+                  />
+                  <span>{settings.thermalSaverEnabled ? 'Protección Activa' : 'Desactivado'}</span>
+                </button>
+              </div>
+              <p className="text-[11px] text-slate-400">
+                Limita la precarga a 1 página adelantada para reducir temperatura de CPU y evitar saturación del bus SATA II.
+              </p>
             </div>
           </div>
         </div>

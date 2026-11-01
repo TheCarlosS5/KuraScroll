@@ -84,4 +84,22 @@ describe('Chapter Routes & Navigation Pointers', () => {
     });
     expect(res.statusCode).toBe(400);
   });
+
+  it('reflects Save-Data header on image page request', async () => {
+    const fs = await import('node:fs/promises');
+    const path = await import('node:path');
+    const targetDir = path.resolve('./tmp/series/one-piece/v1/c1');
+    await fs.mkdir(targetDir, { recursive: true });
+    await fs.writeFile(path.join(targetDir, '001.webp'), 'fake-webp');
+
+    const res = await app.inject({
+      method: 'GET',
+      url: '/api/v1/chapters/c1/pages/001.webp',
+      headers: { 'save-data': 'on' },
+    });
+
+    expect(res.statusCode).toBe(200);
+    expect(res.headers['x-save-data']).toBe('active');
+    expect(res.headers['vary']).toContain('Save-Data');
+  });
 });

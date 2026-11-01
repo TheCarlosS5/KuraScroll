@@ -24,6 +24,7 @@ export interface IngestVolumeParams {
   webpQuality?: number;
   db?: DatabaseInstance;
   adaptiveController?: AdaptiveIngestionController;
+  thermalSaver?: boolean;
 }
 
 export interface VolumeChapterResult {
@@ -273,6 +274,7 @@ export async function ingestVolumeArchive(params: IngestVolumeParams): Promise<V
           pageNumber: tentativePageNumber,
           maxImageWidth: params.maxImageWidth,
           webpQuality: params.webpQuality,
+          thermalSaver: params.thermalSaver,
         });
         validPages.push(meta);
       } catch (err: any) {

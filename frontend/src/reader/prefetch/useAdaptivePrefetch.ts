@@ -6,6 +6,7 @@ export interface UseAdaptivePrefetchOptions {
   currentPageIndex: number;
   chapterId: string;
   maxConcurrent?: number;
+  thermalSaverMode?: boolean;
 }
 
 export function useAdaptivePrefetch({
@@ -13,15 +14,21 @@ export function useAdaptivePrefetch({
   currentPageIndex,
   chapterId,
   maxConcurrent = 2,
+  thermalSaverMode = false,
 }: UseAdaptivePrefetchOptions): AdaptivePrefetchController {
+  const isDataSaver =
+    thermalSaverMode ||
+    (typeof navigator !== 'undefined' && (navigator as any).connection?.saveData === true);
+
+  const effectiveMaxConcurrent = isDataSaver ? 1 : maxConcurrent;
   const controllerRef = useRef<AdaptivePrefetchController | null>(null);
   const lastIndexRef = useRef<number>(currentPageIndex);
   const lastTimeRef = useRef<number>(Date.now());
 
   if (!controllerRef.current) {
     controllerRef.current = new AdaptivePrefetchController({
-      maxConcurrent,
-      maxCachedBytes: 48 * 1024 * 1024, // 48MB client blob limit
+      maxConcurrent: effectiveMaxConcurrent,
+      maxCachedBytes: isDataSaver ? 16 * 1024 * 1024 : 48 * 1024 * 1024, // 16MB client blob limit in thermal saver
     });
   }
 
@@ -37,18 +44,20 @@ export function useAdaptivePrefetch({
     lastIndexRef.current = currentPageIndex;
     lastTimeRef.current = now;
 
-    // Adapt window size based on reading velocity
-    let aheadCount = 3;
-    let behindCount = 1;
+    // Adapt window size based on reading velocity or thermal/data-saver mode
+    let aheadCount = isDataSaver ? 1 : 3;
+    let behindCount = isDataSaver ? 0 : 1;
 
-    if (velocity > 3) {
-      // Rapid fling / fast scroll: narrow down to immediate next
-      aheadCount = 1;
-      behindCount = 0;
-    } else if (velocity > 1) {
-      // Moderate speed
-      aheadCount = 2;
-      behindCount = 0;
+    if (!isDataSaver) {
+      if (velocity > 3) {
+        // Rapid fling / fast scroll: narrow down to immediate next
+        aheadCount = 1;
+        behindCount = 0;
+      } else if (velocity > 1) {
+        // Moderate speed
+        aheadCount = 2;
+        behindCount = 0;
+      }
     }
 
     const targets: PagePrefetchTarget[] = [];

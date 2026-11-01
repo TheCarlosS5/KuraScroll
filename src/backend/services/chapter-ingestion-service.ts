@@ -18,6 +18,7 @@ export interface IngestChapterParams {
   webpQuality?: number;
   concurrency?: number;
   adaptiveController?: AdaptiveIngestionController;
+  thermalSaver?: boolean;
 }
 
 export interface ChapterIngestResult {
@@ -79,6 +80,7 @@ export async function ingestChapter(params: IngestChapterParams): Promise<Chapte
             pageNumber,
             maxImageWidth: params.maxImageWidth,
             webpQuality: params.webpQuality,
+            thermalSaver: params.thermalSaver,
           });
 
           pages[idx] = meta;

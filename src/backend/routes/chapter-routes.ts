@@ -75,6 +75,12 @@ export function registerChapterRoutes(
       };
     }
 
+    const isSaveData = req.headers['save-data'] === 'on' || (req.query as any)?.saveData === '1';
+    if (isSaveData) {
+      reply.header('Vary', 'Save-Data');
+      reply.header('X-Save-Data', 'active');
+    }
+
     reply
       .header('Content-Type', 'image/webp')
       .header('Cache-Control', 'public, max-age=31536000, immutable')
@@ -89,6 +95,7 @@ export function registerChapterRoutes(
       chapterNumber: number;
       sourcePath: string;
       title?: string;
+      thermalSaver?: boolean;
     };
 
     if (!body || !body.seriesSlug || typeof body.chapterNumber !== 'number' || !body.sourcePath) {
@@ -119,6 +126,7 @@ export function registerChapterRoutes(
         volumeNumber: body.volumeNumber ?? 1,
         chapterNumber: body.chapterNumber,
         sourcePath: body.sourcePath,
+        thermalSaver: body.thermalSaver,
       });
 
       const chapterId = `${body.seriesSlug}-c${body.chapterNumber}`;

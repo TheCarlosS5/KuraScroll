@@ -40,4 +40,16 @@ describe('Navbar Component', () => {
     sisterBtn.click();
     expect(handleSisterModal).toHaveBeenCalledTimes(1);
   });
+
+  it('renders 4TB Local Host button and triggers telemetry callback on click', () => {
+    const handleTelemetry = vi.fn();
+    render(<Navbar onNavigate={() => {}} onOpenStorageTelemetry={handleTelemetry} currentView="catalog" />);
+
+    const telemetryBtn = screen.getByTestId('nav-storage-telemetry-btn');
+    expect(telemetryBtn).toBeDefined();
+    expect(screen.getByText('4TB Local Host')).toBeDefined();
+
+    telemetryBtn.click();
+    expect(handleTelemetry).toHaveBeenCalledTimes(1);
+  });
 });

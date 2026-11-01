@@ -7,6 +7,7 @@ export interface NavbarProps {
   onNavigate?: (view: string, category?: string) => void;
   onOpenBackup?: () => void;
   onOpenSisterModal?: () => void;
+  onOpenStorageTelemetry?: () => void;
 }
 
 export const Navbar: React.FC<NavbarProps> = ({
@@ -15,6 +16,7 @@ export const Navbar: React.FC<NavbarProps> = ({
   onNavigate,
   onOpenBackup,
   onOpenSisterModal,
+  onOpenStorageTelemetry,
 }) => {
   return (
     <header className="sticky top-0 z-50 bg-[#080c14]/90 backdrop-blur-md border-b border-gray-800/80 px-4 lg:px-8 py-3.5 transition-all">
@@ -139,10 +141,16 @@ export const Navbar: React.FC<NavbarProps> = ({
             </button>
           )}
 
-          <div className="hidden lg:flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-gray-950/80 border border-cyan-500/20 text-xs text-gray-400">
+          <button
+            data-testid="nav-storage-telemetry-btn"
+            onClick={onOpenStorageTelemetry}
+            className="hidden lg:flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-gray-950/80 border border-cyan-500/20 hover:border-cyan-500/60 text-xs text-gray-300 hover:text-cyan-400 transition-all cursor-pointer"
+            title="Ver telemetría y eficiencia del HDD 4TB"
+            aria-label="Ver telemetría del HDD 4TB"
+          >
             <Sparkles className="w-3.5 h-3.5 text-cyan-400" />
             <span>4TB Local Host</span>
-          </div>
+          </button>
         </div>
       </div>
     </header>

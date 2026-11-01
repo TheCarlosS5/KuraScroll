@@ -121,4 +121,12 @@ export class ByteLRU<T = unknown> {
       hitRatio: totalRequests > 0 ? this.stats.hits / totalRequests : 0,
     };
   }
+
+  get size(): number {
+    return this.items.size;
+  }
+
+  get usedBytes(): number {
+    return this.bytes;
+  }
 }

@@ -6,6 +6,7 @@ import { ReaderPage } from './pages/ReaderPage.js';
 import { HistoryPage } from './pages/HistoryPage.js';
 import { BackupModal } from './components/settings/BackupModal.js';
 import { SisterPlatformModal } from './components/common/SisterPlatformModal.js';
+import { StorageTelemetryModal } from './components/settings/StorageTelemetryModal.js';
 
 export function App() {
   const [view, setView] = useState<'catalog' | 'bookmarks' | 'history' | 'detail' | 'reader'>('catalog');
@@ -14,6 +15,7 @@ export function App() {
   const [selectedChapterId, setSelectedChapterId] = useState<string | null>(null);
   const [isBackupOpen, setIsBackupOpen] = useState(false);
   const [isSisterModalOpen, setIsSisterModalOpen] = useState(false);
+  const [isStorageModalOpen, setIsStorageModalOpen] = useState(false);
 
   const handleNavigate = (newView: string, category?: string) => {
     setSelectedCategory(category);
@@ -46,6 +48,7 @@ export function App() {
           onNavigate={handleNavigate}
           onOpenBackup={() => setIsBackupOpen(true)}
           onOpenSisterModal={() => setIsSisterModalOpen(true)}
+          onOpenStorageTelemetry={() => setIsStorageModalOpen(true)}
         />
       )}
 
@@ -99,6 +102,12 @@ export function App() {
       <SisterPlatformModal
         isOpen={isSisterModalOpen}
         onClose={() => setIsSisterModalOpen(false)}
+      />
+
+      {/* 4TB Storage Footprint Telemetry Dialog */}
+      <StorageTelemetryModal
+        isOpen={isStorageModalOpen}
+        onClose={() => setIsStorageModalOpen(false)}
       />
     </div>
   );

@@ -11,6 +11,7 @@ import { registerHealthRoutes } from './routes/health-routes.js';
 import { registerBackupRoutes } from './routes/backup-routes.js';
 import { BackupDaemon } from './daemon/backup-daemon.js';
 import { registerEventRoutes, EventBus } from './events/event-bus.js';
+import { registerTelemetryRoutes } from './routes/telemetry-routes.js';
 
 export interface AppOptions {
   db?: DatabaseInstance;
@@ -86,6 +87,7 @@ export function buildApp(options: AppOptions = {}): FastifyInstance {
 
   registerBackupRoutes(app, db, backupDaemon);
   registerEventRoutes(app, options.eventBus);
+  registerTelemetryRoutes(app, { db, storageRoot });
 
   return app;
 }

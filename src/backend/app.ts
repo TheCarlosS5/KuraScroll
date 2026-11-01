@@ -7,11 +7,15 @@ import { DatabaseInstance, createDatabase, runMigrations } from './db/database.j
 import { registerSeriesRoutes } from './routes/series-routes.js';
 import { registerChapterRoutes } from './routes/chapter-routes.js';
 import { registerProgressRoutes } from './routes/progress-routes.js';
+import { registerHealthRoutes } from './routes/health-routes.js';
+import { BackupDaemon, registerBackupRoutes } from './daemon/backup-daemon.js';
 
 export interface AppOptions {
   db?: DatabaseInstance;
   storageRoot?: string;
   bodyLimit?: number;
+  backupDaemon?: BackupDaemon;
+  folderWatcher?: { active: boolean; incomingDir?: string };
 }
 
 export function buildApp(options: AppOptions = {}): FastifyInstance {
@@ -64,6 +68,18 @@ export function buildApp(options: AppOptions = {}): FastifyInstance {
   registerSeriesRoutes(app, db);
   registerChapterRoutes(app, db, storageRoot);
   registerProgressRoutes(app, db);
+
+  const backupDaemon = options.backupDaemon ?? new BackupDaemon({
+    db,
+    backupDir: path.resolve(storageRoot, 'backups'),
+  });
+
+  registerHealthRoutes(app, {
+    db,
+    storageRoot,
+    folderWatcher: options.folderWatcher,
+    backupDaemon,
+  });
 
   return app;
 }

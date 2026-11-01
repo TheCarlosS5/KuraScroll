@@ -1,9 +1,9 @@
 # SDD ledger — plan: docs/superpowers/plans/2026-11-01-kura-scroll-master-plan.md
 
-- **Status:** Complete & Iterating (Sprint 16 Verified, 368 Tests Passing)
+- **Status:** Complete & Iterating (Sprint 27 Verified, 434 Tests Passing)
 - **Orchestrator:** Antigravity AI Orchestrator
 - **Branch:** main (isolated in `C:\Users\Admin\dev\kura-scroll`)
-- **Total Test Suites:** 63 test files, 368 passing tests (225 backend + 143 frontend, 100% PASS)
+- **Total Test Suites:** 75 test files, 434 passing tests (272 backend + 162 frontend, 100% PASS)
 
 ## Rulings & Decisions
 - Ruling: Standalone Sibling Project ("Proyecto Hermano") chosen as requested by Carlos to prevent monolithic coupling with KuraStream while sharing branding/logo (KS).
@@ -137,4 +137,11 @@
   - [x] Task 26.3: Memory bounds and V8 RSS verification (< 512MB for Pentium T4500)
   - [x] Task 26.4: NPM script command `npm run test:sla` with formatted terminal table and JSON reporting (`data/reports/host-sla-report.json`)
   - [x] Task 26.5: Automated Vitest Unit Test in `tests/backend/cli/benchmark-sla.test.ts` (1/1 test)
-- [ ] Part 27: Smart Reading Bookmarks & Resume Pointer with Visual Thumbnail Previews
+- [x] Part 27: Smart Reading Bookmarks & Resume Pointer with Visual Thumbnail Previews (Commit Sprint 27)
+  - [x] Task 27.1: Architectural Consultation with ChatGPT via Brave MCP Session (`docs/brainstorming/chatgpt-resume-thumbnails-and-io-coordinator-blueprint.md`)
+  - [x] Task 27.2: SQLite Composite Indexing `idx_user_progress_recent` on `(user_id, updated_at DESC)` and `idx_series_titles_lang` on `(series_id, language_code)`
+  - [x] Task 27.3: REST API Route `GET /api/v1/progress/recent` with lightweight JSON payload, CJK title preservation, and decoupled thumbnail URLs
+  - [x] Task 27.4: React 19 Frontend Component `SmartResumePointer.tsx` with strict 0 CLS aspect ratios, `contain: layout paint`, relative time badges, and `Space` / `Enter` keyboard resume
+  - [x] Task 27.5: Floating Preview Tooltip in `ThumbnailScrubber.tsx` with dynamic coordinates, page numbers, and smooth hover feedback
+  - [x] Task 27.6: Backend and Frontend Test Suites (20 tests: `progress-routes.test.ts`, `smart-reading-bookmarks.test.ts`, `SmartResumePointer.test.tsx`, `ThumbnailScrubber.test.tsx`)
+- [ ] Part 28: Cooperative Shared I/O Concurrency Coordinator & Long-Session Soak Benchmark

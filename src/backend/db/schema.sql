@@ -59,6 +59,7 @@ CREATE TABLE IF NOT EXISTS series_genres (
 
 -- Indexes for performance
 CREATE INDEX IF NOT EXISTS idx_series_titles_series_id ON series_titles(series_id);
+CREATE INDEX IF NOT EXISTS idx_series_titles_lang ON series_titles(series_id, language_code);
 CREATE INDEX IF NOT EXISTS idx_series_titles_title ON series_titles(title);
 CREATE INDEX IF NOT EXISTS idx_series_updated_at ON series(updated_at DESC);
 CREATE INDEX IF NOT EXISTS idx_series_type_status ON series(type, status);
@@ -115,6 +116,7 @@ CREATE TABLE IF NOT EXISTS user_progress (
     updated_at TEXT DEFAULT (datetime('now')),
     UNIQUE(user_id, series_id)
 );
+CREATE INDEX IF NOT EXISTS idx_user_progress_recent ON user_progress(user_id, updated_at DESC);
 
 -- Incremental Folder Synchronization State (Avoids recursive 4TB HDD re-scanning)
 CREATE TABLE IF NOT EXISTS folder_sync_state (

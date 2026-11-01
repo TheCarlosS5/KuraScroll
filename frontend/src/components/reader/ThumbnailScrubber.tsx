@@ -30,6 +30,11 @@ export const ThumbnailScrubber: React.FC<ThumbnailScrubberProps> = ({
   onToggle,
 }) => {
   const [isHovered, setIsHovered] = useState(false);
+  const [hoveredPreview, setHoveredPreview] = useState<{
+    pageNumber: number;
+    left: number;
+    fileName: string;
+  } | null>(null);
   const filmstripRef = useRef<HTMLDivElement>(null);
   const activeThumbRef = useRef<HTMLButtonElement | null>(null);
 
@@ -151,6 +156,15 @@ export const ThumbnailScrubber: React.FC<ThumbnailScrubberProps> = ({
                 ref={isActive ? activeThumbRef : null}
                 data-testid={`thumbnail-item-${p.pageNumber}`}
                 onClick={() => handleSelect(p.pageNumber)}
+                onMouseEnter={(e) => {
+                  const rect = e.currentTarget.getBoundingClientRect();
+                  setHoveredPreview({
+                    pageNumber: p.pageNumber,
+                    left: rect.left + rect.width / 2,
+                    fileName: p.fileName,
+                  });
+                }}
+                onMouseLeave={() => setHoveredPreview(null)}
                 aria-label={`Ir a página ${p.pageNumber}`}
                 aria-current={isActive ? 'page' : undefined}
                 className={`group relative shrink-0 rounded-lg overflow-hidden transition-all duration-200 cursor-pointer flex flex-col items-center focus:outline-none ${
@@ -199,6 +213,44 @@ export const ThumbnailScrubber: React.FC<ThumbnailScrubberProps> = ({
             );
           })}
         </div>
+
+        {/* Floating Thumbnail Preview Tooltip (0 CLS layout paint) */}
+        {hoveredPreview && (
+          <div
+            data-testid="scrubber-floating-tooltip"
+            className="fixed z-50 pointer-events-none -translate-x-1/2 bottom-[148px] bg-[#0c1220]/95 border border-[#dc2626]/50 rounded-lg p-1.5 shadow-2xl backdrop-blur-md flex flex-col items-center"
+            style={{
+              left: `${Math.min(
+                typeof window !== 'undefined' ? window.innerWidth - 65 : 100,
+                Math.max(65, hoveredPreview.left)
+              )}px`,
+              width: '96px',
+              contain: 'layout paint',
+            }}
+          >
+            <div
+              className="relative w-full rounded overflow-hidden bg-black/80 border border-gray-800"
+              style={{ height: '136px', aspectRatio: '2 / 3' }}
+            >
+              <img
+                src={`${storageBaseUrl}/${hoveredPreview.fileName}`}
+                alt={`Vista previa P.${hoveredPreview.pageNumber}`}
+                loading="lazy"
+                decoding="async"
+                className="w-full h-full object-cover"
+                onError={(e) => {
+                  (e.target as HTMLElement).style.display = 'none';
+                }}
+              />
+              <div className="absolute inset-0 -z-10 flex items-center justify-center text-[10px] text-gray-500 font-mono">
+                P.{hoveredPreview.pageNumber}
+              </div>
+            </div>
+            <span className="text-[11px] font-mono font-bold text-white mt-1">
+              Página {hoveredPreview.pageNumber}
+            </span>
+          </div>
+        )}
       </div>
     </div>
   );

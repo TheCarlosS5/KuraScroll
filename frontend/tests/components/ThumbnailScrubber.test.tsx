@@ -94,4 +94,20 @@ describe('ThumbnailScrubber Component', () => {
     // Simulate vertical mouse wheel to horizontal scroll
     fireEvent.wheel(filmstrip, { deltaY: 120 });
   });
+
+  it('shows floating tooltip on thumbnail hover with page number preview and hides on leave', () => {
+    render(<ThumbnailScrubber {...defaultProps} />);
+
+    expect(screen.queryByTestId('scrubber-floating-tooltip')).toBeNull();
+
+    const targetThumb = screen.getByTestId('thumbnail-item-2');
+    fireEvent.mouseEnter(targetThumb);
+
+    const tooltip = screen.getByTestId('scrubber-floating-tooltip');
+    expect(tooltip).toBeDefined();
+    expect(tooltip.textContent).toContain('Página 2');
+
+    fireEvent.mouseLeave(targetThumb);
+    expect(screen.queryByTestId('scrubber-floating-tooltip')).toBeNull();
+  });
 });

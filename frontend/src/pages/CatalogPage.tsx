@@ -2,6 +2,7 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { SearchBar } from '../components/catalog/SearchBar.js';
 import { SeriesCard } from '../components/catalog/SeriesCard.js';
 import { CatalogFilters } from '../components/catalog/CatalogFilters.js';
+import { SmartResumePointer } from '../components/home/SmartResumePointer.js';
 import { localClientStorage } from '../services/local-storage-service.js';
 import { BookOpen } from 'lucide-react';
 
@@ -9,12 +10,14 @@ export interface CatalogPageProps {
   selectedCategory?: string;
   isBookmarksView?: boolean;
   onSelectSeries: (slug: string) => void;
+  onContinueReading?: (chapterId: string, seriesSlug?: string, pageNumber?: number) => void;
 }
 
 export const CatalogPage: React.FC<CatalogPageProps> = ({
   selectedCategory,
   isBookmarksView,
   onSelectSeries,
+  onContinueReading,
 }) => {
   const [items, setItems] = useState<any[]>([]);
   const [shelves, setShelves] = useState<Record<string, { shelf: string; favorite: boolean }>>({});
@@ -210,6 +213,14 @@ export const CatalogPage: React.FC<CatalogPageProps> = ({
 
       {/* Multilingual Search Bar */}
       {!isBookmarksView && <SearchBar onSearch={setSearchQuery} />}
+
+      {/* Smart Resume Pointer (Hero card for active reading) */}
+      {!isBookmarksView && !searchQuery && onContinueReading && (
+        <SmartResumePointer
+          onContinueReading={onContinueReading}
+          onSelectSeries={onSelectSeries}
+        />
+      )}
 
       {/* Pill Filter Bar (Colección, Tipo, Estado, Géneros) */}
       <CatalogFilters

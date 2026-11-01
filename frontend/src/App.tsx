@@ -57,6 +57,7 @@ export function App() {
           <CatalogPage
             selectedCategory={selectedCategory}
             onSelectSeries={handleSelectSeries}
+            onContinueReading={handleReadChapter}
           />
         )}
 

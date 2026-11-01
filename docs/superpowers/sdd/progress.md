@@ -131,4 +131,10 @@
   - [x] Task 25.3: Sanitizer Symbol Delimiter Normalization (`fts-sanitizer.ts`, math symbols `×`, punctuation `/`, `-`, `_`, `'`, `:`)
   - [x] Task 25.4: Subquery Deduplication (`series-repository.ts`, eliminates full table `DISTINCT s.*`, 8.6x throughput gain to 3657 q/s)
   - [x] Task 25.5: Monorepo Verification (72 test files, 420 passed tests, 100% PASS)
-- [ ] Part 26: Continuous Automated Diagnostic & Host SLA Verification Harness (`scripts/benchmark-sla.ts`)
+- [x] Part 26: Continuous Automated Diagnostic & Host SLA Verification Harness (Commit c797846)
+  - [x] Task 26.1: Host SLA Benchmark Harness in `scripts/benchmark-sla.ts` with 11 automated SLAs
+  - [x] Task 26.2: SQLite micro-latencies evaluation (point queries < 1ms, FTS5 prefix < 5ms)
+  - [x] Task 26.3: Memory bounds and V8 RSS verification (< 512MB for Pentium T4500)
+  - [x] Task 26.4: NPM script command `npm run test:sla` with formatted terminal table and JSON reporting (`data/reports/host-sla-report.json`)
+  - [x] Task 26.5: Automated Vitest Unit Test in `tests/backend/cli/benchmark-sla.test.ts` (1/1 test)
+- [ ] Part 27: Smart Reading Bookmarks & Resume Pointer with Visual Thumbnail Previews

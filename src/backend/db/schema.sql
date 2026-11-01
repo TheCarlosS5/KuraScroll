@@ -111,3 +111,10 @@ CREATE TABLE IF NOT EXISTS user_progress (
     updated_at TEXT DEFAULT (datetime('now')),
     UNIQUE(user_id, series_id)
 );
+
+-- Incremental Folder Synchronization State (Avoids recursive 4TB HDD re-scanning)
+CREATE TABLE IF NOT EXISTS folder_sync_state (
+    folder_path TEXT PRIMARY KEY,
+    last_mtime INTEGER NOT NULL,
+    updated_at TEXT DEFAULT (datetime('now'))
+);

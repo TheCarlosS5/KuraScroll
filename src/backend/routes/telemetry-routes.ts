@@ -3,20 +3,32 @@ import path from 'node:path';
 import { DatabaseInstance } from '../db/database.js';
 import { calculateStorageTelemetry } from '../services/storage-telemetry.js';
 import { imageCache, manifestCache } from '../cache/media-cache.js';
+import { AdaptiveIngestionController } from '../services/adaptive-ingestion-controller.js';
+import { SelfHealingIndexer } from '../services/self-healing-indexer.js';
 
 export interface TelemetryRoutesOptions {
   db: DatabaseInstance;
   storageRoot?: string;
+  adaptiveController?: AdaptiveIngestionController;
+  selfHealingIndexer?: SelfHealingIndexer;
 }
 
 export function registerTelemetryRoutes(
   app: FastifyInstance,
   options: TelemetryRoutesOptions
 ): void {
-  const { db } = options;
+  const { db, adaptiveController } = options;
   const storageRoot = options.storageRoot
     ? path.resolve(options.storageRoot)
     : path.resolve(process.env.STORAGE_ROOT || './data/storage');
+
+  const selfHealingIndexer =
+    options.selfHealingIndexer ??
+    new SelfHealingIndexer({
+      db,
+      storageRoot,
+      adaptiveController,
+    });
 
   // GET /api/v1/storage/telemetry
   app.get('/api/v1/storage/telemetry', async (_req: FastifyRequest, _reply: FastifyReply) => {
@@ -44,6 +56,62 @@ export function registerTelemetryRoutes(
         total: imagesFreed + manifestsFreed,
       },
       timestamp: new Date().toISOString(),
+    };
+  });
+
+  // GET /api/v1/telemetry/adaptive
+  app.get('/api/v1/telemetry/adaptive', async (_req: FastifyRequest, _reply: FastifyReply) => {
+    if (!adaptiveController) {
+      return {
+        success: false,
+        message: 'AdaptiveIngestionController not attached to server.',
+      };
+    }
+    return {
+      success: true,
+      status: adaptiveController.getStatus(),
+    };
+  });
+
+  // POST /api/v1/telemetry/adaptive/override
+  app.post(
+    '/api/v1/telemetry/adaptive/override',
+    async (req: FastifyRequest<{ Body: { action?: 'pause' | 'resume' | 'clear' } }>, reply: FastifyReply) => {
+      if (!adaptiveController) {
+        return reply.status(400).send({
+          success: false,
+          message: 'AdaptiveIngestionController not attached to server.',
+        });
+      }
+
+      const action = req.body?.action;
+      if (action === 'pause') {
+        adaptiveController.forcePause();
+      } else if (action === 'resume') {
+        adaptiveController.forceResume();
+      } else if (action === 'clear') {
+        adaptiveController.clearForce();
+      } else {
+        return reply.status(400).send({
+          success: false,
+          message: "Invalid action. Expected 'pause', 'resume', or 'clear'.",
+        });
+      }
+
+      return {
+        success: true,
+        action,
+        status: adaptiveController.getStatus(),
+      };
+    }
+  );
+
+  // POST /api/v1/admin/self-heal
+  app.post('/api/v1/admin/self-heal', async (_req: FastifyRequest, _reply: FastifyReply) => {
+    const report = await selfHealingIndexer.runFullHealing();
+    return {
+      success: true,
+      report,
     };
   });
 }

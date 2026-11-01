@@ -12,6 +12,7 @@ import { registerBackupRoutes } from './routes/backup-routes.js';
 import { BackupDaemon } from './daemon/backup-daemon.js';
 import { registerEventRoutes, EventBus } from './events/event-bus.js';
 import { registerTelemetryRoutes } from './routes/telemetry-routes.js';
+import { AdaptiveIngestionController } from './services/adaptive-ingestion-controller.js';
 
 export interface AppOptions {
   db?: DatabaseInstance;
@@ -20,6 +21,7 @@ export interface AppOptions {
   backupDaemon?: BackupDaemon;
   eventBus?: EventBus;
   folderWatcher?: { active: boolean; incomingDir?: string };
+  adaptiveController?: AdaptiveIngestionController;
 }
 
 export function buildApp(options: AppOptions = {}): FastifyInstance {
@@ -78,6 +80,22 @@ export function buildApp(options: AppOptions = {}): FastifyInstance {
     backupDir: path.resolve(storageRoot, 'backups'),
   });
 
+  // Latency monitoring hook for Adaptive Ingestion Controller
+  if (options.adaptiveController) {
+    const controller = options.adaptiveController;
+    app.addHook('onRequest', async (req) => {
+      (req as any)._startTimeNs = process.hrtime.bigint();
+    });
+    app.addHook('onResponse', async (req) => {
+      const start = (req as any)._startTimeNs;
+      if (start) {
+        const elapsedNs = process.hrtime.bigint() - start;
+        const elapsedMs = Number(elapsedNs) / 1_000_000;
+        controller.recordApiLatency(elapsedMs);
+      }
+    });
+  }
+
   registerHealthRoutes(app, {
     db,
     storageRoot,
@@ -87,7 +105,7 @@ export function buildApp(options: AppOptions = {}): FastifyInstance {
 
   registerBackupRoutes(app, db, backupDaemon);
   registerEventRoutes(app, options.eventBus);
-  registerTelemetryRoutes(app, { db, storageRoot });
+  registerTelemetryRoutes(app, { db, storageRoot, adaptiveController: options.adaptiveController });
 
   return app;
 }

@@ -8,6 +8,7 @@ import { naturalSort } from '../utils/natural-sort.js';
 import { isPathSafe } from './archive-extractor.js';
 import { DatabaseInstance } from '../db/database.js';
 import { ChapterRepository } from '../repositories/chapter-repository.js';
+import { AdaptiveIngestionController } from './adaptive-ingestion-controller.js';
 
 // Disable Sharp cache on Windows to prevent file locking
 sharp.cache(false);
@@ -22,6 +23,7 @@ export interface IngestVolumeParams {
   maxImageWidth?: number;
   webpQuality?: number;
   db?: DatabaseInstance;
+  adaptiveController?: AdaptiveIngestionController;
 }
 
 export interface VolumeChapterResult {
@@ -261,6 +263,10 @@ export async function ingestVolumeArchive(params: IngestVolumeParams): Promise<V
       const tentativePageNumber = validPages.length + 1;
       const paddedName = `${String(tentativePageNumber).padStart(3, '0')}.webp`;
       const outputPath = path.join(targetDir, paddedName);
+
+      if (params.adaptiveController) {
+        await params.adaptiveController.acquireYieldSlice();
+      }
 
       try {
         const meta = await optimizeImageToWebP(entryBuffer, outputPath, {

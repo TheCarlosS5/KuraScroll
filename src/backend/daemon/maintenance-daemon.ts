@@ -3,12 +3,16 @@ import path from 'node:path';
 import { DatabaseInstance } from '../db/database.js';
 import { executeMaintenance, MaintenanceReport } from '../db/maintenance.js';
 import { globalEventBus, EventBus } from '../events/event-bus.js';
+import { SelfHealingIndexer, HealingReport } from '../services/self-healing-indexer.js';
+import { AdaptiveIngestionController } from '../services/adaptive-ingestion-controller.js';
 
 export interface MaintenanceDaemonOptions {
   db: DatabaseInstance;
   storageRoot?: string;
   intervalMs?: number; // Default 1 hour (3,600,000 ms)
   eventBus?: EventBus;
+  adaptiveController?: AdaptiveIngestionController;
+  selfHealingIndexer?: SelfHealingIndexer;
 }
 
 export class MaintenanceDaemon {
@@ -19,7 +23,9 @@ export class MaintenanceDaemon {
   private eventBus: EventBus;
   private isRunning = false;
   private lastReport: MaintenanceReport | null = null;
+  private lastHealingReport: HealingReport | null = null;
   private lastRunAt: string | null = null;
+  private selfHealingIndexer: SelfHealingIndexer;
 
   constructor(options: MaintenanceDaemonOptions) {
     this.db = options.db;
@@ -28,6 +34,13 @@ export class MaintenanceDaemon {
       : path.resolve(process.env.STORAGE_ROOT || './data/storage');
     this.intervalMs = options.intervalMs ?? 3600000; // 1 hour
     this.eventBus = options.eventBus ?? globalEventBus;
+    this.selfHealingIndexer =
+      options.selfHealingIndexer ??
+      new SelfHealingIndexer({
+        db: this.db,
+        storageRoot: this.storageRoot,
+        adaptiveController: options.adaptiveController,
+      });
   }
 
   public start(): void {
@@ -55,11 +68,15 @@ export class MaintenanceDaemon {
   public async runMaintenanceCycle(): Promise<{
     maintenance: MaintenanceReport;
     cleanedFilesCount: number;
+    healing: HealingReport;
     timestamp: string;
   }> {
     const report = executeMaintenance(this.db);
     this.lastReport = report;
     this.lastRunAt = new Date().toISOString();
+
+    const healingReport = await this.selfHealingIndexer.runFullHealing();
+    this.lastHealingReport = healingReport;
 
     // Clean orphaned files in incoming/.tmp if older than 24h
     let cleanedFilesCount = 0;
@@ -86,12 +103,14 @@ export class MaintenanceDaemon {
     this.eventBus.emit('system:maintenance', {
       report,
       cleanedFilesCount,
+      healing: healingReport,
       timestamp: this.lastRunAt,
     });
 
     return {
       maintenance: report,
       cleanedFilesCount,
+      healing: healingReport,
       timestamp: this.lastRunAt,
     };
   }
@@ -101,12 +120,14 @@ export class MaintenanceDaemon {
     intervalMs: number;
     lastRunAt: string | null;
     lastReport: MaintenanceReport | null;
+    lastHealingReport: HealingReport | null;
   } {
     return {
       active: this.isRunning,
       intervalMs: this.intervalMs,
       lastRunAt: this.lastRunAt,
       lastReport: this.lastReport,
+      lastHealingReport: this.lastHealingReport,
     };
   }
 }

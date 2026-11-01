@@ -1,5 +1,18 @@
 import React, { useState, useEffect } from 'react';
-import { HardDrive, X, RefreshCw, Zap, Trash2, PieChart, Database, CheckCircle } from 'lucide-react';
+import {
+  HardDrive,
+  X,
+  RefreshCw,
+  Zap,
+  Trash2,
+  Database,
+  CheckCircle,
+  Cpu,
+  Activity,
+  ShieldCheck,
+  PauseCircle,
+  PlayCircle,
+} from 'lucide-react';
 import { useFocusTrap } from '../../hooks/useFocusTrap';
 
 export interface StorageTelemetryModalProps {
@@ -9,18 +22,33 @@ export interface StorageTelemetryModalProps {
 
 export function StorageTelemetryModal({ isOpen, onClose }: StorageTelemetryModalProps) {
   const [telemetry, setTelemetry] = useState<any | null>(null);
+  const [adaptive, setAdaptive] = useState<any | null>(null);
   const [loading, setLoading] = useState(false);
   const [flushing, setFlushing] = useState(false);
   const [flushSuccess, setFlushSuccess] = useState(false);
+  const [healing, setHealing] = useState(false);
+  const [healingSuccess, setHealingSuccess] = useState(false);
+  const [togglingIngestion, setTogglingIngestion] = useState(false);
+
   const modalRef = useFocusTrap({ isOpen, onClose });
 
   const fetchTelemetry = async () => {
     setLoading(true);
     try {
-      const res = await fetch('/api/v1/storage/telemetry');
-      if (res.ok) {
-        const data = await res.json();
+      const [storageRes, adaptiveRes] = await Promise.all([
+        fetch('/api/v1/storage/telemetry'),
+        fetch('/api/v1/telemetry/adaptive').catch(() => null),
+      ]);
+
+      if (storageRes.ok) {
+        const data = await storageRes.json();
         setTelemetry(data.telemetry);
+      }
+      if (adaptiveRes && adaptiveRes.ok) {
+        const data = await adaptiveRes.json();
+        if (data.success) {
+          setAdaptive(data.status);
+        }
       }
     } catch {
       // Offline fallback
@@ -33,6 +61,7 @@ export function StorageTelemetryModal({ isOpen, onClose }: StorageTelemetryModal
     if (isOpen) {
       fetchTelemetry();
       setFlushSuccess(false);
+      setHealingSuccess(false);
     }
   }, [isOpen]);
 
@@ -50,6 +79,41 @@ export function StorageTelemetryModal({ isOpen, onClose }: StorageTelemetryModal
     }
   };
 
+  const handleSelfHeal = async () => {
+    setHealing(true);
+    try {
+      const res = await fetch('/api/v1/admin/self-heal', { method: 'POST' });
+      if (res.ok) {
+        setHealingSuccess(true);
+        await fetchTelemetry();
+        setTimeout(() => setHealingSuccess(false), 4000);
+      }
+    } catch {} finally {
+      setHealing(false);
+    }
+  };
+
+  const handleToggleAdaptiveState = async () => {
+    if (!adaptive) return;
+    setTogglingIngestion(true);
+    const nextAction = adaptive.state === 'PAUSED' ? 'resume' : 'pause';
+    try {
+      const res = await fetch('/api/v1/telemetry/adaptive/override', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: nextAction }),
+      });
+      if (res.ok) {
+        const data = await res.json();
+        if (data.status) {
+          setAdaptive(data.status);
+        }
+      }
+    } catch {} finally {
+      setTogglingIngestion(false);
+    }
+  };
+
   if (!isOpen) return null;
 
   const formatBytes = (bytes: number) => {
@@ -59,6 +123,8 @@ export function StorageTelemetryModal({ isOpen, onClose }: StorageTelemetryModal
     const i = Math.floor(Math.log(bytes) / Math.log(k));
     return `${(bytes / Math.pow(k, i)).toFixed(2)} ${sizes[i]}`;
   };
+
+  const adaptiveState = adaptive?.state || 'RUNNING';
 
   return (
     <div
@@ -72,7 +138,7 @@ export function StorageTelemetryModal({ isOpen, onClose }: StorageTelemetryModal
         role="dialog"
         aria-modal="true"
         aria-labelledby="storage-modal-title"
-        className="w-full max-w-xl rounded-2xl border border-cyan-500/30 bg-[#0d121f] p-6 shadow-2xl text-slate-100"
+        className="w-full max-w-xl rounded-2xl border border-cyan-500/30 bg-[#0d121f] p-6 shadow-2xl text-slate-100 max-h-[90vh] overflow-y-auto"
       >
         {/* Header */}
         <div className="flex items-center justify-between pb-4 border-b border-slate-800">
@@ -81,10 +147,15 @@ export function StorageTelemetryModal({ isOpen, onClose }: StorageTelemetryModal
               <HardDrive className="w-5 h-5 text-white" />
             </div>
             <div>
-              <h2 id="storage-modal-title" className="text-xl font-bold tracking-tight text-white">
-                Telemetría de Almacenamiento 4TB
-              </h2>
-              <p className="text-xs text-slate-400">Eficiencia WebP & métricas físicas del disco mecánico</p>
+              <div className="flex items-center gap-2">
+                <h2 id="storage-modal-title" className="text-xl font-bold tracking-tight text-white">
+                  Telemetría 4TB & Perfil T4500
+                </h2>
+                <span className="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full bg-cyan-950/80 border border-cyan-500/40 text-cyan-300">
+                  Pentium T4500 Host
+                </span>
+              </div>
+              <p className="text-xs text-slate-400">Eficiencia WebP & control de saturación de disco mecánico</p>
             </div>
           </div>
           <button
@@ -130,6 +201,66 @@ export function StorageTelemetryModal({ isOpen, onClose }: StorageTelemetryModal
               </div>
             </div>
 
+            {/* Hardware Profile & Adaptive Ingestion Status Banner */}
+            <div className="rounded-xl border border-slate-800 bg-slate-900/70 p-3.5 space-y-2.5">
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-semibold text-white flex items-center gap-1.5">
+                  <Cpu className="w-4 h-4 text-cyan-400" />
+                  Control Adaptativo de Ingesta (AIC)
+                </span>
+
+                <span
+                  className={`text-[10px] font-bold px-2 py-0.5 rounded-full border ${
+                    adaptiveState === 'RUNNING'
+                      ? 'bg-emerald-950/60 text-emerald-400 border-emerald-500/40'
+                      : adaptiveState === 'THROTTLED'
+                      ? 'bg-amber-950/60 text-amber-400 border-amber-500/40'
+                      : 'bg-red-950/60 text-red-400 border-red-500/40'
+                  }`}
+                >
+                  {adaptiveState === 'RUNNING' ? '● ESTADO: NORMAL (15ms sleep)' : adaptiveState === 'THROTTLED' ? '▲ ATENUADO (200ms sleep)' : '■ PAUSADO (Protegiendo lector)'}
+                </span>
+              </div>
+
+              <div className="grid grid-cols-2 gap-2 text-xs">
+                <div className="p-2 rounded-lg bg-slate-950/50 border border-slate-800/80">
+                  <span className="text-[10px] text-slate-400 block flex items-center gap-1">
+                    <Activity className="w-3 h-3 text-cyan-400" /> Latencia API P95
+                  </span>
+                  <p className="text-sm font-bold text-white mt-0.5">
+                    {adaptive?.p95Ms ? `${Math.round(adaptive.p95Ms)} ms` : '< 20 ms'}
+                    <span className="text-[10px] font-normal text-slate-500 ml-1.5">/ umbral 500ms</span>
+                  </p>
+                </div>
+
+                <div className="p-2 rounded-lg bg-slate-950/50 border border-slate-800/80">
+                  <span className="text-[10px] text-slate-400 block">Memoria V8 RSS</span>
+                  <p className="text-sm font-bold text-white mt-0.5">
+                    {adaptive?.rssMb ? `${adaptive.rssMb} MB` : '185 MB'}
+                    <span className="text-[10px] font-normal text-slate-500 ml-1.5">/ límite 380MB</span>
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex justify-end pt-1">
+                <button
+                  onClick={handleToggleAdaptiveState}
+                  disabled={togglingIngestion}
+                  className="flex items-center gap-1 text-[11px] font-medium text-cyan-400 hover:text-cyan-300 transition-colors"
+                >
+                  {adaptiveState === 'PAUSED' ? (
+                    <>
+                      <PlayCircle className="w-3.5 h-3.5" /> Reanudar Ingesta Manualmente
+                    </>
+                  ) : (
+                    <>
+                      <PauseCircle className="w-3.5 h-3.5" /> Pausar Ingesta para Máxima Velocidad
+                    </>
+                  )}
+                </button>
+              </div>
+            </div>
+
             {/* Library Counts Overview */}
             <div className="rounded-xl bg-slate-900/80 border border-slate-800 p-3.5 flex justify-between text-xs">
               <div>
@@ -150,32 +281,66 @@ export function StorageTelemetryModal({ isOpen, onClose }: StorageTelemetryModal
               </div>
             </div>
 
-            {/* In-Memory ByteLRU Cache Flush Control */}
-            <div className="rounded-xl border border-slate-800 bg-slate-900/50 p-3.5 flex items-center justify-between">
-              <div>
-                <span className="text-xs font-semibold text-white block">Memoria RAM (ByteLRU Cache)</span>
-                <p className="text-[11px] text-slate-400 mt-0.5">
-                  {formatBytes(telemetry?.memoryCache?.imagesUsedBytes ?? 0)} de 256 MB en RAM
-                </p>
+            {/* In-Memory ByteLRU Cache Flush & Self-Healing Actions */}
+            <div className="grid grid-cols-2 gap-3">
+              <div className="rounded-xl border border-slate-800 bg-slate-900/50 p-3 flex flex-col justify-between">
+                <div>
+                  <span className="text-xs font-semibold text-white block">Memoria RAM ByteLRU</span>
+                  <p className="text-[10px] text-slate-400 mt-0.5">
+                    {formatBytes(telemetry?.memoryCache?.imagesUsedBytes ?? 0)} / 16 MB
+                  </p>
+                </div>
+
+                <button
+                  onClick={handleFlushCache}
+                  disabled={flushing}
+                  className="mt-3 flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-medium border border-slate-700 hover:border-cyan-500/40 transition-colors"
+                >
+                  {flushSuccess ? (
+                    <>
+                      <CheckCircle className="w-3.5 h-3.5 text-emerald-400" />
+                      <span>¡Liberada!</span>
+                    </>
+                  ) : (
+                    <>
+                      <Trash2 className="w-3.5 h-3.5 text-slate-400" />
+                      <span>Vaciar RAM</span>
+                    </>
+                  )}
+                </button>
               </div>
 
-              <button
-                onClick={handleFlushCache}
-                disabled={flushing}
-                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-medium border border-slate-700 hover:border-cyan-500/40 transition-colors"
-              >
-                {flushSuccess ? (
-                  <>
-                    <CheckCircle className="w-3.5 h-3.5 text-emerald-400" />
-                    <span>¡Liberada!</span>
-                  </>
-                ) : (
-                  <>
-                    <Trash2 className="w-3.5 h-3.5 text-slate-400" />
-                    <span>Vaciar RAM</span>
-                  </>
-                )}
-              </button>
+              <div className="rounded-xl border border-slate-800 bg-slate-900/50 p-3 flex flex-col justify-between">
+                <div>
+                  <span className="text-xs font-semibold text-white block">Autocuración (4TB)</span>
+                  <p className="text-[10px] text-slate-400 mt-0.5">
+                    Limpia temporales y reconcilia SQLite
+                  </p>
+                </div>
+
+                <button
+                  onClick={handleSelfHeal}
+                  disabled={healing}
+                  className="mt-3 flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-lg bg-cyan-950/60 hover:bg-cyan-900/80 text-cyan-300 text-xs font-medium border border-cyan-500/40 hover:border-cyan-400 transition-colors"
+                >
+                  {healing ? (
+                    <>
+                      <RefreshCw className="w-3.5 h-3.5 animate-spin text-cyan-400" />
+                      <span>Sanando...</span>
+                    </>
+                  ) : healingSuccess ? (
+                    <>
+                      <CheckCircle className="w-3.5 h-3.5 text-emerald-400" />
+                      <span>¡Sana y Lista!</span>
+                    </>
+                  ) : (
+                    <>
+                      <ShieldCheck className="w-3.5 h-3.5 text-cyan-400" />
+                      <span>Autocuración</span>
+                    </>
+                  )}
+                </button>
+              </div>
             </div>
           </div>
         )}

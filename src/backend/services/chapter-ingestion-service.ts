@@ -4,6 +4,8 @@ import pLimit from 'p-limit';
 import { extractArchive } from './archive-extractor.js';
 import { optimizeImageToWebP, PageMetadata } from './image-processor.js';
 import { naturalSort } from '../utils/natural-sort.js';
+import { getHardwareProfile } from '../config/hardware-profile.js';
+import { AdaptiveIngestionController } from './adaptive-ingestion-controller.js';
 
 export interface IngestChapterParams {
   storageRoot: string;
@@ -14,6 +16,8 @@ export interface IngestChapterParams {
   isArchive?: boolean;
   maxImageWidth?: number;
   webpQuality?: number;
+  concurrency?: number;
+  adaptiveController?: AdaptiveIngestionController;
 }
 
 export interface ChapterIngestResult {
@@ -56,12 +60,17 @@ export async function ingestChapter(params: IngestChapterParams): Promise<Chapte
       throw new Error(`No valid images found in chapter source: ${params.sourcePath}`);
     }
 
-    const limit = pLimit(4);
+    const concurrency = params.concurrency ?? getHardwareProfile().sharpConcurrency;
+    const limit = pLimit(concurrency);
     const pages: PageMetadata[] = new Array(imageFiles.length);
 
     await Promise.all(
       imageFiles.map((inputPath, idx) =>
         limit(async () => {
+          if (params.adaptiveController) {
+            await params.adaptiveController.acquireYieldSlice();
+          }
+
           const pageNumber = idx + 1;
           const paddedName = `${String(pageNumber).padStart(3, '0')}.webp`;
           const outputPath = path.join(targetDir, paddedName);

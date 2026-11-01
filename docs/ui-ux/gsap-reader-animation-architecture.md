@@ -1,6 +1,6 @@
 # KuraScroll GSAP Reader Animation & UI/UX Architecture
 
-This specification document outlines the fluid animation system, ambient backlighting mechanics, and ergonomic design principles implemented for KuraScroll's dual-engine reader (`MangaReader` & `WebtoonReader`).
+This specification document outlines the fluid animation system, ambient backlighting mechanics, double-page spread engine, and ergonomic design principles implemented for KuraScroll's dual-engine reader (`MangaReader` & `WebtoonReader`).
 
 ---
 
@@ -12,7 +12,7 @@ Following the principles established in `.agents/skills/taste-ui-ux/SKILL.md` an
    - Visual chrome (navbars, toolbars) melts into the background during immersion.
    - Reader canvas uses **Deep Void** (`#080c14`) to eliminate the optical fatigue caused by pure `#000000` against stark white comic speech bubbles.
 2. **Zero Cumulative Layout Shift (Zero CLS):**
-   - Every single manga page and webtoon slice pre-allocates its container height using `aspectRatio: p.aspectRatio > 0 ? p.aspectRatio : 0.666` alongside skeleton placeholders before the image byte stream completes.
+   - Every single manga page, spread pair, and webtoon slice pre-allocates its container height using `aspectRatio: p.aspectRatio > 0 ? p.aspectRatio : 0.666` alongside skeleton placeholders before the image byte stream completes.
 3. **Hardware-Accelerated 60-120fps GSAP Physics:**
    - Only GPU-accelerated CSS properties (`opacity`, `transform: translate3d / scale / rotateY`) are animated.
    - Reflow-inducing properties (`top`, `left`, `width`, `height`) are strictly avoided during continuous reading gestures.
@@ -60,15 +60,51 @@ Following the principles established in `.agents/skills/taste-ui-ux/SKILL.md` an
 
 ---
 
-## 4. Test Verification
+## 4. Double-Page Spread Mode (Facing Pages)
 
-Both reader engines are verified with unit tests in `frontend/tests/components/`:
-- `MangaReader.test.tsx`:
-  * Keyboard navigation in RTL mode (ArrowLeft -> page 2)
-  * Keyboard navigation in LTR mode (ArrowRight -> page 2)
-  * Ambient glow lighting element rendering
-  * Pre-allocated aspect ratio container for zero CLS
-- `WebtoonReader.test.tsx`:
-  * Full vertical panel list rendering with ambient backlighting
-  * Progressive `onPageVisible` invocation on panel image load
-- Result: **19 / 19 tests passing** across the frontend test suite.
+### A. Physical Japanese Manga Spread Realism
+- In traditional physical Japanese tankobon volumes, reading progresses Right-to-Left (RTL).
+- In two-page spread mode:
+  - **RTL Mode:** Page $N$ is positioned on the **RIGHT**, and Page $N+1$ is positioned on the **LEFT**.
+  - **LTR Mode:** Page $N$ is positioned on the **LEFT**, and Page $N+1$ is positioned on the **RIGHT**.
+- Navigation automatically jumps by 2 pages (`handleNext` advances by 2; `handlePrev` retreats by 2) when displaying a dual spread.
+
+### B. Intelligent Wide-Scan Auto-Detection
+- Scans containing panoramic double spreads (`aspectRatio > 1.2`) are automatically detected.
+- Wide spreads are presented individually as full-width panoramic spreads, preventing accidental mismatching with adjacent single pages.
+
+### C. Ergonomic Layout & Zero CLS
+- Both facing pages render within `max-h-[calc(100vh-80px)]` with individual `aspectRatio` constraints and skeleton backdrops.
+- GSAP hardware-accelerated transitions animate the entire spread pair with 3D perspective and paper tilt without layout shifts.
+
+---
+
+## 5. Floating Keyboard Shortcuts HUD Modal
+
+- **Trigger:** Accessible via keyboard shortcut `?` (or Shift + `/`), dedicated header toolbar button, or bottom progress pill button.
+- **Available Hotkeys:**
+  * `←` / `→` / `A` / `D` / `Espacio`: Directional page advance/retreat (aware of RTL/LTR mode).
+  * `F`: Toggle Fullscreen mode (`document.fullscreenElement`).
+  * `M`: Cycle reader mode (Webtoon ↔ Manga RTL ↔ Comic LTR).
+  * `T`: Cycle background reading theme (Pure Black ↔ Deep Void ↔ Warm Sepia).
+  * `Esc`: Dismiss HUD modal.
+- **GSAP Modal Entrance:** Smooth scale and fade tween (`opacity: 0, scale: 0.94, y: -12 -> opacity: 1, scale: 1, y: 0`, `0.25s`, `power3.out`).
+
+---
+
+## 6. Comprehensive Test Verification
+
+Frontend test suite verified via `npx vitest run`:
+- `MangaReader.test.tsx` (12 tests):
+  * Keyboard navigation in RTL and LTR single page modes.
+  * Ambient glow lighting element and zero CLS aspect ratio rendering.
+  * Shortcuts HUD modal trigger via `?`, pill button, and dismissal via `Esc` / close button.
+  * Double-page spread facing page arrangement (RTL right-to-left order).
+  * Double-page ArrowLeft navigation advancing by 2 pages.
+  * Intelligent detection of wide panoramic scans (`aspectRatio > 1.2`).
+  * Double-page mode toggle via pill button.
+- `ReaderControls.test.tsx` (9 tests):
+  * Mode switching, reading progress pills, background theme selection.
+  * Double-page spread toggle button in manga mode.
+  * Shortcuts help button trigger.
+- Full suite: **39 / 39 tests passing (100% pass rate)**.

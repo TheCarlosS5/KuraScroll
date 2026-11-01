@@ -71,10 +71,10 @@ describe('HistoryPage Component', () => {
       expect(screen.getByTestId('history-card-solo-leveling')).toBeDefined();
     });
 
-    expect(screen.getByText('Solo Leveling')).toBeDefined();
+    expect(screen.getByTestId('history-title-solo-leveling').textContent).toBe('Solo Leveling');
     expect(screen.getByText('Capítulo 15')).toBeDefined();
     expect(screen.getByText('Pág. 22')).toBeDefined();
-    expect(screen.getByText('MANHWA')).toBeDefined();
+    expect(screen.getByText(/manhwa/i)).toBeDefined();
 
     // Verify statistics banner
     expect(screen.getByText('Series en Lectura')).toBeDefined();

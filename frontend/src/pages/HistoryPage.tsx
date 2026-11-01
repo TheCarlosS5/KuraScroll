@@ -315,6 +315,7 @@ export const HistoryPage: React.FC<HistoryPageProps> = ({
                   {/* Body Content */}
                   <div className="p-4">
                     <h2
+                      data-testid={`history-title-${item.seriesId}`}
                       onClick={() => onSelectSeries?.(item.slug)}
                       className="font-bold text-base text-gray-100 group-hover:text-cyan-400 line-clamp-1 transition-colors cursor-pointer"
                       title={item.title}

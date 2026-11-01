@@ -1,5 +1,6 @@
-import React, { useEffect, useRef, useState, useCallback } from 'react';
+import React, { useEffect, useRef, useState, useCallback, useMemo } from 'react';
 import gsap from 'gsap';
+import { ReaderDisplaySettings, buildImageFilter } from './ReaderVisualSettingsModal.js';
 
 export interface ReaderPageItem {
   id: number;
@@ -14,15 +15,27 @@ export interface WebtoonReaderProps {
   pages: ReaderPageItem[];
   storageBaseUrl: string;
   onPageVisible?: (pageNumber: number) => void;
+  // Sprint 10.3: Visual customizer & Ambilight settings
+  displaySettings?: ReaderDisplaySettings;
 }
 
 interface WebtoonPanelProps {
   page: ReaderPageItem;
   imageUrl: string;
   onVisible: (pageNumber: number) => void;
+  imageFilter?: string;
+  ambilightEnabled?: boolean;
+  ambilightIntensity?: number;
 }
 
-const WebtoonPanel: React.FC<WebtoonPanelProps> = ({ page, imageUrl, onVisible }) => {
+const WebtoonPanel: React.FC<WebtoonPanelProps> = ({
+  page,
+  imageUrl,
+  onVisible,
+  imageFilter,
+  ambilightEnabled = true,
+  ambilightIntensity = 100,
+}) => {
   const panelRef = useRef<HTMLDivElement>(null);
   const glowRef = useRef<HTMLImageElement>(null);
   const imageRef = useRef<HTMLImageElement>(null);
@@ -47,13 +60,28 @@ const WebtoonPanel: React.FC<WebtoonPanelProps> = ({ page, imageUrl, onVisible }
     }
 
     if (glowRef.current) {
+      if (ambilightEnabled) {
+        gsap.to(glowRef.current, {
+          opacity: 0.28 * (ambilightIntensity / 100),
+          duration: 0.8,
+          ease: 'power2.out',
+        });
+      } else {
+        gsap.set(glowRef.current, { opacity: 0 });
+      }
+    }
+  }, [ambilightEnabled, ambilightIntensity]);
+
+  // Handle in-place changes to Ambilight settings
+  useEffect(() => {
+    if (glowRef.current) {
       gsap.to(glowRef.current, {
-        opacity: 0.28,
-        duration: 0.8,
+        opacity: ambilightEnabled ? 0.28 * (ambilightIntensity / 100) : 0,
+        duration: 0.3,
         ease: 'power2.out',
       });
     }
-  }, []);
+  }, [ambilightEnabled, ambilightIntensity]);
 
   useEffect(() => {
     const el = panelRef.current;
@@ -112,6 +140,7 @@ const WebtoonPanel: React.FC<WebtoonPanelProps> = ({ page, imageUrl, onVisible }
         alt={`Página ${page.pageNumber}`}
         loading="lazy"
         decoding="async"
+        style={{ filter: imageFilter || 'none' }}
         className="w-full h-full object-contain relative z-10 block pointer-events-none shadow-2xl"
         onLoad={() => {
           triggerEntrance();
@@ -126,11 +155,19 @@ export const WebtoonReader: React.FC<WebtoonReaderProps> = ({
   pages,
   storageBaseUrl,
   onPageVisible,
+  displaySettings,
 }) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const pillRef = useRef<HTMLDivElement>(null);
   const [activePage, setActivePage] = useState<number>(1);
   const prevPageRef = useRef<number>(1);
+
+  const imageFilter = useMemo(() => buildImageFilter(displaySettings), [displaySettings]);
+  const channelMaxWidth =
+    displaySettings?.webtoonMaxWidth === '100%'
+      ? '100%'
+      : displaySettings?.webtoonMaxWidth ?? '900px';
+  const channelGap = displaySettings?.webtoonGap ?? '0px';
 
   const handleVisible = useCallback(
     (pageNumber: number) => {
@@ -169,7 +206,14 @@ export const WebtoonReader: React.FC<WebtoonReaderProps> = ({
       className="w-full bg-transparent overflow-x-hidden select-none relative min-h-screen"
     >
       {/* Central Reading Channel */}
-      <div className="w-full max-w-4xl mx-auto flex flex-col items-center relative border-x border-white/[0.04] shadow-2xl">
+      <div
+        data-testid="webtoon-reading-channel"
+        style={{
+          maxWidth: channelMaxWidth,
+          gap: channelGap,
+        }}
+        className="w-full mx-auto flex flex-col items-center relative border-x border-white/[0.04] shadow-2xl transition-[max-width,gap] duration-200"
+      >
         {pages.map((p) => {
           const imageUrl = `${storageBaseUrl}/${p.fileName}`;
           return (
@@ -178,6 +222,9 @@ export const WebtoonReader: React.FC<WebtoonReaderProps> = ({
               page={p}
               imageUrl={imageUrl}
               onVisible={handleVisible}
+              imageFilter={imageFilter}
+              ambilightEnabled={displaySettings?.ambilightEnabled ?? true}
+              ambilightIntensity={displaySettings?.ambilightIntensity ?? 100}
             />
           );
         })}

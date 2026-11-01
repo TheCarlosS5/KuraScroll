@@ -3,6 +3,11 @@ import { WebtoonReader } from '../components/reader/WebtoonReader.js';
 import { MangaReader } from '../components/reader/MangaReader.js';
 import { ReaderControls } from '../components/reader/ReaderControls.js';
 import { ThumbnailScrubber } from '../components/reader/ThumbnailScrubber.js';
+import {
+  ReaderVisualSettingsModal,
+  ReaderDisplaySettings,
+  loadReaderDisplaySettings,
+} from '../components/reader/ReaderVisualSettingsModal.js';
 import { useReadingProgress } from '../hooks/useReadingProgress.js';
 
 export interface ReaderPageProps {
@@ -30,6 +35,10 @@ export const ReaderPage: React.FC<ReaderPageProps> = ({
     }
   });
   const [showShortcuts, setShowShortcuts] = useState(false);
+  const [isVisualSettingsOpen, setIsVisualSettingsOpen] = useState(false);
+  const [displaySettings, setDisplaySettings] = useState<ReaderDisplaySettings>(() =>
+    loadReaderDisplaySettings()
+  );
   const [readingBackground, setReadingBackground] = useState<string>(() => {
     try {
       return localStorage.getItem('kura-scroll-reader-bg') || '#080c14';
@@ -164,6 +173,8 @@ export const ReaderPage: React.FC<ReaderPageProps> = ({
           doublePage={doublePage}
           onToggleDoublePage={handleToggleDoublePage}
           onOpenShortcuts={() => setShowShortcuts(true)}
+          isVisualSettingsOpen={isVisualSettingsOpen}
+          onOpenVisualSettings={() => setIsVisualSettingsOpen(true)}
         />
       )}
 
@@ -177,6 +188,7 @@ export const ReaderPage: React.FC<ReaderPageProps> = ({
             pages={manifest.pages}
             storageBaseUrl={storageBaseUrl}
             onPageVisible={handlePageChange}
+            displaySettings={displaySettings}
           />
         ) : (
           <MangaReader
@@ -192,6 +204,8 @@ export const ReaderPage: React.FC<ReaderPageProps> = ({
             onToggleShortcutsHUD={setShowShortcuts}
             onCycleMode={cycleReaderMode}
             onCycleTheme={cycleBackgroundTheme}
+            displaySettings={displaySettings}
+            onOpenVisualSettings={() => setIsVisualSettingsOpen(true)}
           />
         )}
       </div>
@@ -205,6 +219,15 @@ export const ReaderPage: React.FC<ReaderPageProps> = ({
         onSelectPage={handleSelectPageFromScrubber}
         onClose={() => setIsScrubberOpen(false)}
         onToggle={() => setIsScrubberOpen((prev) => !prev)}
+      />
+
+      {/* Visual Customizer & Ambilight Modal */}
+      <ReaderVisualSettingsModal
+        isOpen={isVisualSettingsOpen}
+        onClose={() => setIsVisualSettingsOpen(false)}
+        settings={displaySettings}
+        onChangeSettings={setDisplaySettings}
+        readerMode={readerMode}
       />
     </div>
   );

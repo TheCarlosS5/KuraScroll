@@ -10,6 +10,7 @@ import {
   BookOpen,
   HelpCircle,
   GalleryHorizontal,
+  Sliders,
 } from 'lucide-react';
 
 export type ReaderBackgroundTheme = '#000000' | '#000' | '#080c14' | '#1a1612' | string;
@@ -50,6 +51,9 @@ export interface ReaderControlsProps {
   doublePage?: boolean;
   onToggleDoublePage?: (enabled: boolean) => void;
   onOpenShortcuts?: () => void;
+  // Sprint 10.3: Visual customizer & Ambilight settings
+  isVisualSettingsOpen?: boolean;
+  onOpenVisualSettings?: () => void;
 }
 
 export const ReaderControls: React.FC<ReaderControlsProps> = ({
@@ -72,6 +76,8 @@ export const ReaderControls: React.FC<ReaderControlsProps> = ({
   doublePage = false,
   onToggleDoublePage,
   onOpenShortcuts,
+  isVisualSettingsOpen = false,
+  onOpenVisualSettings,
 }) => {
   const [internalBg, setInternalBg] = useState<string>(currentBackground || '#080c14');
   const [isFullscreen, setIsFullscreen] = useState(false);
@@ -245,6 +251,23 @@ export const ReaderControls: React.FC<ReaderControlsProps> = ({
         >
           <HelpCircle className="w-4 h-4" />
         </button>
+
+        {/* Visual Settings customizer trigger button */}
+        {onOpenVisualSettings && (
+          <button
+            data-testid="visual-settings-btn"
+            onClick={onOpenVisualSettings}
+            className={`p-2 rounded-xl transition-all border ${
+              isVisualSettingsOpen
+                ? 'bg-cyan-500/20 text-cyan-300 border-cyan-500/50 shadow-sm'
+                : 'bg-gray-900 hover:bg-gray-800 border-gray-800 text-gray-400 hover:text-cyan-400'
+            }`}
+            title="Ajustes visuales y filtros"
+            aria-label="Ajustes visuales y filtros"
+          >
+            <Sliders className="w-4 h-4" />
+          </button>
+        )}
 
         {/* Thumbnail Scrubber Toggle Button */}
         {onToggleScrubber && (

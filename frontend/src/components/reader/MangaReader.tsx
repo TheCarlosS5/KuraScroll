@@ -1,12 +1,14 @@
 import React, { useEffect, useRef, useState, useMemo } from 'react';
 import gsap from 'gsap';
 import { ReaderPageItem } from './WebtoonReader.js';
+import { ReaderDisplaySettings, buildImageFilter } from './ReaderVisualSettingsModal.js';
 import {
   ChevronLeft,
   ChevronRight,
   HelpCircle,
   BookOpen,
   Keyboard,
+  Sliders,
   X,
 } from 'lucide-react';
 
@@ -24,6 +26,9 @@ export interface MangaReaderProps {
   onToggleShortcutsHUD?: (show: boolean) => void;
   onCycleMode?: () => void;
   onCycleTheme?: () => void;
+  // Sprint 10.3: Visual customizer & Ambilight settings
+  displaySettings?: ReaderDisplaySettings;
+  onOpenVisualSettings?: () => void;
 }
 
 export const MangaReader: React.FC<MangaReaderProps> = ({
@@ -39,6 +44,8 @@ export const MangaReader: React.FC<MangaReaderProps> = ({
   onToggleShortcutsHUD,
   onCycleMode,
   onCycleTheme,
+  displaySettings,
+  onOpenVisualSettings,
 }) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const pageWrapperRef = useRef<HTMLDivElement>(null);
@@ -83,6 +90,11 @@ export const MangaReader: React.FC<MangaReaderProps> = ({
 
   const totalPages = pages.length;
   const activePage = pages.find((p) => p.pageNumber === currentPage) || pages[0];
+
+  const imageFilter = useMemo(() => buildImageFilter(displaySettings), [displaySettings]);
+  const ambilightEnabled = displaySettings?.ambilightEnabled ?? true;
+  const ambilightIntensity = displaySettings?.ambilightIntensity ?? 100;
+  const targetGlowOpacity = ambilightEnabled ? 0.32 * (ambilightIntensity / 100) : 0;
 
   // Intelligent Double-Page Spread detection:
   // 1. Panoramic spreads scanned together (aspectRatio > 1.2) automatically render as a single full spread.
@@ -181,6 +193,13 @@ export const MangaReader: React.FC<MangaReaderProps> = ({
         return;
       }
 
+      // Open visual settings with 'v' / 'V'
+      if (e.key === 'v' || e.key === 'V') {
+        e.preventDefault();
+        onOpenVisualSettings?.();
+        return;
+      }
+
       // Page turn navigation
       if (mode === 'RTL') {
         // Japanese manga standard: reading right-to-left
@@ -207,7 +226,7 @@ export const MangaReader: React.FC<MangaReaderProps> = ({
     return () => {
       window.removeEventListener('keydown', handleKeyDown);
     };
-  }, [currentPage, totalPages, mode, isHUDOpen, isShowingTwoPages, onCycleMode, onCycleTheme]);
+  }, [currentPage, totalPages, mode, isHUDOpen, isShowingTwoPages, onCycleMode, onCycleTheme, onOpenVisualSettings]);
 
   // GSAP animations for page slide/fade & soft ambient lighting
   useEffect(() => {
@@ -232,16 +251,20 @@ export const MangaReader: React.FC<MangaReaderProps> = ({
         }
 
         if (ambientGlowRef.current) {
-          gsap.fromTo(
-            ambientGlowRef.current,
-            { opacity: 0, scale: 1.05 },
-            {
-              opacity: 0.32,
-              scale: 1.15,
-              duration: 0.7,
-              ease: 'power2.out',
-            }
-          );
+          if (!ambilightEnabled) {
+            gsap.set(ambientGlowRef.current, { opacity: 0 });
+          } else {
+            gsap.fromTo(
+              ambientGlowRef.current,
+              { opacity: 0, scale: 1.05 },
+              {
+                opacity: targetGlowOpacity,
+                scale: 1.15,
+                duration: 0.7,
+                ease: 'power2.out',
+              }
+            );
+          }
         }
 
         if (pillRef.current) {
@@ -303,16 +326,20 @@ export const MangaReader: React.FC<MangaReaderProps> = ({
       }
 
       if (ambientGlowRef.current) {
-        gsap.fromTo(
-          ambientGlowRef.current,
-          { opacity: 0.08, scale: 1.05 },
-          {
-            opacity: 0.32,
-            scale: 1.15,
-            duration: 0.65,
-            ease: 'power2.out',
-          }
-        );
+        if (!ambilightEnabled) {
+          gsap.to(ambientGlowRef.current, { opacity: 0, duration: 0.2 });
+        } else {
+          gsap.fromTo(
+            ambientGlowRef.current,
+            { opacity: 0.08 * (ambilightIntensity / 100), scale: 1.05 },
+            {
+              opacity: targetGlowOpacity,
+              scale: 1.15,
+              duration: 0.65,
+              ease: 'power2.out',
+            }
+          );
+        }
       }
 
       if (pillRef.current) {
@@ -331,7 +358,18 @@ export const MangaReader: React.FC<MangaReaderProps> = ({
     prevPageRef.current = currentPage;
 
     return () => ctx.revert();
-  }, [currentPage, mode, isShowingTwoPages]);
+  }, [currentPage, mode, isShowingTwoPages, ambilightEnabled, ambilightIntensity, targetGlowOpacity]);
+
+  // Dynamic Ambilight adjustment when visual settings change in place
+  useEffect(() => {
+    if (ambientGlowRef.current) {
+      gsap.to(ambientGlowRef.current, {
+        opacity: targetGlowOpacity,
+        duration: 0.3,
+        ease: 'power2.out',
+      });
+    }
+  }, [targetGlowOpacity]);
 
   // GSAP animation for Shortcuts HUD Modal entrance
   useEffect(() => {
@@ -367,6 +405,7 @@ export const MangaReader: React.FC<MangaReaderProps> = ({
           src={imageUrl}
           alt=""
           aria-hidden="true"
+          style={{ opacity: ambilightEnabled ? undefined : 0 }}
           className={`w-full ${isShowingTwoPages ? 'max-w-6xl' : 'max-w-4xl'} max-h-[85vh] object-contain filter blur-[56px] sm:blur-[72px] saturate-[1.6] opacity-30 select-none pointer-events-none transform-gpu`}
         />
         <div className="absolute inset-0 bg-radial from-transparent via-[#080c14]/30 to-[#080c14]/90 pointer-events-none" />
@@ -396,6 +435,7 @@ export const MangaReader: React.FC<MangaReaderProps> = ({
               <img
                 src={`${storageBaseUrl}/${leftPage!.fileName}`}
                 alt={`Página ${leftPage!.pageNumber}`}
+                style={{ filter: imageFilter }}
                 className="max-h-full max-w-full object-contain relative z-10 rounded-sm shadow-xl block"
               />
             </div>
@@ -414,6 +454,7 @@ export const MangaReader: React.FC<MangaReaderProps> = ({
               <img
                 src={`${storageBaseUrl}/${rightPage!.fileName}`}
                 alt={`Página ${rightPage!.pageNumber}`}
+                style={{ filter: imageFilter }}
                 className="max-h-full max-w-full object-contain relative z-10 rounded-sm shadow-xl block"
               />
             </div>
@@ -435,6 +476,7 @@ export const MangaReader: React.FC<MangaReaderProps> = ({
             <img
               src={imageUrl}
               alt={`Página ${activePage.pageNumber}`}
+              style={{ filter: imageFilter }}
               className="max-h-full max-w-full object-contain relative z-10 rounded-sm shadow-2xl block"
             />
           </div>
@@ -519,6 +561,19 @@ export const MangaReader: React.FC<MangaReaderProps> = ({
         >
           <HelpCircle className="w-3.5 h-3.5" />
         </button>
+
+        {/* Visual Settings trigger in pill */}
+        {onOpenVisualSettings && (
+          <button
+            data-testid="pill-open-visual-settings"
+            onClick={onOpenVisualSettings}
+            className="p-1 rounded-md text-slate-400 hover:text-cyan-400 hover:bg-slate-800 transition-colors"
+            title="Ajustes visuales y filtros (V)"
+            aria-label="Ajustes visuales y filtros"
+          >
+            <Sliders className="w-3.5 h-3.5" />
+          </button>
+        )}
       </div>
 
       {/* Floating Keyboard Shortcuts HUD Modal */}
@@ -607,6 +662,13 @@ export const MangaReader: React.FC<MangaReaderProps> = ({
                 <span className="text-slate-300">Alternar tema de fondo</span>
                 <kbd className="px-2.5 py-0.5 text-xs font-mono bg-slate-800 text-cyan-400 border border-slate-700 rounded shadow-sm">
                   T
+                </kbd>
+              </div>
+
+              <div className="flex items-center justify-between py-1.5 px-2 rounded-lg hover:bg-white/[0.02]">
+                <span className="text-slate-300">Ajustes visuales & filtros</span>
+                <kbd className="px-2.5 py-0.5 text-xs font-mono bg-slate-800 text-cyan-400 border border-slate-700 rounded shadow-sm">
+                  V
                 </kbd>
               </div>
 

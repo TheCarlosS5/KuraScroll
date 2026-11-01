@@ -58,34 +58,43 @@ export function registerChapterRoutes(
       };
     }
 
-    const ingestResult = await ingestChapter({
-      storageRoot,
-      seriesSlug: body.seriesSlug,
-      volumeNumber: body.volumeNumber ?? 1,
-      chapterNumber: body.chapterNumber,
-      sourcePath: body.sourcePath,
-    });
+    try {
+      const ingestResult = await ingestChapter({
+        storageRoot,
+        seriesSlug: body.seriesSlug,
+        volumeNumber: body.volumeNumber ?? 1,
+        chapterNumber: body.chapterNumber,
+        sourcePath: body.sourcePath,
+      });
 
-    const chapterId = `${body.seriesSlug}-c${body.chapterNumber}`;
+      const chapterId = `${body.seriesSlug}-c${body.chapterNumber}`;
 
-    repo.createChapter({
-      id: chapterId,
-      seriesId: seriesRow.id,
-      volumeId: null,
-      chapterNumber: body.chapterNumber,
-      title: body.title ?? `Chapter ${body.chapterNumber}`,
-      pageCount: ingestResult.pageCount,
-      storagePath: ingestResult.relativeStorageDir,
-    });
+      repo.createChapter({
+        id: chapterId,
+        seriesId: seriesRow.id,
+        volumeId: null,
+        chapterNumber: body.chapterNumber,
+        title: body.title ?? `Chapter ${body.chapterNumber}`,
+        pageCount: ingestResult.pageCount,
+        storagePath: ingestResult.relativeStorageDir,
+      });
 
-    repo.addPages(chapterId, ingestResult.pages);
+      repo.addPages(chapterId, ingestResult.pages);
 
-    return {
-      success: true,
-      chapterId,
-      pageCount: ingestResult.pageCount,
-      storagePath: ingestResult.relativeStorageDir,
-      totalBytes: ingestResult.totalBytes,
-    };
+      return {
+        success: true,
+        chapterId,
+        pageCount: ingestResult.pageCount,
+        storagePath: ingestResult.relativeStorageDir,
+        totalBytes: ingestResult.totalBytes,
+      };
+    } catch (err: any) {
+      reply.status(400);
+      return {
+        statusCode: 400,
+        error: 'Bad Request',
+        message: err.message || 'Chapter ingestion failed',
+      };
+    }
   });
 }

@@ -40,67 +40,73 @@ export async function ingestChapter(params: IngestChapterParams): Promise<Chapte
   let imageFiles: string[] = [];
   let cleanupTempDir: string | null = null;
 
-  if (isArchive) {
-    const tempExtractDir = path.resolve(params.storageRoot, '.tmp', `extract-${Date.now()}-${Math.random().toString(36).slice(2)}`);
-    imageFiles = await extractArchive(params.sourcePath, tempExtractDir);
-    cleanupTempDir = tempExtractDir;
-  } else {
-    const dirEntries = await fs.readdir(params.sourcePath);
-    const validNames = dirEntries.filter((file) => VALID_IMAGE_EXTENSIONS.has(path.extname(file).toLowerCase()));
-    const sorted = naturalSort(validNames);
-    imageFiles = sorted.map((name) => path.join(params.sourcePath, name));
-  }
+  try {
+    if (isArchive) {
+      const tempExtractDir = path.resolve(params.storageRoot, '.tmp', `extract-${Date.now()}-${Math.random().toString(36).slice(2)}`);
+      cleanupTempDir = tempExtractDir;
+      imageFiles = await extractArchive(params.sourcePath, tempExtractDir);
+    } else {
+      const dirEntries = await fs.readdir(params.sourcePath);
+      const validNames = dirEntries.filter((file) => VALID_IMAGE_EXTENSIONS.has(path.extname(file).toLowerCase()));
+      const sorted = naturalSort(validNames);
+      imageFiles = sorted.map((name) => path.join(params.sourcePath, name));
+    }
 
-  const limit = pLimit(4);
-  const pages: PageMetadata[] = new Array(imageFiles.length);
+    if (imageFiles.length === 0) {
+      throw new Error(`No valid images found in chapter source: ${params.sourcePath}`);
+    }
 
-  await Promise.all(
-    imageFiles.map((inputPath, idx) =>
-      limit(async () => {
-        const pageNumber = idx + 1;
-        const paddedName = `${String(pageNumber).padStart(3, '0')}.webp`;
-        const outputPath = path.join(targetDir, paddedName);
+    const limit = pLimit(4);
+    const pages: PageMetadata[] = new Array(imageFiles.length);
 
-        const meta = await optimizeImageToWebP(inputPath, outputPath, {
-          pageNumber,
-          maxImageWidth: params.maxImageWidth,
-          webpQuality: params.webpQuality,
-        });
+    await Promise.all(
+      imageFiles.map((inputPath, idx) =>
+        limit(async () => {
+          const pageNumber = idx + 1;
+          const paddedName = `${String(pageNumber).padStart(3, '0')}.webp`;
+          const outputPath = path.join(targetDir, paddedName);
 
-        pages[idx] = meta;
-      })
-    )
-  );
+          const meta = await optimizeImageToWebP(inputPath, outputPath, {
+            pageNumber,
+            maxImageWidth: params.maxImageWidth,
+            webpQuality: params.webpQuality,
+          });
 
-  const totalBytes = pages.reduce((sum, p) => sum + p.fileSizeBytes, 0);
+          pages[idx] = meta;
+        })
+      )
+    );
 
-  const manifest = {
-    seriesSlug: params.seriesSlug,
-    volumeNumber: vol,
-    chapterNumber: chap,
-    pageCount: pages.length,
-    totalBytes,
-    pages,
-    createdAt: new Date().toISOString(),
-  };
+    const totalBytes = pages.reduce((sum, p) => sum + p.fileSizeBytes, 0);
 
-  await fs.writeFile(path.join(targetDir, 'manifest.json'), JSON.stringify(manifest, null, 2), 'utf-8');
+    const manifest = {
+      seriesSlug: params.seriesSlug,
+      volumeNumber: vol,
+      chapterNumber: chap,
+      pageCount: pages.length,
+      totalBytes,
+      pages,
+      createdAt: new Date().toISOString(),
+    };
 
-  if (cleanupTempDir) {
-    try {
-      await fs.rm(cleanupTempDir, { recursive: true, force: true });
-    } catch {
-      // Ignore cleanup error
+    await fs.writeFile(path.join(targetDir, 'manifest.json'), JSON.stringify(manifest, null, 2), 'utf-8');
+
+    return {
+      relativeStorageDir: relDir,
+      absoluteStorageDir: targetDir,
+      pageCount: pages.length,
+      pages,
+      totalBytes,
+    };
+  } finally {
+    if (cleanupTempDir) {
+      try {
+        await fs.rm(cleanupTempDir, { recursive: true, force: true });
+      } catch {
+        // Ignore cleanup error
+      }
     }
   }
-
-  return {
-    relativeStorageDir: relDir,
-    absoluteStorageDir: targetDir,
-    pageCount: pages.length,
-    pages,
-    totalBytes,
-  };
 }
 
 export const ChapterIngestionService = {

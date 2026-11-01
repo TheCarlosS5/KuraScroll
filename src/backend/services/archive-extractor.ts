@@ -15,13 +15,30 @@ export function isPathSafe(destDir: string, relativeOrTargetPath: string): boole
 
 export async function extractArchive(archivePath: string, destDir: string): Promise<string[]> {
   await fs.mkdir(destDir, { recursive: true });
-  const zip = new AdmZip(archivePath);
-  const entries = zip.getEntries();
+
+  let zip: AdmZip;
+  try {
+    zip = new AdmZip(archivePath);
+  } catch (err: any) {
+    throw new Error(`Failed to open archive '${path.basename(archivePath)}': ${err.message}`);
+  }
+
+  let entries: AdmZip.IZipEntry[];
+  try {
+    entries = zip.getEntries();
+  } catch (err: any) {
+    throw new Error(`Failed to read entries from archive '${path.basename(archivePath)}': ${err.message}`);
+  }
 
   const extractedFilePaths: string[] = [];
 
   for (const entry of entries) {
     if (entry.isDirectory) {
+      continue;
+    }
+
+    // Zip Slip defense: prevent traversal entries like ../../evil.png
+    if (!isPathSafe(destDir, entry.entryName)) {
       continue;
     }
 
@@ -31,12 +48,19 @@ export async function extractArchive(archivePath: string, destDir: string): Prom
     }
 
     const safeName = path.basename(entry.entryName);
-    if (!isPathSafe(destDir, safeName)) {
+    if (!safeName || !isPathSafe(destDir, safeName) || safeName === '.' || safeName === '..') {
       continue;
     }
 
     const outputPath = path.join(destDir, safeName);
-    const content = entry.getData();
+    let content: Buffer;
+    try {
+      content = entry.getData();
+    } catch {
+      // Gracefully skip corrupted/unreadable entry within archive
+      continue;
+    }
+
     await fs.writeFile(outputPath, content);
     extractedFilePaths.push(outputPath);
   }

@@ -1136,6 +1136,20 @@ CREATE TABLE IF NOT EXISTS chunked_stream_profiles (
 CREATE INDEX IF NOT EXISTS idx_chunked_stream_lookup 
     ON chunked_stream_profiles(series_id);
 
+-- Sprint 88: Saccadic Motion Trajectory Smoothing & Dynamic Inertial Scroller
+CREATE TABLE IF NOT EXISTS inertial_scroll_profiles (
+    series_id TEXT PRIMARY KEY,
+    friction_coefficient REAL NOT NULL DEFAULT 0.92 CHECK (friction_coefficient >= 0.70 AND friction_coefficient <= 0.99),
+    mass REAL NOT NULL DEFAULT 1.0 CHECK (mass >= 0.2 AND mass <= 5.0),
+    spring_tension REAL NOT NULL DEFAULT 120.0 CHECK (spring_tension >= 10.0 AND spring_tension <= 500.0),
+    velocity_clamp_px REAL NOT NULL DEFAULT 3500.0 CHECK (velocity_clamp_px >= 500.0 AND velocity_clamp_px <= 10000.0),
+    is_enabled INTEGER NOT NULL DEFAULT 1 CHECK (is_enabled IN (0, 1)),
+    updated_at INTEGER NOT NULL
+);
+
+CREATE INDEX IF NOT EXISTS idx_inertial_scroll_lookup 
+    ON inertial_scroll_profiles(series_id);
+
 
 
 

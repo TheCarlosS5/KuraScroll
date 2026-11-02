@@ -98,6 +98,8 @@ import { slidingWindowRoutes } from './routes/sliding-window-routes.js';
 import { SlidingWindowService } from './services/sliding-window-service.js';
 import { chunkedStreamRoutes } from './routes/chunked-stream-routes.js';
 import { ChunkedStreamService } from './services/chunked-stream-service.js';
+import { inertialScrollRoutes } from './routes/inertial-scroll-routes.js';
+import { InertialScrollService } from './services/inertial-scroll-service.js';
 import { AdaptiveIngestionController } from './services/adaptive-ingestion-controller.js';
 import { DifferentialMirrorService } from './services/differential-mirror-service.js';
 
@@ -135,6 +137,7 @@ export interface AppOptions {
   cloudlessSyncService?: CloudlessSyncService;
   slidingWindowService?: SlidingWindowService;
   chunkedStreamService?: ChunkedStreamService;
+  inertialScrollService?: InertialScrollService;
 }
 
 export function buildApp(options: AppOptions = {}): FastifyInstance {
@@ -379,6 +382,10 @@ export function buildApp(options: AppOptions = {}): FastifyInstance {
   app.register(chunkedStreamRoutes, {
     db,
     chunkedStreamService: options.chunkedStreamService ?? new ChunkedStreamService(db),
+  });
+  app.register(inertialScrollRoutes, {
+    db,
+    inertialScrollService: options.inertialScrollService ?? new InertialScrollService(db),
   });
 
   return app;

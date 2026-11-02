@@ -68,6 +68,7 @@ import { calculateCropBoundingBox } from '../src/backend/services/smart-crop-ser
 import { resolveVectorClockMerge } from '../src/backend/services/cloudless-sync-service.js';
 import { SlidingWindowService } from '../src/backend/services/sliding-window-service.js';
 import { ChunkedStreamService } from '../src/backend/services/chunked-stream-service.js';
+import { InertialScrollService } from '../src/backend/services/inertial-scroll-service.js';
 
 export interface SlaResult {
   category: string;
@@ -1655,6 +1656,29 @@ export async function runHostSlaBenchmark(): Promise<SlaReport> {
     slaTarget: '< 0.02 ms',
     passed: chunkLatency < 0.02,
     notes: 'Zero-Allocation Chunked Bitstream Slicing & GPU Texture Dimension Bounding (< 20µs target)',
+  });
+
+  // 52. Saccadic Motion Trajectory Smoothing & Dynamic Inertial Scroller (Sprint 88 - SLA 52)
+  const inertialScrollService = new InertialScrollService(db);
+  // Warmup JIT
+  for (let i = 0; i < 5000; i++) {
+    inertialScrollService.calculateInertialStep(100, 200, 50, 0.92, 120.0, 1.0, 16.6667);
+  }
+
+  const inertialIters = 20000;
+  const tInertialStart = performance.now();
+  for (let i = 0; i < inertialIters; i++) {
+    inertialScrollService.calculateInertialStep(100, 200, 50, 0.92, 120.0, 1.0, 16.6667);
+  }
+  const inertialLatency = (performance.now() - tInertialStart) / inertialIters;
+
+  results.push({
+    category: 'Kinetic Physics',
+    name: 'Inertial Step Physics Resolution (SLA 52)',
+    measured: `${(inertialLatency * 1000).toFixed(2)} µs (${inertialLatency.toFixed(4)} ms)`,
+    slaTarget: '< 0.02 ms',
+    passed: inertialLatency < 0.02,
+    notes: 'Zero-Allocation Spring-Damper Inertial Step & Saccadic Smoothing (< 20µs target)',
   });
 
   // Teardown

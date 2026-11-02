@@ -1094,24 +1094,6 @@ CREATE TABLE IF NOT EXISTS sync_milestone_profiles (
     series_id TEXT NOT NULL,
     user_id TEXT NOT NULL DEFAULT 'default_user',
     device_id TEXT NOT NULL,
-    vector_clock INTEGER NOT NULL DEFAULT 1,
-    chapters_completed INTEGER NOT NULL DEFAULT 0,
-    total_reading_seconds INTEGER NOT NULL DEFAULT 0,
-    streak_days INTEGER NOT NULL DEFAULT 1,
-    sync_mode TEXT NOT NULL DEFAULT 'local_broadcast' CHECK (sync_mode IN ('local_broadcast', 'p2p_direct', 'offline_vault')),
-    is_enabled INTEGER NOT NULL DEFAULT 1 CHECK (is_enabled IN (0, 1)),
-    updated_at INTEGER NOT NULL,
-    PRIMARY KEY (series_id, user_id, device_id)
-);
-
-CREATE INDEX IF NOT EXISTS idx_sync_milestone_lookup 
-    ON sync_milestone_profiles(series_id, user_id);
-
--- Sprint 85: Continuous Reading Session Milestones & Autonomous Cloudless Sync Hub
-CREATE TABLE IF NOT EXISTS sync_milestone_profiles (
-    series_id TEXT NOT NULL,
-    user_id TEXT NOT NULL DEFAULT 'default_user',
-    device_id TEXT NOT NULL,
     vector_clock INTEGER NOT NULL DEFAULT 1 CHECK (vector_clock >= 1),
     chapters_completed INTEGER NOT NULL DEFAULT 0 CHECK (chapters_completed >= 0),
     total_reading_seconds INTEGER NOT NULL DEFAULT 0 CHECK (total_reading_seconds >= 0),
@@ -1124,6 +1106,22 @@ CREATE TABLE IF NOT EXISTS sync_milestone_profiles (
 
 CREATE INDEX IF NOT EXISTS idx_sync_milestone_lookup 
     ON sync_milestone_profiles(series_id, user_id);
+
+-- Sprint 86: Continuous Page In-Viewport Micro-Cache & Sliding Window Prefetch Engine
+CREATE TABLE IF NOT EXISTS sliding_window_profiles (
+    series_id TEXT PRIMARY KEY,
+    window_size INTEGER NOT NULL DEFAULT 5 CHECK (window_size >= 1 AND window_size <= 20),
+    forward_buffer INTEGER NOT NULL DEFAULT 3 CHECK (forward_buffer >= 1 AND forward_buffer <= 10),
+    backward_buffer INTEGER NOT NULL DEFAULT 2 CHECK (backward_buffer >= 1 AND backward_buffer <= 10),
+    evict_strategy TEXT NOT NULL DEFAULT 'conservative' CHECK (evict_strategy IN ('conservative', 'aggressive', 'preload_heavy')),
+    max_cached_bytes INTEGER NOT NULL DEFAULT 26214400 CHECK (max_cached_bytes >= 5242880 AND max_cached_bytes <= 104857600),
+    is_enabled INTEGER NOT NULL DEFAULT 1 CHECK (is_enabled IN (0, 1)),
+    updated_at INTEGER NOT NULL
+);
+
+CREATE INDEX IF NOT EXISTS idx_sliding_window_lookup 
+    ON sliding_window_profiles(series_id);
+
 
 
 

@@ -94,6 +94,8 @@ import { smartCropRoutes } from './routes/smart-crop-routes.js';
 import { SmartCropService } from './services/smart-crop-service.js';
 import { cloudlessSyncRoutes } from './routes/cloudless-sync-routes.js';
 import { CloudlessSyncService } from './services/cloudless-sync-service.js';
+import { slidingWindowRoutes } from './routes/sliding-window-routes.js';
+import { SlidingWindowService } from './services/sliding-window-service.js';
 import { AdaptiveIngestionController } from './services/adaptive-ingestion-controller.js';
 import { DifferentialMirrorService } from './services/differential-mirror-service.js';
 
@@ -129,6 +131,7 @@ export interface AppOptions {
   gazeAnchorService?: GazeAnchorService;
   smartCropService?: SmartCropService;
   cloudlessSyncService?: CloudlessSyncService;
+  slidingWindowService?: SlidingWindowService;
 }
 
 export function buildApp(options: AppOptions = {}): FastifyInstance {
@@ -365,6 +368,10 @@ export function buildApp(options: AppOptions = {}): FastifyInstance {
   app.register(cloudlessSyncRoutes, {
     db,
     cloudlessSyncService: options.cloudlessSyncService ?? new CloudlessSyncService(db),
+  });
+  app.register(slidingWindowRoutes, {
+    db,
+    slidingWindowService: options.slidingWindowService ?? new SlidingWindowService(db),
   });
 
   return app;

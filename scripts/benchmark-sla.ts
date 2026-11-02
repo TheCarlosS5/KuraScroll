@@ -66,6 +66,7 @@ import { calculateAudioPannerParams } from '../src/backend/services/page-acousti
 import { calculateGazeTrajectory } from '../src/backend/services/gaze-anchor-service.js';
 import { calculateCropBoundingBox } from '../src/backend/services/smart-crop-service.js';
 import { resolveVectorClockMerge } from '../src/backend/services/cloudless-sync-service.js';
+import { SlidingWindowService } from '../src/backend/services/sliding-window-service.js';
 
 export interface SlaResult {
   category: string;
@@ -1607,6 +1608,29 @@ export async function runHostSlaBenchmark(): Promise<SlaReport> {
     slaTarget: '< 0.02 ms',
     passed: crdtLatency < 0.02,
     notes: 'Zero-Allocation CRDT Vector Clock Merge & Milestone Reconciliation (< 20µs target)',
+  });
+
+  // 50. Continuous Page In-Viewport Micro-Cache & Sliding Window Prefetch Latency (Sprint 86 - SLA 50)
+  const slidingWindowService = new SlidingWindowService(db);
+  // Warmup JIT
+  for (let i = 0; i < 5000; i++) {
+    slidingWindowService.calculateSlidingWindow(200, i % 200, 3, 2);
+  }
+
+  const windowIters = 20000;
+  const tWindowStart = performance.now();
+  for (let i = 0; i < windowIters; i++) {
+    slidingWindowService.calculateSlidingWindow(200, i % 200, 3, 2);
+  }
+  const windowLatency = (performance.now() - tWindowStart) / windowIters;
+
+  results.push({
+    category: 'Micro-Cache Engine',
+    name: 'Sliding Window Prefetch Resolution (SLA 50)',
+    measured: `${(windowLatency * 1000).toFixed(2)} µs (${windowLatency.toFixed(4)} ms)`,
+    slaTarget: '< 0.02 ms',
+    passed: windowLatency < 0.02,
+    notes: 'Zero-Allocation Sliding Window In-Viewport Micro-Cache & Prefetch Calculation (< 20µs target)',
   });
 
   // Teardown

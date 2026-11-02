@@ -75,6 +75,7 @@ import { ChromaticFringeService } from '../src/backend/services/chromatic-fringe
 import { AmbientGlowService } from '../src/backend/services/ambient-glow-service.js';
 import { PageCurlService } from '../src/backend/services/page-curl-service.js';
 import { StorageTierService, TieringCandidateInput } from '../src/backend/services/storage-tier-service.js';
+import { MotionStabilizerService } from '../src/backend/services/motion-stabilizer-service.js';
 
 export interface SlaResult {
   category: string;
@@ -1866,6 +1867,29 @@ export async function runHostSlaBenchmark(): Promise<SlaReport> {
     slaTarget: '< 0.02 ms',
     passed: tierLatency < 0.02,
     notes: 'Zero-Allocation Multi-Tier Scoring & Platter Eviction Arbitration (< 20µs target)',
+  });
+
+  // 59. Adaptive Peripheral Motion-Deblur & Micro-Pan Gesture Stabilizer (Sprint 95 - SLA 59)
+  const motionStabilizerService = new MotionStabilizerService(db);
+  // Warmup JIT
+  for (let i = 0; i < 5000; i++) {
+    motionStabilizerService.calculateStabilizerKinematics(450, 150, 25, 0.75, 350.0, 1.25, true, 'smooth_spring');
+  }
+
+  const motionIters = 20000;
+  const tMotionStart = performance.now();
+  for (let i = 0; i < motionIters; i++) {
+    motionStabilizerService.calculateStabilizerKinematics(450, 150, 25, 0.75, 350.0, 1.25, true, 'smooth_spring');
+  }
+  const motionLatency = (performance.now() - tMotionStart) / motionIters;
+
+  results.push({
+    category: 'Motion Stabilization',
+    name: 'Gesture Damping & Deblur Kinematics (SLA 59)',
+    measured: `${(motionLatency * 1000).toFixed(2)} µs (${motionLatency.toFixed(4)} ms)`,
+    slaTarget: '< 0.02 ms',
+    passed: motionLatency < 0.02,
+    notes: 'Zero-Allocation Spring-Damper Jitter Filtering & Dynamic Contrast Boost (< 20µs target)',
   });
 
   // Teardown

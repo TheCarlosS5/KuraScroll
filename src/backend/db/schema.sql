@@ -1261,6 +1261,27 @@ CREATE TABLE IF NOT EXISTS storage_tier_profiles (
 CREATE INDEX IF NOT EXISTS idx_storage_tier_lookup 
     ON storage_tier_profiles(series_id);
 
+-- Sprint 95: Adaptive Peripheral In-Viewport Motion-Deblur & Micro-Pan Gesture Stabilizer (SLA 59)
+CREATE TABLE IF NOT EXISTS motion_stabilizer_profiles (
+    series_id TEXT PRIMARY KEY,
+    stabilizer_mode TEXT NOT NULL DEFAULT 'smooth_spring' CHECK (stabilizer_mode IN (
+        'smooth_spring',
+        'high_inertia_damping',
+        'esports_raw',
+        'custom'
+    )),
+    damping_coefficient REAL NOT NULL DEFAULT 0.75 CHECK (damping_coefficient >= 0.10 AND damping_coefficient <= 0.99),
+    velocity_threshold_px REAL NOT NULL DEFAULT 350.0 CHECK (velocity_threshold_px >= 50.0 AND velocity_threshold_px <= 2000.0),
+    contrast_boost_factor REAL NOT NULL DEFAULT 1.25 CHECK (contrast_boost_factor >= 1.00 AND contrast_boost_factor <= 2.00),
+    is_anti_ghosting_enabled INTEGER NOT NULL DEFAULT 1 CHECK (is_anti_ghosting_enabled IN (0, 1)),
+    is_enabled INTEGER NOT NULL DEFAULT 1 CHECK (is_enabled IN (0, 1)),
+    updated_at INTEGER NOT NULL
+);
+
+CREATE INDEX IF NOT EXISTS idx_motion_stabilizer_lookup 
+    ON motion_stabilizer_profiles(series_id);
+
+
 
 
 

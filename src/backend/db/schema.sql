@@ -531,6 +531,38 @@ CREATE TRIGGER IF NOT EXISTS trg_bubble_ocr_delete AFTER DELETE ON chapter_bubbl
     DELETE FROM dialogue_fts WHERE bubble_id = old.id;
 END;
 
+-- Sprint 56: Dynamic Haptic Feedback & Screen Rumble Engine
+CREATE TABLE IF NOT EXISTS user_immersion_preferences (
+    user_id TEXT PRIMARY KEY,
+    haptics_enabled INTEGER NOT NULL DEFAULT 0 CHECK (haptics_enabled IN (0, 1)),
+    screen_rumble_enabled INTEGER NOT NULL DEFAULT 0 CHECK (screen_rumble_enabled IN (0, 1)),
+    max_haptic_intensity INTEGER NOT NULL DEFAULT 1 CHECK (max_haptic_intensity BETWEEN 0 AND 2),
+    max_rumble_intensity INTEGER NOT NULL DEFAULT 1 CHECK (max_rumble_intensity BETWEEN 0 AND 2),
+    haptics_with_reduced_motion INTEGER NOT NULL DEFAULT 0 CHECK (haptics_with_reduced_motion IN (0, 1)),
+    updated_at INTEGER NOT NULL,
+    revision INTEGER NOT NULL DEFAULT 1
+);
+
+CREATE TABLE IF NOT EXISTS impact_telemetry_batches (
+    batch_id TEXT PRIMARY KEY,
+    user_id TEXT NOT NULL,
+    session_id TEXT NOT NULL,
+    source_type TEXT NOT NULL CHECK (source_type IN ('sfx', 'onomatopoeia', 'manual')),
+    intensity INTEGER NOT NULL CHECK (intensity BETWEEN 0 AND 2),
+    trigger_count INTEGER NOT NULL DEFAULT 0,
+    haptic_api_attempts INTEGER NOT NULL DEFAULT 0,
+    haptic_accepted_count INTEGER NOT NULL DEFAULT 0,
+    haptic_suppressed_count INTEGER NOT NULL DEFAULT 0,
+    rumble_attempt_count INTEGER NOT NULL DEFAULT 0,
+    rumble_executed_count INTEGER NOT NULL DEFAULT 0,
+    rumble_suppressed_count INTEGER NOT NULL DEFAULT 0,
+    flushed_at INTEGER NOT NULL
+);
+
+CREATE INDEX IF NOT EXISTS idx_telemetry_user_session
+    ON impact_telemetry_batches (user_id, session_id);
+
+
 
 
 

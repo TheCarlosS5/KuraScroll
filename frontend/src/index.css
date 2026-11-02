@@ -77,3 +77,51 @@ body {
   animation-iteration-count: 1 !important;
   transition-duration: 0.001ms !important;
 }
+
+/* Sprint 56: Hardware-Accelerated Screen Rumble Keyframes for Intel GMA 4500MHD (CLS = 0) */
+@keyframes rumble-light {
+  0%, 100% { transform: translate3d(0, 0, 0); }
+  25% { transform: translate3d(-0.75px, 0.25px, 0); }
+  50% { transform: translate3d(0.75px, -0.25px, 0); }
+  75% { transform: translate3d(-0.25px, 0.25px, 0); }
+}
+
+@keyframes rumble-medium {
+  0%, 100% { transform: translate3d(0, 0, 0); }
+  20% { transform: translate3d(-1.5px, 0.5px, 0); }
+  40% { transform: translate3d(1.5px, -0.5px, 0); }
+  60% { transform: translate3d(-1px, 0.5px, 0); }
+  80% { transform: translate3d(0.5px, -0.25px, 0); }
+}
+
+@keyframes rumble-heavy {
+  0%, 100% { transform: translate3d(0, 0, 0); }
+  15% { transform: translate3d(-2.5px, 1px, 0); }
+  30% { transform: translate3d(2.5px, -1px, 0); }
+  45% { transform: translate3d(-2px, 0.75px, 0); }
+  60% { transform: translate3d(1.5px, -0.5px, 0); }
+  75% { transform: translate3d(-1px, 0.25px, 0); }
+  90% { transform: translate3d(0.5px, -0.25px, 0); }
+}
+
+.reader-stage.rumble-light {
+  animation: rumble-light 45ms linear;
+}
+
+.reader-stage.rumble-medium {
+  animation: rumble-medium 60ms linear;
+}
+
+.reader-stage.rumble-heavy {
+  animation: rumble-heavy 80ms linear;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .reader-stage.rumble-light,
+  .reader-stage.rumble-medium,
+  .reader-stage.rumble-heavy {
+    animation: none !important;
+    transform: none !important;
+  }
+}
+

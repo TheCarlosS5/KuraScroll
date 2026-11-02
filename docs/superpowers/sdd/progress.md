@@ -1,9 +1,9 @@
 # SDD ledger — plan: docs/superpowers/plans/2026-11-01-kura-scroll-master-plan.md
 
-- **Status:** Complete & Iterating (Sprint 30 Verified, 481+ Tests Passing)
+- **Status:** Complete & Iterating (Sprint 31 Verified, 510+ Tests Passing)
 - **Orchestrator:** Antigravity AI Orchestrator
 - **Branch:** main (isolated in `C:\Users\Admin\dev\kura-scroll`)
-- **Total Test Suites:** 86 test files, 481+ passing tests (285 backend + 176 frontend + benchmarks, 100% PASS)
+- **Total Test Suites:** 88 test files, 510+ passing tests (306 backend + 184 frontend + benchmarks, 100% PASS)
 
 ## Rulings & Decisions
 - Ruling: Standalone Sibling Project ("Proyecto Hermano") chosen as requested by Carlos to prevent monolithic coupling with KuraStream while sharing branding/logo (KS).
@@ -167,4 +167,13 @@
   - [x] Task 30.5: Fastify Analytics Endpoints (`GET /api/v1/analytics/goals`, `PUT /api/v1/analytics/goals`, `POST /api/v1/analytics/activity/buffered`, `GET /api/v1/telemetry/buffer`, 5/5 tests PASS)
   - [x] Task 30.6: Intel GMA 4500MHD Optimized Frontend Components `DailyGoalRing.tsx` and `DailyGoalModal.tsx` (9/9 tests PASS)
   - [x] Task 30.7: Navbar Integration & Host SLA Audit (11/11 SLAs Passed, Vite build 9.87s)
-- [ ] Part 31: Advanced Reading Habit Milestones & Badge System
+- [x] Part 31: Advanced Reading Habit Milestones & Badge System (Commit Sprint 31)
+  - [x] Task 31.1: Senior Consultation with ChatGPT on Brave MCP regarding event aggregation and zero-scan point lookup badges
+  - [x] Task 31.2: Badge Definitions Catalog `badge-definitions.ts` (12 otaku-lore badges across volume, streak, time, explorer, collector)
+  - [x] Task 31.3: SQLite Table `user_badges` with covering index `idx_user_badges_unlocked` (sub-millisecond lookups)
+  - [x] Task 31.4: Typed `BadgeRepository.ts` (10/10 tests PASS) with atomic batch update and unnotified badges tracking
+  - [x] Task 31.5: `BadgeEvaluatorService.ts` running sub-millisecond point lookups on `user_reading_streaks` with zero unindexed table scans (4/4 tests PASS)
+  - [x] Task 31.6: Fastify Endpoints in `badge-routes.ts` (`GET /api/v1/badges`, `GET /api/v1/badges/unnotified`, `POST /api/v1/badges/notified`, `POST /api/v1/badges/evaluate`, `GET /api/v1/telemetry/badges`, 3/3 tests PASS)
+  - [x] Task 31.7: Frontend Components `BadgeGridModal.tsx` and `BadgeUnlockToast.tsx` optimized for Intel GMA 4500MHD (7/7 tests PASS)
+  - [x] Task 31.8: Navbar Integration (`Trophy` button) and Monorepo Verification (11/11 SLAs Passed, Vite build 4.34s)
+- [ ] Part 32: Personalized Smart Recommendations & Reading Velocity Estimator

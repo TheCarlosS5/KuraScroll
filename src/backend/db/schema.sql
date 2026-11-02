@@ -159,6 +159,23 @@ CREATE INDEX IF NOT EXISTS idx_user_daily_activity_date
 CREATE INDEX IF NOT EXISTS idx_user_daily_activity_stats 
     ON user_daily_activity(user_id, pages_read, reading_seconds, goal_completed);
 
+-- Gamification Badges & Achievement Progress
+CREATE TABLE IF NOT EXISTS user_badges (
+    user_id TEXT NOT NULL,
+    badge_id TEXT NOT NULL,
+    current_value REAL NOT NULL DEFAULT 0,
+    target_value REAL NOT NULL DEFAULT 1,
+    is_unlocked INTEGER NOT NULL DEFAULT 0 CHECK(is_unlocked IN (0, 1)),
+    unlocked_at TEXT,
+    notified INTEGER NOT NULL DEFAULT 0 CHECK(notified IN (0, 1)),
+    updated_at TEXT DEFAULT (datetime('now')),
+    PRIMARY KEY (user_id, badge_id)
+);
+
+-- Covering Index for fast lookup of unlocked achievements and celebratory toasts
+CREATE INDEX IF NOT EXISTS idx_user_badges_unlocked 
+    ON user_badges(user_id, is_unlocked, unlocked_at DESC);
+
 -- Incremental Folder Synchronization State (Avoids recursive 4TB HDD re-scanning)
 CREATE TABLE IF NOT EXISTS folder_sync_state (
     folder_path TEXT PRIMARY KEY,

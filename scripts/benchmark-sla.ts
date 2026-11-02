@@ -137,6 +137,10 @@ export async function runHostSlaBenchmark(): Promise<SlaReport> {
     { languageCode: 'ja', title: 'SPY×FAMILY' },
   ]);
 
+  // Warm up JIT and prepared statements
+  repo.getSeriesBySlug('sla-kimetsu');
+  repo.searchSeries('鬼');
+
   // Point lookup
   const t0 = performance.now();
   for (let i = 0; i < 50; i++) {

@@ -66,4 +66,14 @@ describe('Navbar Component', () => {
     expect(screen.getByRole('dialog')).toBeDefined();
     expect(screen.getByText('Meta Diaria de Lectura')).toBeDefined();
   });
+
+  it('renders achievements / badges button and opens badge modal on click', () => {
+    render(<Navbar onNavigate={() => {}} currentView="catalog" />);
+    const badgesBtn = screen.getByTestId('nav-badges-btn');
+    expect(badgesBtn).toBeDefined();
+    expect(screen.getByText('Logros')).toBeDefined();
+
+    fireEvent.click(badgesBtn);
+    expect(screen.getByText('Logros & Medallas de Lectura')).toBeDefined();
+  });
 });

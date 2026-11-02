@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { BookOpen, Bookmark, Sparkles, History, Database, Film, Flame } from 'lucide-react';
+import { BookOpen, Bookmark, Sparkles, History, Database, Film, Flame, Trophy } from 'lucide-react';
 import { OfflineSyncHUD } from './OfflineSyncHUD.js';
 import { DailyGoalRing } from '../habits/DailyGoalRing.js';
 import {
@@ -9,6 +9,8 @@ import {
   CalendarDayData,
   LifetimeStatsData,
 } from '../habits/DailyGoalModal.js';
+import { BadgeGridModal, UserBadgeItem, BadgeSummaryData } from '../habits/BadgeGridModal.js';
+import { BadgeUnlockToast } from '../habits/BadgeUnlockToast.js';
 
 export interface NavbarProps {
   currentView?: string;
@@ -50,6 +52,49 @@ export const Navbar: React.FC<NavbarProps> = ({
     currentStreak: 0,
     bestStreak: 0,
   });
+
+  const [isBadgeModalOpen, setIsBadgeModalOpen] = useState(false);
+  const [badgesList, setBadgesList] = useState<UserBadgeItem[]>([]);
+  const [badgeSummary, setBadgeSummary] = useState<BadgeSummaryData>({
+    total: 12,
+    unlocked: 0,
+    inProgress: 0,
+    percentage: 0,
+  });
+  const [unlockToastBadge, setUnlockToastBadge] = useState<UserBadgeItem | null>(null);
+
+  const fetchBadges = async () => {
+    try {
+      const res = await fetch('/api/v1/badges?userId=local_user');
+      if (!res.ok) return;
+      const data = await res.json();
+      if (data?.success) {
+        if (data.badges) setBadgesList(data.badges);
+        if (data.summary) setBadgeSummary(data.summary);
+      }
+
+      // Check for unnotified badges to trigger celebration toast
+      const unnotifiedRes = await fetch('/api/v1/badges/unnotified?userId=local_user');
+      if (unnotifiedRes.ok) {
+        const unnotifiedData = await unnotifiedRes.json();
+        if (unnotifiedData?.unnotified?.length > 0) {
+          const firstUnlocked = unnotifiedData.unnotified[0];
+          setUnlockToastBadge(firstUnlocked);
+          // Mark as notified
+          fetch('/api/v1/badges/notified', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              userId: 'local_user',
+              badgeIds: [firstUnlocked.id],
+            }),
+          }).catch(() => {});
+        }
+      }
+    } catch {
+      // Offline fallback
+    }
+  };
 
   const fetchGoalsAndProgress = async () => {
     try {
@@ -101,6 +146,7 @@ export const Navbar: React.FC<NavbarProps> = ({
     }
     fetchStreak();
     fetchGoalsAndProgress();
+    fetchBadges();
     return () => {
       isMounted = false;
     };
@@ -239,6 +285,17 @@ export const Navbar: React.FC<NavbarProps> = ({
             <span className="hidden sm:inline">Guardados</span>
           </button>
 
+          <button
+            data-testid="nav-badges-btn"
+            onClick={() => setIsBadgeModalOpen(true)}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-sm font-medium transition-all bg-gray-900/80 text-gray-300 border border-gray-800 hover:border-amber-500/50 hover:text-amber-400"
+            title="Logros y Medallas de Lectura"
+            aria-label="Logros y Medallas de Lectura"
+          >
+            <Trophy className="w-4 h-4 text-amber-400" />
+            <span className="hidden sm:inline">Logros</span>
+          </button>
+
           {onOpenBackup && (
             <button
               data-testid="nav-backup-btn"
@@ -287,6 +344,20 @@ export const Navbar: React.FC<NavbarProps> = ({
         calendar={calendar}
         lifetime={lifetime}
         onSaveGoal={handleSaveGoal}
+      />
+
+      {/* Badges and Achievements Grid Modal */}
+      <BadgeGridModal
+        isOpen={isBadgeModalOpen}
+        onClose={() => setIsBadgeModalOpen(false)}
+        badges={badgesList}
+        summary={badgeSummary}
+      />
+
+      {/* Real-time Badge Unlock Celebration Toast */}
+      <BadgeUnlockToast
+        badge={unlockToastBadge}
+        onDismiss={() => setUnlockToastBadge(null)}
       />
     </header>
   );

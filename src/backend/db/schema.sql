@@ -1341,6 +1341,26 @@ CREATE TABLE IF NOT EXISTS reading_dwell_profiles (
 CREATE INDEX IF NOT EXISTS idx_reading_dwell_lookup 
     ON reading_dwell_profiles(series_id);
 
+-- Sprint 99: Adaptive Per-Panel Visual Pacing & Dynamic Zoom Framing Interpolator (SLA 63)
+CREATE TABLE IF NOT EXISTS panel_pacing_profiles (
+    series_id TEXT PRIMARY KEY,
+    pacing_mode TEXT NOT NULL DEFAULT 'cinematic_smooth' CHECK (pacing_mode IN (
+        'cinematic_smooth',
+        'dynamic_action',
+        'instant_cut',
+        'custom'
+    )),
+    transition_duration_ms INTEGER NOT NULL DEFAULT 280 CHECK (transition_duration_ms >= 100 AND transition_duration_ms <= 1000),
+    zoom_overshoot_ratio REAL NOT NULL DEFAULT 1.05 CHECK (zoom_overshoot_ratio >= 1.00 AND zoom_overshoot_ratio <= 1.30),
+    edge_padding_px INTEGER NOT NULL DEFAULT 16 CHECK (edge_padding_px >= 0 AND edge_padding_px <= 64),
+    is_motion_reduced INTEGER NOT NULL DEFAULT 0 CHECK (is_motion_reduced IN (0, 1)),
+    is_enabled INTEGER NOT NULL DEFAULT 1 CHECK (is_enabled IN (0, 1)),
+    updated_at INTEGER NOT NULL
+);
+
+CREATE INDEX IF NOT EXISTS idx_panel_pacing_lookup 
+    ON panel_pacing_profiles(series_id);
+
 
 
 

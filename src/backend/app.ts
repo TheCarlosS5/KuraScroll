@@ -120,6 +120,8 @@ import { textEqualizerRoutes } from './routes/text-equalizer-routes.js';
 import { TextEqualizerService } from './services/text-equalizer-service.js';
 import { readingDwellRoutes } from './routes/reading-dwell-routes.js';
 import { ReadingDwellService } from './services/reading-dwell-service.js';
+import { panelPacingRoutes } from './routes/panel-pacing-routes.js';
+import { PanelPacingService } from './services/panel-pacing-service.js';
 import { AdaptiveIngestionController } from './services/adaptive-ingestion-controller.js';
 import { DifferentialMirrorService } from './services/differential-mirror-service.js';
 
@@ -168,6 +170,7 @@ export interface AppOptions {
   creaseShadowService?: CreaseShadowService;
   textEqualizerService?: TextEqualizerService;
   readingDwellService?: ReadingDwellService;
+  panelPacingService?: PanelPacingService;
 }
 
 export function buildApp(options: AppOptions = {}): FastifyInstance {
@@ -456,6 +459,10 @@ export function buildApp(options: AppOptions = {}): FastifyInstance {
   app.register(readingDwellRoutes, {
     db,
     readingDwellService: options.readingDwellService ?? new ReadingDwellService(db),
+  });
+  app.register(panelPacingRoutes, {
+    db,
+    panelPacingService: options.panelPacingService ?? new PanelPacingService(db),
   });
 
   return app;

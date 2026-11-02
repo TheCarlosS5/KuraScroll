@@ -79,6 +79,7 @@ import { MotionStabilizerService } from '../src/backend/services/motion-stabiliz
 import { CreaseShadowService } from '../src/backend/services/crease-shadow-service.js';
 import { TextEqualizerService } from '../src/backend/services/text-equalizer-service.js';
 import { ReadingDwellService } from '../src/backend/services/reading-dwell-service.js';
+import { PanelPacingService } from '../src/backend/services/panel-pacing-service.js';
 
 export interface SlaResult {
   category: string;
@@ -1962,6 +1963,31 @@ export async function runHostSlaBenchmark(): Promise<SlaReport> {
     slaTarget: '< 0.02 ms',
     passed: dwellLatency < 0.02,
     notes: 'Zero-Allocation Page Dwell Prediction & JIT 4TB HDD Seek Deferral (< 20µs target)',
+  });
+
+  // 63. Adaptive Per-Panel Visual Pacing & Dynamic Zoom Framing Interpolator (Sprint 99 - SLA 63)
+  const panelPacingService = new PanelPacingService(db);
+  const srcAabb = { x: 0, y: 0, width: 800, height: 600 };
+  const tgtAabb = { x: 200, y: 400, width: 600, height: 450 };
+  // Warmup JIT
+  for (let i = 0; i < 5000; i++) {
+    panelPacingService.calculatePanelFramingTransform(srcAabb, tgtAabb, 1280, 720, 0.75, 1.05, 16, false, 280, 'cinematic_smooth');
+  }
+
+  const pacingIters = 20000;
+  const tPacingStart = performance.now();
+  for (let i = 0; i < pacingIters; i++) {
+    panelPacingService.calculatePanelFramingTransform(srcAabb, tgtAabb, 1280, 720, 0.75, 1.05, 16, false, 280, 'cinematic_smooth');
+  }
+  const pacingLatency = (performance.now() - tPacingStart) / pacingIters;
+
+  results.push({
+    category: 'Cinematic Panel Pacing',
+    name: 'Panel Framing Interpolation (SLA 63)',
+    measured: `${(pacingLatency * 1000).toFixed(2)} µs (${pacingLatency.toFixed(4)} ms)`,
+    slaTarget: '< 0.02 ms',
+    passed: pacingLatency < 0.02,
+    notes: 'Zero-Allocation AABB Camera Interpolation & EaseOutBack Matrix (< 20µs target)',
   });
 
   // Teardown

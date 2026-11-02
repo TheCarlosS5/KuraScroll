@@ -78,6 +78,7 @@ import { StorageTierService, TieringCandidateInput } from '../src/backend/servic
 import { MotionStabilizerService } from '../src/backend/services/motion-stabilizer-service.js';
 import { CreaseShadowService } from '../src/backend/services/crease-shadow-service.js';
 import { TextEqualizerService } from '../src/backend/services/text-equalizer-service.js';
+import { ReadingDwellService } from '../src/backend/services/reading-dwell-service.js';
 
 export interface SlaResult {
   category: string;
@@ -1938,6 +1939,29 @@ export async function runHostSlaBenchmark(): Promise<SlaReport> {
     slaTarget: '< 0.02 ms',
     passed: textEqLatency < 0.02,
     notes: 'Zero-Allocation Dynamic Range Equalizer & Subpixel Furigana Edge Bias (< 20µs target)',
+  });
+
+  // 62. Predictive Intelligent Pre-Reading Micro-Heatmap Dwell Predictor (Sprint 98 - SLA 62)
+  const readingDwellService = new ReadingDwellService(db);
+  // Warmup JIT
+  for (let i = 0; i < 5000; i++) {
+    readingDwellService.calculateDwellPrediction(2000, 4500, 1.25, 800, 'cadence_adaptive');
+  }
+
+  const dwellIters = 20000;
+  const tDwellStart = performance.now();
+  for (let i = 0; i < dwellIters; i++) {
+    readingDwellService.calculateDwellPrediction(2000, 4500, 1.25, 800, 'cadence_adaptive');
+  }
+  const dwellLatency = (performance.now() - tDwellStart) / dwellIters;
+
+  results.push({
+    category: 'Cadence & Dwell Prediction',
+    name: 'Reading Dwell Predictor (SLA 62)',
+    measured: `${(dwellLatency * 1000).toFixed(2)} µs (${dwellLatency.toFixed(4)} ms)`,
+    slaTarget: '< 0.02 ms',
+    passed: dwellLatency < 0.02,
+    notes: 'Zero-Allocation Page Dwell Prediction & JIT 4TB HDD Seek Deferral (< 20µs target)',
   });
 
   // Teardown

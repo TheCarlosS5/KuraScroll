@@ -1321,6 +1321,26 @@ CREATE TABLE IF NOT EXISTS text_equalizer_profiles (
 CREATE INDEX IF NOT EXISTS idx_text_equalizer_lookup 
     ON text_equalizer_profiles(series_id);
 
+-- Sprint 98: Predictive Intelligent Pre-Reading Micro-Heatmap Dwell Predictor (SLA 62)
+CREATE TABLE IF NOT EXISTS reading_dwell_profiles (
+    series_id TEXT PRIMARY KEY,
+    prediction_mode TEXT NOT NULL DEFAULT 'cadence_adaptive' CHECK (prediction_mode IN (
+        'cadence_adaptive',
+        'action_heavy',
+        'dialogue_dense',
+        'custom'
+    )),
+    base_dwell_ms INTEGER NOT NULL DEFAULT 4500 CHECK (base_dwell_ms >= 1000 AND base_dwell_ms <= 30000),
+    complexity_weight REAL NOT NULL DEFAULT 1.25 CHECK (complexity_weight >= 0.50 AND complexity_weight <= 3.00),
+    urgency_threshold_ms INTEGER NOT NULL DEFAULT 800 CHECK (urgency_threshold_ms >= 200 AND urgency_threshold_ms <= 3000),
+    is_prefetch_trigger_enabled INTEGER NOT NULL DEFAULT 1 CHECK (is_prefetch_trigger_enabled IN (0, 1)),
+    is_enabled INTEGER NOT NULL DEFAULT 1 CHECK (is_enabled IN (0, 1)),
+    updated_at INTEGER NOT NULL
+);
+
+CREATE INDEX IF NOT EXISTS idx_reading_dwell_lookup 
+    ON reading_dwell_profiles(series_id);
+
 
 
 

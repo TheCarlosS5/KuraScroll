@@ -239,4 +239,11 @@
   - [x] Task 38.6: Unit & Integration Test Suites (`asset-tier.test.ts`, `network-status-service.test.ts`, `AdaptivePrefetchEngine.test.ts`, 25/25 tests PASS)
   - [x] Task 38.7: Benchmark Report on SATA II HDD Bandwidth & Latency (`docs/reports/sprint38-smart-precaching-benchmark.md`, -42.1% low tier payload, 0.82ms yield latency)
   - [x] Task 38.8: Monorepo Verification (119 test files, 663 tests PASS [428 backend + 235 frontend], 11/11 SLAs Passed, Vite build 4.28s)
-- [ ] Part 39: Dynamic Ambient Ambilight Glow & Performance Throttling for Intel GMA 4500MHD
+- [x] Part 39: Dynamic Ambient Ambilight Glow & Performance Throttling for Intel GMA 4500MHD (Commit Sprint 39)
+  - [x] Task 39.1: Senior Architectural Blueprint with ChatGPT via Brave MCP (`docs/brainstorming/chatgpt-sprint39-ambilight-gma4500mhd-blueprint.md`)
+  - [x] Task 39.2: Subsampled 16x16 Perimeter Color Extractor & Chromatic Hysteresis (`frontend/src/utils/ambient-color-extractor.ts`, 7/7 tests PASS)
+  - [x] Task 39.3: Zero-Blur Hardware-Accelerated Component `AmbilightBackdrop.tsx` (4/4 tests PASS)
+  - [x] Task 39.4: Reader Integration in `ReaderPage.tsx` with Theme Awareness & Thermal Saver Bypass
+  - [x] Task 39.5: Empirical Fill-Rate & Framerate Benchmark (`docs/reports/sprint39-ambilight-gma4500mhd-benchmark.md`, 60 FPS, 0% convolution overhead, 99.8% texture memory reduction)
+  - [x] Task 39.6: Monorepo Verification (121 test files, 674 tests PASS [428 backend + 246 frontend], 11/11 SLAs Passed, Vite build 6.27s)
+- [ ] Part 40: Multi-Volume Batch Zip / CBZ Export & Hot Archive Streaming

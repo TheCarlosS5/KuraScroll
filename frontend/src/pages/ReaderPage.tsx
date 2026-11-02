@@ -19,6 +19,13 @@ import { useZenModeGSAP } from '../hooks/useZenModeGSAP.js';
 import { ReadingStatsTracker } from '../services/reading-stats-service.js';
 import { syncCoordinator } from '../services/sync-coordinator.js';
 import { AdaptivePrefetchEngine, PrefetchTelemetry } from '../reader/AdaptivePrefetchEngine.js';
+import { AmbilightBackdrop } from '../components/reader/AmbilightBackdrop.js';
+import {
+  extractAmbientColor,
+  DEFAULT_AMBIENT_RGB,
+  RGBColor,
+  shouldBypassAmbilight,
+} from '../utils/ambient-color-extractor.js';
 
 export interface ReaderPageProps {
   chapterId: string;
@@ -65,6 +72,9 @@ export const ReaderPage: React.FC<ReaderPageProps> = ({
   const [prefetchTelemetry, setPrefetchTelemetry] = useState<PrefetchTelemetry>(() =>
     prefetchEngine.getTelemetry()
   );
+
+  // Sprint 39: Dynamic Ambient Ambilight Glow State (Intel GMA 4500MHD Target)
+  const [ambientColor, setAmbientColor] = useState<RGBColor>(DEFAULT_AMBIENT_RGB);
 
   // Sprint 34: Chapter Quick Navigation & Bookmarks State
   const [isChapterNavOpen, setIsChapterNavOpen] = useState(false);
@@ -145,6 +155,21 @@ export const ReaderPage: React.FC<ReaderPageProps> = ({
     const total = manifest?.pages?.length || 1;
     const estimate = readingTracker.estimateRemainingChapterTime(page, total);
     setReadingPaceText(estimate.formattedRemaining);
+
+    // Sprint 39: Update Ambient Glow with Chromatic Hysteresis
+    if (!shouldBypassAmbilight(displaySettings?.thermalSaverEnabled)) {
+      setTimeout(() => {
+        if (typeof document !== 'undefined') {
+          const activeImg = document.querySelector<HTMLImageElement>(`img[alt="Página ${page}"]`);
+          if (activeImg && activeImg.complete && activeImg.naturalWidth > 0) {
+            setAmbientColor((prev) => {
+              const res = extractAmbientColor(activeImg, prev);
+              return res.rgb;
+            });
+          }
+        }
+      }, 150);
+    }
   };
 
   // Sprint 38: Trigger adaptive prefetch on page position updates
@@ -332,7 +357,16 @@ export const ReaderPage: React.FC<ReaderPageProps> = ({
       className="min-h-screen text-white relative transition-colors duration-200"
       style={{ backgroundColor: readingBackground }}
     >
-      {/* Zen Mode Ambilight Ambient Aura Backdrop (Sprint 23) */}
+      {/* Hardware-Accelerated Dynamic Ambient Ambilight Glow Backdrop (Sprint 39) */}
+      <AmbilightBackdrop
+        ambientColor={ambientColor}
+        enabled={isZen || displaySettings?.ambilightEnabled !== false}
+        opacity={displaySettings?.ambilightIntensity ? (displaySettings.ambilightIntensity / 100) * 0.32 : 0.28}
+        theme={readingBackground}
+        thermalSaverActive={displaySettings?.thermalSaverEnabled || false}
+      />
+
+      {/* Zen Mode Ambilight Ambient Aura Backdrop (Sprint 23 GSAP ref) */}
       <div
         ref={ambilightRef}
         data-testid="zen-ambilight-backdrop"

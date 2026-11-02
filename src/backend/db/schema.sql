@@ -276,4 +276,22 @@ CREATE TABLE IF NOT EXISTS duplicate_merge_history (
 CREATE INDEX IF NOT EXISTS idx_merge_history_target
     ON duplicate_merge_history (target_series_id);
 
+-- Sprint 45: Reading Session Optical Replay & Kinetic Dwell-Time Attention Heatmaps
+CREATE TABLE IF NOT EXISTS chapter_page_dwell_stats (
+    chapter_id TEXT NOT NULL REFERENCES chapters(id) ON DELETE CASCADE,
+    page_number INTEGER NOT NULL CHECK(page_number >= 1),
+    total_reads INTEGER NOT NULL DEFAULT 0 CHECK(total_reads >= 0),
+    total_dwell_seconds REAL NOT NULL DEFAULT 0.0 CHECK(total_dwell_seconds >= 0.0),
+    avg_dwell_seconds REAL NOT NULL DEFAULT 0.0 CHECK(avg_dwell_seconds >= 0.0),
+    dwell_intensity_score REAL NOT NULL DEFAULT 0.0 CHECK(dwell_intensity_score >= 0.0 AND dwell_intensity_score <= 100.0),
+    updated_at TEXT DEFAULT (datetime('now')),
+    PRIMARY KEY (chapter_id, page_number)
+);
+
+CREATE INDEX IF NOT EXISTS idx_dwell_stats_lookup 
+    ON chapter_page_dwell_stats(chapter_id, page_number ASC);
+
+CREATE INDEX IF NOT EXISTS idx_dwell_stats_intensity 
+    ON chapter_page_dwell_stats(chapter_id, dwell_intensity_score DESC);
+
 

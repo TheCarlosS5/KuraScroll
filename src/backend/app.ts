@@ -22,6 +22,7 @@ import { registerTelemetryRoutes } from './routes/telemetry-routes.js';
 import { registerMaintenanceRoutes } from './routes/maintenance-routes.js';
 import { dedupRoutes } from './routes/dedup-routes.js';
 import { p2pRoutes } from './routes/p2p-routes.js';
+import { dwellRoutes } from './routes/dwell-routes.js';
 import { AdaptiveIngestionController } from './services/adaptive-ingestion-controller.js';
 import { DifferentialMirrorService } from './services/differential-mirror-service.js';
 
@@ -136,6 +137,7 @@ export function buildApp(options: AppOptions = {}): FastifyInstance {
   registerMaintenanceRoutes(app, { db, storageRoot });
   app.register(dedupRoutes, { db });
   app.register(p2pRoutes);
+  app.register(dwellRoutes, { db });
 
   return app;
 }

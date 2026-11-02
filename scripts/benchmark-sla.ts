@@ -21,6 +21,7 @@ import { TranscodeCacheService } from '../src/backend/services/transcode-cache-s
 import { MarkovDirectionPredictor } from '../src/backend/utils/markov-direction-predictor.js';
 import { DialogueSearchService } from '../src/backend/services/dialogue-search-service.js';
 import { SpatialHeatmapService } from '../src/backend/services/spatial-heatmap-service.js';
+import { FuriganaLexiconService } from '../src/backend/services/furigana-lexicon-service.js';
 
 export interface SlaResult {
   category: string;
@@ -750,6 +751,36 @@ export async function runHostSlaBenchmark(): Promise<SlaReport> {
     slaTarget: '< 0.05 ms',
     passed: heatmapSpatialLatency < 0.05,
     notes: 'Zero-Allocation Float32Array 16x16 Grid Kernel Projection',
+  });
+
+  // =========================================================================
+  // SLA 26: CJK Furigana & Manga Lore Lexicon Point Resolution (Sprint 62)
+  // Target: Lexicon Point Query & Gloss Resolution Latency < 0.50 ms (500 µs)
+  // =========================================================================
+  const lexiconService = new FuriganaLexiconService(db);
+  const sampleTerms = ['卍解', '覇王色の覇気', '螺旋丸', '丹田', '内功', '先輩', 'ドドド', '念'];
+
+  // Warmup JIT (2,000 queries)
+  for (let i = 0; i < 2000; i++) {
+    const t = sampleTerms[i % sampleTerms.length];
+    lexiconService.getEntry(t);
+  }
+
+  const lexiconIters = 10000;
+  const tLexiconStart = performance.now();
+  for (let i = 0; i < lexiconIters; i++) {
+    const t = sampleTerms[i % sampleTerms.length];
+    lexiconService.getEntry(t);
+  }
+  const lexiconLatency = (performance.now() - tLexiconStart) / lexiconIters;
+
+  results.push({
+    category: 'Furigana & Lore Lexicon',
+    name: 'CJK Furigana & Manga Lore Point Query (SLA 26)',
+    measured: `${(lexiconLatency * 1000).toFixed(2)} µs (${lexiconLatency.toFixed(4)} ms)`,
+    slaTarget: '< 0.50 ms',
+    passed: lexiconLatency < 0.50,
+    notes: 'In-Memory Bounded LRU Cache & SQLite B-Tree Point Resolution',
   });
 
   // Teardown

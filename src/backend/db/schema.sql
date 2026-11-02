@@ -622,6 +622,31 @@ CREATE TABLE IF NOT EXISTS page_spatial_heatmaps (
 CREATE INDEX IF NOT EXISTS idx_spatial_heatmaps_lookup
     ON page_spatial_heatmaps(chapter_id, page_number);
 
+-- Sprint 62: Interactive CJK Furigana & Manga Lore Lexicon HUD
+CREATE TABLE IF NOT EXISTS cjk_lexicon_entries (
+    id TEXT PRIMARY KEY,
+    term TEXT NOT NULL,
+    reading TEXT NOT NULL,
+    romaji TEXT NOT NULL,
+    category TEXT NOT NULL CHECK (category IN ('KANJI', 'VOCAB', 'SERIES_LORE', 'NAME', 'SFX')),
+    definition_es TEXT NOT NULL,
+    definition_en TEXT,
+    series_id TEXT REFERENCES series(id) ON DELETE CASCADE,
+    frequency INTEGER NOT NULL DEFAULT 0,
+    created_at TEXT DEFAULT (datetime('now')),
+    updated_at TEXT DEFAULT (datetime('now')),
+    UNIQUE(term, series_id)
+);
+
+CREATE INDEX IF NOT EXISTS idx_lexicon_lookup
+    ON cjk_lexicon_entries (term, series_id);
+
+CREATE INDEX IF NOT EXISTS idx_lexicon_reading
+    ON cjk_lexicon_entries (reading);
+
+CREATE INDEX IF NOT EXISTS idx_lexicon_romaji
+    ON cjk_lexicon_entries (romaji);
+
 
 
 

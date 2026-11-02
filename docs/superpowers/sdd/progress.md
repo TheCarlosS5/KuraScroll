@@ -152,7 +152,7 @@
   - [x] Task 28.5: Fastify Chapter Route Integration (disk misses execute as `CRITICAL`, automatically pausing background tasks) and `GET /api/v1/telemetry/io`
   - [x] Task 28.6: Unit & Resilience Test Suites (`io-coordinator.test.ts`, `pause-gate-coordinator.test.ts`, 10/10 tests PASS)
   - [x] Task 28.7: Concurrent Soak Test Benchmark (`io-coordination-soak.test.ts`, P95 < 16ms, 0% error rate under 100 interleaved requests)
-- [x] Part 29: Reading Streak Analytics, Offline Sync Diagnostics HUD & Monorepo Delivery Refinement (Commit Sprint 29)
+- [x] Part 29: Reading Streak Analytics, Offline Sync Diagnostics HUD & Monorepo Delivery Refinement (Commit 053e0f8)
   - [x] Task 29.1: SQLite Table `user_reading_streaks` tracking `current_streak`, `longest_streak`, `last_read_date`, `total_pages_read`, and `total_reading_seconds`
   - [x] Task 29.2: Backend Service `reading-streak-service.ts` with daily advance, same-day page accumulation, broken streak reset, and flame level calculations (1 to 4)
   - [x] Task 29.3: Fastify Analytics Routes (`GET /api/v1/analytics/streak` & `POST /api/v1/analytics/activity`) and automatic hook inside `POST /api/v1/progress`

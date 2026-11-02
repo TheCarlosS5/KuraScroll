@@ -647,6 +647,21 @@ CREATE INDEX IF NOT EXISTS idx_lexicon_reading
 CREATE INDEX IF NOT EXISTS idx_lexicon_romaji
     ON cjk_lexicon_entries (romaji);
 
+-- Sprint 63: Platter Defragmentation & Sequential CBZ Re-Ordering Daemon
+CREATE TABLE IF NOT EXISTS disk_platter_defrag_runs (
+    id TEXT PRIMARY KEY,
+    series_id TEXT NOT NULL REFERENCES series(id) ON DELETE CASCADE,
+    initial_pli REAL NOT NULL CHECK (initial_pli BETWEEN 0.0 AND 1.0),
+    optimized_pli REAL NOT NULL CHECK (optimized_pli BETWEEN 0.0 AND 1.0),
+    bytes_reordered INTEGER NOT NULL DEFAULT 0,
+    chapters_processed INTEGER NOT NULL DEFAULT 0,
+    duration_ms INTEGER NOT NULL DEFAULT 0,
+    created_at TEXT DEFAULT (datetime('now'))
+);
+
+CREATE INDEX IF NOT EXISTS idx_defrag_runs_series
+    ON disk_platter_defrag_runs (series_id, created_at DESC);
+
 
 
 

@@ -22,6 +22,7 @@ import { MarkovDirectionPredictor } from '../src/backend/utils/markov-direction-
 import { DialogueSearchService } from '../src/backend/services/dialogue-search-service.js';
 import { SpatialHeatmapService } from '../src/backend/services/spatial-heatmap-service.js';
 import { FuriganaLexiconService } from '../src/backend/services/furigana-lexicon-service.js';
+import { PlatterDefragService, ChapterDiskMetadata } from '../src/backend/services/platter-defrag-service.js';
 
 export interface SlaResult {
   category: string;
@@ -781,6 +782,40 @@ export async function runHostSlaBenchmark(): Promise<SlaReport> {
     slaTarget: '< 0.50 ms',
     passed: lexiconLatency < 0.50,
     notes: 'In-Memory Bounded LRU Cache & SQLite B-Tree Point Resolution',
+  });
+
+  // =========================================================================
+  // SLA 27: Platter Locality Index (PLI) Calculation Latency (Sprint 63)
+  // Target: Sequential cluster evaluation and PLI calculation latency < 0.10 ms (100 µs) per chapter
+  // =========================================================================
+  const defragService = new PlatterDefragService(db);
+  const sampleChapters: ChapterDiskMetadata[] = Array.from({ length: 50 }, (_, i) => ({
+    id: `chap_sla_${i}`,
+    chapterNumber: i + 1,
+    filePath: `/data/manga/series/c${i + 1}.cbz`,
+    clusterRef: i * 4096 + (i % 5 === 0 ? 80000 : 0),
+  }));
+
+  // Warmup JIT
+  for (let i = 0; i < 500; i++) {
+    defragService.calculateChaptersPli(sampleChapters);
+  }
+
+  const defragIters = 2000;
+  const tDefragStart = performance.now();
+  for (let i = 0; i < defragIters; i++) {
+    defragService.calculateChaptersPli(sampleChapters);
+  }
+  const totalDefragDuration = performance.now() - tDefragStart;
+  const defragPerChapterLatency = totalDefragDuration / (defragIters * sampleChapters.length);
+
+  results.push({
+    category: 'Platter & HDD Defrag',
+    name: 'Platter Locality Index (PLI) Latency (SLA 27)',
+    measured: `${(defragPerChapterLatency * 1000).toFixed(2)} µs (${defragPerChapterLatency.toFixed(4)} ms/chap)`,
+    slaTarget: '< 0.10 ms',
+    passed: defragPerChapterLatency < 0.10,
+    notes: 'Contiguous Cylinder Assessment & Radial Voice-Coil Penalty Estimation',
   });
 
   // Teardown

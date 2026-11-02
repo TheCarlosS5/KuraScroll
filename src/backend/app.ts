@@ -48,6 +48,8 @@ import { spatialHeatmapRoutes } from './routes/spatial-heatmap-routes.js';
 import { SpatialHeatmapService } from './services/spatial-heatmap-service.js';
 import { furiganaLexiconRoutes } from './routes/furigana-lexicon-routes.js';
 import { FuriganaLexiconService } from './services/furigana-lexicon-service.js';
+import { platterDefragRoutes } from './routes/platter-defrag-routes.js';
+import { PlatterDefragService } from './services/platter-defrag-service.js';
 import { AdaptiveIngestionController } from './services/adaptive-ingestion-controller.js';
 import { DifferentialMirrorService } from './services/differential-mirror-service.js';
 
@@ -60,6 +62,7 @@ export interface AppOptions {
   folderWatcher?: { active: boolean; incomingDir?: string };
   adaptiveController?: AdaptiveIngestionController;
   differentialMirror?: DifferentialMirrorService;
+  platterDefragService?: PlatterDefragService;
 }
 
 export function buildApp(options: AppOptions = {}): FastifyInstance {
@@ -199,6 +202,10 @@ export function buildApp(options: AppOptions = {}): FastifyInstance {
   app.register(furiganaLexiconRoutes, {
     db,
     lexiconService: new FuriganaLexiconService(db),
+  });
+  app.register(platterDefragRoutes, {
+    db,
+    defragService: options.platterDefragService ?? new PlatterDefragService(db),
   });
 
   return app;

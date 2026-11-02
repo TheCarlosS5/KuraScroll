@@ -60,6 +60,7 @@ import {
 } from '../src/backend/services/page-halftone-service.js';
 import { PageMagnifierService } from '../src/backend/services/page-magnifier-service.js';
 import { ChapterTransitionService } from '../src/backend/services/chapter-transition-service.js';
+import { calculateBacklightTransform } from '../src/backend/services/ambient-backlight-service.js';
 
 export interface SlaResult {
   category: string;
@@ -1459,6 +1460,28 @@ export async function runHostSlaBenchmark(): Promise<SlaReport> {
     slaTarget: '< 0.02 ms',
     passed: transitionLatency < 0.02,
     notes: 'Zero-Allocation Chapter Transition Pre-Baking State Resolution (< 20µs target)',
+  });
+
+  // 44. Adaptive Ambient Backlight & Circadian Transform Resolution (Sprint 80 - SLA 44)
+  // Warmup JIT
+  for (let i = 0; i < 5000; i++) {
+    calculateBacklightTransform(4500, 0.95, 0.25);
+  }
+
+  const backlightIters = 20000;
+  const tBacklightStart = performance.now();
+  for (let i = 0; i < backlightIters; i++) {
+    calculateBacklightTransform(4500, 0.95, 0.25);
+  }
+  const backlightLatency = (performance.now() - tBacklightStart) / backlightIters;
+
+  results.push({
+    category: 'Ambient Backlight Engine',
+    name: 'Color Temp Transform Resolution (SLA 44)',
+    measured: `${(backlightLatency * 1000).toFixed(2)} µs (${backlightLatency.toFixed(4)} ms)`,
+    slaTarget: '< 0.02 ms',
+    passed: backlightLatency < 0.02,
+    notes: 'Zero-Allocation Ambient Backlight & Circadian Transform Resolution (< 20µs target)',
   });
 
   // Teardown

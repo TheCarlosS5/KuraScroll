@@ -82,6 +82,8 @@ import { pageMagnifierRoutes } from './routes/page-magnifier-routes.js';
 import { PageMagnifierService } from './services/page-magnifier-service.js';
 import { chapterTransitionRoutes } from './routes/chapter-transition-routes.js';
 import { ChapterTransitionService } from './services/chapter-transition-service.js';
+import { ambientBacklightRoutes } from './routes/ambient-backlight-routes.js';
+import { AmbientBacklightService } from './services/ambient-backlight-service.js';
 import { AdaptiveIngestionController } from './services/adaptive-ingestion-controller.js';
 import { DifferentialMirrorService } from './services/differential-mirror-service.js';
 
@@ -111,6 +113,7 @@ export interface AppOptions {
   pageHalftoneService?: PageHalftoneService;
   pageMagnifierService?: PageMagnifierService;
   chapterTransitionService?: ChapterTransitionService;
+  ambientBacklightService?: AmbientBacklightService;
 }
 
 export function buildApp(options: AppOptions = {}): FastifyInstance {
@@ -323,6 +326,10 @@ export function buildApp(options: AppOptions = {}): FastifyInstance {
   app.register(chapterTransitionRoutes, {
     db,
     chapterTransitionService: options.chapterTransitionService ?? new ChapterTransitionService(db),
+  });
+  app.register(ambientBacklightRoutes, {
+    db,
+    ambientBacklightService: options.ambientBacklightService ?? new AmbientBacklightService(db),
   });
 
   return app;

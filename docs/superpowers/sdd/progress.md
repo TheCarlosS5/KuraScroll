@@ -569,14 +569,23 @@
   - [x] Task 79.5: Client useChapterTransition Hook & ChapterTransitionCurtain Component (`frontend/src/reader/useChapterTransition.ts`, `ChapterTransitionCurtain.tsx`, solid `#18181b` containment, chapter metadata teaser, progress ring, zero backdrop-filter, keyboard trigger, 0 CLS)
   - [x] Task 79.6: Subagent Swarm Execution & SLA 43 Benchmark (SLA 43: 0.11 µs [181x faster than SLA target < 20 µs], 43/43 SLAs Passed)
   - [x] Task 79.7: Monorepo Verification & Git Commit (292 test files, 1,561 tests PASS [989 backend + 572 frontend], Vite build in 4.68s)
-- [ ] Part 80: Adaptive Ambient Lighting Reactive Backlight Engine (Dynamic Luminance Normalizer & Circadian Eye Shield)
-  - [ ] Task 80.1: Senior Architectural Blueprint Consultation with ChatGPT via Brave MCP
-  - [ ] Task 80.2: Ambient Lux to Melanopic LUX Curve, Dynamic White-Point Color Balancing ($K_{\text{temp}} = 1800\text{K} - 6500\text{K}$), and Hardware-Accelerated CSS Tone Curves Specification
-  - [ ] Task 80.3: Backend AmbientBacklightService & SQLite Table (`src/backend/services/ambient-backlight-service.ts`, table `ambient_backlight_profiles`, index `idx_ambient_backlight_lookup`, zero-allocation calculateColorTemperatureTransform)
-  - [ ] Task 80.4: Fastify Ambient Backlight REST Endpoints (`src/backend/routes/ambient-backlight-routes.ts`, HTTP 304 ETag caching)
-  - [ ] Task 80.5: Client useAmbientBacklight Hook & AmbientBacklightHUD Component (`frontend/src/reader/useAmbientBacklight.ts`, `AmbientBacklightHUD.tsx`, zero-blur solid `#18181b` containment, kelvin color slider, ambient sensor toggle, dark mode gamma curve, 0 CLS)
-  - [ ] Task 80.6: Subagent Swarm Execution & SLA 44 Benchmark
-  - [ ] Task 80.7: Monorepo Verification & Git Commit
+- [x] Part 80: Adaptive Ambient Lighting Reactive Backlight Engine (Dynamic Luminance Normalizer & Circadian Eye Shield)
+  - [x] Task 80.1: Senior Architectural Blueprint Consultation with ChatGPT via Brave MCP (`docs/specs/sprint-80-backlight-schema.md`)
+  - [x] Task 80.2: Ambient Lux to Melanopic LUX Curve, Dynamic White-Point Color Balancing ($K_{\text{temp}} = 1800\text{K} - 6500\text{K}$), and Hardware-Accelerated CSS Tone Curves Specification (`docs/specs/sprint-80-backlight-schema.md`, `docs/specs/sprint-80-backlight-hud-spec.md`, `docs/specs/sprint-80-backlight-user-perspective.md`, `docs/specs/sprint-80-backlight-devops-audit.md`, `docs/specs/sprint-80-backlight-qa-resilience.md`, `docs/specs/sprint-80-backlight-sla-spec.md`)
+  - [x] Task 80.3: Backend AmbientBacklightService & SQLite Table (`src/backend/services/ambient-backlight-service.ts`, table `ambient_backlight_profiles`, index `idx_ambient_backlight_lookup`, zero-allocation calculateBacklightTransform)
+  - [x] Task 80.4: Fastify Ambient Backlight REST Endpoints (`src/backend/routes/ambient-backlight-routes.ts`, `/profile/:seriesId`, `/profile`, `/calculate-transform`, `/circadian`, HTTP 304 ETag caching)
+  - [x] Task 80.5: Client useAmbientBacklight Hook & AmbientBacklightHUD Component (`frontend/src/reader/useAmbientBacklight.ts`, `AmbientBacklightHUD.tsx`, zero-blur solid `#18181b` containment, kelvin color slider 1800K-6500K, circadian solar toggle, blue light reduction slider, keyboard shortcut 'L', 0 CLS)
+  - [x] Task 80.6: Subagent Swarm Execution & SLA 44 Benchmark (SLA 44: 0.90 µs [22x faster than SLA target < 20 µs], 44/44 SLAs Passed)
+  - [x] Task 80.7: Monorepo Verification & Git Commit (296 test files, 1,588 tests PASS [1,004 backend + 584 frontend], Vite build in 4.84s)
+- [ ] Part 81: Continuous Page Glance & Multi-Angle Reading Projection (Perspective Keystone & Tilt-Shift Depth-of-Field Engine)
+  - [ ] Task 81.1: Senior Architectural Blueprint Consultation with ChatGPT via Brave MCP
+  - [ ] Task 81.2: Orthogonal & Isometric Perspective Warping Math, Tilt-Shift Focal Plane Slicing, and GMA 4500MHD CSS 3D Matrix Specification
+  - [ ] Task 81.3: Backend PageProjectionService & SQLite Table (`src/backend/services/page-projection-service.ts`, table `page_projection_profiles`, index `idx_page_projection_lookup`, zero-allocation calculateProjectionTransform)
+  - [ ] Task 81.4: Fastify Page Projection REST Endpoints (`src/backend/routes/page-projection-routes.ts`, HTTP 304 ETag caching)
+  - [ ] Task 81.5: Client usePageProjection Hook & PageProjectionHUD Component (`frontend/src/reader/usePageProjection.ts`, `PageProjectionHUD.tsx`, zero-blur solid `#18181b` containment, pitch/yaw/roll sliders, focal depth aperture, keyboard shortcut 'P', 0 CLS)
+  - [ ] Task 81.6: Subagent Swarm Execution & SLA 45 Benchmark
+  - [ ] Task 81.7: Monorepo Verification & Git Commit
+
 
 
 

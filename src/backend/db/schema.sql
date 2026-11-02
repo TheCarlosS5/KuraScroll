@@ -1008,6 +1008,24 @@ CREATE TABLE IF NOT EXISTS chapter_transition_profiles (
 CREATE INDEX IF NOT EXISTS idx_chapter_transition_lookup 
     ON chapter_transition_profiles(series_id, from_chapter_id);
 
+-- Sprint 80: Adaptive Ambient Lighting Reactive Backlight Engine
+CREATE TABLE IF NOT EXISTS ambient_backlight_profiles (
+    id TEXT PRIMARY KEY,
+    series_id TEXT NOT NULL,
+    user_id TEXT NOT NULL DEFAULT 'default_user',
+    kelvin_temperature INTEGER NOT NULL DEFAULT 6500 CHECK (kelvin_temperature >= 1800 AND kelvin_temperature <= 6500),
+    luminance_target REAL NOT NULL DEFAULT 1.0 CHECK (luminance_target >= 0.3 AND luminance_target <= 1.5),
+    circadian_auto INTEGER NOT NULL DEFAULT 0 CHECK (circadian_auto IN (0, 1)),
+    blue_light_reduction_ratio REAL NOT NULL DEFAULT 0.0 CHECK (blue_light_reduction_ratio >= 0.0 AND blue_light_reduction_ratio <= 0.8),
+    paper_tint_mode TEXT NOT NULL DEFAULT 'neutral' CHECK (paper_tint_mode IN ('neutral', 'warm_amber', 'sunset', 'candlelight', 'e_ink_amber', 'custom')),
+    is_enabled INTEGER NOT NULL DEFAULT 1 CHECK (is_enabled IN (0, 1)),
+    updated_at INTEGER NOT NULL
+);
+
+CREATE INDEX IF NOT EXISTS idx_ambient_backlight_lookup 
+    ON ambient_backlight_profiles(series_id, user_id);
+
+
 
 
 

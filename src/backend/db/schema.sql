@@ -821,6 +821,23 @@ CREATE TABLE IF NOT EXISTS page_kinetic_layers (
 CREATE INDEX IF NOT EXISTS idx_kinetic_layers_lookup 
     ON page_kinetic_layers(chapter_id, page_number, panel_index);
 
+-- Sprint 71: Dynamic Optical Reading Ruler & Saccadic Guided Focus Engine
+CREATE TABLE IF NOT EXISTS reading_ruler_preferences (
+    user_id TEXT PRIMARY KEY,
+    is_enabled INTEGER NOT NULL DEFAULT 0 CHECK (is_enabled IN (0, 1)),
+    mode TEXT NOT NULL DEFAULT 'ruler' CHECK (mode IN ('ruler', 'shutter', 'saccadic_pacer')),
+    orientation TEXT NOT NULL DEFAULT 'horizontal' CHECK (orientation IN ('horizontal', 'vertical')),
+    slot_height_px INTEGER NOT NULL DEFAULT 64 CHECK (slot_height_px BETWEEN 32 AND 240),
+    dim_opacity REAL NOT NULL DEFAULT 0.50 CHECK (dim_opacity BETWEEN 0.10 AND 0.90),
+    tint_color TEXT NOT NULL DEFAULT 'amber' CHECK (tint_color IN ('amber', 'mint', 'rose', 'neutral', 'midnight')),
+    pacer_speed_wpm INTEGER NOT NULL DEFAULT 250 CHECK (pacer_speed_wpm BETWEEN 60 AND 800),
+    updated_at INTEGER NOT NULL
+);
+
+CREATE INDEX IF NOT EXISTS idx_ruler_pref_user 
+    ON reading_ruler_preferences(user_id);
+
+
 
 
 

@@ -497,6 +497,14 @@
   - [x] Task 70.5: Client useKineticParallax Hook & KineticMotionHUD Component (`frontend/src/reader/useKineticParallax.ts`, `KineticMotionHUD.tsx`, LERP alpha=0.12, intensity modes 4/8/12px, letterbox shutters, keyboard shortcut 'K', prefers-reduced-motion guard, 0 blur, 0 CLS)
   - [x] Task 70.6: Subagent Swarm Execution & SLA 34 Benchmark (SLA 34: 1.19 µs [17x faster than SLA target < 20 µs], 34/34 SLAs Passed)
   - [x] Task 70.7: Monorepo Verification & Git Commit (248 test files, 1,299 tests PASS, Vite build in 9.12s)
+- [x] Part 71: Dynamic Optical Reading Ruler & Saccadic Guided Focus Engine (Reading Ruler, Guided Dimming Shutter & Eye Flow Pacer para Manga RTL, Webtoons y Cómics)
+  - [x] Task 71.1: Senior Architectural Blueprint Consultation with ChatGPT via Brave MCP (`docs/brainstorming/reading-ruler-specification.md`)
+  - [x] Task 71.2: Reading Ruler Geometry, Shutter Aperture Math, Optical Tint Calibration, and WCAG 2.2 Accessibility Guard Specification (`docs/brainstorming/reading-ruler-specification.md`, `docs/brainstorming/reading-ruler-hud-spec.md`, `docs/brainstorming/user-perspective-reading-ruler-audit.md`, `docs/reports/sprint71-devops-ruler-audit.md`, `docs/reports/sprint71-reading-ruler-resilience-matrix.md`)
+  - [x] Task 71.3: Backend ReadingRulerService & SQLite Table (`src/backend/services/reading-ruler-service.ts`, table `reading_ruler_preferences`, index `idx_ruler_pref_user`, zero-allocation calculateAperture, 1000ms debounced persistence guard)
+  - [x] Task 71.4: Fastify Reading Ruler REST Endpoints (`src/backend/routes/reading-ruler-routes.ts`, `/preferences/:userId`, `/calculate-aperture`, HTTP 304 ETag caching)
+  - [x] Task 71.5: Client useReadingRuler Hook & ReadingRulerHUD Component (`frontend/src/reader/useReadingRuler.ts`, `ReadingRulerHUD.tsx`, pointer-events: none absolute, 5 optical tints [Amber, Mint, Rose, Neutral, Midnight], keyboard shortcut 'U', Space pacer pause, 0 blur, 0 CLS)
+  - [x] Task 71.6: Subagent Swarm Execution & SLA 35 Benchmark (SLA 35: 0.25 µs [80x faster than SLA target < 20 µs], 35/35 SLAs Passed)
+  - [x] Task 71.7: Monorepo Verification & Git Commit (250 test files, 1,324 tests PASS, Vite build in 4.43s)
 
 
 

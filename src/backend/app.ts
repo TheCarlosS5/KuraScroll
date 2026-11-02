@@ -64,6 +64,8 @@ import { lanCompanionRoutes } from './routes/lan-companion-routes.js';
 import { LanCompanionService } from './services/lan-companion-service.js';
 import { kineticParallaxRoutes } from './routes/kinetic-parallax-routes.js';
 import { KineticParallaxService } from './services/kinetic-parallax-service.js';
+import { readingRulerRoutes } from './routes/reading-ruler-routes.js';
+import { ReadingRulerService } from './services/reading-ruler-service.js';
 import { AdaptiveIngestionController } from './services/adaptive-ingestion-controller.js';
 import { DifferentialMirrorService } from './services/differential-mirror-service.js';
 
@@ -84,6 +86,7 @@ export interface AppOptions {
   guidedPanelService?: GuidedPanelService;
   lanCompanionService?: LanCompanionService;
   kineticParallaxService?: KineticParallaxService;
+  readingRulerService?: ReadingRulerService;
 }
 
 export function buildApp(options: AppOptions = {}): FastifyInstance {
@@ -260,6 +263,10 @@ export function buildApp(options: AppOptions = {}): FastifyInstance {
   app.register(kineticParallaxRoutes, {
     db,
     kineticParallaxService: options.kineticParallaxService ?? new KineticParallaxService(db),
+  });
+  app.register(readingRulerRoutes, {
+    db,
+    readingRulerService: options.readingRulerService ?? new ReadingRulerService(db),
   });
 
   return app;

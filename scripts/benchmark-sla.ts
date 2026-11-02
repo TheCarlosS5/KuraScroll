@@ -39,6 +39,7 @@ import {
   KineticParallaxService,
   KineticLayerBox,
 } from '../src/backend/services/kinetic-parallax-service.js';
+import { ReadingRulerService } from '../src/backend/services/reading-ruler-service.js';
 
 export interface SlaResult {
   category: string;
@@ -1133,6 +1134,38 @@ export async function runHostSlaBenchmark(): Promise<SlaReport> {
     slaTarget: '< 0.02 ms',
     passed: kineticLatency < 0.02,
     notes: 'Zero-Allocation 2.5D Climax Spread Drift & Anti-Bleed Over-Scale (< 20µs target)',
+  });
+
+  // --- SLA 35: Reading Ruler Aperture Geometry Calculation Latency (Sprint 71) ---
+  const rulerService = new ReadingRulerService(db);
+  const sampleApertureOpts = {
+    centerCoord: 340,
+    slotSize: 64,
+    viewportLimit: 1080,
+    orientation: 'horizontal' as const,
+    dimOpacity: 0.50,
+    tintColor: 'amber' as const,
+  };
+
+  // Warmup JIT
+  for (let i = 0; i < 5000; i++) {
+    rulerService.calculateAperture(sampleApertureOpts);
+  }
+
+  const rulerIters = 20000;
+  const tRulerStart = performance.now();
+  for (let i = 0; i < rulerIters; i++) {
+    rulerService.calculateAperture(sampleApertureOpts);
+  }
+  const rulerLatency = (performance.now() - tRulerStart) / rulerIters;
+
+  results.push({
+    category: 'Reading Ruler & Focus',
+    name: 'Aperture Geometry Math (SLA 35)',
+    measured: `${(rulerLatency * 1000).toFixed(2)} µs (${rulerLatency.toFixed(4)} ms)`,
+    slaTarget: '< 0.02 ms',
+    passed: rulerLatency < 0.02,
+    notes: 'Zero-Allocation Reading Ruler Slot & Shutter Math (< 20µs target)',
   });
 
   // Teardown

@@ -1,5 +1,5 @@
 import { DatabaseInstance } from '../db/database.js';
-import { sanitizeFtsQuery } from '../utils/fts-sanitizer.js';
+import { sanitizeFtsQuery, createSearchSnippet } from '../utils/fts-sanitizer.js';
 
 export interface InsertSeriesInput {
   id: string;
@@ -42,6 +42,8 @@ export interface Series {
   mangadexId: string | null;
   createdAt: string;
   updatedAt: string;
+  highlightedTitle?: string;
+  highlightedSnippet?: string;
 }
 
 export interface SeriesDetail extends Series {
@@ -259,7 +261,7 @@ export class SeriesRepository {
 
       const rows = queryStmt.all(...params, limit, offset) as any[];
       return {
-        items: rows.map(this.mapSeriesRow),
+        items: rows.map((r) => this.mapSeriesRow(r, options.q)),
         total,
       };
     } catch {
@@ -267,7 +269,23 @@ export class SeriesRepository {
     }
   }
 
-  private mapSeriesRow(row: any): Series {
+  private mapSeriesRow(row: any, q?: string): Series {
+    let highlightedTitle: string | undefined;
+    let highlightedSnippet: string | undefined;
+
+    if (q && q.trim()) {
+      const titleRes = createSearchSnippet(row.title_primary, q);
+      if (titleRes.hasMatch) {
+        highlightedTitle = titleRes.html;
+      }
+      if (row.synopsis) {
+        const synRes = createSearchSnippet(row.synopsis, q, 140);
+        if (synRes.hasMatch) {
+          highlightedSnippet = synRes.html;
+        }
+      }
+    }
+
     return {
       id: row.id,
       slug: row.slug,
@@ -285,6 +303,8 @@ export class SeriesRepository {
       mangadexId: row.mangadex_id,
       createdAt: row.created_at,
       updatedAt: row.updated_at,
+      highlightedTitle,
+      highlightedSnippet,
     };
   }
 }

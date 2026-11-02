@@ -11,6 +11,8 @@ export interface SeriesCardProps {
   latestChapter?: number | null;
   shelf?: 'reading' | 'completed' | 'plan_to_read' | 'dropped' | 'none' | string;
   isFavorite?: boolean;
+  highlightedTitle?: string;
+  highlightedSnippet?: string;
   onClick: (slug: string) => void;
   onToggleFavorite?: (slug: string, isFav: boolean) => void;
 }
@@ -25,6 +27,8 @@ export const SeriesCard: React.FC<SeriesCardProps> = ({
   latestChapter,
   shelf,
   isFavorite = false,
+  highlightedTitle,
+  highlightedSnippet,
   onClick,
   onToggleFavorite,
 }) => {
@@ -142,9 +146,25 @@ export const SeriesCard: React.FC<SeriesCardProps> = ({
 
       {/* Info Section */}
       <div className="p-3.5 flex flex-col flex-1 justify-between">
-        <h3 className="font-bold text-sm md:text-base text-gray-100 group-hover:text-cyan-400 line-clamp-2 transition-colors">
-          {titlePrimary}
-        </h3>
+        {highlightedTitle ? (
+          <h3
+            className="font-bold text-sm md:text-base text-gray-100 group-hover:text-cyan-400 line-clamp-2 transition-colors"
+            dangerouslySetInnerHTML={{ __html: highlightedTitle }}
+            data-testid="series-card-highlighted-title"
+          />
+        ) : (
+          <h3 className="font-bold text-sm md:text-base text-gray-100 group-hover:text-cyan-400 line-clamp-2 transition-colors">
+            {titlePrimary}
+          </h3>
+        )}
+
+        {highlightedSnippet && (
+          <p
+            className="mt-1 text-xs text-gray-400 line-clamp-2 leading-relaxed"
+            dangerouslySetInnerHTML={{ __html: highlightedSnippet }}
+            data-testid="series-card-highlighted-snippet"
+          />
+        )}
 
         <div className="mt-2.5 pt-2 border-t border-gray-800/60 flex items-center justify-between text-xs text-gray-400">
           <span className="flex items-center gap-1">

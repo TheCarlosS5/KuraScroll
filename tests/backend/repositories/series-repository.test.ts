@@ -160,4 +160,13 @@ describe('SeriesRepository multilingual search and taxonomy filtering', () => {
     expect(noMatch.total).toBe(0);
     expect(noMatch.items.length).toBe(0);
   });
+
+  it('generates highlighted search snippets on title match', () => {
+    const results = repo.listSeries({ q: 'Slayer' });
+    expect(results.total).toBe(1);
+    expect(results.items[0].id).toBe('demon-slayer');
+    expect(results.items[0].highlightedTitle).toContain(
+      '<mark class="bg-indigo-500/25 text-indigo-300 rounded px-1 font-semibold">Slayer</mark>'
+    );
+  });
 });

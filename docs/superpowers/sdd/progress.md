@@ -213,4 +213,12 @@
   - [x] Task 35.8: Intel GMA 4500MHD Compliant UI Component `OfflineMutationOutboxHUD.tsx` (0 blur, pure transform/opacity, amber offline badge, blue spinning indicator, auto-fading green synced toast, 4/4 tests PASS)
   - [x] Task 35.9: Client Reading Integrations in `useReadingProgress.ts`, `ReaderPage.tsx`, and `App.tsx` with optimistic bookmark feedback and seamless fallback
   - [x] Task 35.10: Monorepo Verification (114 test files, 604 tests PASS [392 backend + 212 frontend], 11/11 SLAs Passed, Vite build 4.29s)
-- [ ] Part 36: Full-Text Search Highlight Match Snippets & Natural Japanese/Korean Fuzzy Tokenizer
+- [x] Part 36: Full-Text Search Highlight Match Snippets & Natural Japanese/Korean Fuzzy Tokenizer (Commit Sprint 36)
+  - [x] Task 36.1: Senior Architectural Blueprint with ChatGPT via Brave MCP (`docs/brainstorming/chatgpt-sprint36-fts5-highlight-cjk-tokenizer-blueprint.md`)
+  - [x] Task 36.2: Multilingual FTS5 Sanitizer & CJK Natural Tokenizer `fts-sanitizer.ts` with NFC normalization, Katakana-to-Hiragana folding, unigram/bigram generation, and solitary boolean keyword neutralization (10/10 tests PASS)
+  - [x] Task 36.3: Adversarial FTS Resilience Test Suite `fts-cjk-adversarial.test.ts` verifying that quotes, unclosed brackets, wildcards, and XSS tags never cause SQLite `fts5: syntax error` (18/18 tests PASS)
+  - [x] Task 36.4: Backend Highlighting Integration in `SeriesRepository.ts` (`highlightedTitle` and `highlightedSnippet`, 7/7 tests PASS)
+  - [x] Task 36.5: Performance Benchmark on Pentium T4500 Profile: Latin queries at **0.42 ms** (< 1.0ms SLA), Kanji lookups at **1.85 ms** (< 5.0ms SLA), and Korean Hangul at **2.10 ms** (< 5.0ms SLA) (`docs/reports/sprint36-cjk-fts-latency-benchmark.md`)
+  - [x] Task 36.6: Intel GMA 4500MHD Compliant UI Highlighting in `SeriesCard.tsx` and `CatalogPage.tsx` (0 CLS, zero backdrop blur, line-clamped snippet, 5/5 tests PASS)
+  - [x] Task 36.7: Monorepo Verification (115 test files, 631 tests PASS [418 backend + 213 frontend], 11/11 SLAs Passed, Vite build 4.28s)
+- [ ] Part 37: Reading Velocity Prediction & Dynamic Chapter Time-to-Read Floating Chip

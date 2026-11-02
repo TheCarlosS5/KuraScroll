@@ -105,4 +105,22 @@ describe('SeriesCard Component', () => {
     expect(badge.textContent).toBe('Pausado');
     expect(badge.className).toContain('text-amber-300');
   });
+
+  it('renders highlighted title and snippet when search matches are present', () => {
+    render(
+      <SeriesCard
+        {...defaultProps}
+        highlightedTitle='Solo <mark class="bg-indigo-500/25 text-indigo-300 rounded px-1 font-semibold">Leveling</mark>'
+        highlightedSnippet='...in a world of dungeons and hunters, <mark class="bg-indigo-500/25 text-indigo-300 rounded px-1 font-semibold">Leveling</mark> up alone...'
+      />
+    );
+
+    const titleEl = screen.getByTestId('series-card-highlighted-title');
+    expect(titleEl).toBeDefined();
+    expect(titleEl.innerHTML).toContain('<mark class="bg-indigo-500/25 text-indigo-300 rounded px-1 font-semibold">Leveling</mark>');
+
+    const snippetEl = screen.getByTestId('series-card-highlighted-snippet');
+    expect(snippetEl).toBeDefined();
+    expect(snippetEl.innerHTML).toContain('...in a world of dungeons');
+  });
 });

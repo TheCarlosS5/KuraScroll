@@ -292,6 +292,8 @@ export const CatalogPage: React.FC<CatalogPageProps> = ({
                 coverImage={item.coverImage || item.cover_image}
                 shelf={shelfInfo?.shelf}
                 isFavorite={!!shelfInfo?.favorite}
+                highlightedTitle={item.highlightedTitle}
+                highlightedSnippet={item.highlightedSnippet}
                 onClick={onSelectSeries}
                 onToggleFavorite={handleToggleFavorite}
               />

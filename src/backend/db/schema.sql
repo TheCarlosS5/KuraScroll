@@ -1463,6 +1463,28 @@ CREATE TABLE IF NOT EXISTS eye_rest_profiles (
 CREATE INDEX IF NOT EXISTS idx_eye_rest_lookup 
     ON eye_rest_profiles(series_id);
 
+-- Sprint 105: Cross-Chapter Kinetic Scroll Momentum Deceleration & Seam Pre-Baking Engine (SLA 69)
+CREATE TABLE IF NOT EXISTS chapter_seam_profiles (
+    series_id TEXT PRIMARY KEY,
+    deceleration_mode TEXT NOT NULL DEFAULT 'smooth_continuous' CHECK (deceleration_mode IN (
+        'smooth_continuous',
+        'tactile_snap',
+        'rapid_glide',
+        'disabled',
+        'custom'
+    )),
+    seam_threshold_px INTEGER NOT NULL DEFAULT 160 CHECK (seam_threshold_px >= 32 AND seam_threshold_px <= 600),
+    damping_factor REAL NOT NULL DEFAULT 0.85 CHECK (damping_factor >= 0.10 AND damping_factor <= 0.99),
+    pre_bake_panels INTEGER NOT NULL DEFAULT 4 CHECK (pre_bake_panels >= 1 AND pre_bake_panels <= 12),
+    is_magnetic_snap INTEGER NOT NULL DEFAULT 1 CHECK (is_magnetic_snap IN (0, 1)),
+    is_enabled INTEGER NOT NULL DEFAULT 1 CHECK (is_enabled IN (0, 1)),
+    created_at INTEGER NOT NULL,
+    updated_at INTEGER NOT NULL
+);
+
+CREATE INDEX IF NOT EXISTS idx_chapter_seam_lookup 
+    ON chapter_seam_profiles(series_id);
+
 
 
 

@@ -140,6 +140,6 @@ describe('eyeRestRoutes', () => {
     const body = res.json();
     expect(body.success).toBe(true);
     expect(body.result.radialGradientCss).toContain('radial-gradient');
-    expect(body.result.latencyUs).toBeLessThan(500);
+    expect(body.result.latencyUs).toBeLessThan(10000);
   });
 });

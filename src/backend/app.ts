@@ -132,6 +132,8 @@ import { inkBleedRoutes } from './routes/ink-bleed-routes.js';
 import { InkBleedService } from './services/ink-bleed-service.js';
 import { eyeRestRoutes } from './routes/eye-rest-routes.js';
 import { EyeRestService } from './services/eye-rest-service.js';
+import { chapterSeamRoutes } from './routes/chapter-seam-routes.js';
+import { ChapterSeamService } from './services/chapter-seam-service.js';
 import { AdaptiveIngestionController } from './services/adaptive-ingestion-controller.js';
 import { DifferentialMirrorService } from './services/differential-mirror-service.js';
 
@@ -186,6 +188,7 @@ export interface AppOptions {
   balloonCollisionService?: BalloonCollisionService;
   inkBleedService?: InkBleedService;
   eyeRestService?: EyeRestService;
+  chapterSeamService?: ChapterSeamService;
 }
 
 export function buildApp(options: AppOptions = {}): FastifyInstance {
@@ -498,6 +501,10 @@ export function buildApp(options: AppOptions = {}): FastifyInstance {
   app.register(eyeRestRoutes, {
     db,
     eyeRestService: options.eyeRestService ?? new EyeRestService(db),
+  });
+  app.register(chapterSeamRoutes, {
+    db,
+    chapterSeamService: options.chapterSeamService ?? new ChapterSeamService(db),
   });
 
   return app;

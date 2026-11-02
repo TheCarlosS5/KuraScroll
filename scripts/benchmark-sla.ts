@@ -97,6 +97,10 @@ import {
   EyeRestService,
   calculateEyeRestAperture,
 } from '../src/backend/services/eye-rest-service.js';
+import {
+  ChapterSeamService,
+  calculateChapterSeamKinematics,
+} from '../src/backend/services/chapter-seam-service.js';
 
 export interface SlaResult {
   category: string;
@@ -2149,6 +2153,47 @@ export async function runHostSlaBenchmark(): Promise<SlaReport> {
     slaTarget: '< 0.02 ms',
     passed: eyeLatency < 0.02,
     notes: 'Zero-Allocation Parametric Aperture Focal Mask & Circadian Warmth Shutter (< 20µs target)',
+  });
+
+  // 69. Cross-Chapter Kinetic Scroll Momentum Deceleration & Seam Pre-Baking Engine (Sprint 105 - SLA 69)
+  const chapterSeamService = new ChapterSeamService(db);
+  // Warmup JIT
+  for (let i = 0; i < 5000; i++) {
+    calculateChapterSeamKinematics(
+      1200,
+      120,
+      160,
+      0.85,
+      4,
+      true,
+      'smooth_continuous',
+      true
+    );
+  }
+
+  const seamIters = 20000;
+  const tSeamStart = performance.now();
+  for (let i = 0; i < seamIters; i++) {
+    calculateChapterSeamKinematics(
+      1200,
+      120,
+      160,
+      0.85,
+      4,
+      true,
+      'smooth_continuous',
+      true
+    );
+  }
+  const seamLatency = (performance.now() - tSeamStart) / seamIters;
+
+  results.push({
+    category: 'Kinetic Physics & Seam',
+    name: 'Chapter Seam Kinetic Deceleration (SLA 69)',
+    measured: `${(seamLatency * 1000).toFixed(2)} µs (${seamLatency.toFixed(4)} ms)`,
+    slaTarget: '< 0.02 ms',
+    passed: seamLatency < 0.02,
+    notes: 'Zero-Allocation Viscous Damping & Seam Pre-Baking Evaluation (< 20µs target)',
   });
 
   // Teardown

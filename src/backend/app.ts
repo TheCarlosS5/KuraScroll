@@ -110,6 +110,8 @@ import { ambientGlowRoutes } from './routes/ambient-glow-routes.js';
 import { AmbientGlowService } from './services/ambient-glow-service.js';
 import { pageCurlRoutes } from './routes/page-curl-routes.js';
 import { PageCurlService } from './services/page-curl-service.js';
+import { storageTierRoutes } from './routes/storage-tier-routes.js';
+import { StorageTierService } from './services/storage-tier-service.js';
 import { AdaptiveIngestionController } from './services/adaptive-ingestion-controller.js';
 import { DifferentialMirrorService } from './services/differential-mirror-service.js';
 
@@ -153,6 +155,7 @@ export interface AppOptions {
   chromaticFringeService?: ChromaticFringeService;
   ambientGlowService?: AmbientGlowService;
   pageCurlService?: PageCurlService;
+  storageTierService?: StorageTierService;
 }
 
 export function buildApp(options: AppOptions = {}): FastifyInstance {
@@ -421,6 +424,10 @@ export function buildApp(options: AppOptions = {}): FastifyInstance {
   app.register(pageCurlRoutes, {
     db,
     pageCurlService: options.pageCurlService ?? new PageCurlService(db),
+  });
+  app.register(storageTierRoutes, {
+    db,
+    storageTierService: options.storageTierService ?? new StorageTierService(db),
   });
 
   return app;

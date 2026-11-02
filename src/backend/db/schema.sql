@@ -1241,6 +1241,27 @@ CREATE TABLE IF NOT EXISTS page_curl_profiles (
 CREATE INDEX IF NOT EXISTS idx_page_curl_lookup 
     ON page_curl_profiles(series_id);
 
+-- Sprint 94: Multi-Tier Intelligent Storage Vault Tiering & Auto-Tiered Platter Eviction Manager (SLA 58)
+CREATE TABLE IF NOT EXISTS storage_tier_profiles (
+    series_id TEXT PRIMARY KEY,
+    auto_tiering_mode TEXT NOT NULL DEFAULT 'balanced_hybrid' CHECK (auto_tiering_mode IN (
+        'aggressive_evict',
+        'balanced_hybrid',
+        'archive_pin',
+        'custom'
+    )),
+    hot_retention_days INTEGER NOT NULL DEFAULT 14 CHECK (hot_retention_days >= 1 AND hot_retention_days <= 180),
+    warm_retention_days INTEGER NOT NULL DEFAULT 60 CHECK (warm_retention_days >= 7 AND warm_retention_days <= 365),
+    disk_quota_target_gb INTEGER NOT NULL DEFAULT 3500 CHECK (disk_quota_target_gb >= 100 AND disk_quota_target_gb <= 4000),
+    is_auto_eviction_enabled INTEGER NOT NULL DEFAULT 1 CHECK (is_auto_eviction_enabled IN (0, 1)),
+    is_pinned INTEGER NOT NULL DEFAULT 0 CHECK (is_pinned IN (0, 1)),
+    updated_at INTEGER NOT NULL
+);
+
+CREATE INDEX IF NOT EXISTS idx_storage_tier_lookup 
+    ON storage_tier_profiles(series_id);
+
+
 
 
 

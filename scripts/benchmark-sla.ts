@@ -74,6 +74,7 @@ import { HistoryScrubberService } from '../src/backend/services/history-scrubber
 import { ChromaticFringeService } from '../src/backend/services/chromatic-fringe-service.js';
 import { AmbientGlowService } from '../src/backend/services/ambient-glow-service.js';
 import { PageCurlService } from '../src/backend/services/page-curl-service.js';
+import { StorageTierService, TieringCandidateInput } from '../src/backend/services/storage-tier-service.js';
 
 export interface SlaResult {
   category: string;
@@ -1799,6 +1800,72 @@ export async function runHostSlaBenchmark(): Promise<SlaReport> {
     slaTarget: '< 0.02 ms',
     passed: curlLatency < 0.02,
     notes: 'Zero-Allocation Parametric 2.5D Affine Peel & Spine Shadow Kinematics (< 20µs target)',
+  });
+
+  // 58. Multi-Tier Intelligent Storage Vault Tiering & Auto-Tiered Platter Eviction (Sprint 94 - SLA 58)
+  const storageTierService = new StorageTierService(db);
+  const slaCandidates: TieringCandidateInput[] = [
+    {
+      chapterId: 'sla-ch-hot',
+      seriesId: 'sla-series-1',
+      sizeBytes: 25_000_000,
+      lastReadAt: Date.now() - 86400000,
+      readCount: 10,
+      isCompleted: false,
+      isPinned: false,
+      currentTier: 'tier_hot',
+    },
+    {
+      chapterId: 'sla-ch-warm',
+      seriesId: 'sla-series-2',
+      sizeBytes: 30_000_000,
+      lastReadAt: Date.now() - (20 * 86400000),
+      readCount: 3,
+      isCompleted: false,
+      isPinned: false,
+      currentTier: 'tier_warm',
+    },
+    {
+      chapterId: 'sla-ch-cold',
+      seriesId: 'sla-series-3',
+      sizeBytes: 40_000_000,
+      lastReadAt: Date.now() - (90 * 86400000),
+      readCount: 1,
+      isCompleted: true,
+      isPinned: false,
+      currentTier: 'tier_warm',
+    },
+    {
+      chapterId: 'sla-ch-pinned',
+      seriesId: 'sla-series-4',
+      sizeBytes: 50_000_000,
+      lastReadAt: Date.now() - (200 * 86400000),
+      readCount: 5,
+      isCompleted: true,
+      isPinned: true,
+      currentTier: 'tier_hot',
+    },
+  ];
+
+  // Warmup JIT
+  for (let i = 0; i < 5000; i++) {
+    storageTierService.calculateTieringPlan(slaCandidates, { autoTieringMode: 'balanced_hybrid' });
+  }
+
+  const tierIters = 20000;
+  const tTierStart = performance.now();
+  for (let i = 0; i < tierIters; i++) {
+    storageTierService.calculateTieringPlan(slaCandidates, { autoTieringMode: 'balanced_hybrid' });
+  }
+  const tierLatency = (performance.now() - tTierStart) / tierIters;
+
+  results.push({
+    category: 'Storage Tiering',
+    name: 'Storage Vault Auto-Tiering Arbitration (SLA 58)',
+    measured: `${(tierLatency * 1000).toFixed(2)} µs (${tierLatency.toFixed(4)} ms)`,
+    slaTarget: '< 0.02 ms',
+    passed: tierLatency < 0.02,
+    notes: 'Zero-Allocation Multi-Tier Scoring & Platter Eviction Arbitration (< 20µs target)',
   });
 
   // Teardown

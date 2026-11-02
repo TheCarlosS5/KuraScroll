@@ -13,6 +13,7 @@ import { registerRecommendationRoutes } from './routes/recommendation-routes.js'
 import { registerPreferenceRoutes } from './routes/preference-routes.js';
 import { bookmarkRoutes } from './routes/bookmark-routes.js';
 import { registerSyncRoutes } from './routes/sync-routes.js';
+import { registerStatsRoutes } from './routes/stats-routes.js';
 import { registerHealthRoutes } from './routes/health-routes.js';
 import { registerBackupRoutes } from './routes/backup-routes.js';
 import { BackupDaemon } from './daemon/backup-daemon.js';
@@ -88,6 +89,7 @@ export function buildApp(options: AppOptions = {}): FastifyInstance {
   registerPreferenceRoutes(app, db);
   app.register(bookmarkRoutes, { db });
   registerSyncRoutes(app, db);
+  registerStatsRoutes(app, db);
 
   const backupDaemon = options.backupDaemon ?? new BackupDaemon({
     db,

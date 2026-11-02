@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { BookOpen, Bookmark, Sparkles, History, Database, Film, Flame, Trophy } from 'lucide-react';
+import { BookOpen, Bookmark, Sparkles, History, Database, Film, Flame, Trophy, BarChart2 } from 'lucide-react';
 import { OfflineSyncHUD } from './OfflineSyncHUD.js';
 import { BatterySaverHUD } from './BatterySaverHUD.js';
 import { DailyGoalRing } from '../habits/DailyGoalRing.js';
@@ -12,6 +12,7 @@ import {
 } from '../habits/DailyGoalModal.js';
 import { BadgeGridModal, UserBadgeItem, BadgeSummaryData } from '../habits/BadgeGridModal.js';
 import { BadgeUnlockToast } from '../habits/BadgeUnlockToast.js';
+import { OtakuStatsModal } from '../stats/OtakuStatsModal.js';
 
 export interface NavbarProps {
   currentView?: string;
@@ -63,6 +64,7 @@ export const Navbar: React.FC<NavbarProps> = ({
     percentage: 0,
   });
   const [unlockToastBadge, setUnlockToastBadge] = useState<UserBadgeItem | null>(null);
+  const [isStatsModalOpen, setIsStatsModalOpen] = useState(false);
 
   const fetchBadges = async () => {
     try {
@@ -300,6 +302,17 @@ export const Navbar: React.FC<NavbarProps> = ({
             <span className="hidden sm:inline">Logros</span>
           </button>
 
+          <button
+            data-testid="nav-stats-btn"
+            onClick={() => setIsStatsModalOpen(true)}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-sm font-medium transition-all bg-gray-900/80 text-gray-300 border border-gray-800 hover:border-cyan-500/50 hover:text-cyan-400"
+            title="Estadísticas Otaku (Radar & Heatmap)"
+            aria-label="Estadísticas Otaku"
+          >
+            <BarChart2 className="w-4 h-4 text-cyan-400" />
+            <span className="hidden sm:inline">Stats</span>
+          </button>
+
           {onOpenBackup && (
             <button
               data-testid="nav-backup-btn"
@@ -362,6 +375,12 @@ export const Navbar: React.FC<NavbarProps> = ({
       <BadgeUnlockToast
         badge={unlockToastBadge}
         onDismiss={() => setUnlockToastBadge(null)}
+      />
+
+      {/* Otaku Stats Modal (Radar & Heatmap) */}
+      <OtakuStatsModal
+        isOpen={isStatsModalOpen}
+        onClose={() => setIsStatsModalOpen(false)}
       />
     </header>
   );

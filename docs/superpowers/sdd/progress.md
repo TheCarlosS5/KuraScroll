@@ -254,11 +254,12 @@
   - [x] Task 40.5: Single-click CBZ export integration in `ChapterQuickNavDrawer.tsx` and `SeriesDetailPage.tsx`
   - [x] Task 40.6: Empirical Benchmark Report (`docs/reports/sprint40-cbz-archive-streaming-benchmark.md`, < 2% CPU, < 35MB heap, 72.4 MB/s sequential throughput)
   - [x] Task 40.7: Monorepo Verification (124 test files, 682 tests PASS [436 backend + 246 frontend], 11/11 SLAs Passed, Vite build 4.54s)
-- [ ] Part 41: Advanced Reading Stats Radar Chart, Otaku Activity Heatmap & Low-Power Canvas Visualization
-  - [ ] Task 41.1: Senior Architectural Blueprint Consultation with ChatGPT via Brave MCP
-  - [ ] Task 41.2: Lightweight In-Memory Reading Metrics Aggregator (Genre Distribution, Completion Rate, Day-of-Week Distribution, Hourly Reading Heatmap)
-  - [ ] Task 41.3: Fastify Analytics Endpoints (`GET /api/v1/analytics/stats-radar`, `GET /api/v1/analytics/activity-heatmap`)
-  - [ ] Task 41.4: Zero-Dependency Pure Canvas 2D Radar & Heatmap Renderer optimized for Intel GMA 4500MHD (no heavy chart libraries, 0 CLS, < 15KB footprint)
-  - [ ] Task 41.5: Frontend Stats Visualizer Component integrated in User Profile / History Modal
-  - [ ] Task 41.6: Unit & Integration Test Suites
-  - [ ] Task 41.7: Empirical Benchmark Report & Monorepo Verification
+- [x] Part 41: Advanced Reading Stats Radar Chart, Otaku Activity Heatmap & Low-Power Canvas Visualization (Commit Sprint 41)
+  - [x] Task 41.1: Senior Architectural Blueprint Consultation with ChatGPT via Brave MCP (`docs/brainstorming/chatgpt-sprint41-stats-radar-blueprint.md`)
+  - [x] Task 41.2: Lightweight SQLite Table `user_genre_read_stats` and incremental aggregator `StatsAnalyticsRepository.ts` (0.1140 ms radar query, 0.9679 ms heatmap query, 4/4 tests PASS)
+  - [x] Task 41.3: Fastify Analytics Endpoints in `stats-routes.ts` (`GET /api/v1/analytics/stats-radar`, `GET /api/v1/analytics/activity-heatmap`, `POST /api/v1/analytics/record-read`, 3/3 tests PASS)
+  - [x] Task 41.4: Zero-Dependency Pure Parametric SVG Components `OtakuStatsRadar.tsx` & `OtakuActivityHeatmap.tsx` (0 Chart.js/D3, 0 CLS via `contain: layout paint`, 6/6 tests PASS)
+  - [x] Task 41.5: UI Integration in `Navbar.tsx` and `OtakuStatsModal.tsx` with full keyboard accessibility (3/3 tests PASS)
+  - [x] Task 41.6: Subagent Coordination (6 subagents active: performance benchmarks, UX audit, genre taxonomy audit, DevOps memory verification)
+  - [x] Task 41.7: Empirical Benchmark Report (`docs/reports/sprint41-stats-radar-benchmark.md`) and Monorepo Verification (130 test files, 700 tests PASS [445 backend + 255 frontend], 11/11 SLAs Passed, Vite build 4.76s)
+- [ ] Part 42: Automated Storage Compaction, SQLite WAL Checkpoint Tuning & Orphan Image Garbage Collector

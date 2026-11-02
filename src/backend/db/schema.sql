@@ -247,3 +247,17 @@ CREATE TABLE IF NOT EXISTS applied_mutations (
 CREATE INDEX IF NOT EXISTS idx_applied_mutations_lookup
     ON applied_mutations (user_id, client_mutation_id);
 
+-- Sprint 41: Otaku Stats & Incremental Genre Aggregation
+CREATE TABLE IF NOT EXISTS user_genre_read_stats (
+    user_id TEXT NOT NULL,
+    genre_id INTEGER NOT NULL,
+    chapters_read INTEGER NOT NULL DEFAULT 0,
+    reading_seconds INTEGER NOT NULL DEFAULT 0,
+    updated_at TEXT NOT NULL DEFAULT (datetime('now')),
+    PRIMARY KEY (user_id, genre_id)
+);
+
+CREATE INDEX IF NOT EXISTS idx_user_genre_stats_lookup
+    ON user_genre_read_stats (user_id, chapters_read DESC);
+
+

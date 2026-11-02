@@ -139,6 +139,10 @@ import {
   BoustrophedonCameraService,
   calculateBoustrophedonCamera,
 } from '../src/backend/services/boustrophedon-camera-service.js';
+import {
+  HalftoneGrainService,
+  calculateHalftoneGrain,
+} from '../src/backend/services/halftone-grain-service.js';
 
 export interface SlaResult {
   category: string;
@@ -2533,6 +2537,37 @@ export async function runHostSlaBenchmark(): Promise<SlaReport> {
     slaTarget: '< 0.02 ms',
     passed: cameraPanLatency < 0.02,
     notes: 'Zero-Allocation Horner Cubic Bezier Polynomial & Focal Zoom Interpolation (< 20µs target)',
+  });
+
+  // 79. Perceptual Micro-Stippling Halftone Grain Synthesizer & Retro Print Simulator (Sprint 115 - SLA 79)
+  // Warmup JIT
+  for (let i = 0; i < 5000; i++) {
+    calculateHalftoneGrain(0.18, 0.065, 0.9, 1337, 'shonen_jump_pulp', '#FAF3E0', 'multiply', true);
+  }
+
+  const grainIters = 20000;
+  const tGrainStart = performance.now();
+  for (let i = 0; i < grainIters; i++) {
+    calculateHalftoneGrain(
+      0.10 + (i % 25) * 0.01,
+      0.02 + (i % 15) * 0.01,
+      0.6 + (i % 10) * 0.1,
+      1337 + i,
+      i % 2 === 0 ? 'shonen_jump_pulp' : 'tankobon_newsprint',
+      '#FAF3E0',
+      'multiply',
+      true
+    );
+  }
+  const grainLatency = (performance.now() - tGrainStart) / grainIters;
+
+  results.push({
+    category: 'Halftone & Paper Print',
+    name: 'Halftone Grain Synthesizer (SLA 79)',
+    measured: `${(grainLatency * 1000).toFixed(2)} µs (${grainLatency.toFixed(4)} ms)`,
+    slaTarget: '< 0.02 ms',
+    passed: grainLatency < 0.02,
+    notes: 'Zero-Allocation Micro-Stippling Parameter Resolution & 16KiB Micro-Tile Footprint (< 20µs target)',
   });
 
   // Teardown

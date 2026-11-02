@@ -1693,3 +1693,27 @@ CREATE TABLE IF NOT EXISTS boustrophedon_camera_profiles (
 
 CREATE INDEX IF NOT EXISTS idx_boustrophedon_camera_lookup 
     ON boustrophedon_camera_profiles(series_id);
+
+-- Sprint 115: Perceptual Micro-Stippling Halftone Grain Synthesizer & Retro Print Simulator (SLA 79)
+CREATE TABLE IF NOT EXISTS halftone_grain_profiles (
+    series_id TEXT PRIMARY KEY,
+    grain_mode TEXT NOT NULL DEFAULT 'shonen_jump_pulp' CHECK (grain_mode IN (
+        'shonen_jump_pulp',
+        'tankobon_newsprint',
+        'doujin_matte_offset',
+        'archival_acid_free',
+        'custom_stipple'
+    )),
+    stipple_density REAL NOT NULL DEFAULT 0.16 CHECK (stipple_density >= 0.05 AND stipple_density <= 0.40),
+    grain_opacity REAL NOT NULL DEFAULT 0.055 CHECK (grain_opacity >= 0.01 AND grain_opacity <= 0.20),
+    particle_radius_px REAL NOT NULL DEFAULT 0.8 CHECK (particle_radius_px >= 0.5 AND particle_radius_px <= 2.0),
+    lcg_seed INTEGER NOT NULL DEFAULT 1337 CHECK (lcg_seed >= 0 AND lcg_seed <= 2147483647),
+    paper_tint_hex TEXT NOT NULL DEFAULT '#FAF6EE',
+    blend_mode TEXT NOT NULL DEFAULT 'multiply' CHECK (blend_mode IN ('multiply', 'darken', 'normal', 'overlay')),
+    is_enabled INTEGER NOT NULL DEFAULT 1 CHECK (is_enabled IN (0, 1)),
+    created_at INTEGER NOT NULL,
+    updated_at INTEGER NOT NULL
+);
+
+CREATE INDEX IF NOT EXISTS idx_halftone_grain_lookup 
+    ON halftone_grain_profiles(series_id);

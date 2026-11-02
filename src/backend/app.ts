@@ -152,6 +152,8 @@ import { glyphSharpenerRoutes } from './routes/glyph-sharpener-routes.js';
 import { GlyphSharpenerService } from './services/glyph-sharpener-service.js';
 import { boustrophedonCameraRoutes } from './routes/boustrophedon-camera-routes.js';
 import { BoustrophedonCameraService } from './services/boustrophedon-camera-service.js';
+import { halftoneGrainRoutes } from './routes/halftone-grain-routes.js';
+import { HalftoneGrainService } from './services/halftone-grain-service.js';
 import { AdaptiveIngestionController } from './services/adaptive-ingestion-controller.js';
 import { DifferentialMirrorService } from './services/differential-mirror-service.js';
 
@@ -216,6 +218,7 @@ export interface AppOptions {
   textureAtlasService?: TextureAtlasService;
   glyphSharpenerService?: GlyphSharpenerService;
   boustrophedonCameraService?: BoustrophedonCameraService;
+  halftoneGrainService?: HalftoneGrainService;
 }
 
 export function buildApp(options: AppOptions = {}): FastifyInstance {
@@ -569,6 +572,10 @@ export function buildApp(options: AppOptions = {}): FastifyInstance {
     db,
     boustrophedonCameraService:
       options.boustrophedonCameraService ?? new BoustrophedonCameraService(db),
+  });
+  app.register(halftoneGrainRoutes, {
+    db,
+    halftoneGrainService: options.halftoneGrainService ?? new HalftoneGrainService(db),
   });
 
   return app;

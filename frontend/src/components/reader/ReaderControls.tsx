@@ -71,6 +71,12 @@ export interface ReaderControlsProps {
   isChapterNavOpen?: boolean;
   onToggleChapterNav?: () => void;
   onToggleBookmark?: () => void;
+  // Sprint 38: Smart Pre-caching & Bandwidth-Aware Telemetry
+  prefetchStatus?: {
+    isPrefetching: boolean;
+    tier: string;
+    windowForward: number;
+  };
 }
 
 export const ReaderControls: React.FC<ReaderControlsProps> = ({
@@ -104,6 +110,7 @@ export const ReaderControls: React.FC<ReaderControlsProps> = ({
   isChapterNavOpen = false,
   onToggleChapterNav,
   onToggleBookmark,
+  prefetchStatus,
 }) => {
   const [internalBg, setInternalBg] = useState<string>(currentBackground || '#080c14');
   const [isFullscreen, setIsFullscreen] = useState(false);
@@ -266,6 +273,22 @@ export const ReaderControls: React.FC<ReaderControlsProps> = ({
             </span>
           )}
         </div>
+
+        {/* Smart Pre-caching Telemetry Pill (Sprint 38) */}
+        {prefetchStatus && (
+          <div
+            data-testid="prefetch-status-pill"
+            className="hidden lg:flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-slate-900/80 border border-slate-700/50 text-[10px] font-mono text-slate-400 select-none"
+            title={`Precaché inteligente: +${prefetchStatus.windowForward} pág | Calidad: ${prefetchStatus.tier.toUpperCase()}`}
+          >
+            <span
+              className={`w-1.5 h-1.5 rounded-full ${
+                prefetchStatus.isPrefetching ? 'bg-cyan-400 animate-pulse' : 'bg-slate-500'
+              }`}
+            />
+            <span>Cache +{prefetchStatus.windowForward}</span>
+          </div>
+        )}
 
         {/* Dynamic Chapter Time-to-Read Chip (Sprint 37) */}
         {averageSecondsPerPage && totalPages && totalPages > 0 ? (

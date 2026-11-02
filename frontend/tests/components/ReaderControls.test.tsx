@@ -246,4 +246,21 @@ describe('ReaderControls Component', () => {
     fireEvent.click(bmBtn);
     expect(handleBookmark).toHaveBeenCalledTimes(1);
   });
+
+  it('renders smart pre-caching pill when prefetchStatus is provided', () => {
+    render(
+      <ReaderControls
+        {...defaultProps}
+        prefetchStatus={{
+          isPrefetching: true,
+          tier: 'high',
+          windowForward: 3,
+        }}
+      />
+    );
+
+    const prefetchPill = screen.getByTestId('prefetch-status-pill');
+    expect(prefetchPill).toBeDefined();
+    expect(prefetchPill.textContent).toContain('Cache +3');
+  });
 });

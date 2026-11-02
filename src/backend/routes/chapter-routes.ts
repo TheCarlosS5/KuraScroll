@@ -8,6 +8,7 @@ import { manifestLoader, imageLoader, manifestCache, imageCache } from '../cache
 import { ImageIntegrityService } from '../services/image-integrity-service.js';
 import { sharedIOCoordinator } from '../storage/io/io-coordinator.js';
 import { IOPriority } from '../storage/io/io-priority.js';
+import { resolveAssetTier, resolveIOPriority, ASSET_TIER_CONFIG } from '../config/asset-tier-config.js';
 
 export function registerChapterRoutes(
   app: FastifyInstance,
@@ -58,10 +59,14 @@ export function registerChapterRoutes(
       return { statusCode: 400, error: 'Bad Request', message: 'Invalid page file name' };
     }
 
-    const cacheKey = `${chapterId}/${pageFile}`;
+    const tier = resolveAssetTier(req.headers as any, req.query as any);
+    const ioPriority = resolveIOPriority(req.headers as any, req.query as any);
+    const isPrefetch = ioPriority === IOPriority.NORMAL;
+
+    const cacheKey = `${chapterId}/${pageFile}:${tier}`;
     const buffer = await imageLoader.getOrLoad(cacheKey, async () => {
       return sharedIOCoordinator.run(
-        { priority: IOPriority.CRITICAL, label: `read-${cacheKey}` },
+        { priority: ioPriority, label: `read-${cacheKey}` },
         async () => {
           const chapter = repo.getChapter(chapterId);
           if (!chapter) return null;
@@ -98,13 +103,19 @@ export function registerChapterRoutes(
 
     const isSaveData = req.headers['save-data'] === 'on' || (req.query as any)?.saveData === '1';
     if (isSaveData) {
-      reply.header('Vary', 'Save-Data');
+      reply.header('Vary', 'Save-Data, Sec-CH-Viewport-Width');
       reply.header('X-Save-Data', 'active');
+    }
+
+    reply.header('X-Asset-Tier', tier);
+    reply.header('X-IO-Priority', ioPriority === IOPriority.CRITICAL ? 'CRITICAL' : 'NORMAL');
+    if (isPrefetch) {
+      reply.header('X-Prefetch-Handled', 'true');
     }
 
     reply
       .header('Content-Type', 'image/webp')
-      .header('Cache-Control', 'public, max-age=31536000, immutable')
+      .header('Cache-Control', ASSET_TIER_CONFIG[tier].cacheControl)
       .send(buffer);
   });
 

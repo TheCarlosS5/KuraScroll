@@ -18,6 +18,7 @@ import { useAutoScroll } from '../hooks/useAutoScroll.js';
 import { useZenModeGSAP } from '../hooks/useZenModeGSAP.js';
 import { ReadingStatsTracker } from '../services/reading-stats-service.js';
 import { syncCoordinator } from '../services/sync-coordinator.js';
+import { AdaptivePrefetchEngine, PrefetchTelemetry } from '../reader/AdaptivePrefetchEngine.js';
 
 export interface ReaderPageProps {
   chapterId: string;
@@ -58,6 +59,12 @@ export const ReaderPage: React.FC<ReaderPageProps> = ({
 
   const [readingTracker] = useState(() => new ReadingStatsTracker(18));
   const [readingPaceText, setReadingPaceText] = useState<string>('');
+
+  // Sprint 38: Smart Pre-caching & Bandwidth-Aware Engine
+  const [prefetchEngine] = useState(() => new AdaptivePrefetchEngine(300));
+  const [prefetchTelemetry, setPrefetchTelemetry] = useState<PrefetchTelemetry>(() =>
+    prefetchEngine.getTelemetry()
+  );
 
   // Sprint 34: Chapter Quick Navigation & Bookmarks State
   const [isChapterNavOpen, setIsChapterNavOpen] = useState(false);
@@ -139,6 +146,28 @@ export const ReaderPage: React.FC<ReaderPageProps> = ({
     const estimate = readingTracker.estimateRemainingChapterTime(page, total);
     setReadingPaceText(estimate.formattedRemaining);
   };
+
+  // Sprint 38: Trigger adaptive prefetch on page position updates
+  useEffect(() => {
+    if (manifest?.pages && manifest.pages.length > 0) {
+      const pageFileNames = manifest.pages.map((p: any) => p.fileName);
+      const emaVelocity = readingTracker.getAverageSecondsPerPage();
+      prefetchEngine.updatePosition(
+        chapterId,
+        currentPage - 1,
+        manifest.pages.length,
+        pageFileNames,
+        emaVelocity
+      );
+      setPrefetchTelemetry(prefetchEngine.getTelemetry());
+    }
+  }, [chapterId, currentPage, manifest, prefetchEngine, readingTracker]);
+
+  useEffect(() => {
+    return () => {
+      prefetchEngine.dispose();
+    };
+  }, [prefetchEngine]);
 
   const handleSelectPageFromScrubber = (pageNumber: number) => {
     handlePageChange(pageNumber);
@@ -349,6 +378,11 @@ export const ReaderPage: React.FC<ReaderPageProps> = ({
             isChapterNavOpen={isChapterNavOpen}
             onToggleChapterNav={() => setIsChapterNavOpen((prev) => !prev)}
             onToggleBookmark={handleToggleActiveBookmark}
+            prefetchStatus={{
+              isPrefetching: prefetchTelemetry.isPrefetching,
+              tier: prefetchTelemetry.currentTier,
+              windowForward: prefetchTelemetry.windowForward,
+            }}
           />
         </div>
       )}

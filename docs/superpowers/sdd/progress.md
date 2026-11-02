@@ -230,4 +230,13 @@
   - [x] Task 37.6: Frontend Unit Test Suite `ChapterTimeToReadChip.test.tsx` (6/6 tests PASS)
   - [x] Task 37.7: StorageTelemetryModal timing stabilization in `StorageTelemetryModal.test.tsx` (6/6 tests PASS)
   - [x] Task 37.8: Monorepo Verification (116 test files, 637 tests PASS [418 backend + 219 frontend], 11/11 SLAs Passed, Vite build 4.39s)
-- [ ] Part 38: Smart Pre-caching & Bandwidth-Aware Asset Compression for 4TB SATA II HDD
+- [x] Part 38: Smart Pre-caching & Bandwidth-Aware Asset Compression for 4TB SATA II HDD (Commit Sprint 38)
+  - [x] Task 38.1: Senior Architectural Blueprint with ChatGPT via Brave MCP (`docs/brainstorming/chatgpt-sprint38-smart-precaching-blueprint.md`)
+  - [x] Task 38.2: Asset Tier Configuration & Priority Dispatch (`src/backend/config/asset-tier-config.ts` and `src/backend/routes/chapter-routes.ts`)
+  - [x] Task 38.3: Client Network Information API Service (`frontend/src/services/network-status-service.ts`)
+  - [x] Task 38.4: Adaptive Client Prefetch Engine with Dynamic Window & AbortController Cancellation (`frontend/src/reader/AdaptivePrefetchEngine.ts`)
+  - [x] Task 38.5: UI Telemetry Pill Integration in `ReaderControls.tsx` and `ReaderPage.tsx`
+  - [x] Task 38.6: Unit & Integration Test Suites (`asset-tier.test.ts`, `network-status-service.test.ts`, `AdaptivePrefetchEngine.test.ts`, 25/25 tests PASS)
+  - [x] Task 38.7: Benchmark Report on SATA II HDD Bandwidth & Latency (`docs/reports/sprint38-smart-precaching-benchmark.md`, -42.1% low tier payload, 0.82ms yield latency)
+  - [x] Task 38.8: Monorepo Verification (119 test files, 663 tests PASS [428 backend + 235 frontend], 11/11 SLAs Passed, Vite build 4.28s)
+- [ ] Part 39: Dynamic Ambient Ambilight Glow & Performance Throttling for Intel GMA 4500MHD

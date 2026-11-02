@@ -167,7 +167,7 @@
   - [x] Task 30.5: Fastify Analytics Endpoints (`GET /api/v1/analytics/goals`, `PUT /api/v1/analytics/goals`, `POST /api/v1/analytics/activity/buffered`, `GET /api/v1/telemetry/buffer`, 5/5 tests PASS)
   - [x] Task 30.6: Intel GMA 4500MHD Optimized Frontend Components `DailyGoalRing.tsx` and `DailyGoalModal.tsx` (9/9 tests PASS)
   - [x] Task 30.7: Navbar Integration & Host SLA Audit (11/11 SLAs Passed, Vite build 9.87s)
-- [x] Part 31: Advanced Reading Habit Milestones & Badge System (Commit Sprint 31)
+- [x] Part 31: Advanced Reading Habit Milestones & Badge System (Commit 41fb4f7)
   - [x] Task 31.1: Senior Consultation with ChatGPT on Brave MCP regarding event aggregation and zero-scan point lookup badges
   - [x] Task 31.2: Badge Definitions Catalog `badge-definitions.ts` (12 otaku-lore badges across volume, streak, time, explorer, collector)
   - [x] Task 31.3: SQLite Table `user_badges` with covering index `idx_user_badges_unlocked` (sub-millisecond lookups)

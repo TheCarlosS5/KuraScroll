@@ -474,6 +474,64 @@ CREATE TABLE IF NOT EXISTS client_render_telemetry (
 CREATE INDEX IF NOT EXISTS idx_render_telemetry_user
     ON client_render_telemetry(user_id, created_at);
 
+-- Sprint 55: High-Precision Panel Crop & Dialogue Bubble OCR Pre-Cacher
+CREATE TABLE IF NOT EXISTS chapter_page_panels (
+    id TEXT PRIMARY KEY,
+    chapter_id TEXT NOT NULL REFERENCES chapters(id) ON DELETE CASCADE,
+    page_number INTEGER NOT NULL CHECK (page_number >= 1),
+    panel_index INTEGER NOT NULL CHECK (panel_index >= 0),
+    x REAL NOT NULL CHECK (x >= 0.0 AND x <= 100.0),
+    y REAL NOT NULL CHECK (y >= 0.0 AND y <= 100.0),
+    w REAL NOT NULL CHECK (w >= 0.0 AND w <= 100.0),
+    h REAL NOT NULL CHECK (h >= 0.0 AND h <= 100.0),
+    aspect_ratio REAL NOT NULL,
+    reading_order INTEGER NOT NULL CHECK (reading_order >= 0),
+    created_at TEXT DEFAULT (datetime('now'))
+);
+
+CREATE INDEX IF NOT EXISTS idx_chapter_page_panels_lookup
+    ON chapter_page_panels(chapter_id, page_number, reading_order);
+
+CREATE TABLE IF NOT EXISTS chapter_bubble_ocr_index (
+    id TEXT PRIMARY KEY,
+    chapter_id TEXT NOT NULL REFERENCES chapters(id) ON DELETE CASCADE,
+    page_number INTEGER NOT NULL CHECK (page_number >= 1),
+    panel_id TEXT REFERENCES chapter_page_panels(id) ON DELETE SET NULL,
+    bubble_index INTEGER NOT NULL CHECK (bubble_index >= 0),
+    x REAL NOT NULL CHECK (x >= 0.0 AND x <= 100.0),
+    y REAL NOT NULL CHECK (y >= 0.0 AND y <= 100.0),
+    w REAL NOT NULL CHECK (w >= 0.0 AND w <= 100.0),
+    h REAL NOT NULL CHECK (h >= 0.0 AND h <= 100.0),
+    text TEXT NOT NULL,
+    language TEXT NOT NULL DEFAULT 'ja',
+    confidence REAL NOT NULL DEFAULT 1.0,
+    bubble_type TEXT NOT NULL DEFAULT 'SPEECH' CHECK (bubble_type IN ('SPEECH', 'THOUGHT', 'SCREAM', 'WHISPER', 'SFX')),
+    created_at TEXT DEFAULT (datetime('now'))
+);
+
+CREATE INDEX IF NOT EXISTS idx_chapter_bubble_ocr_lookup
+    ON chapter_bubble_ocr_index(chapter_id, page_number);
+
+-- FTS5 Full-Text Dialogue Search for In-Manga Spoken Quotes (Trigram Tokenizer for CJK & Latin Substring Match)
+CREATE VIRTUAL TABLE IF NOT EXISTS dialogue_fts USING fts5(
+    bubble_id UNINDEXED,
+    chapter_id UNINDEXED,
+    page_number UNINDEXED,
+    text,
+    language UNINDEXED,
+    tokenize = 'trigram'
+);
+
+CREATE TRIGGER IF NOT EXISTS trg_bubble_ocr_insert AFTER INSERT ON chapter_bubble_ocr_index BEGIN
+    INSERT INTO dialogue_fts(bubble_id, chapter_id, page_number, text, language)
+    VALUES (new.id, new.chapter_id, new.page_number, new.text, new.language);
+END;
+
+CREATE TRIGGER IF NOT EXISTS trg_bubble_ocr_delete AFTER DELETE ON chapter_bubble_ocr_index BEGIN
+    DELETE FROM dialogue_fts WHERE bubble_id = old.id;
+END;
+
+
 
 
 

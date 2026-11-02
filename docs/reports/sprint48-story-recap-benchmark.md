@@ -8,10 +8,10 @@
 - **Index**: `idx_story_recaps_lookup (series_id, through_chapter_seq DESC, language_tag)`
 
 ## Measured Results
-- **Mean Latency**: `0.0399 ms` (SLA: $< 1.0\text{ ms}$)
-- **P50 Latency**: `0.0387 ms`
-- **P95 Latency**: `0.0632 ms`
-- **P99 Latency**: `0.1177 ms`
-- **Throughput**: `11655 queries/second`
+- **Mean Latency**: `0.0495 ms` (SLA: $< 1.0\text{ ms}$)
+- **P50 Latency**: `0.0409 ms`
+- **P95 Latency**: `0.0798 ms`
+- **P99 Latency**: `0.1916 ms`
+- **Throughput**: `9376 queries/second`
 - **Anti-Spoiler Invariant Violations**: `0 / 1000 (100% Guaranteed Anti-Spoiler Compliance)`
-- **SLA Status**: **PASSED (25.0x faster than SLA)**
+- **SLA Status**: **PASSED (20.2x faster than SLA)**

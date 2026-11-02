@@ -14,6 +14,7 @@ import { detectSpreadLayout } from '../src/backend/utils/spread-detector.js';
 import { PageAnnotationService } from '../src/backend/services/page-annotation-service.js';
 import { ReadingCadenceService } from '../src/backend/services/reading-cadence-service.js';
 import { FramePacer } from '../src/backend/utils/frame-pacer.js';
+import { hitTestPanel, PanelBox } from '../src/backend/utils/panel-spatial-index.js';
 
 export interface SlaResult {
   category: string;
@@ -421,6 +422,37 @@ export async function runHostSlaBenchmark(): Promise<SlaReport> {
     slaTarget: '< 0.005 ms',
     passed: pacerLatency < 0.005,
     notes: 'Zero-allocation Float64Array circular buffer regulator for Intel GMA 4500MHD',
+  });
+
+  // 19. In-Memory Spatial Hit Test Latency (Sprint 55)
+  const mockSlaPanels: PanelBox[] = [
+    { id: 'p1', chapterId: 'ch1', pageNumber: 1, panelIndex: 0, x: 50.0, y: 0.0, w: 50.0, h: 30.0, aspectRatio: 1.66, readingOrder: 0 },
+    { id: 'p2', chapterId: 'ch1', pageNumber: 1, panelIndex: 1, x: 0.0, y: 0.0, w: 50.0, h: 30.0, aspectRatio: 1.66, readingOrder: 1 },
+    { id: 'p3', chapterId: 'ch1', pageNumber: 1, panelIndex: 2, x: 60.0, y: 32.0, w: 40.0, h: 35.0, aspectRatio: 1.14, readingOrder: 2 },
+    { id: 'p4', chapterId: 'ch1', pageNumber: 1, panelIndex: 3, x: 0.0, y: 32.0, w: 60.0, h: 35.0, aspectRatio: 1.71, readingOrder: 3 },
+    { id: 'p5', chapterId: 'ch1', pageNumber: 1, panelIndex: 4, x: 45.0, y: 69.0, w: 55.0, h: 31.0, aspectRatio: 1.77, readingOrder: 4 },
+    { id: 'p6', chapterId: 'ch1', pageNumber: 1, panelIndex: 5, x: 0.0, y: 69.0, w: 45.0, h: 31.0, aspectRatio: 1.45, readingOrder: 5 }
+  ];
+
+  // Warmup
+  for (let i = 0; i < 2000; i++) {
+    hitTestPanel(25.0, 15.0, mockSlaPanels);
+  }
+
+  const tSpatialStart = performance.now();
+  const spatialIters = 20000;
+  for (let i = 0; i < spatialIters; i++) {
+    hitTestPanel((i % 100), ((i * 7) % 100), mockSlaPanels);
+  }
+  const spatialLatency = (performance.now() - tSpatialStart) / spatialIters;
+
+  results.push({
+    category: 'Spatial & OCR Index',
+    name: 'In-Memory Panel Spatial Hit Test (Point-in-Box)',
+    measured: `${(spatialLatency * 1000).toFixed(2)} µs (${spatialLatency.toFixed(6)} ms)`,
+    slaTarget: '< 0.005 ms',
+    passed: spatialLatency < 0.005,
+    notes: 'Zero-allocation point-in-box hit test across 6 manga panels',
   });
 
   // Teardown

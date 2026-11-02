@@ -32,6 +32,8 @@ import { spreadRoutes } from './routes/spread-routes.js';
 import { annotationRoutes } from './routes/annotation-routes.js';
 import { cadenceRoutes } from './routes/cadence-routes.js';
 import { frameTelemetryRoutes } from './routes/frame-telemetry-routes.js';
+import { registerPanelRoutes } from './routes/panel-routes.js';
+import { PanelDetectionService } from './services/panel-detection-service.js';
 import { AdaptiveIngestionController } from './services/adaptive-ingestion-controller.js';
 import { DifferentialMirrorService } from './services/differential-mirror-service.js';
 
@@ -156,6 +158,7 @@ export function buildApp(options: AppOptions = {}): FastifyInstance {
   app.register(annotationRoutes, { db });
   app.register(cadenceRoutes, { db });
   app.register(frameTelemetryRoutes, { db });
+  app.register(registerPanelRoutes, { panelService: new PanelDetectionService(db) });
 
   return app;
 }

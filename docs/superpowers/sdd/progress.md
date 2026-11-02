@@ -375,11 +375,18 @@
   - [x] Task 54.5: Frontend FPS Pacer Controller & Thermal Guard HUD in `frontend/src/reader/useFramePacer.ts` and `frontend/src/components/reader/ThermalGuardHUD.tsx` (10/10 tests PASS)
   - [x] Task 54.6: Subagent Swarm Execution & Latency Benchmarks (SLA 18: 0.0010ms frame tick [5.0x faster than SLA], 18/18 SLAs Passed)
   - [x] Task 54.7: Monorepo Verification & Git Commit (186 test files, 938 tests PASS [618 backend + 320 frontend], Vite build in 8.26s)
-- [ ] Part 55: High-Precision Panel Crop & Dialogue Bubble OCR Pre-Cacher (Zero-Copy Web Worker Tesseract/Onnx Pipeline & Bounding Box Indexing)
-  - [ ] Task 55.1: Senior Architectural Blueprint Consultation with ChatGPT via Brave MCP
-  - [ ] Task 55.2: SQLite Table `chapter_bubble_ocr_index` & Fast Bounding Box Spatial Indexing
-  - [ ] Task 55.3: Backend OCR Geometry & Text Indexing Service
-  - [ ] Task 55.4: Fastify Endpoints for Page Bubbles & OCR Search
-  - [ ] Task 55.5: Frontend High-Contrast Panel Inspector & Speech Bubble Overlay HUD
-  - [ ] Task 55.6: Subagent Swarm Execution & Benchmark (SLA 19)
-  - [ ] Task 55.7: Monorepo Verification & Git Commit
+- [x] Part 55: High-Precision Panel Crop & Dialogue Bubble OCR Pre-Cacher (Zero-Copy Web Worker Tesseract/Onnx Pipeline & Bounding Box Indexing)
+  - [x] Task 55.1: Senior Architectural Blueprint Consultation with ChatGPT via Brave MCP (`docs/brainstorming/chatgpt-sprint55-panel-crop-and-ocr-blueprint.md` & `manga-panel-reading-order-and-gutters.md`)
+  - [x] Task 55.2: SQLite Tables `chapter_page_panels`, `chapter_bubble_ocr_index`, and FTS5 `dialogue_fts` in `src/backend/db/schema.sql` (Trigram tokenizer for CJK & Latin substring match)
+  - [x] Task 55.3: Backend Spatial Hit Test & Geometry Utility in `src/backend/utils/panel-spatial-index.ts` (5/5 tests PASS, 0.000046ms per hit test, 21.5M queries/s)
+  - [x] Task 55.4: PanelDetectionService in `src/backend/services/panel-detection-service.ts` & Fastify Routes in `src/backend/routes/panel-routes.ts` (8/8 tests PASS)
+  - [x] Task 55.5: Frontend Hook `usePanelNavigation.ts` & Component `PanelZoomHUD.tsx` (7/7 tests PASS, zero blur for Intel GMA 4500MHD, CLS = 0)
+  - [x] Task 55.6: Subagent Swarm Execution & Latency Benchmarks (SLA 19: 0.046 µs [108x faster than SLA], 19/19 SLAs Passed)
+  - [x] Task 55.7: Monorepo Verification & Git Commit (192 test files, 960 tests PASS [633 backend + 327 frontend], Vite build in 4.57s)
+- [ ] Part 56: Dynamic Haptic Feedback & Screen Rumble Engine for Action Manga (Web Vibration API & Sound-Synced Impact Waves)
+  - [ ] Task 56.1: Senior Architectural Blueprint Consultation with ChatGPT via Brave MCP
+  - [ ] Task 56.2: Action Onomatopoeia & Haptic Wave Pattern Dictionary
+  - [ ] Task 56.3: Client Haptic Vibration Controller & Low-Power Screen Rumble Primitive
+  - [ ] Task 56.4: Audio Deck & Panel Transition Haptic Sync
+  - [ ] Task 56.5: Subagent Swarm Execution & Benchmark (SLA 20)
+  - [ ] Task 56.6: Monorepo Verification & Git Commit

@@ -17,6 +17,7 @@ import { FramePacer } from '../src/backend/utils/frame-pacer.js';
 import { hitTestPanel, PanelBox } from '../src/backend/utils/panel-spatial-index.js';
 import { ImpactRouter, ImpactPolicy, ImpactEvent } from '../src/backend/utils/impact-router.js';
 import { CbzStreamService } from '../src/backend/services/cbz-stream-service.js';
+import { TranscodeCacheService } from '../src/backend/services/transcode-cache-service.js';
 
 export interface SlaResult {
   category: string;
@@ -563,6 +564,43 @@ export async function runHostSlaBenchmark(): Promise<SlaReport> {
     slaTarget: '< 0.05 ms (50 µs)',
     passed: offsetLatency < 0.05,
     notes: 'Sub-millisecond page slice addressing on idx_archive_offsets_lookup',
+  });
+
+  // 22. Transcoded WebP Cache Hit Lookup Latency (Sprint 58)
+  const transcodeCache = new TranscodeCacheService(db, path.join(scratchDir, 'cache'));
+  for (let p = 1; p <= 50; p++) {
+    transcodeCache.recordCachedPage({
+      id: `sla_tr_${p}`,
+      chapterId: 'sla-cbz-chap',
+      pageNumber: p,
+      targetWidth: 1200,
+      targetHeight: 1700,
+      filePath: `/tmp/cache/p${p}_1200.webp`,
+      fileSizeBytes: 185000,
+      quality: 80,
+      etag: `"sla_etag_${p}"`,
+    });
+  }
+
+  // Warmup JIT & in-memory cache
+  for (let p = 1; p <= 50; p++) {
+    transcodeCache.lookupCachedPage('sla-cbz-chap', p, 1200);
+  }
+
+  const transcodeIters = 50000;
+  const tTranscodeStart = performance.now();
+  for (let i = 0; i < transcodeIters; i++) {
+    transcodeCache.lookupCachedPage('sla-cbz-chap', (i % 50) + 1, 1200);
+  }
+  const transcodeLatency = (performance.now() - tTranscodeStart) / transcodeIters;
+
+  results.push({
+    category: 'Transcode Cache Engine',
+    name: 'Transcoded WebP Cache Hit Lookup (SLA 22)',
+    measured: `${(transcodeLatency * 1000).toFixed(2)} µs (${transcodeLatency.toFixed(6)} ms)`,
+    slaTarget: '< 0.05 ms (50 µs)',
+    passed: transcodeLatency < 0.05,
+    notes: 'Sub-millisecond covering index & manifest resolution on idx_transcode_cache_lookup',
   });
 
   // Teardown

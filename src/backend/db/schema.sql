@@ -582,6 +582,29 @@ CREATE TABLE IF NOT EXISTS chapter_archive_offsets (
 CREATE INDEX IF NOT EXISTS idx_archive_offsets_lookup
     ON chapter_archive_offsets (chapter_id, page_number);
 
+-- Sprint 58: Smart WebP Transcoding Cache & Ahead-Of-Time Downsampling Pipeline
+CREATE TABLE IF NOT EXISTS cached_transcoded_pages (
+    id TEXT PRIMARY KEY,
+    chapter_id TEXT NOT NULL REFERENCES chapters(id) ON DELETE CASCADE,
+    page_number INTEGER NOT NULL CHECK (page_number >= 1),
+    target_width INTEGER NOT NULL CHECK (target_width > 0),
+    target_height INTEGER NOT NULL CHECK (target_height > 0),
+    file_path TEXT NOT NULL,
+    file_size_bytes INTEGER NOT NULL CHECK (file_size_bytes > 0),
+    quality INTEGER NOT NULL DEFAULT 80,
+    etag TEXT NOT NULL,
+    last_accessed_at TEXT DEFAULT (datetime('now')),
+    created_at TEXT DEFAULT (datetime('now')),
+    UNIQUE(chapter_id, page_number, target_width)
+);
+
+CREATE INDEX IF NOT EXISTS idx_transcode_cache_lookup
+    ON cached_transcoded_pages (chapter_id, page_number, target_width);
+
+CREATE INDEX IF NOT EXISTS idx_transcode_lru_prune
+    ON cached_transcoded_pages (last_accessed_at);
+
+
 
 
 

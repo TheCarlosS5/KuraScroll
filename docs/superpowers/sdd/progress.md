@@ -397,10 +397,17 @@
   - [x] Task 57.4: Fastify Compressed Stream Protocol & Client Progressive Image Loader (`src/backend/routes/cbz-stream-routes.ts`, `ProgressivePageLoader.ts`, `ProgressiveStreamIndicator.tsx`)
   - [x] Task 57.5: Subagent Swarm Execution & Benchmark (SLA 21: 0.35 µs [144x faster than SLA target < 50 µs], 21/21 SLAs Passed)
   - [x] Task 57.6: Monorepo Verification & Git Commit (203 test files, 1010 tests PASS [666 backend + 344 frontend], Vite build in 4.65s)
-- [ ] Part 58: Smart WebP Transcoding Cache & Ahead-Of-Time Downsampling Pipeline (Zero-CPU On-Demand Scaling for Intel GMA 4500MHD)
-  - [ ] Task 58.1: Senior Architectural Blueprint Consultation with ChatGPT via Brave MCP
-  - [ ] Task 58.2: SQLite `cached_transcoded_pages` Table & LRU Disk Eviction Daemon
-  - [ ] Task 58.3: Single-Threaded Sharp Pipeline with `libvips` SIMD Fallback for Penryn T4500
-  - [ ] Task 58.4: Client Resolution Negotiation & Pre-Scaled Responsive Delivery
-  - [ ] Task 58.5: Subagent Swarm Execution & Benchmark (SLA 22)
-  - [ ] Task 58.6: Monorepo Verification & Git Commit
+- [x] Part 58: Smart WebP Transcoding Cache & Ahead-Of-Time Downsampling Pipeline (Zero-CPU On-Demand Scaling for Intel GMA 4500MHD)
+  - [x] Task 58.1: Senior Architectural Blueprint Consultation with ChatGPT via Brave MCP (`docs/brainstorming/chatgpt-sprint58-webp-transcoding-cache-blueprint.md`)
+  - [x] Task 58.2: SQLite `cached_transcoded_pages` Table & LRU Disk Eviction Daemon (`src/backend/services/transcode-cache-service.ts`)
+  - [x] Task 58.3: Single-Threaded Sharp Pipeline with `libvips` SIMD Fallback for Penryn T4500 (`sharp.concurrency(1)`, in-flight deduplication)
+  - [x] Task 58.4: Client Resolution Negotiation & Pre-Scaled Responsive Delivery (`useAdaptiveResolution.ts`, `ResolutionTierHUD.tsx`, ETag & HTTP 304)
+  - [x] Task 58.5: Subagent Swarm Execution & Benchmark (SLA 22: 0.56 µs [89x faster than SLA target < 50 µs], 22/22 SLAs Passed)
+  - [x] Task 58.6: Monorepo Verification & Git Commit (207 test files, 1,025 tests PASS [676 backend + 349 frontend], Vite build in 11.17s)
+- [ ] Part 59: Intelligent Pre-Flight Cache Warming & Predictive Turn-Ahead Prefetch Daemon (Zero-Latency Reading Transitions on 4TB SATA II HDD)
+  - [ ] Task 59.1: Senior Architectural Blueprint Consultation with ChatGPT via Brave MCP
+  - [ ] Task 59.2: Predictive Reading Direction Markov Model & Turn-Ahead Queue
+  - [ ] Task 59.3: Low-Priority I/O Scheduling via Cooperative Coordinator Yield
+  - [ ] Task 59.4: Client Predictive Prefetch Bridge & Cache Warmth Indicator
+  - [ ] Task 59.5: Subagent Swarm Execution & Benchmark (SLA 23)
+  - [ ] Task 59.6: Monorepo Verification & Git Commit

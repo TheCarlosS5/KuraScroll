@@ -755,6 +755,27 @@ CREATE TABLE IF NOT EXISTS page_sfx_annotations (
 CREATE INDEX IF NOT EXISTS idx_page_sfx_chapter_page
     ON page_sfx_annotations(chapter_id, page_number);
 
+-- Sprint 68: Smart Guided Panel Pacer & Cinematic Auto-Framing Engine
+CREATE TABLE IF NOT EXISTS page_panel_sequences (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    chapter_id TEXT NOT NULL,
+    page_number INTEGER NOT NULL,
+    panel_index INTEGER NOT NULL,
+    norm_x REAL NOT NULL CHECK(norm_x >= 0.0 AND norm_x <= 1.0),
+    norm_y REAL NOT NULL CHECK(norm_y >= 0.0 AND norm_y <= 1.0),
+    norm_w REAL NOT NULL CHECK(norm_w > 0.0 AND norm_w <= 1.0),
+    norm_h REAL NOT NULL CHECK(norm_h > 0.0 AND norm_h <= 1.0),
+    aspect_ratio REAL NOT NULL,
+    reading_order_score REAL NOT NULL,
+    is_splash INTEGER NOT NULL DEFAULT 0 CHECK(is_splash IN (0, 1)),
+    created_at INTEGER NOT NULL,
+    UNIQUE(chapter_id, page_number, panel_index)
+);
+
+CREATE INDEX IF NOT EXISTS idx_panel_seq_chapter_page
+    ON page_panel_sequences(chapter_id, page_number, panel_index);
+
+
 
 
 

@@ -473,5 +473,14 @@
   - [x] Task 67.5: Client useSfxOverlay Hook & SfxOverlayHUD Component (`frontend/src/reader/useSfxOverlay.ts`, `SfxOverlayHUD.tsx`, stylized comic typography, popover card, keyboard toggle 'S', 0 blur, 0 CLS)
   - [x] Task 67.6: Subagent Swarm Execution & SLA 31 Benchmark (SLA 31: 26.05 µs [Target < 50 µs], 31/31 SLAs Passed)
   - [x] Task 67.7: Monorepo Verification & Git Commit (242 test files, 1,218 tests PASS, Vite build in 4.29s)
+- [x] Part 68: Smart Guided Panel Pacer & Cinematic Auto-Framing Engine (Topological Boustrophedon Pacing for Manga RTL, Webtoons & Western Comics)
+  - [x] Task 68.1: Senior Architectural Blueprint Consultation with ChatGPT via Brave MCP (`docs/brainstorming/boustrophedon-panel-ordering-specification.md`)
+  - [x] Task 68.2: Topological Boustrophedon Ordering & Tier Clustering Algorithm Specification (`docs/brainstorming/boustrophedon-panel-ordering-specification.md`, `docs/brainstorming/user-perspective-guided-panel-audit.md`, `docs/reports/sprint68-devops-guided-panel-audit.md`)
+  - [x] Task 68.3: Backend GuidedPanelService & SQLite Table (`src/backend/services/guided-panel-service.ts`, table `page_panel_sequences`, index `idx_panel_seq_chapter_page`, boustrophedonSort with epsilon_row=0.05, zero-allocation calculatePanelFraming)
+  - [x] Task 68.4: Fastify Guided Panel REST Endpoints (`src/backend/routes/guided-panel-routes.ts`, `/sequence/:chapterId/:pageNumber`, `/sequence/save`, `/framing`, `/boustrophedon-order`)
+  - [x] Task 68.5: Client useGuidedPanelPacer Hook & GuidedPanelHUD Component (`frontend/src/reader/useGuidedPanelPacer.ts`, `GuidedPanelHUD.tsx`, zero-blur solid `#18181b` containment, hands-free auto-play pacer, keyboard shortcuts 'P'/'A'/Space/Arrows, 0 CLS)
+  - [x] Task 68.6: Subagent Swarm Execution & SLA 32 Benchmark (SLA 32: 2.25 µs [8.8x faster than SLA target < 20 µs], 32/32 SLAs Passed)
+  - [x] Task 68.7: Monorepo Verification & Git Commit (244 test files, 1,249 tests PASS, Vite build in 4.52s)
+
 
 

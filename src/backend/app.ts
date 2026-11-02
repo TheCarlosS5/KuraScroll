@@ -58,6 +58,8 @@ import { deepZoomRoutes } from './routes/deep-zoom-routes.js';
 import { DeepZoomTileService } from './services/deep-zoom-tile-service.js';
 import { sfxOverlayRoutes } from './routes/sfx-overlay-routes.js';
 import { SfxOverlayService } from './services/sfx-overlay-service.js';
+import { guidedPanelRoutes } from './routes/guided-panel-routes.js';
+import { GuidedPanelService } from './services/guided-panel-service.js';
 import { AdaptiveIngestionController } from './services/adaptive-ingestion-controller.js';
 import { DifferentialMirrorService } from './services/differential-mirror-service.js';
 
@@ -75,6 +77,7 @@ export interface AppOptions {
   tabSessionService?: TabSessionService;
   deepZoomService?: DeepZoomTileService;
   sfxOverlayService?: SfxOverlayService;
+  guidedPanelService?: GuidedPanelService;
 }
 
 export function buildApp(options: AppOptions = {}): FastifyInstance {
@@ -239,6 +242,10 @@ export function buildApp(options: AppOptions = {}): FastifyInstance {
   app.register(sfxOverlayRoutes, {
     db,
     sfxService: options.sfxOverlayService ?? new SfxOverlayService(db),
+  });
+  app.register(guidedPanelRoutes, {
+    db,
+    guidedPanelService: options.guidedPanelService ?? new GuidedPanelService(db),
   });
 
   return app;

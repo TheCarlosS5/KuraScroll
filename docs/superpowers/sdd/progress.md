@@ -1,9 +1,9 @@
 # SDD ledger — plan: docs/superpowers/plans/2026-11-01-kura-scroll-master-plan.md
 
-- **Status:** Complete & Iterating (Sprint 28 Verified, 446 Tests Passing)
+- **Status:** Complete & Iterating (Sprint 29 Verified, 463 Tests Passing)
 - **Orchestrator:** Antigravity AI Orchestrator
 - **Branch:** main (isolated in `C:\Users\Admin\dev\kura-scroll`)
-- **Total Test Suites:** 78 test files, 446 passing tests (284 backend + 162 frontend, 100% PASS)
+- **Total Test Suites:** 82 test files, 463 passing tests (297 backend + 166 frontend, 100% PASS)
 
 ## Rulings & Decisions
 - Ruling: Standalone Sibling Project ("Proyecto Hermano") chosen as requested by Carlos to prevent monolithic coupling with KuraStream while sharing branding/logo (KS).
@@ -152,4 +152,11 @@
   - [x] Task 28.5: Fastify Chapter Route Integration (disk misses execute as `CRITICAL`, automatically pausing background tasks) and `GET /api/v1/telemetry/io`
   - [x] Task 28.6: Unit & Resilience Test Suites (`io-coordinator.test.ts`, `pause-gate-coordinator.test.ts`, 10/10 tests PASS)
   - [x] Task 28.7: Concurrent Soak Test Benchmark (`io-coordination-soak.test.ts`, P95 < 16ms, 0% error rate under 100 interleaved requests)
-- [ ] Part 29: Reading Streak Analytics, Offline Sync Diagnostics HUD & Monorepo Delivery Refinement
+- [x] Part 29: Reading Streak Analytics, Offline Sync Diagnostics HUD & Monorepo Delivery Refinement (Commit Sprint 29)
+  - [x] Task 29.1: SQLite Table `user_reading_streaks` tracking `current_streak`, `longest_streak`, `last_read_date`, `total_pages_read`, and `total_reading_seconds`
+  - [x] Task 29.2: Backend Service `reading-streak-service.ts` with daily advance, same-day page accumulation, broken streak reset, and flame level calculations (1 to 4)
+  - [x] Task 29.3: Fastify Analytics Routes (`GET /api/v1/analytics/streak` & `POST /api/v1/analytics/activity`) and automatic hook inside `POST /api/v1/progress`
+  - [x] Task 29.4: Frontend Diagnostics Component `OfflineSyncHUD.tsx` with live network pill, pending IndexedDB mutations drawer, and "Sincronizar Ahora" action button
+  - [x] Task 29.5: Navbar mount in `Navbar.tsx` featuring streak flame badge (`🔥 3d`) and `<OfflineSyncHUD />`
+  - [x] Task 29.6: Monorepo test coverage (17 tests: `reading-streak-service.test.ts`, `reading-streak.test.ts`, `analytics-routes.test.ts`, `OfflineSyncHUD.test.tsx`, 100% PASS)
+- [ ] Part 30: Daily Reading Goals Customizer & Habit Notifications Engine

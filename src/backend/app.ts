@@ -7,6 +7,7 @@ import { DatabaseInstance, createDatabase, runMigrations } from './db/database.j
 import { registerSeriesRoutes } from './routes/series-routes.js';
 import { registerChapterRoutes } from './routes/chapter-routes.js';
 import { registerProgressRoutes } from './routes/progress-routes.js';
+import { registerAnalyticsRoutes } from './routes/analytics-routes.js';
 import { registerHealthRoutes } from './routes/health-routes.js';
 import { registerBackupRoutes } from './routes/backup-routes.js';
 import { BackupDaemon } from './daemon/backup-daemon.js';
@@ -76,6 +77,7 @@ export function buildApp(options: AppOptions = {}): FastifyInstance {
   registerSeriesRoutes(app, db);
   registerChapterRoutes(app, db, storageRoot);
   registerProgressRoutes(app, db);
+  registerAnalyticsRoutes(app, db);
 
   const backupDaemon = options.backupDaemon ?? new BackupDaemon({
     db,

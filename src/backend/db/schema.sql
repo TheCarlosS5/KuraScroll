@@ -118,6 +118,17 @@ CREATE TABLE IF NOT EXISTS user_progress (
 );
 CREATE INDEX IF NOT EXISTS idx_user_progress_recent ON user_progress(user_id, updated_at DESC);
 
+-- Reading Streak Analytics & Habits
+CREATE TABLE IF NOT EXISTS user_reading_streaks (
+    user_id TEXT PRIMARY KEY,
+    current_streak INTEGER NOT NULL DEFAULT 0,
+    longest_streak INTEGER NOT NULL DEFAULT 0,
+    last_read_date TEXT,
+    total_pages_read INTEGER NOT NULL DEFAULT 0,
+    total_reading_seconds INTEGER NOT NULL DEFAULT 0,
+    updated_at TEXT DEFAULT (datetime('now'))
+);
+
 -- Incremental Folder Synchronization State (Avoids recursive 4TB HDD re-scanning)
 CREATE TABLE IF NOT EXISTS folder_sync_state (
     folder_path TEXT PRIMARY KEY,

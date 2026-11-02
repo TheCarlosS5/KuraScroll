@@ -1,5 +1,6 @@
-import React from 'react';
-import { BookOpen, Bookmark, Sparkles, History, Database, Film } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { BookOpen, Bookmark, Sparkles, History, Database, Film, Flame } from 'lucide-react';
+import { OfflineSyncHUD } from './OfflineSyncHUD.js';
 
 export interface NavbarProps {
   currentView?: string;
@@ -18,6 +19,30 @@ export const Navbar: React.FC<NavbarProps> = ({
   onOpenSisterModal,
   onOpenStorageTelemetry,
 }) => {
+  const [streakDays, setStreakDays] = useState<number>(0);
+  const [isStreakActiveToday, setIsStreakActiveToday] = useState<boolean>(false);
+
+  useEffect(() => {
+    let isMounted = true;
+    async function fetchStreak() {
+      try {
+        const res = await fetch('/api/v1/analytics/streak?userId=local_user');
+        if (!res.ok) return;
+        const data = await res.json();
+        if (isMounted && data?.streak) {
+          setStreakDays(data.streak.currentStreak || 0);
+          setIsStreakActiveToday(Boolean(data.streak.isStreakActiveToday));
+        }
+      } catch {
+        // Offline mode fallback
+      }
+    }
+    fetchStreak();
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
   return (
     <header className="sticky top-0 z-50 bg-[#080c14]/90 backdrop-blur-md border-b border-gray-800/80 px-4 lg:px-8 py-3.5 transition-all">
       <div className="max-w-7xl mx-auto flex items-center justify-between">
@@ -88,6 +113,26 @@ export const Navbar: React.FC<NavbarProps> = ({
 
         {/* Bookmarks, History & Storage Info */}
         <div className="flex items-center gap-2 sm:gap-3">
+          {/* Reading Streak Flame Badge */}
+          {streakDays > 0 && (
+            <div
+              data-testid="nav-streak-badge"
+              className={`flex items-center gap-1 px-2.5 py-1 rounded-xl text-xs font-bold border transition-all ${
+                isStreakActiveToday
+                  ? 'bg-orange-950/70 border-orange-600/60 text-orange-400 shadow-[0_0_12px_rgba(249,115,22,0.25)]'
+                  : 'bg-gray-900/80 border-gray-800 text-gray-400'
+              }`}
+              style={{ contain: 'layout paint' }}
+              title={`Racha de lectura activa: ${streakDays} días consecutivos`}
+            >
+              <Flame className={`w-3.5 h-3.5 ${isStreakActiveToday ? 'text-orange-500 fill-orange-500 animate-pulse' : 'text-gray-500'}`} />
+              <span>{streakDays}d</span>
+            </div>
+          )}
+
+          {/* Offline Sync Diagnostics HUD */}
+          <OfflineSyncHUD />
+
           <button
             data-testid="nav-history-btn"
             onClick={() => onNavigate?.('history')}

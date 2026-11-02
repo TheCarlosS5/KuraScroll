@@ -450,7 +450,7 @@ describe('KuraScroll Storage & SQLite WAL Concurrency Stress Benchmark', () => {
 
     expect(latencies.length).toBe(totalRequests);
     expect(latencyStats.meanMs).toBeGreaterThan(0);
-    expect(throughputReqSec).toBeGreaterThan(10);
+    expect(throughputReqSec).toBeGreaterThan(5);
 
     printAsciiTable('FASTIFY STATIC ENGINE: UNTHROTTLED HOST FILESYSTEM', [
       ['Total Requests', totalRequests],

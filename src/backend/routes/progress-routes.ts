@@ -1,5 +1,6 @@
 import { FastifyInstance } from 'fastify';
 import { DatabaseInstance } from '../db/database.js';
+import { ReadingStreakService } from '../services/reading-streak-service.js';
 
 export function registerProgressRoutes(app: FastifyInstance, db: DatabaseInstance): void {
   // Get recent reading progress list (Must be declared before :seriesId)
@@ -235,6 +236,10 @@ export function registerProgressRoutes(app: FastifyInstance, db: DatabaseInstanc
 
     stmt.run(userId, body.seriesId, body.chapterId, body.pageNumber, scrollOffsetY, isCompleted);
 
+    // Record daily reading streak activity
+    const streakService = new ReadingStreakService(db);
+    const streak = streakService.recordActivity(userId, 1, 0);
+
     return {
       success: true,
       userId,
@@ -242,6 +247,7 @@ export function registerProgressRoutes(app: FastifyInstance, db: DatabaseInstanc
       chapterId: body.chapterId,
       pageNumber: body.pageNumber,
       isCompleted,
+      streak,
     };
   });
 }

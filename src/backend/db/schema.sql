@@ -331,4 +331,25 @@ CREATE TABLE IF NOT EXISTS series_embeddings (
 CREATE INDEX IF NOT EXISTS idx_series_embeddings_lookup 
     ON series_embeddings(series_id, magnitude);
 
+-- Sprint 48: Dynamic Story Recap Engine & Anti-Spoiler Reading Companion
+CREATE TABLE IF NOT EXISTS chapter_story_recaps (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    series_id TEXT NOT NULL REFERENCES series(id) ON DELETE CASCADE,
+    through_chapter_seq REAL NOT NULL CHECK(through_chapter_seq >= 0),
+    arc_title TEXT NOT NULL,
+    language_tag TEXT NOT NULL DEFAULT 'es',
+    recap_kind TEXT NOT NULL DEFAULT 'standard' CHECK(recap_kind IN ('short', 'standard', 'deep')),
+    summary_text TEXT NOT NULL,
+    character_statuses_json TEXT NOT NULL DEFAULT '[]',
+    key_events_json TEXT NOT NULL DEFAULT '[]',
+    cliffhanger_warning TEXT,
+    created_at TEXT DEFAULT (datetime('now')),
+    updated_at TEXT DEFAULT (datetime('now')),
+    UNIQUE(series_id, through_chapter_seq, language_tag, recap_kind)
+);
+
+CREATE INDEX IF NOT EXISTS idx_story_recaps_lookup 
+    ON chapter_story_recaps(series_id, through_chapter_seq DESC, language_tag);
+
+
 

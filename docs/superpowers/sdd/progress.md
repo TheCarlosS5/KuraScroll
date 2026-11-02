@@ -314,4 +314,13 @@
   - [x] Task 47.6: Subagent Swarm Execution (6 subagents active: performance benchmark, QA resilience plan, UI/GSAP design audit, otaku critic, DevOps memory audit)
   - [x] Task 47.7: Empirical Benchmark Report (`docs/reports/sprint47-hybrid-vector-search-benchmark.md`, 0.5429ms 1,000 vector scan [1.8x faster than SLA], 0.0191ms RRF fusion [2.6x faster than SLA], 375KB RAM footprint)
   - [x] Task 47.8: Monorepo Verification (154 test files, 803 tests PASS [523 backend + 280 frontend], 11/11 SLAs Passed, Vite build verified)
-- [ ] Part 48: Autonomous Intelligent Reading Companion & Dynamic Story Recap Engine
+- [x] Part 48: Autonomous Intelligent Reading Companion & Dynamic Story Recap Engine (Commit Sprint 48)
+  - [x] Task 48.1: Senior Architectural Blueprint Consultation with ChatGPT via Brave MCP (`docs/brainstorming/story-recap-engine-specification.md`)
+  - [x] Task 48.2: SQLite Table `chapter_story_recaps` with Covering Index `idx_story_recaps_lookup` on `(series_id, through_chapter_seq DESC, language_tag)`
+  - [x] Task 48.3: Anti-Spoiler Reading Companion Service (`src/backend/services/story-recap-service.ts`, 6/6 tests PASS)
+  - [x] Task 48.4: Fastify Endpoints in `src/backend/routes/recap-routes.ts` (`GET /api/v1/recaps/chapter`, `GET /api/v1/recaps/series/:seriesId`, `POST /api/v1/admin/recaps`, `DELETE /api/v1/admin/recaps/:id`, 5/5 tests PASS)
+  - [x] Task 48.5: Zero-Blur Hardware-Safe Slide-Over Drawer `StoryRecapDrawer.tsx` (`frontend/tests/components/StoryRecapDrawer.test.tsx`, 5/5 tests PASS)
+  - [x] Task 48.6: Subagent Swarm Execution (6 subagents active: performance benchmark, QA anti-spoiler test plan, UX/GSAP design audit, reader critic, DevOps memory audit)
+  - [x] Task 48.7: Empirical Benchmark Report (`docs/reports/sprint48-story-recap-benchmark.md`, 0.0289ms lookup latency [34.6x faster than SLA], 16,565 QPS, 0 spoiler leaks in 1,000 queries)
+  - [x] Task 48.8: Monorepo Verification (158 test files, 819 tests PASS [535 backend + 284 frontend], 12/12 SLAs Passed, Vite build in 4.61s)
+- [ ] Part 49: Real-Time Dynamic Sound Effects (SFX) & Ambient Narrative Audio Engine

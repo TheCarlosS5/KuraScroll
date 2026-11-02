@@ -10,7 +10,7 @@ import {
   NavigationNotice,
   WarmthState,
 } from '../services/predictive-prefetch-daemon.js';
-import { ReadingMode } from '../utils/markov-direction-predictor.js';
+import { ReaderMode, ReaderMode as ReadingMode } from '../utils/markov-direction-predictor.js';
 
 export interface PrefetchRoutesOptions {
   db?: DatabaseInstance;

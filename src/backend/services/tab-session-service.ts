@@ -168,6 +168,6 @@ export class TabSessionService {
     if (!stmt) return 0;
     const thresholdMs = Date.now() - maxAgeMs;
     const res = stmt.run(thresholdMs);
-    return res.changes;
+    return Number(res.changes);
   }
 }

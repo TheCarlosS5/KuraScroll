@@ -261,6 +261,7 @@ export class PredictivePrefetchDaemon {
       try {
         await this.ioCoordinator.run(
           {
+            label: `prefetch-${candidate.chapterId}-${candidate.pageNumber}`,
             priority: IOPriority.BACKGROUND,
             signal: abortController.signal,
           },

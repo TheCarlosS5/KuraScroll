@@ -123,6 +123,10 @@ import {
   ChromaBleedService,
   calculateChromaBleed,
 } from '../src/backend/services/chroma-bleed-service.js';
+import {
+  AnamorphicSeamService,
+  calculateAnamorphicSeam,
+} from '../src/backend/services/anamorphic-seam-service.js';
 
 export interface SlaResult {
   category: string;
@@ -2388,6 +2392,37 @@ export async function runHostSlaBenchmark(): Promise<SlaReport> {
     slaTarget: '< 0.02 ms',
     passed: chromaBleedLatency < 0.02,
     notes: 'Zero-Allocation Planckian Color Temperature & Perimeter Gradient Synthesis (< 20µs target)',
+  });
+
+  // 75. Adaptive Panel Aspect-Ratio Anamorphic Un-Squeeze & Webtoon Seam Stitcher (Sprint 111 - SLA 75)
+  // Warmup JIT
+  for (let i = 0; i < 5000; i++) {
+    calculateAnamorphicSeam(0, 0, 1200, 'anamorphic_4_3_to_16_9', 1.3333, 0.75, 'cumulative_origin', true);
+  }
+
+  const anamorphicSeamIters = 20000;
+  const tAnamorphicSeamStart = performance.now();
+  for (let i = 0; i < anamorphicSeamIters; i++) {
+    calculateAnamorphicSeam(
+      i % 50,
+      (i % 50) * 1200,
+      1200,
+      i % 2 === 0 ? 'anamorphic_4_3_to_16_9' : 'native',
+      1.3333,
+      0.75,
+      'cumulative_origin',
+      true
+    );
+  }
+  const anamorphicSeamLatency = (performance.now() - tAnamorphicSeamStart) / anamorphicSeamIters;
+
+  results.push({
+    category: 'Webtoon Seam & Opt',
+    name: 'Anamorphic Seam Stitcher (SLA 75)',
+    measured: `${(anamorphicSeamLatency * 1000).toFixed(2)} µs (${anamorphicSeamLatency.toFixed(4)} ms)`,
+    slaTarget: '< 0.02 ms',
+    passed: anamorphicSeamLatency < 0.02,
+    notes: 'Zero-Allocation Aspect-Ratio Un-Squeeze & Subpixel Seam Overlap (< 20µs target)',
   });
 
   // Teardown

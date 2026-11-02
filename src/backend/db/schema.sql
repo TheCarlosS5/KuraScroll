@@ -1595,3 +1595,28 @@ CREATE TABLE IF NOT EXISTS chroma_bleed_profiles (
 
 CREATE INDEX IF NOT EXISTS idx_chroma_bleed_lookup 
     ON chroma_bleed_profiles(series_id);
+
+-- Sprint 111: Adaptive Panel Aspect-Ratio Anamorphic Un-Squeeze & Webtoon Seam Stitcher (SLA 75)
+CREATE TABLE IF NOT EXISTS anamorphic_seam_profiles (
+    series_id TEXT PRIMARY KEY,
+    aspect_ratio_mode TEXT NOT NULL DEFAULT 'native' CHECK (aspect_ratio_mode IN (
+        'native',
+        'anamorphic_4_3_to_16_9',
+        'anamorphic_4_3_to_16_10',
+        'custom_unsqueeze'
+    )),
+    unsqueeze_factor REAL NOT NULL DEFAULT 1.0 CHECK (unsqueeze_factor >= 0.70 AND unsqueeze_factor <= 1.50),
+    seam_overlap_px REAL NOT NULL DEFAULT 0.75 CHECK (seam_overlap_px >= 0.0 AND seam_overlap_px <= 2.0),
+    subpixel_snapping_mode TEXT NOT NULL DEFAULT 'cumulative_origin' CHECK (subpixel_snapping_mode IN (
+        'cumulative_origin',
+        'round',
+        'floor',
+        'ceil'
+    )),
+    is_enabled INTEGER NOT NULL DEFAULT 1 CHECK (is_enabled IN (0, 1)),
+    created_at INTEGER NOT NULL,
+    updated_at INTEGER NOT NULL
+);
+
+CREATE INDEX IF NOT EXISTS idx_anamorphic_seam_lookup 
+    ON anamorphic_seam_profiles(series_id);

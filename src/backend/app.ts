@@ -144,6 +144,8 @@ import { pageBevelRoutes } from './routes/page-bevel-routes.js';
 import { PageBevelService } from './services/page-bevel-service.js';
 import { chromaBleedRoutes } from './routes/chroma-bleed-routes.js';
 import { ChromaBleedService } from './services/chroma-bleed-service.js';
+import { anamorphicSeamRoutes } from './routes/anamorphic-seam-routes.js';
+import { AnamorphicSeamService } from './services/anamorphic-seam-service.js';
 import { AdaptiveIngestionController } from './services/adaptive-ingestion-controller.js';
 import { DifferentialMirrorService } from './services/differential-mirror-service.js';
 
@@ -204,6 +206,7 @@ export interface AppOptions {
   acousticReverbService?: AcousticReverbService;
   pageBevelService?: PageBevelService;
   chromaBleedService?: ChromaBleedService;
+  anamorphicSeamService?: AnamorphicSeamService;
 }
 
 export function buildApp(options: AppOptions = {}): FastifyInstance {
@@ -540,6 +543,10 @@ export function buildApp(options: AppOptions = {}): FastifyInstance {
   app.register(chromaBleedRoutes, {
     db,
     chromaBleedService: options.chromaBleedService ?? new ChromaBleedService(db),
+  });
+  app.register(anamorphicSeamRoutes, {
+    db,
+    anamorphicSeamService: options.anamorphicSeamService ?? new AnamorphicSeamService(db),
   });
 
   return app;

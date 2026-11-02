@@ -103,7 +103,6 @@ export const lanCompanionRoutes: FastifyPluginAsync<LanCompanionRoutesOptions> =
     }
 
     return reply.status(200).send({
-      success: true,
       ...handshake,
     });
   });

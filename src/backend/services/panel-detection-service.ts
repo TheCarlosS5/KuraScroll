@@ -125,7 +125,7 @@ export class PanelDetectionService {
         WHERE chapter_id = ? AND page_number = ?
         ORDER BY reading_order ASC
       `)
-      .all(chapterId, pageNumber) as PanelBox[];
+      .all(chapterId, pageNumber) as unknown as PanelBox[];
 
     this.panelCache.set(key, rows);
     return rows;
@@ -189,7 +189,7 @@ export class PanelDetectionService {
           bubble.id,
           bubble.chapterId,
           bubble.pageNumber,
-          bubble.panelId,
+          bubble.panelId ?? null,
           bubble.bubbleIndex,
           bubble.x,
           bubble.y,
@@ -231,7 +231,7 @@ export class PanelDetectionService {
         WHERE chapter_id = ? AND page_number = ?
         ORDER BY bubble_index ASC
       `)
-      .all(chapterId, pageNumber) as DialogueBubble[];
+      .all(chapterId, pageNumber) as unknown as DialogueBubble[];
 
     this.bubbleCache.set(key, rows);
     return rows;
@@ -254,7 +254,7 @@ export class PanelDetectionService {
           ORDER BY rank ASC
           LIMIT ?
         `)
-        .all(`"${sanitized}"`, limit) as DialogueSearchResult[];
+        .all(`"${sanitized}"`, limit) as unknown as DialogueSearchResult[];
 
       return rows;
     } catch {

@@ -14,6 +14,7 @@ export type SfxCategory =
   | 'GISEIGO' // Vocal sounds of living beings
   | 'GIONGO' // Physical sounds of inert objects / nature
   | 'GITAGO' // Action, movement, visual state
+  | 'GITAIGO' // Action, movement, visual state
   | 'GIJOGO' // Emotional or psychological state
   | 'GIOUGO' // Physical velocity and dynamics
   | 'UISEONGEO' // Korean acoustic sound mimicry

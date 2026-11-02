@@ -92,6 +92,8 @@ import { gazeAnchorRoutes } from './routes/gaze-anchor-routes.js';
 import { GazeAnchorService } from './services/gaze-anchor-service.js';
 import { smartCropRoutes } from './routes/smart-crop-routes.js';
 import { SmartCropService } from './services/smart-crop-service.js';
+import { cloudlessSyncRoutes } from './routes/cloudless-sync-routes.js';
+import { CloudlessSyncService } from './services/cloudless-sync-service.js';
 import { AdaptiveIngestionController } from './services/adaptive-ingestion-controller.js';
 import { DifferentialMirrorService } from './services/differential-mirror-service.js';
 
@@ -126,6 +128,7 @@ export interface AppOptions {
   pageAcousticsService?: PageAcousticsService;
   gazeAnchorService?: GazeAnchorService;
   smartCropService?: SmartCropService;
+  cloudlessSyncService?: CloudlessSyncService;
 }
 
 export function buildApp(options: AppOptions = {}): FastifyInstance {
@@ -358,6 +361,10 @@ export function buildApp(options: AppOptions = {}): FastifyInstance {
   app.register(smartCropRoutes, {
     db,
     smartCropService: options.smartCropService ?? new SmartCropService(db),
+  });
+  app.register(cloudlessSyncRoutes, {
+    db,
+    cloudlessSyncService: options.cloudlessSyncService ?? new CloudlessSyncService(db),
   });
 
   return app;

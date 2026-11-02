@@ -1089,6 +1089,43 @@ CREATE TABLE IF NOT EXISTS smart_crop_profiles (
 CREATE INDEX IF NOT EXISTS idx_smart_crop_lookup 
     ON smart_crop_profiles(series_id);
 
+-- Sprint 85: Continuous Reading Session Milestones & Autonomous Cloudless Sync Hub
+CREATE TABLE IF NOT EXISTS sync_milestone_profiles (
+    series_id TEXT NOT NULL,
+    user_id TEXT NOT NULL DEFAULT 'default_user',
+    device_id TEXT NOT NULL,
+    vector_clock INTEGER NOT NULL DEFAULT 1,
+    chapters_completed INTEGER NOT NULL DEFAULT 0,
+    total_reading_seconds INTEGER NOT NULL DEFAULT 0,
+    streak_days INTEGER NOT NULL DEFAULT 1,
+    sync_mode TEXT NOT NULL DEFAULT 'local_broadcast' CHECK (sync_mode IN ('local_broadcast', 'p2p_direct', 'offline_vault')),
+    is_enabled INTEGER NOT NULL DEFAULT 1 CHECK (is_enabled IN (0, 1)),
+    updated_at INTEGER NOT NULL,
+    PRIMARY KEY (series_id, user_id, device_id)
+);
+
+CREATE INDEX IF NOT EXISTS idx_sync_milestone_lookup 
+    ON sync_milestone_profiles(series_id, user_id);
+
+-- Sprint 85: Continuous Reading Session Milestones & Autonomous Cloudless Sync Hub
+CREATE TABLE IF NOT EXISTS sync_milestone_profiles (
+    series_id TEXT NOT NULL,
+    user_id TEXT NOT NULL DEFAULT 'default_user',
+    device_id TEXT NOT NULL,
+    vector_clock INTEGER NOT NULL DEFAULT 1 CHECK (vector_clock >= 1),
+    chapters_completed INTEGER NOT NULL DEFAULT 0 CHECK (chapters_completed >= 0),
+    total_reading_seconds INTEGER NOT NULL DEFAULT 0 CHECK (total_reading_seconds >= 0),
+    streak_days INTEGER NOT NULL DEFAULT 1 CHECK (streak_days >= 0),
+    sync_mode TEXT NOT NULL DEFAULT 'local_broadcast' CHECK (sync_mode IN ('local_broadcast', 'p2p_direct', 'offline_vault')),
+    is_enabled INTEGER NOT NULL DEFAULT 1 CHECK (is_enabled IN (0, 1)),
+    updated_at INTEGER NOT NULL,
+    PRIMARY KEY (series_id, user_id, device_id)
+);
+
+CREATE INDEX IF NOT EXISTS idx_sync_milestone_lookup 
+    ON sync_milestone_profiles(series_id, user_id);
+
+
 
 
 

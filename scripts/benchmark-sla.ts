@@ -65,6 +65,7 @@ import { calculateProjectionTransform } from '../src/backend/services/page-proje
 import { calculateAudioPannerParams } from '../src/backend/services/page-acoustics-service.js';
 import { calculateGazeTrajectory } from '../src/backend/services/gaze-anchor-service.js';
 import { calculateCropBoundingBox } from '../src/backend/services/smart-crop-service.js';
+import { resolveVectorClockMerge } from '../src/backend/services/cloudless-sync-service.js';
 
 export interface SlaResult {
   category: string;
@@ -1575,6 +1576,37 @@ export async function runHostSlaBenchmark(): Promise<SlaReport> {
     slaTarget: '< 0.02 ms',
     passed: cropLatency < 0.02,
     notes: 'Zero-Allocation Dynamic Margin Trimming & Aspect Ratio Resolution (< 20µs target)',
+  });
+
+  // 49. CRDT Vector Clock & Milestone Reconciliation Latency (Sprint 85 - SLA 49)
+  // Warmup JIT
+  for (let i = 0; i < 5000; i++) {
+    resolveVectorClockMerge(10, 12, 5, 6, 3600, 4200, 1698900000, 1698900050);
+  }
+
+  const crdtIters = 20000;
+  const tCrdtStart = performance.now();
+  for (let i = 0; i < crdtIters; i++) {
+    resolveVectorClockMerge(
+      10 + (i % 5),
+      12,
+      5,
+      6,
+      3600,
+      4200,
+      1698900000 + i,
+      1698900050
+    );
+  }
+  const crdtLatency = (performance.now() - tCrdtStart) / crdtIters;
+
+  results.push({
+    category: 'Cloudless Sync Engine',
+    name: 'CRDT Vector Clock Reconciliation (SLA 49)',
+    measured: `${(crdtLatency * 1000).toFixed(2)} µs (${crdtLatency.toFixed(4)} ms)`,
+    slaTarget: '< 0.02 ms',
+    passed: crdtLatency < 0.02,
+    notes: 'Zero-Allocation CRDT Vector Clock Merge & Milestone Reconciliation (< 20µs target)',
   });
 
   // Teardown

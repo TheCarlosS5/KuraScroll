@@ -146,6 +146,8 @@ import { chromaBleedRoutes } from './routes/chroma-bleed-routes.js';
 import { ChromaBleedService } from './services/chroma-bleed-service.js';
 import { anamorphicSeamRoutes } from './routes/anamorphic-seam-routes.js';
 import { AnamorphicSeamService } from './services/anamorphic-seam-service.js';
+import { textureAtlasRoutes } from './routes/texture-atlas-routes.js';
+import { TextureAtlasService } from './services/texture-atlas-service.js';
 import { AdaptiveIngestionController } from './services/adaptive-ingestion-controller.js';
 import { DifferentialMirrorService } from './services/differential-mirror-service.js';
 
@@ -207,6 +209,7 @@ export interface AppOptions {
   pageBevelService?: PageBevelService;
   chromaBleedService?: ChromaBleedService;
   anamorphicSeamService?: AnamorphicSeamService;
+  textureAtlasService?: TextureAtlasService;
 }
 
 export function buildApp(options: AppOptions = {}): FastifyInstance {
@@ -547,6 +550,10 @@ export function buildApp(options: AppOptions = {}): FastifyInstance {
   app.register(anamorphicSeamRoutes, {
     db,
     anamorphicSeamService: options.anamorphicSeamService ?? new AnamorphicSeamService(db),
+  });
+  app.register(textureAtlasRoutes, {
+    db,
+    textureAtlasService: options.textureAtlasService ?? new TextureAtlasService(db),
   });
 
   return app;

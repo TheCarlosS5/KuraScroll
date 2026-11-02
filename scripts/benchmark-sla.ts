@@ -127,6 +127,10 @@ import {
   AnamorphicSeamService,
   calculateAnamorphicSeam,
 } from '../src/backend/services/anamorphic-seam-service.js';
+import {
+  TextureAtlasService,
+  calculateTextureAtlasPlacement,
+} from '../src/backend/services/texture-atlas-service.js';
 
 export interface SlaResult {
   category: string;
@@ -2423,6 +2427,39 @@ export async function runHostSlaBenchmark(): Promise<SlaReport> {
     slaTarget: '< 0.02 ms',
     passed: anamorphicSeamLatency < 0.02,
     notes: 'Zero-Allocation Aspect-Ratio Un-Squeeze & Subpixel Seam Overlap (< 20µs target)',
+  });
+
+  // 76. Micro-Tile GPU Texture Atlas Packer & Virtual VRAM Compactor (Sprint 112 - SLA 76)
+  // Warmup JIT
+  for (let i = 0; i < 5000; i++) {
+    calculateTextureAtlasPlacement('tile-warmup', 512, 512, 0, 2048, 4, 2, 32, 'guillotine_bssf', true);
+  }
+
+  const textureAtlasIters = 20000;
+  const tTextureAtlasStart = performance.now();
+  for (let i = 0; i < textureAtlasIters; i++) {
+    calculateTextureAtlasPlacement(
+      `tile-${i % 100}`,
+      256 + (i % 256),
+      256 + (i % 256),
+      i % 64,
+      2048,
+      4,
+      2,
+      32,
+      'guillotine_bssf',
+      true
+    );
+  }
+  const textureAtlasLatency = (performance.now() - tTextureAtlasStart) / textureAtlasIters;
+
+  results.push({
+    category: 'GPU & VRAM Compactor',
+    name: 'Texture Atlas Packer (SLA 76)',
+    measured: `${(textureAtlasLatency * 1000).toFixed(2)} µs (${textureAtlasLatency.toFixed(4)} ms)`,
+    slaTarget: '< 0.02 ms',
+    passed: textureAtlasLatency < 0.02,
+    notes: 'Zero-Allocation 2D Guillotine BSSF UV Mapping & 32MB VRAM Compaction (< 20µs target)',
   });
 
   // Teardown

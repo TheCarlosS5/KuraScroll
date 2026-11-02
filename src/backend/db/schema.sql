@@ -1620,3 +1620,23 @@ CREATE TABLE IF NOT EXISTS anamorphic_seam_profiles (
 
 CREATE INDEX IF NOT EXISTS idx_anamorphic_seam_lookup 
     ON anamorphic_seam_profiles(series_id);
+
+-- Sprint 112: Micro-Tile GPU Texture Atlas Packer & Virtual VRAM Compactor (SLA 76)
+CREATE TABLE IF NOT EXISTS texture_atlas_profiles (
+    series_id TEXT PRIMARY KEY,
+    packing_strategy TEXT NOT NULL DEFAULT 'guillotine_bssf' CHECK (packing_strategy IN (
+        'guillotine_bssf',
+        'shelf_next_fit',
+        'max_rects_compact'
+    )),
+    atlas_max_dimension INTEGER NOT NULL DEFAULT 2048 CHECK (atlas_max_dimension IN (1024, 2048, 4096)),
+    tile_padding_px INTEGER NOT NULL DEFAULT 4 CHECK (tile_padding_px >= 0 AND tile_padding_px <= 16),
+    max_active_atlases INTEGER NOT NULL DEFAULT 2 CHECK (max_active_atlases >= 1 AND max_active_atlases <= 4),
+    vram_budget_mb INTEGER NOT NULL DEFAULT 32 CHECK (vram_budget_mb >= 16 AND vram_budget_mb <= 64),
+    is_enabled INTEGER NOT NULL DEFAULT 1 CHECK (is_enabled IN (0, 1)),
+    created_at INTEGER NOT NULL,
+    updated_at INTEGER NOT NULL
+);
+
+CREATE INDEX IF NOT EXISTS idx_texture_atlas_lookup 
+    ON texture_atlas_profiles(series_id);

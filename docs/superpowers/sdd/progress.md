@@ -404,10 +404,17 @@
   - [x] Task 58.4: Client Resolution Negotiation & Pre-Scaled Responsive Delivery (`useAdaptiveResolution.ts`, `ResolutionTierHUD.tsx`, ETag & HTTP 304)
   - [x] Task 58.5: Subagent Swarm Execution & Benchmark (SLA 22: 0.56 µs [89x faster than SLA target < 50 µs], 22/22 SLAs Passed)
   - [x] Task 58.6: Monorepo Verification & Git Commit (207 test files, 1,025 tests PASS [676 backend + 349 frontend], Vite build in 11.17s)
-- [ ] Part 59: Intelligent Pre-Flight Cache Warming & Predictive Turn-Ahead Prefetch Daemon (Zero-Latency Reading Transitions on 4TB SATA II HDD)
-  - [ ] Task 59.1: Senior Architectural Blueprint Consultation with ChatGPT via Brave MCP
-  - [ ] Task 59.2: Predictive Reading Direction Markov Model & Turn-Ahead Queue
-  - [ ] Task 59.3: Low-Priority I/O Scheduling via Cooperative Coordinator Yield
-  - [ ] Task 59.4: Client Predictive Prefetch Bridge & Cache Warmth Indicator
-  - [ ] Task 59.5: Subagent Swarm Execution & Benchmark (SLA 23)
-  - [ ] Task 59.6: Monorepo Verification & Git Commit
+- [x] Part 59: Intelligent Pre-Flight Cache Warming & Predictive Turn-Ahead Prefetch Daemon (Zero-Latency Reading Transitions on 4TB SATA II HDD)
+  - [x] Task 59.1: Senior Architectural Blueprint Consultation with ChatGPT via Brave MCP (`docs/brainstorming/chatgpt-sprint59-predictive-prefetch-blueprint.md`)
+  - [x] Task 59.2: Predictive Reading Direction Markov Model & Turn-Ahead Queue (`src/backend/utils/markov-direction-predictor.ts`, zero-allocation Float32Array inference, Bayesian decay $\alpha=0.995$)
+  - [x] Task 59.3: Low-Priority I/O Scheduling via Cooperative Coordinator Yield (`src/backend/services/predictive-prefetch-daemon.ts`, 64 KiB chunking, scratch buffer reuse, preemption latency < 15ms)
+  - [x] Task 59.4: Client Predictive Prefetch Bridge & Cache Warmth Indicator (`frontend/src/reader/usePrefetchWarmth.ts` via `useSyncExternalStore`, `PredictiveWarmthIndicator.tsx`, 0 CLS, 0 blur)
+  - [x] Task 59.5: Subagent Swarm Execution & Benchmark (SLA 23: 0.41 µs [24x faster than SLA target < 10 µs], 23/23 SLAs Passed)
+  - [x] Task 59.6: Monorepo Verification & Git Commit (212 test files, 1,055 tests PASS [696 backend + 359 frontend], Vite build in 4.30s)
+- [ ] Part 60: Ultra-Low-Latency Local Dialogue OCR & Trigram Substring Search Engine (Zero-Cloud Character & Quote Search on 4TB Mechanical HDD)
+  - [ ] Task 60.1: Senior Architectural Blueprint Consultation with ChatGPT via Brave MCP
+  - [ ] Task 60.2: Trigram Dialogue Indexing & Exact Substring Match Pipeline
+  - [ ] Task 60.3: Mechanical HDD Seek-Optimized Inverted Index Partitioning
+  - [ ] Task 60.4: Client Instant Dialogue Jump HUD & Quote Snippet Scrubber
+  - [ ] Task 60.5: Subagent Swarm Execution & Benchmark (SLA 24)
+  - [ ] Task 60.6: Monorepo Verification & Git Commit

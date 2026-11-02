@@ -40,6 +40,8 @@ import { cbzStreamRoutes } from './routes/cbz-stream-routes.js';
 import { CbzStreamService } from './services/cbz-stream-service.js';
 import { transcodeRoutes } from './routes/transcode-routes.js';
 import { TranscodeCacheService } from './services/transcode-cache-service.js';
+import { prefetchRoutes } from './routes/prefetch-routes.js';
+import { PredictivePrefetchDaemon } from './services/predictive-prefetch-daemon.js';
 import { AdaptiveIngestionController } from './services/adaptive-ingestion-controller.js';
 import { DifferentialMirrorService } from './services/differential-mirror-service.js';
 
@@ -167,9 +169,18 @@ export function buildApp(options: AppOptions = {}): FastifyInstance {
   app.register(registerPanelRoutes, { panelService: new PanelDetectionService(db) });
   app.register(immersionRoutes, { immersionService: new ImmersionService(db) });
   app.register(cbzStreamRoutes, { db, cbzStreamService: new CbzStreamService(db) });
+  const transcodeCacheService = new TranscodeCacheService(db, path.resolve(storageRoot, 'cache'));
   app.register(transcodeRoutes, {
     db,
-    transcodeCacheService: new TranscodeCacheService(db, path.resolve(storageRoot, 'cache')),
+    transcodeCacheService,
+  });
+  const prefetchDaemon = new PredictivePrefetchDaemon({
+    transcodeCache: transcodeCacheService,
+    storageRoot,
+  });
+  app.register(prefetchRoutes, {
+    db,
+    prefetchDaemon,
   });
 
   return app;

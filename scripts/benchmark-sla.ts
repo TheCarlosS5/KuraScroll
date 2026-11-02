@@ -18,6 +18,7 @@ import { hitTestPanel, PanelBox } from '../src/backend/utils/panel-spatial-index
 import { ImpactRouter, ImpactPolicy, ImpactEvent } from '../src/backend/utils/impact-router.js';
 import { CbzStreamService } from '../src/backend/services/cbz-stream-service.js';
 import { TranscodeCacheService } from '../src/backend/services/transcode-cache-service.js';
+import { MarkovDirectionPredictor } from '../src/backend/utils/markov-direction-predictor.js';
 
 export interface SlaResult {
   category: string;
@@ -601,6 +602,45 @@ export async function runHostSlaBenchmark(): Promise<SlaReport> {
     slaTarget: '< 0.05 ms (50 µs)',
     passed: transcodeLatency < 0.05,
     notes: 'Sub-millisecond covering index & manifest resolution on idx_transcode_cache_lookup',
+  });
+
+  // 23. Predictive Markov Transition & Turn-Ahead Queue Enqueue Latency (Sprint 59)
+  const predictor = new MarkovDirectionPredictor();
+  const outBuf = new Float32Array(3);
+
+  // Warmup JIT
+  for (let i = 0; i < 5000; i++) {
+    predictor.predict('NORMAL', outBuf);
+    predictor.predictCandidates({
+      currentPage: (i % 30) + 1,
+      totalPages: 30,
+      currentChapterId: 'chap-1',
+      nextChapterId: 'chap-2',
+      cadence: 'NORMAL',
+    });
+  }
+
+  const markovIters = 50000;
+  const tMarkovStart = performance.now();
+  for (let i = 0; i < markovIters; i++) {
+    predictor.predict('NORMAL', outBuf);
+    predictor.predictCandidates({
+      currentPage: (i % 30) + 1,
+      totalPages: 30,
+      currentChapterId: 'chap-1',
+      nextChapterId: 'chap-2',
+      cadence: 'NORMAL',
+    });
+  }
+  const markovLatency = (performance.now() - tMarkovStart) / markovIters;
+
+  results.push({
+    category: 'Predictive Prefetch Engine',
+    name: 'Markov Transition & Candidate Enqueue (SLA 23)',
+    measured: `${(markovLatency * 1000).toFixed(2)} µs (${markovLatency.toFixed(6)} ms)`,
+    slaTarget: '< 0.01 ms (10 µs)',
+    passed: markovLatency < 0.01,
+    notes: 'Zero-allocation Float32Array Bayesian inference & turn-ahead scoring',
   });
 
   // Teardown

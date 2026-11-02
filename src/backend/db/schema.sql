@@ -1361,6 +1361,26 @@ CREATE TABLE IF NOT EXISTS panel_pacing_profiles (
 CREATE INDEX IF NOT EXISTS idx_panel_pacing_lookup 
     ON panel_pacing_profiles(series_id);
 
+-- Sprint 100: Century Jubilee - Ultra-Low-Latency In-Memory Vector Search & Embedding Quantizer for Spoilers & Lore Cross-Referencing (SLA 64)
+CREATE TABLE IF NOT EXISTS vector_index_profiles (
+    series_id TEXT PRIMARY KEY,
+    index_mode TEXT NOT NULL DEFAULT 'int8_quantized' CHECK (index_mode IN (
+        'int8_quantized',
+        'compact_scalar',
+        'exact_cosine',
+        'custom'
+    )),
+    embedding_dimension INTEGER NOT NULL DEFAULT 64 CHECK (embedding_dimension >= 16 AND embedding_dimension <= 256),
+    similarity_threshold REAL NOT NULL DEFAULT 0.75 CHECK (similarity_threshold >= 0.10 AND similarity_threshold <= 0.99),
+    max_top_k INTEGER NOT NULL DEFAULT 5 CHECK (max_top_k >= 1 AND max_top_k <= 50),
+    is_spoiler_shield_active INTEGER NOT NULL DEFAULT 1 CHECK (is_spoiler_shield_active IN (0, 1)),
+    is_enabled INTEGER NOT NULL DEFAULT 1 CHECK (is_enabled IN (0, 1)),
+    updated_at INTEGER NOT NULL
+);
+
+CREATE INDEX IF NOT EXISTS idx_vector_index_lookup 
+    ON vector_index_profiles(series_id);
+
 
 
 

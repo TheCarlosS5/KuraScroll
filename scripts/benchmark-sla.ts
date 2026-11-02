@@ -80,6 +80,7 @@ import { CreaseShadowService } from '../src/backend/services/crease-shadow-servi
 import { TextEqualizerService } from '../src/backend/services/text-equalizer-service.js';
 import { ReadingDwellService } from '../src/backend/services/reading-dwell-service.js';
 import { PanelPacingService } from '../src/backend/services/panel-pacing-service.js';
+import { VectorQuantizerService } from '../src/backend/services/vector-quantizer-service.js';
 
 export interface SlaResult {
   category: string;
@@ -1988,6 +1989,31 @@ export async function runHostSlaBenchmark(): Promise<SlaReport> {
     slaTarget: '< 0.02 ms',
     passed: pacingLatency < 0.02,
     notes: 'Zero-Allocation AABB Camera Interpolation & EaseOutBack Matrix (< 20µs target)',
+  });
+
+  // 64. Century Jubilee - Ultra-Low-Latency In-Memory Vector Search & Embedding Quantizer (Sprint 100 - SLA 64)
+  const vectorQuantizerService = new VectorQuantizerService(db);
+  const qVec = [15, 25, 45, 60, -10, 35, 50, 20];
+  const cVec = [18, 22, 40, 65, -12, 30, 48, 25];
+  // Warmup JIT
+  for (let i = 0; i < 5000; i++) {
+    vectorQuantizerService.calculateQuantizedCosineSimilarity(qVec, cVec, 64, 0.75, true, 25, 10, 'int8_quantized');
+  }
+
+  const vectorIters = 20000;
+  const tVectorStart = performance.now();
+  for (let i = 0; i < vectorIters; i++) {
+    vectorQuantizerService.calculateQuantizedCosineSimilarity(qVec, cVec, 64, 0.75, true, 25, 10, 'int8_quantized');
+  }
+  const vectorLatency = (performance.now() - tVectorStart) / vectorIters;
+
+  results.push({
+    category: 'Vector & Lore Search',
+    name: 'Quantized Vector Similarity (SLA 64)',
+    measured: `${(vectorLatency * 1000).toFixed(2)} µs (${vectorLatency.toFixed(4)} ms)`,
+    slaTarget: '< 0.02 ms',
+    passed: vectorLatency < 0.02,
+    notes: 'Zero-Allocation Int8 Cosine Similarity & Spoiler Shield Filtering (< 20µs target)',
   });
 
   // Teardown

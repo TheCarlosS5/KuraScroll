@@ -1221,6 +1221,27 @@ CREATE TABLE IF NOT EXISTS ambient_glow_profiles (
 CREATE INDEX IF NOT EXISTS idx_ambient_glow_lookup 
     ON ambient_glow_profiles(series_id);
 
+-- Sprint 93: Bi-Temporal Gaze & Velocity Dynamic Page Curl & Turn Synthesizer
+CREATE TABLE IF NOT EXISTS page_curl_profiles (
+    series_id TEXT PRIMARY KEY,
+    curl_preset TEXT NOT NULL DEFAULT 'tankobon_stiff' CHECK (curl_preset IN (
+        'tankobon_stiff',
+        'doujin_silk',
+        'newsprint_pulp',
+        'custom'
+    )),
+    paper_stiffness REAL NOT NULL DEFAULT 0.85 CHECK (paper_stiffness >= 0.20 AND paper_stiffness <= 1.00),
+    max_curl_angle_deg REAL NOT NULL DEFAULT 45.0 CHECK (max_curl_angle_deg >= 15.0 AND max_curl_angle_deg <= 85.0),
+    shadow_depth REAL NOT NULL DEFAULT 0.40 CHECK (shadow_depth >= 0.00 AND shadow_depth <= 1.00),
+    is_peel_corner_enabled INTEGER NOT NULL DEFAULT 1 CHECK (is_peel_corner_enabled IN (0, 1)),
+    is_enabled INTEGER NOT NULL DEFAULT 1 CHECK (is_enabled IN (0, 1)),
+    updated_at INTEGER NOT NULL
+);
+
+CREATE INDEX IF NOT EXISTS idx_page_curl_lookup 
+    ON page_curl_profiles(series_id);
+
+
 
 
 

@@ -1,0 +1,90 @@
+# Sprint 93 QA Resilience Matrix: Bi-Temporal Gaze & Velocity Dynamic Page Curl & Turn Synthesizer
+
+## Executive Summary
+Sprint 93 introduces the **Bi-Temporal Gaze & Velocity Dynamic Page Curl & Turn Synthesizer**, simulating realistic 3D page curl deformation physics responsive to user touch/mouse drag progress, gesture velocity, tension stiffness, and dynamic curl angles.
+
+This document establishes exhaustive test plans, edge-case fuzzing matrices, and failure recovery protocols for drag progress clamping (`[0.0, 1.0]`), extreme velocity sanitization (`±10,000 px/s`), stiffness bounds clamping, curl angle validation (`< 90°`), mid-turn abrupt reversals, and SQLite CHECK constraints.
+
+---
+
+## 1. Core Resilience Test Matrix
+
+| ID | Test Scenario | Input / Condition | Expected Behavior | Verification Target |
+| :--- | :--- | :--- | :--- | :--- |
+| **CURL-01** | **Drag Progress Clamping** | Drag progress requested outside bounds (`dragProgress = -0.3` or `dragProgress = 1.4`) | Curl service clamps progress strictly to `[0.0, 1.0]`, preventing page inversion or tearing errors in 3D mesh shaders. | `curl-progress.test.ts` |
+| **CURL-02** | **Extreme Velocity Sanitization** | Gesture velocity reported as extreme values (`±10,000 px/s` or `NaN`) | Velocity magnitude is clamped strictly to safe operational limits, preventing runaway page fling animations. | `curl-velocity.test.ts` |
+| **CURL-03** | **Stiffness & Angle Clamping** | Page tension stiffness requested at `0.0` or `1.0`, curl angle requested at `95°` | Stiffness is clamped to `[0.1, 0.9]`; curl angle is strictly capped below `90°` to prevent mesh folding singularities. | `curl-stiffness.test.ts` |
+| **CURL-04** | **Mid-Turn Abrupt Reversals** | User drags page curl to `0.7` progress and instantly reverses direction to `0.0` at high velocity | Curl physics state machine aborts forward animation tween instantly and smoothly interpolates back to rest state without jank. | `curl-reversal.test.ts` |
+| **CURL-05** | **SQLite CHECK Constraint Validation** | Malformed database write attempts to insert out-of-range curl parameters | SQLite `CHECK (curl_stiffness >= 0.1 AND curl_stiffness <= 0.9)` constraint rejects invalid writes, preserving database integrity. | `curl-sqlite.test.ts` |
+
+---
+
+## 2. Vitest Test Suite Specifications
+
+### 2.1 Backend / Fastify Page Curl Service & Clamping Unit Tests (`tests/unit/backend/services/page-curl-service.test.ts`)
+```typescript
+import { describe, it, expect } from 'vitest';
+import { clampDragProgress, sanitizeCurlVelocity, clampStiffness, clampCurlAngle, computeCurlEtag } from '../../../../src/backend/services/page-curl-service';
+
+describe('Page Curl & Turn Synthesizer Resilience & Clamping', () => {
+  it('clamps drag progress strictly to [0.0, 1.0]', () => {
+    expect(clampDragProgress(-0.3)).toBe(0.0);
+    expect(clampDragProgress(1.4)).toBe(1.0);
+    expect(clampDragProgress(0.65)).toBe(0.65);
+  });
+
+  it('sanitizes extreme velocity spikes and NaN values', () => {
+    expect(sanitizeCurlVelocity(15000)).toBe(5000);
+    expect(sanitizeCurlVelocity(-12000)).toBe(-5000);
+    expect(sanitizeCurlVelocity(NaN)).toBe(0);
+  });
+
+  it('clamps stiffness to [0.1, 0.9] and angle below 90°', () => {
+    expect(clampStiffness(0.0)).toBe(0.1);
+    expect(clampStiffness(1.0)).toBe(0.9);
+    expect(clampCurlAngle(95)).toBe(89);
+    expect(clampCurlAngle(45)).toBe(45);
+  });
+
+  it('generates deterministic ETags for cached page curl profiles', () => {
+    const etag1 = computeCurlEtag(0.5, 0.7, 45);
+    const etag2 = computeCurlEtag(0.5, 0.7, 45);
+    expect(etag1).toBe(etag2);
+    expect(etag1).toMatch(/^"[\da-f]+"$/);
+  });
+});
+```
+
+### 2.2 Frontend Page Curl Hook Tests (`frontend/src/tests/usePageCurl.test.ts`)
+```typescript
+import { describe, it, expect, act } from 'vitest';
+import { renderHook } from '@testing-library/react';
+import { usePageCurl } from '../hooks/usePageCurl';
+
+describe('usePageCurl Mid-Turn Reversal Resilience', () => {
+  it('handles abrupt mid-turn drag reversals smoothly without mesh collapse', () => {
+    const { result } = renderHook(() => usePageCurl({ stiffness: 0.5 }));
+
+    act(() => {
+      result.current.updateDrag(0.7);
+    });
+    expect(result.current.progress).toBe(0.7);
+
+    act(() => {
+      result.current.updateDrag(0.1); // Instant reversal
+    });
+    expect(result.current.progress).toBe(0.1);
+    expect(result.current.isAnimating).toBe(true);
+  });
+});
+```
+
+---
+
+## 3. Failure Recovery & Edge Case Guidelines
+
+1. **Mesh Singularity Prevention:** Curl angles are strictly capped below `90°` to prevent 3D vertex projection matrices from folding inside out or generating infinite division coordinates.
+2. **SQLite Check Enforcement:** Database tables enforce strict `CHECK` constraints on all structural curl profile parameters to prevent corrupt user preferences from persisting across sessions.
+
+---
+*Generated by Senior QA & Resilience Engineer for KuraScroll — Sprint 93.*

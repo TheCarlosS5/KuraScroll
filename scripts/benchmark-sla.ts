@@ -73,6 +73,7 @@ import { DynamicToneService } from '../src/backend/services/dynamic-tone-service
 import { HistoryScrubberService } from '../src/backend/services/history-scrubber-service.js';
 import { ChromaticFringeService } from '../src/backend/services/chromatic-fringe-service.js';
 import { AmbientGlowService } from '../src/backend/services/ambient-glow-service.js';
+import { PageCurlService } from '../src/backend/services/page-curl-service.js';
 
 export interface SlaResult {
   category: string;
@@ -1775,6 +1776,29 @@ export async function runHostSlaBenchmark(): Promise<SlaReport> {
     slaTarget: '< 0.02 ms',
     passed: glowLatency < 0.02,
     notes: 'Zero-Allocation Linear Border Bleed & Letterbox Glow Synthesis (< 20µs target)',
+  });
+
+  // 57. Bi-Temporal Dynamic Page Curl & Turn Kinematics (Sprint 93 - SLA 57)
+  const pageCurlService = new PageCurlService(db);
+  // Warmup JIT
+  for (let i = 0; i < 5000; i++) {
+    pageCurlService.calculatePageCurlTransform(0.5, 50, 0.85, 45.0, 0.40, true, true, 'tankobon_stiff');
+  }
+
+  const curlIters = 20000;
+  const tCurlStart = performance.now();
+  for (let i = 0; i < curlIters; i++) {
+    pageCurlService.calculatePageCurlTransform(0.5, 50, 0.85, 45.0, 0.40, true, true, 'tankobon_stiff');
+  }
+  const curlLatency = (performance.now() - tCurlStart) / curlIters;
+
+  results.push({
+    category: 'Tactile Page Turn',
+    name: '2.5D Page Curl Kinematic Synthesis (SLA 57)',
+    measured: `${(curlLatency * 1000).toFixed(2)} µs (${curlLatency.toFixed(4)} ms)`,
+    slaTarget: '< 0.02 ms',
+    passed: curlLatency < 0.02,
+    notes: 'Zero-Allocation Parametric 2.5D Affine Peel & Spine Shadow Kinematics (< 20µs target)',
   });
 
   // Teardown

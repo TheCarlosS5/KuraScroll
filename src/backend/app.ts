@@ -108,6 +108,8 @@ import { chromaticFringeRoutes } from './routes/chromatic-fringe-routes.js';
 import { ChromaticFringeService } from './services/chromatic-fringe-service.js';
 import { ambientGlowRoutes } from './routes/ambient-glow-routes.js';
 import { AmbientGlowService } from './services/ambient-glow-service.js';
+import { pageCurlRoutes } from './routes/page-curl-routes.js';
+import { PageCurlService } from './services/page-curl-service.js';
 import { AdaptiveIngestionController } from './services/adaptive-ingestion-controller.js';
 import { DifferentialMirrorService } from './services/differential-mirror-service.js';
 
@@ -150,6 +152,7 @@ export interface AppOptions {
   historyScrubberService?: HistoryScrubberService;
   chromaticFringeService?: ChromaticFringeService;
   ambientGlowService?: AmbientGlowService;
+  pageCurlService?: PageCurlService;
 }
 
 export function buildApp(options: AppOptions = {}): FastifyInstance {
@@ -414,6 +417,10 @@ export function buildApp(options: AppOptions = {}): FastifyInstance {
   app.register(ambientGlowRoutes, {
     db,
     ambientGlowService: options.ambientGlowService ?? new AmbientGlowService(db),
+  });
+  app.register(pageCurlRoutes, {
+    db,
+    pageCurlService: options.pageCurlService ?? new PageCurlService(db),
   });
 
   return app;

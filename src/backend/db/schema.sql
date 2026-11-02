@@ -681,6 +681,22 @@ CREATE UNIQUE INDEX IF NOT EXISTS idx_user_paper_tone_scoped
 CREATE INDEX IF NOT EXISTS idx_user_paper_tone_user
     ON user_paper_tone_profiles(user_id);
 
+-- Sprint 65: Multi-Tab BroadcastChannel Synchronization & Shared Tab Leader Election
+CREATE TABLE IF NOT EXISTS ephemeral_tab_sessions (
+    tab_id TEXT PRIMARY KEY,
+    user_id TEXT NOT NULL DEFAULT 'default_user',
+    is_leader INTEGER NOT NULL DEFAULT 0 CHECK (is_leader IN (0, 1)),
+    leader_epoch INTEGER NOT NULL DEFAULT 0,
+    active_series_id TEXT DEFAULT NULL REFERENCES series(id) ON DELETE SET NULL,
+    active_chapter_id TEXT DEFAULT NULL,
+    last_heartbeat_ms INTEGER NOT NULL,
+    created_at TEXT DEFAULT (datetime('now'))
+);
+
+CREATE INDEX IF NOT EXISTS idx_tab_sessions_user
+    ON ephemeral_tab_sessions (user_id, last_heartbeat_ms DESC);
+
+
 
 
 

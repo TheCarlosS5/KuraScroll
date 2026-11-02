@@ -52,6 +52,8 @@ import { platterDefragRoutes } from './routes/platter-defrag-routes.js';
 import { PlatterDefragService } from './services/platter-defrag-service.js';
 import { paperToneRoutes } from './routes/paper-tone-routes.js';
 import { PaperToneService } from './services/paper-tone-service.js';
+import { tabSessionRoutes } from './routes/tab-session-routes.js';
+import { TabSessionService } from './services/tab-session-service.js';
 import { AdaptiveIngestionController } from './services/adaptive-ingestion-controller.js';
 import { DifferentialMirrorService } from './services/differential-mirror-service.js';
 
@@ -66,6 +68,7 @@ export interface AppOptions {
   differentialMirror?: DifferentialMirrorService;
   platterDefragService?: PlatterDefragService;
   paperToneService?: PaperToneService;
+  tabSessionService?: TabSessionService;
 }
 
 export function buildApp(options: AppOptions = {}): FastifyInstance {
@@ -213,6 +216,10 @@ export function buildApp(options: AppOptions = {}): FastifyInstance {
   app.register(paperToneRoutes, {
     db,
     paperToneService: options.paperToneService ?? new PaperToneService(db),
+  });
+  app.register(tabSessionRoutes, {
+    db,
+    tabSessionService: options.tabSessionService ?? new TabSessionService(db),
   });
 
   return app;

@@ -4,6 +4,11 @@ import { MangaReader } from '../components/reader/MangaReader.js';
 import { ReaderControls } from '../components/reader/ReaderControls.js';
 import { ThumbnailScrubber } from '../components/reader/ThumbnailScrubber.js';
 import {
+  ChapterQuickNavDrawer,
+  QuickIndexData,
+  SeriesBookmarkItem,
+} from '../components/reader/ChapterQuickNavDrawer.js';
+import {
   ReaderVisualSettingsModal,
   ReaderDisplaySettings,
   loadReaderDisplaySettings,
@@ -52,6 +57,12 @@ export const ReaderPage: React.FC<ReaderPageProps> = ({
 
   const [readingTracker] = useState(() => new ReadingStatsTracker(18));
   const [readingPaceText, setReadingPaceText] = useState<string>('');
+
+  // Sprint 34: Chapter Quick Navigation & Bookmarks State
+  const [isChapterNavOpen, setIsChapterNavOpen] = useState(false);
+  const [quickIndexData, setQuickIndexData] = useState<QuickIndexData | null>(null);
+  const [seriesBookmarks, setSeriesBookmarks] = useState<SeriesBookmarkItem[]>([]);
+  const [bookmarkToast, setBookmarkToast] = useState<string | null>(null);
 
   const autoScroll = useAutoScroll({
     speed: 50,
@@ -125,6 +136,79 @@ export const ReaderPage: React.FC<ReaderPageProps> = ({
       }
     }
   };
+
+  const fetchQuickNavData = async (sId: string) => {
+    if (!sId) return;
+    try {
+      const [indexRes, bmRes] = await Promise.all([
+        fetch(`/api/v1/series/${sId}/chapters/quick-index`),
+        fetch(`/api/v1/series/${sId}/bookmarks`),
+      ]);
+      if (indexRes.ok) setQuickIndexData(await indexRes.json());
+      if (bmRes.ok) {
+        const bmJson = await bmRes.json();
+        setSeriesBookmarks(bmJson.bookmarks || []);
+      }
+    } catch (e) {
+      console.error('Failed to fetch quick navigation or bookmarks:', e);
+    }
+  };
+
+  useEffect(() => {
+    if (seriesId) {
+      fetchQuickNavData(seriesId);
+    }
+  }, [seriesId]);
+
+  const handleToggleActiveBookmark = async () => {
+    if (!seriesId || !chapterId) return;
+    try {
+      const res = await fetch('/api/v1/bookmarks', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          seriesId,
+          chapterId,
+          pageIndex: currentPage,
+        }),
+      });
+      if (res.ok) {
+        setBookmarkToast(`📌 Página ${currentPage} guardada en marcadores`);
+        setTimeout(() => setBookmarkToast(null), 2500);
+        fetchQuickNavData(seriesId);
+      }
+    } catch (e) {
+      console.error('Failed to save bookmark:', e);
+    }
+  };
+
+  const handleDeleteBookmark = async (bookmarkId: number) => {
+    try {
+      const res = await fetch(`/api/v1/bookmarks/${bookmarkId}`, { method: 'DELETE' });
+      if (res.ok) {
+        setSeriesBookmarks((prev) => prev.filter((b) => b.id !== bookmarkId));
+        if (seriesId) fetchQuickNavData(seriesId);
+      }
+    } catch (e) {
+      console.error('Failed to delete bookmark:', e);
+    }
+  };
+
+  // Global Keyboard shortcuts: C for Drawer, B for Bookmark
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) return;
+
+      if (e.key === 'c' || e.key === 'C') {
+        setIsChapterNavOpen((prev) => !prev);
+      } else if (e.key === 'b' || e.key === 'B') {
+        handleToggleActiveBookmark();
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [seriesId, chapterId, currentPage]);
 
   if (loading) {
     return (
@@ -221,6 +305,9 @@ export const ReaderPage: React.FC<ReaderPageProps> = ({
             readingPaceText={readingPaceText}
             isZenMode={isZen}
             onToggleZenMode={toggleZen}
+            isChapterNavOpen={isChapterNavOpen}
+            onToggleChapterNav={() => setIsChapterNavOpen((prev) => !prev)}
+            onToggleBookmark={handleToggleActiveBookmark}
           />
         </div>
       )}
@@ -277,6 +364,33 @@ export const ReaderPage: React.FC<ReaderPageProps> = ({
         onChangeSettings={setDisplaySettings}
         readerMode={readerMode}
       />
+
+      {/* Chapter Quick-Navigation & Bookmarks Flyout Drawer (Sprint 34) */}
+      <ChapterQuickNavDrawer
+        isOpen={isChapterNavOpen}
+        onClose={() => setIsChapterNavOpen(false)}
+        seriesId={seriesId}
+        currentChapterId={chapterId}
+        currentPage={currentPage}
+        onSelectChapter={(newChId, page) => {
+          onSelectChapter(newChId);
+          if (page) setCurrentPage(page);
+        }}
+        quickIndexData={quickIndexData}
+        bookmarks={seriesBookmarks}
+        onDeleteBookmark={handleDeleteBookmark}
+        onToggleActiveBookmark={handleToggleActiveBookmark}
+      />
+
+      {/* Instant Bookmark Toast Feedback */}
+      {bookmarkToast && (
+        <div
+          data-testid="bookmark-toast"
+          className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 px-4 py-2 rounded-xl bg-neutral-900/95 border border-amber-500/50 text-amber-300 text-xs font-semibold shadow-2xl flex items-center gap-2 animate-bounce"
+        >
+          <span>{bookmarkToast}</span>
+        </div>
+      )}
     </div>
   );
 };

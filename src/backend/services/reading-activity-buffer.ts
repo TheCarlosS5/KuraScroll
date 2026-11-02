@@ -148,7 +148,7 @@ export class ReadingActivityBuffer {
 
     try {
       if (this.ioCoordinator) {
-        await this.ioCoordinator.run({ priority: IOPriority.NORMAL }, async () => {
+        await this.ioCoordinator.run({ priority: IOPriority.NORMAL, label: 'reading-activity-flush' }, async () => {
           writeTask();
         });
       } else {

@@ -232,8 +232,8 @@ export class RecommendationEngine {
     }
 
     // Pass 2: Calculate IDF weights
-    this.genreWeights = calculateIdfWeights(genreFreq, totalDocs);
-    this.themeWeights = calculateIdfWeights(themeFreq, totalDocs);
+    this.genreWeights = calculateIdfWeights(genreFreq, totalDocs) as any;
+    this.themeWeights = calculateIdfWeights(themeFreq, totalDocs) as any;
 
     // Pass 3: Precompute total weights per series
     for (const raw of rawVectors) {

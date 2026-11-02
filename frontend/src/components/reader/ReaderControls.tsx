@@ -8,6 +8,7 @@ import {
   LayoutList,
   Layers,
   BookOpen,
+  Bookmark,
   HelpCircle,
   GalleryHorizontal,
   Sliders,
@@ -64,6 +65,10 @@ export interface ReaderControlsProps {
   // Sprint 23: Fullscreen & Zen Immersion Mode
   isZenMode?: boolean;
   onToggleZenMode?: () => void;
+  // Sprint 34: Chapter Quick Navigation & Bookmarks Drawer
+  isChapterNavOpen?: boolean;
+  onToggleChapterNav?: () => void;
+  onToggleBookmark?: () => void;
 }
 
 export const ReaderControls: React.FC<ReaderControlsProps> = ({
@@ -93,6 +98,9 @@ export const ReaderControls: React.FC<ReaderControlsProps> = ({
   readingPaceText,
   isZenMode = false,
   onToggleZenMode,
+  isChapterNavOpen = false,
+  onToggleChapterNav,
+  onToggleBookmark,
 }) => {
   const [internalBg, setInternalBg] = useState<string>(currentBackground || '#080c14');
   const [isFullscreen, setIsFullscreen] = useState(false);
@@ -327,6 +335,36 @@ export const ReaderControls: React.FC<ReaderControlsProps> = ({
             aria-label={isScrubberOpen ? 'Ocultar miniaturas' : 'Ver miniaturas del capítulo'}
           >
             <GalleryHorizontal className="w-4 h-4" />
+          </button>
+        )}
+
+        {/* Quick Chapter Navigation Drawer Button (Sprint 34) */}
+        {onToggleChapterNav && (
+          <button
+            data-testid="toggle-chapter-nav-btn"
+            onClick={onToggleChapterNav}
+            className={`p-2 rounded-xl transition-all border ${
+              isChapterNavOpen
+                ? 'bg-indigo-600/30 border-indigo-500/60 text-indigo-300 shadow-sm'
+                : 'bg-gray-900 hover:bg-gray-800 border-gray-800 text-gray-300 hover:text-white'
+            }`}
+            title="Lista de capítulos (C)"
+            aria-label="Lista de capítulos"
+          >
+            <BookOpen className="w-4 h-4" />
+          </button>
+        )}
+
+        {/* Quick Bookmark Active Page Button (Sprint 34) */}
+        {onToggleBookmark && (
+          <button
+            data-testid="toggle-bookmark-btn"
+            onClick={onToggleBookmark}
+            className="p-2 rounded-xl bg-gray-900 hover:bg-gray-800 border border-gray-800 text-amber-400 hover:text-amber-300 transition-colors"
+            title="Marcar página actual (B)"
+            aria-label="Marcar página actual"
+          >
+            <Bookmark className="w-4 h-4 fill-current" />
           </button>
         )}
 

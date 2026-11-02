@@ -215,3 +215,22 @@ CREATE TABLE IF NOT EXISTS user_preferences (
     updated_at TEXT NOT NULL DEFAULT (datetime('now')),
     version INTEGER NOT NULL DEFAULT 1
 );
+
+-- Reading Bookmarks & Navigation Pins
+CREATE TABLE IF NOT EXISTS user_bookmarks (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id TEXT NOT NULL,
+    series_id TEXT NOT NULL,
+    chapter_id TEXT NOT NULL,
+    page_index INTEGER NOT NULL CHECK (page_index >= 0),
+    note TEXT CHECK (note IS NULL OR length(note) <= 500),
+    created_at TEXT NOT NULL DEFAULT (datetime('now')),
+    updated_at TEXT NOT NULL DEFAULT (datetime('now')),
+    UNIQUE (user_id, chapter_id, page_index)
+);
+
+CREATE INDEX IF NOT EXISTS idx_bookmarks_user_series_chapter
+    ON user_bookmarks (user_id, series_id, chapter_id);
+
+CREATE INDEX IF NOT EXISTS idx_bookmarks_user_series_created
+    ON user_bookmarks (user_id, series_id, created_at DESC, id DESC);

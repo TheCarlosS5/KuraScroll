@@ -222,4 +222,28 @@ describe('ReaderControls Component', () => {
     fireEvent.click(zenBtn);
     expect(handleToggleZen).toHaveBeenCalledTimes(1);
   });
+
+  it('renders chapter navigation drawer and bookmark buttons and handles clicks', () => {
+    const handleChapterNav = vi.fn();
+    const handleBookmark = vi.fn();
+
+    render(
+      <ReaderControls
+        {...defaultProps}
+        isChapterNavOpen={false}
+        onToggleChapterNav={handleChapterNav}
+        onToggleBookmark={handleBookmark}
+      />
+    );
+
+    const navBtn = screen.getByTestId('toggle-chapter-nav-btn');
+    expect(navBtn).toBeDefined();
+    fireEvent.click(navBtn);
+    expect(handleChapterNav).toHaveBeenCalledTimes(1);
+
+    const bmBtn = screen.getByTestId('toggle-bookmark-btn');
+    expect(bmBtn).toBeDefined();
+    fireEvent.click(bmBtn);
+    expect(handleBookmark).toHaveBeenCalledTimes(1);
+  });
 });

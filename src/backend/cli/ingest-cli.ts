@@ -132,7 +132,7 @@ export async function runCli(): Promise<void> {
 
   if (parsed.mode === 'backup') {
     console.log(`\x1b[36m[KuraScroll Ingest CLI]\x1b[0m Importando backup desde '${parsed.file}'...`);
-    const buffer = await fs.promises.readFile(parsed.file);
+    const buffer = await fs.promises.readFile(parsed.file!);
     const report = await importToSqlite({ db, backup: buffer, strict: false });
     console.log(`\x1b[32m✔ Migración completada!\x1b[0m Series importadas: ${report.seriesImported}, Capítulos: ${report.chaptersCreated} (${report.durationMs}ms)`);
     return;
@@ -144,10 +144,11 @@ export async function runCli(): Promise<void> {
       storageRoot,
       seriesSlug: parsed.series!,
       volumeNumber: parsed.volume,
-      sourceArchive: parsed.file,
+      sourceArchive: parsed.file!,
       db,
     });
-    console.log(`\x1b[32m✔ Volumen procesado con éxito!\x1b[0m Capítulos detectados: ${volResult.totalChapters}, Páginas WebP: ${volResult.totalValidPages}`);
+    const totalValidPages = volResult.chapters.reduce((sum, ch) => sum + ch.pageCount, 0);
+    console.log(`\x1b[32m✔ Volumen procesado con éxito!\x1b[0m Capítulos detectados: ${volResult.totalChapters}, Páginas WebP: ${totalValidPages}`);
     return;
   }
 
@@ -179,7 +180,7 @@ export async function runCli(): Promise<void> {
     seriesSlug: parsed.series!,
     volumeNumber: parsed.volume,
     chapterNumber: parsed.chapter!,
-    sourcePath: parsed.file,
+    sourcePath: parsed.file!,
   });
 
   const durationSec = ((Date.now() - startTime) / 1000).toFixed(2);

@@ -193,4 +193,13 @@
   - [x] Task 33.6: Frontend Components `ThemeSelector.tsx` mounted in `ReaderVisualSettingsModal.tsx` and `BatterySaverHUD.tsx` mounted in `Navbar.tsx` (6/6 tests PASS)
   - [x] Task 33.7: Vite Chunking Optimization (`vite.config.ts`) splitting vendor-react, vendor-gsap, vendor-icons (180KB main bundle, 4.23s build time)
   - [x] Task 33.8: Monorepo Verification (106 test files, 571 tests PASS, 11/11 SLAs Passed)
-- [ ] Part 34: Chapter Quick-Navigation HUD & Reading Bookmarks Drawer
+- [x] Part 34: Chapter Quick-Navigation HUD & Reading Bookmarks Drawer (Commit Sprint 34)
+  - [x] Task 34.1: Senior Architectural Blueprint Consultation with ChatGPT via Brave MCP (`docs/brainstorming/chatgpt-sprint34-quick-navigation-and-bookmarks-blueprint.md`)
+  - [x] Task 34.2: SQLite Table `user_bookmarks` with composite UNIQUE constraint `(user_id, chapter_id, page_index)` and covering index `idx_bookmarks_user_series_chapter`
+  - [x] Task 34.3: Typed SQLite Repository `bookmark-repository.ts` with atomic UPSERT and single-pass `getSeriesQuickIndex` (< 0.8ms SLA, 4/4 tests PASS)
+  - [x] Task 34.4: Fastify Endpoints in `bookmark-routes.ts` (`GET /api/v1/series/:seriesId/chapters/quick-index`, `GET /api/v1/series/:seriesId/bookmarks`, `GET /api/v1/chapters/:chapterId/bookmarks`, `POST /api/v1/bookmarks`, `DELETE /api/v1/bookmarks/:id`, 4/4 tests PASS)
+  - [x] Task 34.5: Lightweight Zero-Dependency Virtualizer Hook `useChapterVirtualizer.ts` maintaining 15-20 active DOM nodes for 1,000+ chapters (3/3 tests PASS)
+  - [x] Task 34.6: Intel GMA 4500MHD Optimized Drawer Component `ChapterQuickNavDrawer.tsx` (CSS transform slide-in, search filter, jump input, cross-volume bookmarks tab, 5/5 tests PASS)
+  - [x] Task 34.7: Reader Mount in `ReaderPage.tsx` and `ReaderControls.tsx` with global keyboard shortcuts (`C` for drawer, `B` for instant page bookmark) and instant feedback toast
+  - [x] Task 34.8: Monorepo Verification (111 test files, 591 tests PASS, 11/11 SLAs Passed, Vite build 9.41s)
+- [ ] Part 35: Offline IndexedDB Mutation Outbox & Smart Background Replay Engine

@@ -4,6 +4,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 export type DatabaseInstance = DatabaseSync;
+export type Statement = ReturnType<DatabaseSync['prepare']>;
 
 export function createDatabase(dbPath = ':memory:'): DatabaseInstance {
   if (dbPath !== ':memory:') {

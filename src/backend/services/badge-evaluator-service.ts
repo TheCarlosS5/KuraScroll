@@ -104,7 +104,7 @@ export class BadgeEvaluatorService {
     };
 
     if (this.ioCoordinator) {
-      await this.ioCoordinator.run({ priority: IOPriority.NORMAL }, async () => {
+      await this.ioCoordinator.run({ priority: IOPriority.NORMAL, label: 'badge-evaluator-batch' }, async () => {
         executeBatch();
       });
     } else {

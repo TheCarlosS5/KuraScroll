@@ -714,6 +714,48 @@ CREATE TABLE IF NOT EXISTS page_pyramid_metadata (
 CREATE INDEX IF NOT EXISTS idx_pyramid_chapter
     ON page_pyramid_metadata (chapter_id);
 
+-- Sprint 67: Dynamic SFX & Onomatopoeia Overlay Engine
+CREATE TABLE IF NOT EXISTS sfx_catalog (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    surface TEXT NOT NULL,
+    normalized_surface TEXT NOT NULL,
+    language_code TEXT NOT NULL CHECK(language_code IN ('ja', 'ko')),
+    category TEXT NOT NULL CHECK(category IN ('GISEIGO', 'GIONGO', 'GITAGO', 'GIJOGO', 'GIOUGO', 'UISEONGEO', 'UITAEEO')),
+    romanization TEXT NOT NULL,
+    meaning_es TEXT NOT NULL,
+    meaning_en TEXT NOT NULL,
+    translation_es TEXT NOT NULL,
+    translation_en TEXT NOT NULL,
+    style_preset TEXT NOT NULL DEFAULT 'IMPACT_BOLD',
+    intensity REAL NOT NULL DEFAULT 0.5 CHECK(intensity BETWEEN 0.0 AND 1.0),
+    created_at INTEGER NOT NULL,
+    UNIQUE(language_code, normalized_surface)
+);
+
+CREATE INDEX IF NOT EXISTS idx_sfx_catalog_lookup
+    ON sfx_catalog(language_code, normalized_surface);
+
+CREATE INDEX IF NOT EXISTS idx_sfx_catalog_romaji
+    ON sfx_catalog(romanization);
+
+CREATE TABLE IF NOT EXISTS page_sfx_annotations (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    chapter_id TEXT NOT NULL,
+    page_number INTEGER NOT NULL,
+    sfx_id INTEGER NOT NULL REFERENCES sfx_catalog(id) ON DELETE CASCADE,
+    norm_x REAL NOT NULL CHECK(norm_x >= 0.0 AND norm_x <= 1.0),
+    norm_y REAL NOT NULL CHECK(norm_y >= 0.0 AND norm_y <= 1.0),
+    norm_w REAL NOT NULL CHECK(norm_w > 0.0 AND norm_w <= 1.0),
+    norm_h REAL NOT NULL CHECK(norm_h > 0.0 AND norm_h <= 1.0),
+    rotation_deg REAL NOT NULL DEFAULT 0.0,
+    is_vertical INTEGER NOT NULL DEFAULT 0 CHECK(is_vertical IN (0, 1)),
+    created_at INTEGER NOT NULL
+);
+
+CREATE INDEX IF NOT EXISTS idx_page_sfx_chapter_page
+    ON page_sfx_annotations(chapter_id, page_number);
+
+
 
 
 

@@ -32,6 +32,7 @@ import {
   DeepZoomManifest,
   ViewportTransform,
 } from '../src/backend/services/deep-zoom-tile-service.js';
+import { SfxOverlayService } from '../src/backend/services/sfx-overlay-service.js';
 
 export interface SlaResult {
   category: string;
@@ -947,6 +948,52 @@ export async function runHostSlaBenchmark(): Promise<SlaReport> {
     slaTarget: '< 0.05 ms',
     passed: aabbLatency < 0.05,
     notes: 'Zero-Allocation AABB Viewport LOD Math bounded to GMA 4500MHD texture limits (< 50µs target)',
+  });
+
+  // --- SLA 31: SFX Point Lookup & Spatial Hit Test Latency (Sprint 67) ---
+  const sfxService = new SfxOverlayService(db);
+  const sfxDon = sfxService.lookupCatalog('ドン')[0];
+  const sfxGogo = sfxService.lookupCatalog('ゴゴゴ')[0];
+
+  sfxService.addAnnotation({
+    chapterId: 'sla_sfx_chap',
+    pageNumber: 1,
+    sfxId: sfxDon?.id ?? 1,
+    normX: 0.1,
+    normY: 0.2,
+    normW: 0.2,
+    normH: 0.15,
+  });
+
+  sfxService.addAnnotation({
+    chapterId: 'sla_sfx_chap',
+    pageNumber: 1,
+    sfxId: sfxGogo?.id ?? 2,
+    normX: 0.5,
+    normY: 0.6,
+    normW: 0.25,
+    normH: 0.2,
+  });
+
+  // Warmup JIT
+  for (let i = 0; i < 2000; i++) {
+    sfxService.findSfxAtPoint('sla_sfx_chap', 1, 0.15, 0.25, 'es');
+  }
+
+  const sfxIters = 20000;
+  const tSfxStart = performance.now();
+  for (let i = 0; i < sfxIters; i++) {
+    sfxService.findSfxAtPoint('sla_sfx_chap', 1, 0.15, 0.25, 'es');
+  }
+  const sfxLatency = (performance.now() - tSfxStart) / sfxIters;
+
+  results.push({
+    category: 'SFX & Onomatopoeia Overlay',
+    name: 'SFX Point Lookup & Spatial Hit Test (SLA 31)',
+    measured: `${(sfxLatency * 1000).toFixed(2)} µs (${sfxLatency.toFixed(4)} ms)`,
+    slaTarget: '< 0.05 ms',
+    passed: sfxLatency < 0.05,
+    notes: 'Zero-Allocation AABB Point Hit Test & B-Tree Onomatopoeia Lookup (< 50µs target)',
   });
 
   // Teardown

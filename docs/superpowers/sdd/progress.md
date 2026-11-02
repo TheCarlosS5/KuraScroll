@@ -465,4 +465,13 @@
   - [x] Task 66.5: Client DeepZoomPanScan Hook & DeepZoomTileHUD Component (`frontend/src/reader/useDeepZoomPanScan.ts`, `DeepZoomTileHUD.tsx`, radar mini-map, zero-allocation math, keyboard toggle 'Z', 0 blur, 0 CLS)
   - [x] Task 66.6: Subagent Swarm Execution & SLA 30 Benchmark (SLA 30: 1.28 µs [39x faster than SLA target < 50 µs], 30/30 SLAs Passed)
   - [x] Task 66.7: Monorepo Verification & Git Commit (240 test files, 1,216 tests PASS [791 backend + 425 frontend], Vite build in 4.35s)
+- [x] Part 67: Dynamic SFX & Onomatopoeia Overlay Engine (Contextual Japanese/Korean to Spanish/English Translation Layer for Manga & Webtoons)
+  - [x] Task 67.1: Senior Architectural Blueprint Consultation with ChatGPT via Brave MCP (`docs/brainstorming/chatgpt-sprint67-sfx-overlay-blueprint.md`)
+  - [x] Task 67.2: CJK SFX Onomatopoeia Taxonomy & Canonical 50 Catalog (`docs/brainstorming/cjk-sfx-onomatopoeia-taxonomy-specification.md`)
+  - [x] Task 67.3: Backend SfxOverlayService & SQLite Tables (`src/backend/services/sfx-overlay-service.ts`, tables `sfx_catalog`, `page_sfx_annotations`, indexes `idx_sfx_catalog_lookup`, `idx_page_sfx_chapter_page`, zero-allocation spatial AABB hit-test)
+  - [x] Task 67.4: Fastify SFX Overlay REST Endpoints (`src/backend/routes/sfx-overlay-routes.ts`, `/page/:chapterId/:pageNumber`, `/point-hit`, `/annotate`, `/lookup`)
+  - [x] Task 67.5: Client useSfxOverlay Hook & SfxOverlayHUD Component (`frontend/src/reader/useSfxOverlay.ts`, `SfxOverlayHUD.tsx`, stylized comic typography, popover card, keyboard toggle 'S', 0 blur, 0 CLS)
+  - [x] Task 67.6: Subagent Swarm Execution & SLA 31 Benchmark (SLA 31: 26.05 µs [Target < 50 µs], 31/31 SLAs Passed)
+  - [x] Task 67.7: Monorepo Verification & Git Commit (242 test files, 1,218 tests PASS, Vite build in 4.29s)
+
 

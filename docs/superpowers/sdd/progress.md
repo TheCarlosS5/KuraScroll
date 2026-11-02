@@ -350,4 +350,20 @@
   - [x] Task 51.6: Subagent Swarm Execution (6 subagents active: performance benchmark, metadata research, QA resilience fuzzing, UX/GSAP design audit, reader critic, DevOps memory audit)
   - [x] Task 51.7: Empirical Benchmark Report (`docs/reports/sprint51-spread-splitter-benchmark.md`, 0.00088ms geometry scan [56.8x faster than SLA], 0.0133ms SQLite lookup [37.6x faster than SLA], 15/15 SLAs Passed)
   - [x] Task 51.8: Monorepo Verification (172 test files, 878 tests PASS [578 backend + 300 frontend], 15/15 SLAs Passed, Vite build verified)
-- [ ] Part 52: Interactive Reader Annotation Deck & Ephemeral Sticky Note Layer (Zero-CLS & Off-Canvas Panel Markers)
+- [x] Part 52: Interactive Reader Annotation Deck & Ephemeral Sticky Note Layer (Zero-CLS & Off-Canvas Panel Markers)
+  - [x] Task 52.1: Senior Architectural Blueprint Consultation with ChatGPT via Brave MCP (`docs/brainstorming/chatgpt-sprint52-reader-annotation-deck-blueprint.md`)
+  - [x] Task 52.2: SQLite Table `chapter_page_annotations` with compound indexes on `(chapter_id, page_number)` & `(user_id)` in `src/backend/db/schema.sql`
+  - [x] Task 52.3: `PageAnnotationService` with LRU caching and atomic transactions in `src/backend/services/page-annotation-service.ts` (7/7 tests PASS)
+  - [x] Task 52.4: Fastify Endpoints in `src/backend/routes/annotation-routes.ts` (`GET /pages/:pageNumber/annotations`, `GET /annotations`, `POST /annotations`, `PATCH /annotations/:id/spoiler`, `DELETE /annotations/:id`, 6/6 tests PASS)
+  - [x] Task 52.5: Zero-Blur Hardware-Safe Components `AnnotationDeckHUD.tsx` & `StickyNoteOverlay.tsx` (`frontend/tests/components/AnnotationDeckHUD.test.tsx`, 6/6 tests PASS)
+  - [x] Task 52.6: Subagent Swarm Execution (6 subagents active: performance benchmark, metadata research, QA resilience fuzzing, UX/GSAP design audit, reader critic, DevOps memory audit)
+  - [x] Task 52.7: Empirical Benchmark Report (`docs/reports/sprint52-annotation-deck-benchmark.md`, 0.00047ms annotation lookup [1000x faster than SLA], 16/16 SLAs Passed)
+  - [x] Task 52.8: Monorepo Verification (176 test files, 899 tests PASS [593 backend + 306 frontend], 16/16 SLAs Passed, Vite build in 5.01s)
+- [ ] Part 53: Continuous Background Reading Velocity & Dynamic Completion Time Predictor (Zero-Allocation Rolling Window Cadence Engine & Offline Prediction Cache)
+  - [ ] Task 53.1: Senior Architectural Blueprint Consultation with ChatGPT via Brave MCP
+  - [ ] Task 53.2: Zero-Allocation Rolling Window Cadence Estimator
+  - [ ] Task 53.3: SQLite Table `chapter_reading_cadence` & Cadence Service
+  - [ ] Task 53.4: Fastify Endpoints in `src/backend/routes/cadence-routes.ts`
+  - [ ] Task 53.5: Zero-Blur HUD Component `ReadingVelocityHUD.tsx`
+  - [ ] Task 53.6: Subagent Swarm Execution & Latency Benchmarks (SLA 17)
+  - [ ] Task 53.7: Monorepo Verification & Git Commit

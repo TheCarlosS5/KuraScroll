@@ -11,6 +11,7 @@ import { StoryRecapService } from '../src/backend/services/story-recap-service.j
 import { AudioSFXService } from '../src/backend/services/audio-sfx-service.js';
 import { classifyPageChroma } from '../src/backend/utils/color-classifier.js';
 import { detectSpreadLayout } from '../src/backend/utils/spread-detector.js';
+import { PageAnnotationService } from '../src/backend/services/page-annotation-service.js';
 
 export interface SlaResult {
   category: string;
@@ -329,6 +330,36 @@ export async function runHostSlaBenchmark(): Promise<SlaReport> {
     slaTarget: '< 0.05 ms',
     passed: spreadLatency < 0.05,
     notes: 'Pure arithmetic geometry evaluation without buffer cloning or disk writes',
+  });
+
+  // 16. Reader Annotation Query & Cache Latency (Sprint 52)
+  const annotationService = new PageAnnotationService(db);
+  for (let i = 1; i <= 20; i++) {
+    annotationService.createAnnotation({
+      chapterId: 'sla-chap-1',
+      pageNumber: i,
+      userId: 'reader-sla',
+      anchorX: 50,
+      anchorY: 50,
+      contentText: `SLA note #${i}`,
+    });
+  }
+  // Warmup
+  annotationService.getAnnotationsForPage('sla-chap-1', 5);
+
+  const tAnn = performance.now();
+  const annIters = 2000;
+  for (let i = 0; i < annIters; i++) {
+    annotationService.getAnnotationsForPage('sla-chap-1', (i % 20) + 1);
+  }
+  const annLatency = (performance.now() - tAnn) / annIters;
+  results.push({
+    category: 'Reader Annotations',
+    name: 'Page Annotation Query with LRU Cache',
+    measured: `${(annLatency * 1000).toFixed(2)} µs (${annLatency.toFixed(4)} ms)`,
+    slaTarget: '< 0.50 ms',
+    passed: annLatency < 0.50,
+    notes: 'Sub-millisecond point lookups for sticky note overlays',
   });
 
   // Teardown

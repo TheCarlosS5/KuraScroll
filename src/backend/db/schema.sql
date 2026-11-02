@@ -415,6 +415,29 @@ CREATE TABLE IF NOT EXISTS chapter_spread_manifests (
 CREATE INDEX IF NOT EXISTS idx_spread_manifest_lookup
     ON chapter_spread_manifests(chapter_id, source_page_number);
 
+-- Sprint 52: Interactive Reader Annotation Deck & Ephemeral Sticky Note Layer
+CREATE TABLE IF NOT EXISTS chapter_page_annotations (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    chapter_id TEXT NOT NULL REFERENCES chapters(id) ON DELETE CASCADE,
+    page_number INTEGER NOT NULL CHECK (page_number >= 1),
+    user_id TEXT NOT NULL,
+    anchor_x REAL NOT NULL CHECK (anchor_x BETWEEN 0.0 AND 100.0),
+    anchor_y REAL NOT NULL CHECK (anchor_y BETWEEN 0.0 AND 100.0),
+    annotation_type TEXT NOT NULL DEFAULT 'sticky_note' CHECK (annotation_type IN ('sticky_note', 'panel_bookmark', 'reaction')),
+    content_text TEXT NOT NULL,
+    color_preset TEXT NOT NULL DEFAULT 'yellow' CHECK (color_preset IN ('yellow', 'blue', 'green', 'pink', 'purple')),
+    is_spoiler INTEGER NOT NULL DEFAULT 0 CHECK (is_spoiler IN (0, 1)),
+    created_at TEXT DEFAULT (datetime('now')),
+    updated_at TEXT DEFAULT (datetime('now'))
+);
+
+CREATE INDEX IF NOT EXISTS idx_page_annotations_lookup
+    ON chapter_page_annotations(chapter_id, page_number);
+
+CREATE INDEX IF NOT EXISTS idx_page_annotations_user
+    ON chapter_page_annotations(user_id);
+
+
 
 
 

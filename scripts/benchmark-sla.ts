@@ -111,6 +111,10 @@ import {
   TileCandidate,
   ViewportKinematics,
 } from '../src/backend/services/tile-invalidation-service.js';
+import {
+  AcousticReverbService,
+  calculateAcousticReverb,
+} from '../src/backend/services/acoustic-reverb-service.js';
 
 export interface SlaResult {
   category: string;
@@ -2294,6 +2298,28 @@ export async function runHostSlaBenchmark(): Promise<SlaReport> {
     slaTarget: '< 0.02 ms',
     passed: tileInvalidationLatency < 0.02,
     notes: 'Bi-Temporal Zero-Alloc Predictive Tile Scoring & Eviction (< 20µs target)',
+  });
+
+  // 72. Adaptive Per-Panel Visual Acoustic Echo & Spatial Reverberation Modulator (Sprint 108 - SLA 72)
+  // Warmup JIT
+  for (let i = 0; i < 5000; i++) {
+    calculateAcousticReverb(85.0, 0.35, 1.20, 2800.0, 0.28, [18, 31, 47, 63], 'confined_room', true);
+  }
+
+  const reverbIters = 20000;
+  const tReverbStart = performance.now();
+  for (let i = 0; i < reverbIters; i++) {
+    calculateAcousticReverb(85.0, 0.35, 1.20, 2800.0, 0.28, [18, 31, 47, 63], 'confined_room', true);
+  }
+  const reverbLatency = (performance.now() - tReverbStart) / reverbIters;
+
+  results.push({
+    category: 'Spatial Audio & Reverb',
+    name: 'Acoustic Reverb Parametric Synth (SLA 72)',
+    measured: `${(reverbLatency * 1000).toFixed(2)} µs (${reverbLatency.toFixed(4)} ms)`,
+    slaTarget: '< 0.02 ms',
+    passed: reverbLatency < 0.02,
+    notes: 'Zero-Allocation Schroeder-Moorer Parameter Synthesis (< 20µs target)',
   });
 
   // Teardown

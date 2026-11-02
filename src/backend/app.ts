@@ -138,6 +138,8 @@ import { balloonFontRoutes } from './routes/balloon-font-routes.js';
 import { BalloonFontService } from './services/balloon-font-service.js';
 import { tileInvalidationRoutes } from './routes/tile-invalidation-routes.js';
 import { TileInvalidationService } from './services/tile-invalidation-service.js';
+import { acousticReverbRoutes } from './routes/acoustic-reverb-routes.js';
+import { AcousticReverbService } from './services/acoustic-reverb-service.js';
 import { AdaptiveIngestionController } from './services/adaptive-ingestion-controller.js';
 import { DifferentialMirrorService } from './services/differential-mirror-service.js';
 
@@ -195,6 +197,7 @@ export interface AppOptions {
   chapterSeamService?: ChapterSeamService;
   balloonFontService?: BalloonFontService;
   tileInvalidationService?: TileInvalidationService;
+  acousticReverbService?: AcousticReverbService;
 }
 
 export function buildApp(options: AppOptions = {}): FastifyInstance {
@@ -519,6 +522,10 @@ export function buildApp(options: AppOptions = {}): FastifyInstance {
   app.register(tileInvalidationRoutes, {
     db,
     tileInvalidationService: options.tileInvalidationService ?? new TileInvalidationService(db),
+  });
+  app.register(acousticReverbRoutes, {
+    db,
+    acousticReverbService: options.acousticReverbService ?? new AcousticReverbService(db),
   });
 
   return app;

@@ -1525,19 +1525,27 @@ CREATE TABLE IF NOT EXISTS tile_invalidation_profiles (
 CREATE INDEX IF NOT EXISTS idx_tile_invalidation_lookup 
     ON tile_invalidation_profiles(series_id);
 
+-- Sprint 108: Adaptive Per-Panel Visual Acoustic Echo & Spatial Reverberation Modulator (SLA 72)
+CREATE TABLE IF NOT EXISTS acoustic_reverb_profiles (
+    series_id TEXT PRIMARY KEY,
+    scene_environment TEXT NOT NULL DEFAULT 'confined_room' CHECK (scene_environment IN (
+        'confined_room',
+        'cave_echo',
+        'outdoor_open',
+        'cathedral_vast',
+        'dampened_bedroom',
+        'custom'
+    )),
+    room_size_m3 REAL NOT NULL DEFAULT 85.0 CHECK (room_size_m3 >= 5.0 AND room_size_m3 <= 10000.0),
+    absorption_coeff REAL NOT NULL DEFAULT 0.35 CHECK (absorption_coeff >= 0.01 AND absorption_coeff <= 0.99),
+    t60_decay_s REAL NOT NULL DEFAULT 1.20 CHECK (t60_decay_s >= 0.10 AND t60_decay_s <= 10.00),
+    damping_freq_hz REAL NOT NULL DEFAULT 2800.0 CHECK (damping_freq_hz >= 200.0 AND damping_freq_hz <= 20000.0),
+    early_reflections_ms TEXT NOT NULL DEFAULT '[18, 31, 47, 63]',
+    wet_dry_mix REAL NOT NULL DEFAULT 0.28 CHECK (wet_dry_mix >= 0.00 AND wet_dry_mix <= 1.00),
+    is_enabled INTEGER NOT NULL DEFAULT 1 CHECK (is_enabled IN (0, 1)),
+    created_at INTEGER NOT NULL,
+    updated_at INTEGER NOT NULL
+);
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+CREATE INDEX IF NOT EXISTS idx_acoustic_reverb_lookup 
+    ON acoustic_reverb_profiles(series_id);

@@ -35,7 +35,7 @@ export class ReadingStatsTracker {
   /**
    * Records a page flip event, measuring dwell time on the prior page.
    */
-  public recordPageAdvance(): void {
+  public recordPageAdvance(): number {
     const now = Date.now();
     const durationSeconds = Math.max(1, Math.min(180, (now - this.metrics.lastPageTime) / 1000));
 
@@ -47,6 +47,7 @@ export class ReadingStatsTracker {
 
     this.metrics.pagesReadCount++;
     this.metrics.lastPageTime = now;
+    return durationSeconds;
   }
 
   /**

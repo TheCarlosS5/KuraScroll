@@ -122,7 +122,19 @@ export const ReaderPage: React.FC<ReaderPageProps> = ({
     setCurrentPage(page);
     saveProgress(chapterId, page, 0, page === manifest?.pages?.length);
 
-    readingTracker.recordPageAdvance();
+    const duration = readingTracker.recordPageAdvance();
+    if (duration >= 1.5 && duration <= 300 && seriesId) {
+      fetch('/api/v1/analytics/velocity/sample', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          userId: 'local_user',
+          seriesId,
+          durationSeconds: duration,
+        }),
+      }).catch(() => {});
+    }
+
     const total = manifest?.pages?.length || 1;
     const estimate = readingTracker.estimateRemainingChapterTime(page, total);
     setReadingPaceText(estimate.formattedRemaining);
@@ -331,6 +343,7 @@ export const ReaderPage: React.FC<ReaderPageProps> = ({
             isAutoScrollActive={autoScroll.isActive}
             onToggleAutoScroll={readerMode === 'webtoon' ? autoScroll.toggle : undefined}
             readingPaceText={readingPaceText}
+            averageSecondsPerPage={readingTracker.getAverageSecondsPerPage()}
             isZenMode={isZen}
             onToggleZenMode={toggleZen}
             isChapterNavOpen={isChapterNavOpen}

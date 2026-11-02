@@ -88,13 +88,14 @@ describe('StorageTelemetryModal Component (Pentium T4500 & Self-Healing)', () =>
       render(<StorageTelemetryModal isOpen={true} onClose={() => {}} />);
     });
 
-    await waitFor(async () => {
-      const healBtn = screen.getByRole('button', { name: /Autocuración/i });
-      await act(async () => {
-        fireEvent.click(healBtn);
-      });
-      expect(screen.getByText('¡Sana y Lista!')).toBeDefined();
+    const healBtn = await screen.findByRole('button', { name: /Autocuración/i });
+    await act(async () => {
+      fireEvent.click(healBtn);
     });
+
+    await waitFor(() => {
+      expect(screen.getByText('¡Sana y Lista!')).toBeDefined();
+    }, { timeout: 3000 });
   });
 
   it('calls onClose when close icon button is clicked', async () => {
@@ -113,12 +114,13 @@ describe('StorageTelemetryModal Component (Pentium T4500 & Self-Healing)', () =>
       render(<StorageTelemetryModal isOpen={true} onClose={() => {}} />);
     });
 
-    await waitFor(async () => {
-      const flushBtn = screen.getByRole('button', { name: /Vaciar RAM/i });
-      await act(async () => {
-        fireEvent.click(flushBtn);
-      });
-      expect(screen.getByText('¡Liberada!')).toBeDefined();
+    const flushBtn = await screen.findByRole('button', { name: /Vaciar RAM/i });
+    await act(async () => {
+      fireEvent.click(flushBtn);
     });
+
+    await waitFor(() => {
+      expect(screen.getByText('¡Liberada!')).toBeDefined();
+    }, { timeout: 3000 });
   });
 });

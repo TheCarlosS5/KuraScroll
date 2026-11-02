@@ -16,6 +16,7 @@ import {
   Pause,
   Sparkles,
 } from 'lucide-react';
+import { ChapterTimeToReadChip } from './ChapterTimeToReadChip.js';
 
 export type ReaderBackgroundTheme = '#000000' | '#000' | '#080c14' | '#1a1612' | string;
 
@@ -62,6 +63,7 @@ export interface ReaderControlsProps {
   isAutoScrollActive?: boolean;
   onToggleAutoScroll?: () => void;
   readingPaceText?: string;
+  averageSecondsPerPage?: number;
   // Sprint 23: Fullscreen & Zen Immersion Mode
   isZenMode?: boolean;
   onToggleZenMode?: () => void;
@@ -96,6 +98,7 @@ export const ReaderControls: React.FC<ReaderControlsProps> = ({
   isAutoScrollActive = false,
   onToggleAutoScroll,
   readingPaceText,
+  averageSecondsPerPage,
   isZenMode = false,
   onToggleZenMode,
   isChapterNavOpen = false,
@@ -264,8 +267,16 @@ export const ReaderControls: React.FC<ReaderControlsProps> = ({
           )}
         </div>
 
-        {/* Reading Pace Estimate (Sprint 14) */}
-        {readingPaceText && (
+        {/* Dynamic Chapter Time-to-Read Chip (Sprint 37) */}
+        {averageSecondsPerPage && totalPages && totalPages > 0 ? (
+          <div data-testid="reading-pace-pill">
+            <ChapterTimeToReadChip
+              currentPage={currentPage || 1}
+              totalPages={totalPages}
+              averageSecondsPerPage={averageSecondsPerPage}
+            />
+          </div>
+        ) : readingPaceText ? (
           <div
             data-testid="reading-pace-pill"
             className="hidden sm:flex items-center gap-1 px-2.5 py-1 rounded-full bg-slate-900/90 border border-slate-700/60 text-slate-300 text-[11px] font-mono select-none"
@@ -273,7 +284,7 @@ export const ReaderControls: React.FC<ReaderControlsProps> = ({
           >
             <span>{readingPaceText}</span>
           </div>
-        )}
+        ) : null}
 
         {/* Auto-Scroll Toggle (Sprint 14) */}
         {onToggleAutoScroll && (

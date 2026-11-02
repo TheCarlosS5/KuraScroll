@@ -221,4 +221,13 @@
   - [x] Task 36.5: Performance Benchmark on Pentium T4500 Profile: Latin queries at **0.42 ms** (< 1.0ms SLA), Kanji lookups at **1.85 ms** (< 5.0ms SLA), and Korean Hangul at **2.10 ms** (< 5.0ms SLA) (`docs/reports/sprint36-cjk-fts-latency-benchmark.md`)
   - [x] Task 36.6: Intel GMA 4500MHD Compliant UI Highlighting in `SeriesCard.tsx` and `CatalogPage.tsx` (0 CLS, zero backdrop blur, line-clamped snippet, 5/5 tests PASS)
   - [x] Task 36.7: Monorepo Verification (115 test files, 631 tests PASS [418 backend + 213 frontend], 11/11 SLAs Passed, Vite build 4.28s)
-- [ ] Part 37: Reading Velocity Prediction & Dynamic Chapter Time-to-Read Floating Chip
+- [x] Part 37: Reading Velocity Prediction & Dynamic Chapter Time-to-Read Floating Chip (Commit Sprint 37)
+  - [x] Task 37.1: Multi-Perspective Design & Critic Audit (`docs/brainstorming/user-experience-velocity-prediction-audit.md`)
+  - [x] Task 37.2: Zero-Allocation EMA Velocity Benchmark (`docs/reports/sprint37-velocity-ema-benchmark.md`, 0.012ms per sample, zero GC allocation)
+  - [x] Task 37.3: Frontend Component `ChapterTimeToReadChip.tsx` (Intel GMA 4500MHD zero-blur, `contain: layout paint`, min-width 130px, 0 CLS, timer role)
+  - [x] Task 37.4: Reader Integration in `ReaderControls.tsx` and `ReaderPage.tsx` with asynchronous dwell-time reporting to `/api/v1/analytics/velocity/sample`
+  - [x] Task 37.5: Chapter Quick-Navigation Drawer integration in `ChapterQuickNavDrawer.tsx` (`~X min` badge per chapter)
+  - [x] Task 37.6: Frontend Unit Test Suite `ChapterTimeToReadChip.test.tsx` (6/6 tests PASS)
+  - [x] Task 37.7: StorageTelemetryModal timing stabilization in `StorageTelemetryModal.test.tsx` (6/6 tests PASS)
+  - [x] Task 37.8: Monorepo Verification (116 test files, 637 tests PASS [418 backend + 219 frontend], 11/11 SLAs Passed, Vite build 4.39s)
+- [ ] Part 38: Smart Pre-caching & Bandwidth-Aware Asset Compression for 4TB SATA II HDD

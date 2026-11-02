@@ -288,6 +288,11 @@ export const ChapterQuickNavDrawer: React.FC<ChapterQuickNavDrawerProps> = ({
                           </span>
                         </div>
                         <div className="flex items-center gap-2">
+                          {ch.pageCount > 0 && (
+                            <span className="text-[10px] text-neutral-400 font-mono hidden sm:inline" title={`${ch.pageCount} páginas`}>
+                              ~{Math.max(1, Math.round((ch.pageCount * 22) / 60))} min
+                            </span>
+                          )}
                           {ch.bookmarkCount > 0 && (
                             <span className="flex items-center text-xs text-amber-400 font-medium">
                               <Bookmark className="w-3.5 h-3.5 fill-current mr-0.5" />

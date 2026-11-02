@@ -1421,6 +1421,27 @@ CREATE TABLE IF NOT EXISTS balloon_collision_profiles (
 CREATE INDEX IF NOT EXISTS idx_balloon_collision_lookup 
     ON balloon_collision_profiles(series_id);
 
+-- Sprint 103: Dynamic Contrast Tone-Mapping & Halftone Ink Bleed Compensator (SLA 67)
+CREATE TABLE IF NOT EXISTS ink_bleed_profiles (
+    series_id TEXT PRIMARY KEY,
+    compensation_mode TEXT NOT NULL DEFAULT 'vintage_newsprint' CHECK (compensation_mode IN (
+        'vintage_newsprint',
+        'deep_black_preservation',
+        'halftone_clarity',
+        'custom'
+    )),
+    black_point_lift REAL NOT NULL DEFAULT 0.08 CHECK (black_point_lift >= 0.00 AND black_point_lift <= 0.30),
+    white_point_compression REAL NOT NULL DEFAULT 0.95 CHECK (white_point_compression >= 0.70 AND white_point_compression <= 1.00),
+    gamma_exponent REAL NOT NULL DEFAULT 1.15 CHECK (gamma_exponent >= 0.50 AND gamma_exponent <= 2.50),
+    ink_bleed_threshold REAL NOT NULL DEFAULT 0.18 CHECK (ink_bleed_threshold >= 0.05 AND ink_bleed_threshold <= 0.50),
+    is_enabled INTEGER NOT NULL DEFAULT 1 CHECK (is_enabled IN (0, 1)),
+    created_at INTEGER NOT NULL,
+    updated_at INTEGER NOT NULL
+);
+
+CREATE INDEX IF NOT EXISTS idx_ink_bleed_lookup 
+    ON ink_bleed_profiles(series_id);
+
 
 
 

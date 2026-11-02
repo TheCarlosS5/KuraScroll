@@ -89,6 +89,10 @@ import {
   BalloonCollisionService,
   calculateBalloonCollisionAvoidance,
 } from '../src/backend/services/balloon-collision-service.js';
+import {
+  InkBleedService,
+  calculateInkBleedCompensation,
+} from '../src/backend/services/ink-bleed-service.js';
 
 export interface SlaResult {
   category: string;
@@ -2075,6 +2079,29 @@ export async function runHostSlaBenchmark(): Promise<SlaReport> {
     slaTarget: '< 0.02 ms',
     passed: collisionLatency < 0.02,
     notes: 'Zero-Allocation 2D AABB Occlusion Avoidance & Minimal Euclidean Vector Math (< 20µs target)',
+  });
+
+  // 67. Dynamic Contrast Tone-Mapping & Halftone Ink Bleed Compensator (Sprint 103 - SLA 67)
+  const inkBleedService = new InkBleedService(db);
+  // Warmup JIT
+  for (let i = 0; i < 5000; i++) {
+    calculateInkBleedCompensation(0.08, 0.95, 1.15, 0.18, 120, 'vintage_newsprint', true);
+  }
+
+  const inkIters = 20000;
+  const tInkStart = performance.now();
+  for (let i = 0; i < inkIters; i++) {
+    calculateInkBleedCompensation(0.08, 0.95, 1.15, 0.18, 120, 'vintage_newsprint', true);
+  }
+  const inkLatency = (performance.now() - tInkStart) / inkIters;
+
+  results.push({
+    category: 'Ink Bleed Engine',
+    name: 'Ink Bleed Compensation (SLA 67)',
+    measured: `${(inkLatency * 1000).toFixed(2)} µs (${inkLatency.toFixed(4)} ms)`,
+    slaTarget: '< 0.02 ms',
+    passed: inkLatency < 0.02,
+    notes: 'Zero-Allocation Parametric Luminance Curve & Black-Point Lift (< 20µs target)',
   });
 
   // Teardown

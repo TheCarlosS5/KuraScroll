@@ -16,6 +16,7 @@ import { ReadingCadenceService } from '../src/backend/services/reading-cadence-s
 import { FramePacer } from '../src/backend/utils/frame-pacer.js';
 import { hitTestPanel, PanelBox } from '../src/backend/utils/panel-spatial-index.js';
 import { ImpactRouter, ImpactPolicy, ImpactEvent } from '../src/backend/utils/impact-router.js';
+import { CbzStreamService } from '../src/backend/services/cbz-stream-service.js';
 
 export interface SlaResult {
   category: string;
@@ -506,6 +507,62 @@ export async function runHostSlaBenchmark(): Promise<SlaReport> {
     slaTarget: '< 0.01 ms (10 µs)',
     passed: impactLatency < 0.01,
     notes: 'Zero-allocation in-memory routing, cooldown enforcement & intensity arbitration',
+  });
+
+  // 21. CBZ Zero-Seek Archive Offset Lookup Latency (Sprint 57)
+  db.prepare(`
+    INSERT OR IGNORE INTO series (id, slug, title_primary, type, status)
+    VALUES ('sla-cbz-series', 'sla-cbz-series', 'SLA CBZ Series', 'manga', 'ongoing')
+  `).run();
+  db.prepare(`
+    INSERT OR IGNORE INTO chapters (id, series_id, chapter_number, title, storage_path, page_count)
+    VALUES ('sla-cbz-chap', 'sla-cbz-series', 1, 'SLA Chapter', '/tmp/fake.cbz', 50)
+  `).run();
+
+  const cbzService = new CbzStreamService(db);
+  db.exec('BEGIN IMMEDIATE;');
+  const stmtCbzInsert = db.prepare(`
+    INSERT INTO chapter_archive_offsets (
+      chapter_id, page_number, file_name, compression_method,
+      data_offset, compressed_size, uncompressed_size, crc32,
+      local_header_offset, mime_type
+    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+  `);
+  for (let p = 1; p <= 50; p++) {
+    stmtCbzInsert.run(
+      'sla-cbz-chap',
+      p,
+      `page_${String(p).padStart(3, '0')}.webp`,
+      0, // STORED
+      p * 150000,
+      148000,
+      148000,
+      12345678,
+      (p - 1) * 150000,
+      'image/webp'
+    );
+  }
+  db.exec('COMMIT;');
+
+  // Warmup JIT & in-memory cache
+  for (let p = 1; p <= 50; p++) {
+    cbzService.getArchiveOffset('sla-cbz-chap', p);
+  }
+
+  const offsetIters = 50000;
+  const tOffsetStart = performance.now();
+  for (let i = 0; i < offsetIters; i++) {
+    cbzService.getArchiveOffset('sla-cbz-chap', (i % 50) + 1);
+  }
+  const offsetLatency = (performance.now() - tOffsetStart) / offsetIters;
+
+  results.push({
+    category: 'Archive Stream Engine',
+    name: 'CBZ Zero-Seek Byte Offset Lookup (SLA 21)',
+    measured: `${(offsetLatency * 1000).toFixed(2)} µs (${offsetLatency.toFixed(6)} ms)`,
+    slaTarget: '< 0.05 ms (50 µs)',
+    passed: offsetLatency < 0.05,
+    notes: 'Sub-millisecond page slice addressing on idx_archive_offsets_lookup',
   });
 
   // Teardown

@@ -562,6 +562,27 @@ CREATE TABLE IF NOT EXISTS impact_telemetry_batches (
 CREATE INDEX IF NOT EXISTS idx_telemetry_user_session
     ON impact_telemetry_batches (user_id, session_id);
 
+-- Sprint 57: High-Density Compressed Chapter Bundle Streaming Engine (CBZ Zero-Seek Offsets)
+CREATE TABLE IF NOT EXISTS chapter_archive_offsets (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    chapter_id TEXT NOT NULL REFERENCES chapters(id) ON DELETE CASCADE,
+    page_number INTEGER NOT NULL CHECK (page_number >= 1),
+    file_name TEXT NOT NULL,
+    compression_method INTEGER NOT NULL CHECK (compression_method IN (0, 8)),
+    data_offset INTEGER NOT NULL CHECK (data_offset >= 0),
+    compressed_size INTEGER NOT NULL CHECK (compressed_size > 0),
+    uncompressed_size INTEGER NOT NULL CHECK (uncompressed_size > 0),
+    crc32 INTEGER NOT NULL,
+    local_header_offset INTEGER NOT NULL CHECK (local_header_offset >= 0),
+    mime_type TEXT NOT NULL DEFAULT 'image/webp',
+    created_at TEXT DEFAULT (datetime('now')),
+    UNIQUE(chapter_id, page_number)
+);
+
+CREATE INDEX IF NOT EXISTS idx_archive_offsets_lookup
+    ON chapter_archive_offsets (chapter_id, page_number);
+
+
 
 
 

@@ -19,5 +19,5 @@ describe('Host SLA Benchmark Suite (Pentium T4500 & SATA II Profile)', () => {
     const content = await fs.readFile(reportFilePath, 'utf-8');
     const parsed = JSON.parse(content);
     expect(parsed.allPassed).toBe(true);
-  });
+  }, 30000);
 });

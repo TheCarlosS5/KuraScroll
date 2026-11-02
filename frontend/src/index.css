@@ -125,3 +125,16 @@ body {
   }
 }
 
+/* Sprint 57: Zero-CLS Progressive Stream Skeleton Shimmer (translate3d compositor only) */
+@keyframes shimmer-slide {
+  0% { transform: translate3d(-100%, 0, 0); }
+  100% { transform: translate3d(100%, 0, 0); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .stream-skeleton-shimmer {
+    animation: none !important;
+  }
+}
+
+

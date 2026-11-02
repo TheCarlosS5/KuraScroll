@@ -36,6 +36,8 @@ import { registerPanelRoutes } from './routes/panel-routes.js';
 import { PanelDetectionService } from './services/panel-detection-service.js';
 import { immersionRoutes } from './routes/immersion-routes.js';
 import { ImmersionService } from './services/immersion-service.js';
+import { cbzStreamRoutes } from './routes/cbz-stream-routes.js';
+import { CbzStreamService } from './services/cbz-stream-service.js';
 import { AdaptiveIngestionController } from './services/adaptive-ingestion-controller.js';
 import { DifferentialMirrorService } from './services/differential-mirror-service.js';
 
@@ -162,6 +164,7 @@ export function buildApp(options: AppOptions = {}): FastifyInstance {
   app.register(frameTelemetryRoutes, { db });
   app.register(registerPanelRoutes, { panelService: new PanelDetectionService(db) });
   app.register(immersionRoutes, { immersionService: new ImmersionService(db) });
+  app.register(cbzStreamRoutes, { db, cbzStreamService: new CbzStreamService(db) });
 
   return app;
 }

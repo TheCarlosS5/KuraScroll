@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { localClientStorage, SeriesShelfType } from '../services/local-storage-service.js';
-import { ArrowLeft, BookOpen, Heart, Library, CheckCircle2, Clock, Globe } from 'lucide-react';
+import { ArrowLeft, BookOpen, Heart, Library, CheckCircle2, Clock, Globe, Download } from 'lucide-react';
 
 export interface SeriesDetailPageProps {
   slug: string;
@@ -282,7 +282,19 @@ export const SeriesDetailPage: React.FC<SeriesDetailPageProps> = ({
                       <p className="text-xs text-gray-400 line-clamp-1 mt-0.5">{ch.title}</p>
                     )}
                   </div>
-                  <div className="text-xs text-cyan-400 font-medium">Leer →</div>
+                  <div className="flex items-center gap-2">
+                    <a
+                      href={`/api/v1/chapters/${ch.id}/export/cbz`}
+                      download
+                      title="Descargar capítulo en CBZ (ComicBook ZIP)"
+                      aria-label={`Descargar capítulo ${ch.chapterNumber} en CBZ`}
+                      onClick={(e) => e.stopPropagation()}
+                      className="p-1.5 rounded-lg text-gray-400 hover:text-cyan-400 hover:bg-gray-800 transition-colors"
+                    >
+                      <Download className="w-4 h-4" />
+                    </a>
+                    <div className="text-xs text-cyan-400 font-medium">Leer →</div>
+                  </div>
                 </div>
               );
             })}

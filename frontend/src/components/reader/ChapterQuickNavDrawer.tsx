@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo, useRef } from 'react';
-import { X, Search, Bookmark, Check, BookOpen, ChevronRight, Trash2 } from 'lucide-react';
+import { X, Search, Bookmark, Check, BookOpen, ChevronRight, Trash2, Download } from 'lucide-react';
 import { useChapterVirtualizer } from '../../reader/useChapterVirtualizer';
 
 export interface QuickIndexChapter {
@@ -308,6 +308,16 @@ export const ChapterQuickNavDrawer: React.FC<ChapterQuickNavDrawerProps> = ({
                               p.{ch.lastPageIndex}
                             </span>
                           ) : null}
+                          <a
+                            href={`/api/v1/chapters/${ch.chapterId}/export/cbz`}
+                            download
+                            title="Descargar capítulo en CBZ (ComicBook ZIP)"
+                            aria-label={`Descargar capítulo ${ch.chapterNumber} en CBZ`}
+                            onClick={(e) => e.stopPropagation()}
+                            className="p-1 rounded text-neutral-400 hover:text-indigo-400 hover:bg-neutral-800 transition-colors"
+                          >
+                            <Download className="w-3.5 h-3.5" />
+                          </a>
                           <ChevronRight className="w-4 h-4 text-neutral-500" />
                         </div>
                       </div>

@@ -1,4 +1,5 @@
 import { FastifyInstance } from 'fastify';
+import { PassThrough } from 'node:stream';
 import path from 'node:path';
 import fs from 'node:fs';
 import { DatabaseInstance } from '../db/database.js';
@@ -9,6 +10,7 @@ import { ImageIntegrityService } from '../services/image-integrity-service.js';
 import { sharedIOCoordinator } from '../storage/io/io-coordinator.js';
 import { IOPriority } from '../storage/io/io-priority.js';
 import { resolveAssetTier, resolveIOPriority, ASSET_TIER_CONFIG } from '../config/asset-tier-config.js';
+import { CbzArchiveStreamer, CbzPageItem } from '../services/cbz-archive-streamer.js';
 
 export function registerChapterRoutes(
   app: FastifyInstance,
@@ -117,6 +119,59 @@ export function registerChapterRoutes(
       .header('Content-Type', 'image/webp')
       .header('Cache-Control', ASSET_TIER_CONFIG[tier].cacheControl)
       .send(buffer);
+  });
+
+  // Export chapter as standardized .cbz archive with streaming STORE compression (Sprint 40)
+  app.get('/api/v1/chapters/:chapterId/export/cbz', async (req, reply) => {
+    const { chapterId } = req.params as { chapterId: string };
+    const detail = repo.getChapterWithPages(chapterId);
+
+    if (!detail) {
+      reply.status(404);
+      return { statusCode: 404, error: 'Not Found', message: `Chapter '${chapterId}' not found` };
+    }
+
+    const { chapter, pages } = detail;
+
+    const seriesStmt = db.prepare('SELECT title_primary, synopsis, author FROM series WHERE id = ?');
+    const series = seriesStmt.get(chapter.seriesId) as any;
+
+    const pageItems: CbzPageItem[] = pages.map((p) => ({
+      pageNumber: p.pageNumber,
+      fileName: p.fileName,
+      absolutePath: path.join(storageRoot, chapter.storagePath, p.fileName),
+    }));
+
+    const safeTitle = (series?.title_primary || 'Chapter').replace(/[^a-zA-Z0-9_\-\. ]/g, '');
+    const padNum = String(chapter.chapterNumber).padStart(3, '0');
+    const filename = `${safeTitle} - c${padNum}.cbz`;
+
+    const passThrough = new PassThrough();
+
+    reply
+      .header('Content-Type', 'application/vnd.comicbook+zip')
+      .header('Content-Disposition', `attachment; filename="${encodeURIComponent(filename)}"`)
+      .header('Cache-Control', 'no-cache');
+
+    const streamer = new CbzArchiveStreamer(passThrough);
+    streamer.streamChapterCbz({
+      chapterId,
+      metadata: {
+        seriesTitle: series?.title_primary || safeTitle,
+        chapterTitle: chapter.title,
+        chapterNumber: chapter.chapterNumber,
+        volumeNumber: chapter.volumeId ? parseInt(chapter.volumeId, 10) || null : null,
+        summary: series?.synopsis || null,
+        writer: series?.author || null,
+        mangaReadingDirection: 'YesAndRightToLeft',
+        pageCount: pages.length,
+      },
+      pages: pageItems,
+    }).catch((err) => {
+      passThrough.destroy(err);
+    });
+
+    return reply.send(passThrough);
   });
 
   // Trigger chapter ingestion & optimization

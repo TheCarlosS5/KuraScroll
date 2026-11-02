@@ -246,4 +246,19 @@
   - [x] Task 39.4: Reader Integration in `ReaderPage.tsx` with Theme Awareness & Thermal Saver Bypass
   - [x] Task 39.5: Empirical Fill-Rate & Framerate Benchmark (`docs/reports/sprint39-ambilight-gma4500mhd-benchmark.md`, 60 FPS, 0% convolution overhead, 99.8% texture memory reduction)
   - [x] Task 39.6: Monorepo Verification (121 test files, 674 tests PASS [428 backend + 246 frontend], 11/11 SLAs Passed, Vite build 6.27s)
-- [ ] Part 40: Multi-Volume Batch Zip / CBZ Export & Hot Archive Streaming
+- [x] Part 40: Multi-Volume Batch Zip / CBZ Export & Hot Archive Streaming (Commit Sprint 40)
+  - [x] Task 40.1: Senior Architectural Blueprint with ChatGPT via Brave MCP (`docs/brainstorming/chatgpt-sprint40-cbz-archive-streaming-blueprint.md`)
+  - [x] Task 40.2: Standardized ComicInfo.xml Builder with strict entity escaping (`src/backend/utils/comic-info-builder.ts`, 3/3 tests PASS)
+  - [x] Task 40.3: Streaming ZIP Method 0 (Store) Engine with IEEE 802.3 CRC-32 table lookups (`src/backend/services/cbz-archive-streamer.ts`, 3/3 tests PASS)
+  - [x] Task 40.4: Fastify Streaming Route `GET /api/v1/chapters/:chapterId/export/cbz` with PassThrough, background I/O scheduling, and cooperative page yielding (`chapter-routes.ts`, 2/2 tests PASS)
+  - [x] Task 40.5: Single-click CBZ export integration in `ChapterQuickNavDrawer.tsx` and `SeriesDetailPage.tsx`
+  - [x] Task 40.6: Empirical Benchmark Report (`docs/reports/sprint40-cbz-archive-streaming-benchmark.md`, < 2% CPU, < 35MB heap, 72.4 MB/s sequential throughput)
+  - [x] Task 40.7: Monorepo Verification (124 test files, 682 tests PASS [436 backend + 246 frontend], 11/11 SLAs Passed, Vite build 4.54s)
+- [ ] Part 41: Advanced Reading Stats Radar Chart, Otaku Activity Heatmap & Low-Power Canvas Visualization
+  - [ ] Task 41.1: Senior Architectural Blueprint Consultation with ChatGPT via Brave MCP
+  - [ ] Task 41.2: Lightweight In-Memory Reading Metrics Aggregator (Genre Distribution, Completion Rate, Day-of-Week Distribution, Hourly Reading Heatmap)
+  - [ ] Task 41.3: Fastify Analytics Endpoints (`GET /api/v1/analytics/stats-radar`, `GET /api/v1/analytics/activity-heatmap`)
+  - [ ] Task 41.4: Zero-Dependency Pure Canvas 2D Radar & Heatmap Renderer optimized for Intel GMA 4500MHD (no heavy chart libraries, 0 CLS, < 15KB footprint)
+  - [ ] Task 41.5: Frontend Stats Visualizer Component integrated in User Profile / History Modal
+  - [ ] Task 41.6: Unit & Integration Test Suites
+  - [ ] Task 41.7: Empirical Benchmark Report & Monorepo Verification

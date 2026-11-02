@@ -42,6 +42,8 @@ import { transcodeRoutes } from './routes/transcode-routes.js';
 import { TranscodeCacheService } from './services/transcode-cache-service.js';
 import { prefetchRoutes } from './routes/prefetch-routes.js';
 import { PredictivePrefetchDaemon } from './services/predictive-prefetch-daemon.js';
+import { dialogueSearchRoutes } from './routes/dialogue-search-routes.js';
+import { DialogueSearchService } from './services/dialogue-search-service.js';
 import { AdaptiveIngestionController } from './services/adaptive-ingestion-controller.js';
 import { DifferentialMirrorService } from './services/differential-mirror-service.js';
 
@@ -181,6 +183,10 @@ export function buildApp(options: AppOptions = {}): FastifyInstance {
   app.register(prefetchRoutes, {
     db,
     prefetchDaemon,
+  });
+  app.register(dialogueSearchRoutes, {
+    db,
+    dialogueService: new DialogueSearchService(db),
   });
 
   return app;

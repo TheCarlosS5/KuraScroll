@@ -411,10 +411,17 @@
   - [x] Task 59.4: Client Predictive Prefetch Bridge & Cache Warmth Indicator (`frontend/src/reader/usePrefetchWarmth.ts` via `useSyncExternalStore`, `PredictiveWarmthIndicator.tsx`, 0 CLS, 0 blur)
   - [x] Task 59.5: Subagent Swarm Execution & Benchmark (SLA 23: 0.41 µs [24x faster than SLA target < 10 µs], 23/23 SLAs Passed)
   - [x] Task 59.6: Monorepo Verification & Git Commit (212 test files, 1,055 tests PASS [696 backend + 359 frontend], Vite build in 4.30s)
-- [ ] Part 60: Ultra-Low-Latency Local Dialogue OCR & Trigram Substring Search Engine (Zero-Cloud Character & Quote Search on 4TB Mechanical HDD)
-  - [ ] Task 60.1: Senior Architectural Blueprint Consultation with ChatGPT via Brave MCP
-  - [ ] Task 60.2: Trigram Dialogue Indexing & Exact Substring Match Pipeline
-  - [ ] Task 60.3: Mechanical HDD Seek-Optimized Inverted Index Partitioning
-  - [ ] Task 60.4: Client Instant Dialogue Jump HUD & Quote Snippet Scrubber
-  - [ ] Task 60.5: Subagent Swarm Execution & Benchmark (SLA 24)
-  - [ ] Task 60.6: Monorepo Verification & Git Commit
+- [x] Part 60: Ultra-Low-Latency Local Dialogue OCR & Trigram Substring Search Engine (Zero-Cloud Character & Quote Search on 4TB Mechanical HDD)
+  - [x] Task 60.1: Senior Architectural Blueprint Consultation with ChatGPT via Brave MCP (`docs/brainstorming/chatgpt-sprint60-dialogue-search-blueprint.md`)
+  - [x] Task 60.2: Trigram Dialogue Indexing & Exact Substring Match Pipeline (`src/backend/services/dialogue-search-service.ts`, FTS5 trigram inverted index, hybrid short-query fallback for $< 3$ chars)
+  - [x] Task 60.3: Mechanical HDD Seek-Optimized Inverted Index Partitioning & Statement Cache (`getStatement(sql)` caching, anti-spoiler causal progress filter `maxChapterNumber`, nightly `optimize`)
+  - [x] Task 60.4: Client Instant Dialogue Jump HUD & Quote Snippet Scrubber (`frontend/src/reader/useDialogueSearch.ts`, `DialogueJumpHUD.tsx`, 0 CLS, 0 blur, bounding box jump)
+  - [x] Task 60.5: Subagent Swarm Execution & Benchmark (SLA 24: 0.3709 ms [2.7x faster than SLA target < 1.0 ms], 24/24 SLAs Passed)
+  - [x] Task 60.6: Monorepo Verification & Git Commit (216 test files, 1,078 tests PASS [710 backend + 368 frontend], Vite build in 4.64s)
+- [ ] Part 61: Continuous In-Memory Spatial Reading Heatmap & Kinetic Focus Analyzer (Gaze Dwell Reconstruction & Attention Map Export for 4TB Manga Library)
+  - [ ] Task 61.1: Senior Architectural Blueprint Consultation with ChatGPT via Brave MCP
+  - [ ] Task 61.2: Kinetic Reading Focus Spatial Kernel & Float32 Bounding-Box Accumulator
+  - [ ] Task 61.3: Low-Footprint Attention Map Compression & Storage Optimization
+  - [ ] Task 61.4: Client Attention Heatmap Overlay & Panel Focus Scrubber
+  - [ ] Task 61.5: Subagent Swarm Execution & Benchmark (SLA 25)
+  - [ ] Task 61.6: Monorepo Verification & Git Commit

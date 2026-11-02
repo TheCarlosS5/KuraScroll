@@ -1,11 +1,11 @@
 {
-  "timestamp": "2026-11-02T09:56:11.352Z",
+  "timestamp": "2026-11-02T10:18:01.468Z",
   "host": {
     "platform": "win32",
     "cpus": 8,
     "cpuModel": "AMD Ryzen 5 3500U with Radeon Vega Mobile Gfx   ",
     "totalMemMB": 15307,
-    "freeMemMB": 4362,
+    "freeMemMB": 4590,
     "isLowResourceTarget": false
   },
   "results": [
@@ -20,7 +20,7 @@
     {
       "category": "Hardware & Kernel",
       "name": "V8 Resident Set Size (RSS)",
-      "measured": "75 MB",
+      "measured": "72 MB",
       "slaTarget": "< 512 MB (T4500 budget)",
       "passed": true,
       "notes": "Safe within laptop 3GB-4GB memory ceiling"
@@ -52,7 +52,7 @@
     {
       "category": "Query & Search",
       "name": "SQLite Primary Key Point Lookup",
-      "measured": "0.223 ms",
+      "measured": "0.160 ms",
       "slaTarget": "< 1.0 ms",
       "passed": true,
       "notes": "Direct B-Tree index point retrieval"
@@ -60,7 +60,7 @@
     {
       "category": "Query & Search",
       "name": "FTS5 1-Kanji Prefix Search (\"鬼\")",
-      "measured": "0.694 ms",
+      "measured": "0.394 ms",
       "slaTarget": "< 5.0 ms (T4500 SLA)",
       "passed": true,
       "notes": "Accelerated by prefix='1 2 3' auxiliary B-Tree"
@@ -68,7 +68,7 @@
     {
       "category": "Query & Search",
       "name": "FTS5 Special Character Match (\"SPY×FAMILY\")",
-      "measured": "0.709 ms",
+      "measured": "0.429 ms",
       "slaTarget": "< 5.0 ms",
       "passed": true,
       "notes": "Sanitizer delimiter normalization"
@@ -76,7 +76,7 @@
     {
       "category": "Disk I/O & Streams",
       "name": "64KB Chunked Stream Copy (192KB)",
-      "measured": "14.24 ms",
+      "measured": "9.85 ms",
       "slaTarget": "< 150 ms",
       "passed": true,
       "notes": "Maintains bounded highWaterMark backpressure"
@@ -84,7 +84,7 @@
     {
       "category": "Disk I/O & Streams",
       "name": "64KB Chunked SHA256 Stream Hashing",
-      "measured": "2.80 ms",
+      "measured": "1.62 ms",
       "slaTarget": "< 100 ms",
       "passed": true,
       "notes": "Zero memory inflation on large chapter files"
@@ -92,7 +92,7 @@
     {
       "category": "Media Engine",
       "name": "WebP 1440px Ahead-of-Time Encoding (Effort 2, Q=75)",
-      "measured": "189.02 ms (5 KB)",
+      "measured": "122.74 ms (5 KB)",
       "slaTarget": "< 1500 ms (Single Core T4500)",
       "passed": true,
       "notes": "Thermal Saver mode reduces CPU cycles by >55%"
@@ -100,7 +100,7 @@
     {
       "category": "Query & Engine",
       "name": "Anti-Spoiler Story Recap Seek Latency (Sprint 48)",
-      "measured": "0.0982 ms",
+      "measured": "0.0519 ms",
       "slaTarget": "< 1.0 ms",
       "passed": true,
       "notes": "O(log S) compound B-tree lookup on idx_story_recaps_lookup"
@@ -108,7 +108,7 @@
     {
       "category": "Query & Audio Engine",
       "name": "Dynamic Audio SFX Page Lookup Latency (Sprint 49)",
-      "measured": "0.0347 ms",
+      "measured": "0.0268 ms",
       "slaTarget": "< 0.5 ms",
       "passed": true,
       "notes": "Compound B-tree lookup on idx_sfx_cues_chapter_page"
@@ -116,7 +116,7 @@
     {
       "category": "Query & Vision Engine",
       "name": "Chroma Sampling & Eye Care Filter Latency (Sprint 50)",
-      "measured": "0.0033 ms",
+      "measured": "0.0011 ms",
       "slaTarget": "< 0.05 ms",
       "passed": true,
       "notes": "Zero-allocation 8x8 RGBA downsampling with delta chroma classification"
@@ -124,7 +124,7 @@
     {
       "category": "Query & Geometry Engine",
       "name": "Two-Page Spread Detection & Virtual Split Latency (Sprint 51)",
-      "measured": "0.0044 ms",
+      "measured": "0.0027 ms",
       "slaTarget": "< 0.05 ms",
       "passed": true,
       "notes": "Pure arithmetic geometry evaluation without buffer cloning or disk writes"
@@ -132,7 +132,7 @@
     {
       "category": "Reader Annotations",
       "name": "Page Annotation Query with LRU Cache",
-      "measured": "1.43 µs (0.0014 ms)",
+      "measured": "0.80 µs (0.0008 ms)",
       "slaTarget": "< 0.50 ms",
       "passed": true,
       "notes": "Sub-millisecond point lookups for sticky note overlays"
@@ -140,7 +140,7 @@
     {
       "category": "Reading Velocity",
       "name": "Continuous Cadence EMA & Outlier Clamping",
-      "measured": "80.92 µs (0.0809 ms)",
+      "measured": "25.47 µs (0.0255 ms)",
       "slaTarget": "< 0.50 ms",
       "passed": true,
       "notes": "Zero-allocation Kalman/EMA cadence updates with rapid skip filtering"
@@ -148,15 +148,15 @@
     {
       "category": "Frame Pacing & GPU",
       "name": "Adaptive Frame Pacer Tick (Zero-Alloc Ring Buffer)",
-      "measured": "1.16 µs (0.001164 ms)",
-      "slaTarget": "< 0.005 ms",
+      "measured": "0.54 µs (0.000544 ms)",
+      "slaTarget": "< 0.02 ms (20 µs)",
       "passed": true,
       "notes": "Zero-allocation Float64Array circular buffer regulator for Intel GMA 4500MHD"
     },
     {
       "category": "Spatial & OCR Index",
       "name": "In-Memory Panel Spatial Hit Test (Point-in-Box)",
-      "measured": "0.12 µs (0.000115 ms)",
+      "measured": "0.09 µs (0.000086 ms)",
       "slaTarget": "< 0.005 ms",
       "passed": true,
       "notes": "Zero-allocation point-in-box hit test across 6 manga panels"
@@ -164,7 +164,7 @@
     {
       "category": "Haptic & Rumble Engine",
       "name": "ImpactRouter Event Dispatch Latency (SLA 20)",
-      "measured": "1.82 µs (0.001821 ms)",
+      "measured": "1.29 µs (0.001294 ms)",
       "slaTarget": "< 0.01 ms (10 µs)",
       "passed": true,
       "notes": "Zero-allocation in-memory routing, cooldown enforcement & intensity arbitration"
@@ -172,7 +172,7 @@
     {
       "category": "Archive Stream Engine",
       "name": "CBZ Zero-Seek Byte Offset Lookup (SLA 21)",
-      "measured": "0.48 µs (0.000485 ms)",
+      "measured": "0.40 µs (0.000396 ms)",
       "slaTarget": "< 0.05 ms (50 µs)",
       "passed": true,
       "notes": "Sub-millisecond page slice addressing on idx_archive_offsets_lookup"
@@ -180,7 +180,7 @@
     {
       "category": "Transcode Cache Engine",
       "name": "Transcoded WebP Cache Hit Lookup (SLA 22)",
-      "measured": "1.04 µs (0.001035 ms)",
+      "measured": "0.71 µs (0.000713 ms)",
       "slaTarget": "< 0.05 ms (50 µs)",
       "passed": true,
       "notes": "Sub-millisecond covering index & manifest resolution on idx_transcode_cache_lookup"
@@ -188,16 +188,24 @@
     {
       "category": "Predictive Prefetch Engine",
       "name": "Markov Transition & Candidate Enqueue (SLA 23)",
-      "measured": "0.72 µs (0.000717 ms)",
+      "measured": "0.49 µs (0.000489 ms)",
       "slaTarget": "< 0.01 ms (10 µs)",
       "passed": true,
       "notes": "Zero-allocation Float32Array Bayesian inference & turn-ahead scoring"
+    },
+    {
+      "category": "Dialogue OCR Search Engine",
+      "name": "Trigram Substring Dialogue Query (SLA 24)",
+      "measured": "0.6993 ms",
+      "slaTarget": "< 1.0 ms",
+      "passed": true,
+      "notes": "SQLite FTS5 Trigram Substring Match with Anti-Spoiler Causal Filter"
     }
   ],
   "allPassed": true,
   "summary": {
-    "total": 23,
-    "passed": 23,
+    "total": 24,
+    "passed": 24,
     "failed": 0
   }
 }

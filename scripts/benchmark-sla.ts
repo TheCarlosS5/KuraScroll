@@ -62,6 +62,7 @@ import { PageMagnifierService } from '../src/backend/services/page-magnifier-ser
 import { ChapterTransitionService } from '../src/backend/services/chapter-transition-service.js';
 import { calculateBacklightTransform } from '../src/backend/services/ambient-backlight-service.js';
 import { calculateProjectionTransform } from '../src/backend/services/page-projection-service.js';
+import { calculateAudioPannerParams } from '../src/backend/services/page-acoustics-service.js';
 
 export interface SlaResult {
   category: string;
@@ -1505,6 +1506,28 @@ export async function runHostSlaBenchmark(): Promise<SlaReport> {
     slaTarget: '< 0.02 ms',
     passed: projectionLatency < 0.02,
     notes: 'Zero-Allocation Perspective Keystone & Multi-Angle Matrix Resolution (< 20µs target)',
+  });
+
+  // 46. Binaural Page Rustle & Panning Parameter Resolution (Sprint 82 - SLA 46)
+  // Warmup JIT
+  for (let i = 0; i < 5000; i++) {
+    calculateAudioPannerParams('next', 'rtl', 'tankobon', 0.8, true);
+  }
+
+  const acousticsIters = 20000;
+  const tAcousticsStart = performance.now();
+  for (let i = 0; i < acousticsIters; i++) {
+    calculateAudioPannerParams('next', 'rtl', 'tankobon', 0.8, true);
+  }
+  const acousticsLatency = (performance.now() - tAcousticsStart) / acousticsIters;
+
+  results.push({
+    category: 'Page Acoustics Engine',
+    name: 'Binaural Panning Resolution (SLA 46)',
+    measured: `${(acousticsLatency * 1000).toFixed(2)} µs (${acousticsLatency.toFixed(4)} ms)`,
+    slaTarget: '< 0.02 ms',
+    passed: acousticsLatency < 0.02,
+    notes: 'Zero-Allocation Binaural Stereo Panning & Biquad Synthesis Resolution (< 20µs target)',
   });
 
   // Teardown

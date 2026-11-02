@@ -86,6 +86,8 @@ import { ambientBacklightRoutes } from './routes/ambient-backlight-routes.js';
 import { AmbientBacklightService } from './services/ambient-backlight-service.js';
 import { pageProjectionRoutes } from './routes/page-projection-routes.js';
 import { PageProjectionService } from './services/page-projection-service.js';
+import { pageAcousticsRoutes } from './routes/page-acoustics-routes.js';
+import { PageAcousticsService } from './services/page-acoustics-service.js';
 import { AdaptiveIngestionController } from './services/adaptive-ingestion-controller.js';
 import { DifferentialMirrorService } from './services/differential-mirror-service.js';
 
@@ -117,6 +119,7 @@ export interface AppOptions {
   chapterTransitionService?: ChapterTransitionService;
   ambientBacklightService?: AmbientBacklightService;
   pageProjectionService?: PageProjectionService;
+  pageAcousticsService?: PageAcousticsService;
 }
 
 export function buildApp(options: AppOptions = {}): FastifyInstance {
@@ -337,6 +340,10 @@ export function buildApp(options: AppOptions = {}): FastifyInstance {
   app.register(pageProjectionRoutes, {
     db,
     pageProjectionService: options.pageProjectionService ?? new PageProjectionService(db),
+  });
+  app.register(pageAcousticsRoutes, {
+    db,
+    pageAcousticsService: options.pageAcousticsService ?? new PageAcousticsService(db),
   });
 
   return app;

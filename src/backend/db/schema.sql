@@ -1042,6 +1042,24 @@ CREATE TABLE IF NOT EXISTS page_projection_profiles (
 CREATE INDEX IF NOT EXISTS idx_page_projection_lookup 
     ON page_projection_profiles(series_id, user_id);
 
+-- Sprint 82: Binaural Page Rustle & Tactile Leaf Turn Acoustics Engine
+CREATE TABLE IF NOT EXISTS page_acoustics_profiles (
+    id TEXT PRIMARY KEY,
+    series_id TEXT NOT NULL,
+    user_id TEXT NOT NULL DEFAULT 'default_user',
+    paper_substrate TEXT NOT NULL DEFAULT 'tankobon' CHECK (paper_substrate IN ('glossy', 'newsprint', 'tankobon', 'silk_ribbon')),
+    volume_level REAL NOT NULL DEFAULT 0.65 CHECK (volume_level >= 0.0 AND volume_level <= 1.0),
+    stereo_panning_enabled INTEGER NOT NULL DEFAULT 1 CHECK (stereo_panning_enabled IN (0, 1)),
+    haptic_pulse_enabled INTEGER NOT NULL DEFAULT 1 CHECK (haptic_pulse_enabled IN (0, 1)),
+    haptic_intensity REAL NOT NULL DEFAULT 0.5 CHECK (haptic_intensity >= 0.0 AND haptic_intensity <= 1.0),
+    is_enabled INTEGER NOT NULL DEFAULT 1 CHECK (is_enabled IN (0, 1)),
+    updated_at INTEGER NOT NULL
+);
+
+CREATE INDEX IF NOT EXISTS idx_page_acoustics_lookup 
+    ON page_acoustics_profiles(series_id, user_id);
+
+
 
 
 

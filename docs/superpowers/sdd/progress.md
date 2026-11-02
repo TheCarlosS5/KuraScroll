@@ -585,14 +585,22 @@
   - [x] Task 81.5: Client usePageProjection Hook & PageProjectionHUD Component (`frontend/src/reader/usePageProjection.ts`, `PageProjectionHUD.tsx`, zero-blur solid `#18181b` containment, pitch/yaw/distance/keystone sliders, keyboard shortcut 'P', 0 CLS)
   - [x] Task 81.6: Subagent Swarm Execution & SLA 45 Benchmark (SLA 45: 5.91 µs [3.3x faster than SLA target < 20 µs], 45/45 SLAs Passed)
   - [x] Task 81.7: Monorepo Verification & Git Commit (300 test files, 1,613 tests PASS [1,019 backend + 594 frontend], Vite build in 12.26s)
-- [ ] Part 82: Binaural Page Rustle & Tactile Leaf Turn Acoustics Engine (Low-Frequency Sub-Bass Page Flip Haptic Synthesizer)
-  - [ ] Task 82.1: Senior Architectural Blueprint Consultation with ChatGPT via Brave MCP
-  - [ ] Task 82.2: Paper Substrate Acoustic Profiles (Glossy Manga Paper, Newsprint Pulp, Heavy Tankōbon Cardstock), Spatial Stereo Panning, and Web Audio Low-Pass Filter Curves
-  - [ ] Task 82.3: Backend PageAcousticsService & SQLite Table (`src/backend/services/page-acoustics-service.ts`, table `page_acoustics_profiles`, index `idx_page_acoustics_lookup`, zero-allocation calculateAudioPannerParams)
-  - [ ] Task 82.4: Fastify Page Acoustics REST Endpoints (`src/backend/routes/page-acoustics-routes.ts`, HTTP 304 ETag caching)
-  - [ ] Task 82.5: Client usePageAcoustics Hook & PageAcousticsHUD Component (`frontend/src/reader/usePageAcoustics.ts`, `PageAcousticsHUD.tsx`, zero-blur solid `#18181b` containment, volume slider, paper substrate selector, haptic pulse sync, keyboard shortcut 'A', 0 CLS)
-  - [ ] Task 82.6: Subagent Swarm Execution & SLA 46 Benchmark
-  - [ ] Task 82.7: Monorepo Verification & Git Commit
+- [x] Part 82: Binaural Page Rustle & Tactile Leaf Turn Acoustics Engine (Low-Frequency Sub-Bass Page Flip Haptic Synthesizer)
+  - [x] Task 82.1: Senior Architectural Blueprint Consultation with ChatGPT via Brave MCP (`docs/specs/sprint-82-acoustics-schema.md`)
+  - [x] Task 82.2: Paper Substrate Acoustic Profiles (Glossy Manga Paper, Newsprint Pulp, Heavy Tankōbon Cardstock, Delicates Silk Ribbon), Spatial Stereo Panning ($L \leftrightarrow R$), and Web Audio Low-Pass Filter Curves (`docs/specs/sprint-82-acoustics-schema.md`, `docs/specs/sprint-82-acoustics-hud-spec.md`, `docs/specs/sprint-82-acoustics-user-perspective.md`, `docs/specs/sprint-82-acoustics-devops-audit.md`, `docs/specs/sprint-82-acoustics-qa-resilience.md`, `docs/specs/sprint-82-acoustics-sla-spec.md`)
+  - [x] Task 82.3: Backend PageAcousticsService & SQLite Table (`src/backend/services/page-acoustics-service.ts`, table `page_acoustics_profiles`, index `idx_page_acoustics_lookup`, zero-allocation calculateAudioPannerParams)
+  - [x] Task 82.4: Fastify Page Acoustics REST Endpoints (`src/backend/routes/page-acoustics-routes.ts`, `/profile/:seriesId`, `/profile`, `/calculate-params`, `/substrates`, HTTP 304 ETag caching)
+  - [x] Task 82.5: Client usePageAcoustics Hook & PageAcousticsHUD Component (`frontend/src/reader/usePageAcoustics.ts`, `PageAcousticsHUD.tsx`, zero-blur solid `#18181b` containment, volume slider, paper substrate selector, haptic pulse sync, keyboard shortcut 'A', 0 CLS)
+  - [x] Task 82.6: Subagent Swarm Execution & SLA 46 Benchmark (SLA 46: 0.15 µs [133x faster than SLA target < 20 µs], 46/46 SLAs Passed)
+  - [x] Task 82.7: Monorepo Verification & Git Commit (304 test files, 1,640 tests PASS [1,035 backend + 605 frontend], Vite build in 5.12s)
+- [ ] Part 83: Predictive Gaze Heatmap Trajectory & Eye Fixation Anti-Drift Restorer (Saccadic Gaze Anchor & Reading Fatigue Telemetry)
+  - [ ] Task 83.1: Senior Architectural Blueprint Consultation with ChatGPT via Brave MCP
+  - [ ] Task 83.2: Gaze Vector Trajectory Prediction Math, Saccadic Drift Dampening, and Reading Fatigue Metrics Specification
+  - [ ] Task 83.3: Backend GazeAnchorService & SQLite Table (`src/backend/services/gaze-anchor-service.ts`, table `gaze_anchor_profiles`, index `idx_gaze_anchor_lookup`, zero-allocation calculateGazeTrajectory)
+  - [ ] Task 83.4: Fastify Gaze Anchor REST Endpoints (`src/backend/routes/gaze-anchor-routes.ts`, HTTP 304 ETag caching)
+  - [ ] Task 83.5: Client useGazeAnchor Hook & GazeAnchorHUD Component (`frontend/src/reader/useGazeAnchor.ts`, `GazeAnchorHUD.tsx`, zero-blur solid `#18181b` containment, drift dampener slider, anchor color picker, fatigue warning indicator, keyboard shortcut 'G', 0 CLS)
+  - [ ] Task 83.6: Subagent Swarm Execution & SLA 47 Benchmark
+  - [ ] Task 83.7: Monorepo Verification & Git Commit
 
 
 

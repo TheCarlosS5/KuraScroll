@@ -1381,6 +1381,26 @@ CREATE TABLE IF NOT EXISTS vector_index_profiles (
 CREATE INDEX IF NOT EXISTS idx_vector_index_lookup 
     ON vector_index_profiles(series_id);
 
+-- Sprint 101: Bi-Directional Zero-Copy Page Memory Slicing & Ring-Buffer Tile Recycler (SLA 65)
+CREATE TABLE IF NOT EXISTS page_buffer_profiles (
+    series_id TEXT PRIMARY KEY,
+    ring_capacity INTEGER NOT NULL DEFAULT 7 CHECK (ring_capacity >= 3 AND ring_capacity <= 15),
+    forward_lookahead INTEGER NOT NULL DEFAULT 3 CHECK (forward_lookahead >= 1 AND forward_lookahead <= 10),
+    backward_lookahead INTEGER NOT NULL DEFAULT 2 CHECK (backward_lookahead >= 0 AND backward_lookahead <= 5),
+    slot_recycling_strategy TEXT NOT NULL DEFAULT 'circular_lru' CHECK (slot_recycling_strategy IN (
+        'circular_lru',
+        'boustrophedon_ring',
+        'pinned_viewport'
+    )),
+    zero_copy_slice_enabled INTEGER NOT NULL DEFAULT 1 CHECK (zero_copy_slice_enabled IN (0, 1)),
+    max_memory_pool_bytes INTEGER NOT NULL DEFAULT 33554432 CHECK (max_memory_pool_bytes >= 8388608 AND max_memory_pool_bytes <= 67108864),
+    created_at INTEGER NOT NULL,
+    updated_at INTEGER NOT NULL
+);
+
+CREATE INDEX IF NOT EXISTS idx_page_buffer_lookup 
+    ON page_buffer_profiles(series_id);
+
 
 
 

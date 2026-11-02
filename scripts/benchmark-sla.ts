@@ -81,6 +81,10 @@ import { TextEqualizerService } from '../src/backend/services/text-equalizer-ser
 import { ReadingDwellService } from '../src/backend/services/reading-dwell-service.js';
 import { PanelPacingService } from '../src/backend/services/panel-pacing-service.js';
 import { VectorQuantizerService } from '../src/backend/services/vector-quantizer-service.js';
+import {
+  PageTileRecyclerService,
+  calculatePageTileRecyclingMatrix,
+} from '../src/backend/services/page-tile-recycler-service.js';
 
 export interface SlaResult {
   category: string;
@@ -2014,6 +2018,29 @@ export async function runHostSlaBenchmark(): Promise<SlaReport> {
     slaTarget: '< 0.02 ms',
     passed: vectorLatency < 0.02,
     notes: 'Zero-Allocation Int8 Cosine Similarity & Spoiler Shield Filtering (< 20µs target)',
+  });
+
+  // 65. Bi-Directional Zero-Copy Page Memory Slicing & Ring-Buffer Tile Recycler (Sprint 101 - SLA 65)
+  const pageTileService = new PageTileRecyclerService(db);
+  // Warmup JIT
+  for (let i = 0; i < 5000; i++) {
+    calculatePageTileRecyclingMatrix(i % 20, 50, 7, 3, 2, 'circular_lru', undefined, 'forward', true, 1048576);
+  }
+
+  const tileIters = 20000;
+  const tTileStart = performance.now();
+  for (let i = 0; i < tileIters; i++) {
+    calculatePageTileRecyclingMatrix(i % 20, 50, 7, 3, 2, 'circular_lru', undefined, 'forward', true, 1048576);
+  }
+  const tileLatency = (performance.now() - tTileStart) / tileIters;
+
+  results.push({
+    category: 'Page Tile Recycler',
+    name: 'Tile Recycling & Slicing (SLA 65)',
+    measured: `${(tileLatency * 1000).toFixed(2)} µs (${tileLatency.toFixed(4)} ms)`,
+    slaTarget: '< 0.02 ms',
+    passed: tileLatency < 0.02,
+    notes: 'Zero-Allocation Ring-Buffer Slot Recycling & Zero-Copy Subarray Slicing (< 20µs target)',
   });
 
   // Teardown

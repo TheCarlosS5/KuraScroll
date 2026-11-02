@@ -124,6 +124,8 @@ import { panelPacingRoutes } from './routes/panel-pacing-routes.js';
 import { PanelPacingService } from './services/panel-pacing-service.js';
 import { vectorQuantizerRoutes } from './routes/vector-quantizer-routes.js';
 import { VectorQuantizerService } from './services/vector-quantizer-service.js';
+import { pageTileRecyclerRoutes } from './routes/page-tile-recycler-routes.js';
+import { PageTileRecyclerService } from './services/page-tile-recycler-service.js';
 import { AdaptiveIngestionController } from './services/adaptive-ingestion-controller.js';
 import { DifferentialMirrorService } from './services/differential-mirror-service.js';
 
@@ -174,6 +176,7 @@ export interface AppOptions {
   readingDwellService?: ReadingDwellService;
   panelPacingService?: PanelPacingService;
   vectorQuantizerService?: VectorQuantizerService;
+  pageTileRecyclerService?: PageTileRecyclerService;
 }
 
 export function buildApp(options: AppOptions = {}): FastifyInstance {
@@ -470,6 +473,10 @@ export function buildApp(options: AppOptions = {}): FastifyInstance {
   app.register(vectorQuantizerRoutes, {
     db,
     vectorQuantizerService: options.vectorQuantizerService ?? new VectorQuantizerService(db),
+  });
+  app.register(pageTileRecyclerRoutes, {
+    db,
+    pageTileRecyclerService: options.pageTileRecyclerService ?? new PageTileRecyclerService(db),
   });
 
   return app;

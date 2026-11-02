@@ -54,6 +54,10 @@ import {
   PageSplitStitchService,
   RawPageInput,
 } from '../src/backend/services/page-split-stitch-service.js';
+import {
+  PageHalftoneService,
+  CANONICAL_HALFTONE_PRESETS,
+} from '../src/backend/services/page-halftone-service.js';
 
 export interface SlaResult {
   category: string;
@@ -1348,6 +1352,30 @@ export async function runHostSlaBenchmark(): Promise<SlaReport> {
     slaTarget: '< 0.02 ms',
     passed: splitLatency < 0.02,
     notes: 'Zero-Allocation 50-Page Virtual Split/Stitch Geometry Mapping (< 20µs target)',
+  });
+
+  // 41. Halftone Dot Matrix & Paper Aging Parameter Resolution (Sprint 77 - SLA 41)
+  const halftoneProfile = CANONICAL_HALFTONE_PRESETS.tankobon_retro;
+
+  // Warmup JIT
+  for (let i = 0; i < 5000; i++) {
+    PageHalftoneService.calculateHalftoneMatrix(halftoneProfile);
+  }
+
+  const halftoneIters = 20000;
+  const tHalftoneStart = performance.now();
+  for (let i = 0; i < halftoneIters; i++) {
+    PageHalftoneService.calculateHalftoneMatrix(halftoneProfile);
+  }
+  const halftoneLatency = (performance.now() - tHalftoneStart) / halftoneIters;
+
+  results.push({
+    category: 'Halftone & Paper Engine',
+    name: 'Halftone & Aging Param Resolution (SLA 41)',
+    measured: `${(halftoneLatency * 1000).toFixed(2)} µs (${halftoneLatency.toFixed(4)} ms)`,
+    slaTarget: '< 0.02 ms',
+    passed: halftoneLatency < 0.02,
+    notes: 'Zero-Allocation Dot Matrix & Vintage Paper Color Matrix Synthesis (< 20µs target)',
   });
 
   // Teardown

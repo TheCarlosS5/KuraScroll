@@ -1,0 +1,81 @@
+# Sprint 77 QA Resilience Matrix: Dynamic Halftone Screentone & Vintage Paper Aging Engine
+
+## Executive Summary
+Sprint 77 introduces the **Dynamic Halftone Screentone & Vintage Paper Aging Engine**, enabling readers to apply authentic manga screentone dot patterns and vintage yellowed paper aging effects to digital scans with high-resolution moiré prevention and black-point clipping protection.
+
+This document establishes the exhaustive test plans, edge-case fuzzing matrices, and failure recovery protocols for Retina/4K display moiré prevention (adaptive dot pitch clamping), paper age saturation limits (preventing black-point clipping), Fastify endpoint parameter validation, and ETag 304 verification.
+
+---
+
+## 1. Core Resilience Test Matrix
+
+| ID | Test Scenario | Input / Condition | Expected Behavior | Verification Target |
+| :--- | :--- | :--- | :--- | :--- |
+| **HALF-01** | **Retina / 4K Miré Prevention** | High-DPI display (`devicePixelRatio = 3.0`) rendering dense manga screentones | Adaptive dot pitch clamping dynamically scales Lines Per Inch (LPI) and angle matrices based on viewport resolution, preventing optical moiré interference. | `halftone-moire.test.ts` |
+| **HALF-02** | **Paper Age Saturation & Black-Point Clipping** | Vintage paper aging filter applied with maximum yellowing / sepia intensity (`age = 100`) | Tone curve mapping ensures shadow tones do not clip to pure black (`#000000`), preserving delicate ink line art details without crushing blacks. | `halftone-clipping.test.ts` |
+| **HALF-03** | **Fastify Endpoint Parameter Fuzzing** | Out-of-range LPI (`lpi > 150` or `< 10`), invalid screen angles (`angle > 180` or `< -180`), or negative age values | Fastify validation middleware sanitizes inputs, clamps parameters to safe bounds, and returns HTTP 400 Bad Request for malformed requests. | `halftone-api.test.ts` |
+| **HALF-04** | **ETag HTTP 304 Verification** | Client requests processed halftone/aged asset with matching `If-None-Match` ETag header | Fastify server responds with HTTP 304 Not Modified, bypassing redundant image processing or disk reads. | `halftone-etag.test.ts` |
+| **HALF-05** | **Low-Spec CPU Shader Fallback** | Device running on constrained hardware (Intel Pentium T4500 reference machine) | Heavy SVG/Canvas halftone dot filters automatically downgrade to simpler CSS sepia/blend-mode filters to maintain 60 FPS scrolling. | `halftone-fallback.test.ts` |
+
+---
+
+## 2. Vitest Test Suite Specifications
+
+### 2.1 Backend / Fastify Halftone & Aging Unit Tests (`tests/unit/backend/services/halftone-service.test.ts`)
+```typescript
+import { describe, it, expect } from 'vitest';
+import { validateHalftoneParams, calculateAdaptiveLpi, computeHalftoneEtag } from '../../../../src/backend/services/halftone-service';
+
+describe('Halftone & Vintage Paper Engine Resilience', () => {
+  it('clamps out-of-range LPI and screen angles', () => {
+    const invalidPayload = { lpi: 250, angle: -300, age: 150 };
+    const sanitized = validateHalftoneParams(invalidPayload);
+
+    expect(sanitized.lpi).toBe(150);   // Clamped to max
+    expect(sanitized.angle).toBe(-45); // Standard safe angle fallback
+    expect(sanitized.age).toBe(100);   // Clamped to max age
+  });
+
+  it('adapts dot pitch based on Retina / 4K display devicePixelRatio', () => {
+    const standardLpi = 60;
+    const retinaLpi = calculateAdaptiveLpi(standardLpi, 3.0); // 3x Retina
+    expect(retinaLpi).toBeGreaterThan(standardLpi);
+    expect(retinaLpi).toBeLessThanOrEqual(120);
+  });
+
+  it('generates deterministic ETags for cached halftone assets', () => {
+    const etag1 = computeHalftoneEtag('ch-1', 60, 45, 50);
+    const etag2 = computeHalftoneEtag('ch-1', 60, 45, 50);
+    expect(etag1).toBe(etag2);
+    expect(etag1).toMatch(/^"[\da-f]+"$/);
+  });
+});
+```
+
+### 2.2 Frontend Halftone Viewer Component Tests (`frontend/src/tests/HalftoneViewer.test.tsx`)
+```typescript
+import { describe, it, expect } from 'vitest';
+import { render } from '@testing-library/react';
+import { HalftoneViewer } from '../components/reader/HalftoneViewer';
+
+describe('HalftoneViewer Black-Point Clipping & Clipping Tests', () => {
+  it('applies vintage paper aging filter without crushing shadow line art', () => {
+    const { container } = render(<HalftoneViewer ageIntensity={100} halftoneEnabled={true} />);
+    const filterElement = container.firstChild;
+
+    expect(filterElement).toHaveStyle({
+      filter: expect.stringContaining('sepia'),
+    });
+  });
+});
+```
+
+---
+
+## 3. Failure Recovery & Edge Case Guidelines
+
+1. **Moire Clamping Guard:** When rendering on high-DPI displays, if the requested LPI exceeds the physical pixel grid Nyquist frequency, the engine automatically adjusts dot pitch to eliminate moiré banding.
+2. **Shadow Preservation:** Tone curve transformations apply a gentle toe correction (`y = x^1.05`) to ensure shadow details remain distinct even at 100% paper aging intensity.
+
+---
+*Generated by Senior QA & Resilience Engineer for KuraScroll — Sprint 77.*

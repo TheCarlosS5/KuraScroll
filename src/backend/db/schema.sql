@@ -956,3 +956,22 @@ CREATE TABLE IF NOT EXISTS page_split_stitch_profiles (
 CREATE INDEX IF NOT EXISTS idx_split_stitch_lookup 
     ON page_split_stitch_profiles(series_id, chapter_id, page_number);
 
+-- Sprint 77: Dynamic Halftone Screentone & Vintage Paper Aging Engine
+CREATE TABLE IF NOT EXISTS page_halftone_profiles (
+    id TEXT PRIMARY KEY,
+    series_id TEXT NOT NULL,
+    chapter_id TEXT,
+    preset_name TEXT NOT NULL DEFAULT 'pristine' CHECK (preset_name IN ('pristine', 'shonen_90s', 'tankobon_retro', 'pulp_press', 'custom')),
+    dot_pitch_lpi INTEGER NOT NULL DEFAULT 60 CHECK (dot_pitch_lpi >= 20 AND dot_pitch_lpi <= 150),
+    dot_angle_deg REAL NOT NULL DEFAULT 45.0,
+    dot_intensity REAL NOT NULL DEFAULT 0.35,
+    paper_age_pct REAL NOT NULL DEFAULT 0.20,
+    foxing_intensity REAL NOT NULL DEFAULT 0.10,
+    is_enabled INTEGER NOT NULL DEFAULT 1 CHECK (is_enabled IN (0, 1)),
+    updated_at INTEGER NOT NULL
+);
+
+CREATE INDEX IF NOT EXISTS idx_halftone_lookup 
+    ON page_halftone_profiles(series_id, chapter_id);
+
+

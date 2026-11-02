@@ -85,6 +85,10 @@ import {
   PageTileRecyclerService,
   calculatePageTileRecyclingMatrix,
 } from '../src/backend/services/page-tile-recycler-service.js';
+import {
+  BalloonCollisionService,
+  calculateBalloonCollisionAvoidance,
+} from '../src/backend/services/balloon-collision-service.js';
 
 export interface SlaResult {
   category: string;
@@ -2041,6 +2045,36 @@ export async function runHostSlaBenchmark(): Promise<SlaReport> {
     slaTarget: '< 0.02 ms',
     passed: tileLatency < 0.02,
     notes: 'Zero-Allocation Ring-Buffer Slot Recycling & Zero-Copy Subarray Slicing (< 20µs target)',
+  });
+
+  // 66. Adaptive Per-Panel Reading Path Spatial Occlusion & Balloon Collision Avoider (Sprint 102 - SLA 66)
+  const balloonCollisionService = new BalloonCollisionService(db);
+  const testOverlay = { x: 250, y: 250, width: 140, height: 70 };
+  const testBalloons = [
+    { x: 230, y: 220, width: 160, height: 100 },
+    { x: 500, y: 400, width: 180, height: 120 },
+  ];
+  const testViewport = { width: 1280, height: 720 };
+
+  // Warmup JIT
+  for (let i = 0; i < 5000; i++) {
+    calculateBalloonCollisionAvoidance(testOverlay, testBalloons, testViewport, 'minimal_euclidean', 12, 120, true, true);
+  }
+
+  const collisionIters = 20000;
+  const tCollisionStart = performance.now();
+  for (let i = 0; i < collisionIters; i++) {
+    calculateBalloonCollisionAvoidance(testOverlay, testBalloons, testViewport, 'minimal_euclidean', 12, 120, true, true);
+  }
+  const collisionLatency = (performance.now() - tCollisionStart) / collisionIters;
+
+  results.push({
+    category: 'Spatial Occlusion Engine',
+    name: 'Balloon Collision Avoidance (SLA 66)',
+    measured: `${(collisionLatency * 1000).toFixed(2)} µs (${collisionLatency.toFixed(4)} ms)`,
+    slaTarget: '< 0.02 ms',
+    passed: collisionLatency < 0.02,
+    notes: 'Zero-Allocation 2D AABB Occlusion Avoidance & Minimal Euclidean Vector Math (< 20µs target)',
   });
 
   // Teardown

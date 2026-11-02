@@ -126,6 +126,8 @@ import { vectorQuantizerRoutes } from './routes/vector-quantizer-routes.js';
 import { VectorQuantizerService } from './services/vector-quantizer-service.js';
 import { pageTileRecyclerRoutes } from './routes/page-tile-recycler-routes.js';
 import { PageTileRecyclerService } from './services/page-tile-recycler-service.js';
+import { balloonCollisionRoutes } from './routes/balloon-collision-routes.js';
+import { BalloonCollisionService } from './services/balloon-collision-service.js';
 import { AdaptiveIngestionController } from './services/adaptive-ingestion-controller.js';
 import { DifferentialMirrorService } from './services/differential-mirror-service.js';
 
@@ -177,6 +179,7 @@ export interface AppOptions {
   panelPacingService?: PanelPacingService;
   vectorQuantizerService?: VectorQuantizerService;
   pageTileRecyclerService?: PageTileRecyclerService;
+  balloonCollisionService?: BalloonCollisionService;
 }
 
 export function buildApp(options: AppOptions = {}): FastifyInstance {
@@ -477,6 +480,10 @@ export function buildApp(options: AppOptions = {}): FastifyInstance {
   app.register(pageTileRecyclerRoutes, {
     db,
     pageTileRecyclerService: options.pageTileRecyclerService ?? new PageTileRecyclerService(db),
+  });
+  app.register(balloonCollisionRoutes, {
+    db,
+    balloonCollisionService: options.balloonCollisionService ?? new BalloonCollisionService(db),
   });
 
   return app;

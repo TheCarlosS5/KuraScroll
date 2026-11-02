@@ -1401,6 +1401,26 @@ CREATE TABLE IF NOT EXISTS page_buffer_profiles (
 CREATE INDEX IF NOT EXISTS idx_page_buffer_lookup 
     ON page_buffer_profiles(series_id);
 
+-- Sprint 102: Adaptive Per-Panel Reading Path Spatial Occlusion & Balloon Collision Avoider (SLA 66)
+CREATE TABLE IF NOT EXISTS balloon_collision_profiles (
+    series_id TEXT PRIMARY KEY,
+    avoidance_strategy TEXT NOT NULL DEFAULT 'minimal_euclidean' CHECK (avoidance_strategy IN (
+        'minimal_euclidean',
+        'reading_gravity_downward',
+        'opposite_margin',
+        'clamp_only'
+    )),
+    safety_margin_px INTEGER NOT NULL DEFAULT 12 CHECK (safety_margin_px >= 0 AND safety_margin_px <= 64),
+    max_displacement_px INTEGER NOT NULL DEFAULT 120 CHECK (max_displacement_px >= 20 AND max_displacement_px <= 400),
+    prefer_vertical_shift INTEGER NOT NULL DEFAULT 1 CHECK (prefer_vertical_shift IN (0, 1)),
+    is_enabled INTEGER NOT NULL DEFAULT 1 CHECK (is_enabled IN (0, 1)),
+    created_at INTEGER NOT NULL,
+    updated_at INTEGER NOT NULL
+);
+
+CREATE INDEX IF NOT EXISTS idx_balloon_collision_lookup 
+    ON balloon_collision_profiles(series_id);
+
 
 
 

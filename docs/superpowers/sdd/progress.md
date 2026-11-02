@@ -176,4 +176,12 @@
   - [x] Task 31.6: Fastify Endpoints in `badge-routes.ts` (`GET /api/v1/badges`, `GET /api/v1/badges/unnotified`, `POST /api/v1/badges/notified`, `POST /api/v1/badges/evaluate`, `GET /api/v1/telemetry/badges`, 3/3 tests PASS)
   - [x] Task 31.7: Frontend Components `BadgeGridModal.tsx` and `BadgeUnlockToast.tsx` optimized for Intel GMA 4500MHD (7/7 tests PASS)
   - [x] Task 31.8: Navbar Integration (`Trophy` button) and Monorepo Verification (11/11 SLAs Passed, Vite build 4.34s)
-- [ ] Part 32: Personalized Smart Recommendations & Reading Velocity Estimator
+- [x] Part 32: Personalized Smart Recommendations & Reading Velocity Estimator (Commit a892e19)
+  - [x] Task 32.1: Senior Architectural Consultation with ChatGPT on Brave MCP (`docs/brainstorming/chatgpt-sprint32-recommendations-velocity-blueprint.md`)
+  - [x] Task 32.2: In-memory Inverted Tag/Genre Bitmask Catalog (`recommendation-engine.ts` & `recommendation-service.ts`) with sub-1.5ms execution and 30KB memory footprint
+  - [x] Task 32.3: Multi-Tier Weighted Jaccard Affinity Scoring (Genre 45%, Format 20%, Author 20%, Recency decay $2^{-d/30}$, and Serendipity discovery boost 15%)
+  - [x] Task 32.4: Real-time Reading Velocity Engine (`reading-velocity-service.ts`) with zero-allocation outlier rejection (< 1.5s and > 300s) and EMA smoothing ($\alpha = 0.25$)
+  - [x] Task 32.5: Fastify Endpoints (`GET /api/v1/recommendations/personalized`, `GET /api/v1/analytics/reading-velocity`, `POST /api/v1/analytics/velocity/sample`, 4/4 tests PASS)
+  - [x] Task 32.6: Intel GMA 4500MHD Optimized Frontend Components (`SmartRecommendationsRow.tsx` and `ReadingVelocityBadge.tsx`, 6/6 tests PASS)
+  - [x] Task 32.7: CatalogPage mount and Monorepo Verification (100 test files, 551 passing tests, 11/11 SLAs Passed, Vite build 9.92s)
+- [ ] Part 33: Advanced Reading Color Palettes, Ambient Light Themes & Battery Saver Mode

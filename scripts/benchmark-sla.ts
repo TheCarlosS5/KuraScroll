@@ -77,6 +77,7 @@ import { PageCurlService } from '../src/backend/services/page-curl-service.js';
 import { StorageTierService, TieringCandidateInput } from '../src/backend/services/storage-tier-service.js';
 import { MotionStabilizerService } from '../src/backend/services/motion-stabilizer-service.js';
 import { CreaseShadowService } from '../src/backend/services/crease-shadow-service.js';
+import { TextEqualizerService } from '../src/backend/services/text-equalizer-service.js';
 
 export interface SlaResult {
   category: string;
@@ -1914,6 +1915,29 @@ export async function runHostSlaBenchmark(): Promise<SlaReport> {
     slaTarget: '< 0.02 ms',
     passed: creaseLatency < 0.02,
     notes: 'Zero-Allocation Bilateral Spine Crease Shadow & Volume Asymmetry Gradient (< 20µs target)',
+  });
+
+  // 61. Adaptive Dynamic Range In-Viewport Text & Kanji Edge Equalizer (Sprint 97 - SLA 61)
+  const textEqualizerService = new TextEqualizerService(db);
+  // Warmup JIT
+  for (let i = 0; i < 5000; i++) {
+    textEqualizerService.calculateTextEqualizerParams(0.35, 0.20, 1.30, true, 'newsprint_vintage');
+  }
+
+  const textEqIters = 20000;
+  const tTextEqStart = performance.now();
+  for (let i = 0; i < textEqIters; i++) {
+    textEqualizerService.calculateTextEqualizerParams(0.35, 0.20, 1.30, true, 'newsprint_vintage');
+  }
+  const textEqLatency = (performance.now() - tTextEqStart) / textEqIters;
+
+  results.push({
+    category: 'Text & Typography',
+    name: 'Text & Kanji Edge Equalizer (SLA 61)',
+    measured: `${(textEqLatency * 1000).toFixed(2)} µs (${textEqLatency.toFixed(4)} ms)`,
+    slaTarget: '< 0.02 ms',
+    passed: textEqLatency < 0.02,
+    notes: 'Zero-Allocation Dynamic Range Equalizer & Subpixel Furigana Edge Bias (< 20µs target)',
   });
 
   // Teardown

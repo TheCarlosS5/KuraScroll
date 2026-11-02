@@ -116,6 +116,8 @@ import { motionStabilizerRoutes } from './routes/motion-stabilizer-routes.js';
 import { MotionStabilizerService } from './services/motion-stabilizer-service.js';
 import { creaseShadowRoutes } from './routes/crease-shadow-routes.js';
 import { CreaseShadowService } from './services/crease-shadow-service.js';
+import { textEqualizerRoutes } from './routes/text-equalizer-routes.js';
+import { TextEqualizerService } from './services/text-equalizer-service.js';
 import { AdaptiveIngestionController } from './services/adaptive-ingestion-controller.js';
 import { DifferentialMirrorService } from './services/differential-mirror-service.js';
 
@@ -162,6 +164,7 @@ export interface AppOptions {
   storageTierService?: StorageTierService;
   motionStabilizerService?: MotionStabilizerService;
   creaseShadowService?: CreaseShadowService;
+  textEqualizerService?: TextEqualizerService;
 }
 
 export function buildApp(options: AppOptions = {}): FastifyInstance {
@@ -442,6 +445,10 @@ export function buildApp(options: AppOptions = {}): FastifyInstance {
   app.register(creaseShadowRoutes, {
     db,
     creaseShadowService: options.creaseShadowService ?? new CreaseShadowService(db),
+  });
+  app.register(textEqualizerRoutes, {
+    db,
+    textEqualizerService: options.textEqualizerService ?? new TextEqualizerService(db),
   });
 
   return app;

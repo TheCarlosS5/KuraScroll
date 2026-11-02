@@ -1301,6 +1301,26 @@ CREATE TABLE IF NOT EXISTS crease_shadow_profiles (
 CREATE INDEX IF NOT EXISTS idx_crease_shadow_lookup 
     ON crease_shadow_profiles(series_id);
 
+-- Sprint 97: Adaptive Dynamic Range In-Viewport Text & Kanji Edge Equalizer (SLA 61)
+CREATE TABLE IF NOT EXISTS text_equalizer_profiles (
+    series_id TEXT PRIMARY KEY,
+    equalizer_mode TEXT NOT NULL DEFAULT 'newsprint_vintage' CHECK (equalizer_mode IN (
+        'newsprint_vintage',
+        'glossy_digital',
+        'faded_doujin',
+        'custom'
+    )),
+    black_level_boost REAL NOT NULL DEFAULT 0.35 CHECK (black_level_boost >= 0.00 AND black_level_boost <= 1.00),
+    white_level_compression REAL NOT NULL DEFAULT 0.20 CHECK (white_level_compression >= 0.00 AND white_level_compression <= 1.00),
+    kanji_clarity_factor REAL NOT NULL DEFAULT 1.30 CHECK (kanji_clarity_factor >= 1.00 AND kanji_clarity_factor <= 2.50),
+    is_furigana_sharpen_enabled INTEGER NOT NULL DEFAULT 1 CHECK (is_furigana_sharpen_enabled IN (0, 1)),
+    is_enabled INTEGER NOT NULL DEFAULT 1 CHECK (is_enabled IN (0, 1)),
+    updated_at INTEGER NOT NULL
+);
+
+CREATE INDEX IF NOT EXISTS idx_text_equalizer_lookup 
+    ON text_equalizer_profiles(series_id);
+
 
 
 

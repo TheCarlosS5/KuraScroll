@@ -61,6 +61,7 @@ import {
 import { PageMagnifierService } from '../src/backend/services/page-magnifier-service.js';
 import { ChapterTransitionService } from '../src/backend/services/chapter-transition-service.js';
 import { calculateBacklightTransform } from '../src/backend/services/ambient-backlight-service.js';
+import { calculateProjectionTransform } from '../src/backend/services/page-projection-service.js';
 
 export interface SlaResult {
   category: string;
@@ -1482,6 +1483,28 @@ export async function runHostSlaBenchmark(): Promise<SlaReport> {
     slaTarget: '< 0.02 ms',
     passed: backlightLatency < 0.02,
     notes: 'Zero-Allocation Ambient Backlight & Circadian Transform Resolution (< 20µs target)',
+  });
+
+  // 45. Perspective Keystone & Multi-Angle Projection Transform Resolution (Sprint 81 - SLA 45)
+  // Warmup JIT
+  for (let i = 0; i < 5000; i++) {
+    calculateProjectionTransform(18.0, 5.0, 1200, 0.25);
+  }
+
+  const projectionIters = 20000;
+  const tProjectionStart = performance.now();
+  for (let i = 0; i < projectionIters; i++) {
+    calculateProjectionTransform(18.0, 5.0, 1200, 0.25);
+  }
+  const projectionLatency = (performance.now() - tProjectionStart) / projectionIters;
+
+  results.push({
+    category: 'Page Projection Engine',
+    name: 'Perspective 3D Transform Resolution (SLA 45)',
+    measured: `${(projectionLatency * 1000).toFixed(2)} µs (${projectionLatency.toFixed(4)} ms)`,
+    slaTarget: '< 0.02 ms',
+    passed: projectionLatency < 0.02,
+    notes: 'Zero-Allocation Perspective Keystone & Multi-Angle Matrix Resolution (< 20µs target)',
   });
 
   // Teardown

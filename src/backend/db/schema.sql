@@ -1025,6 +1025,24 @@ CREATE TABLE IF NOT EXISTS ambient_backlight_profiles (
 CREATE INDEX IF NOT EXISTS idx_ambient_backlight_lookup 
     ON ambient_backlight_profiles(series_id, user_id);
 
+-- Sprint 81: Continuous Page Glance & Multi-Angle Reading Projection
+CREATE TABLE IF NOT EXISTS page_projection_profiles (
+    id TEXT PRIMARY KEY,
+    series_id TEXT NOT NULL,
+    user_id TEXT NOT NULL DEFAULT 'default_user',
+    pitch_degrees REAL NOT NULL DEFAULT 0.0 CHECK (pitch_degrees >= -35.0 AND pitch_degrees <= 35.0),
+    yaw_degrees REAL NOT NULL DEFAULT 0.0 CHECK (yaw_degrees >= -25.0 AND yaw_degrees <= 25.0),
+    perspective_px INTEGER NOT NULL DEFAULT 1000 CHECK (perspective_px >= 400 AND perspective_px <= 2000),
+    keystone_correction REAL NOT NULL DEFAULT 0.0 CHECK (keystone_correction >= 0.0 AND keystone_correction <= 1.0),
+    focal_plane_preset TEXT NOT NULL DEFAULT 'flat_orthodox' CHECK (focal_plane_preset IN ('flat_orthodox', 'desk_tilt_20', 'easel_stand_15', 'bed_incline_30', 'lateral_yaw_12', 'custom')),
+    is_enabled INTEGER NOT NULL DEFAULT 1 CHECK (is_enabled IN (0, 1)),
+    updated_at INTEGER NOT NULL
+);
+
+CREATE INDEX IF NOT EXISTS idx_page_projection_lookup 
+    ON page_projection_profiles(series_id, user_id);
+
+
 
 
 

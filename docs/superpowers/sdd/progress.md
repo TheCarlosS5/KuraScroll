@@ -1,9 +1,9 @@
 # SDD ledger — plan: docs/superpowers/plans/2026-11-01-kura-scroll-master-plan.md
 
-- **Status:** Complete & Iterating (Sprint 29 Verified, 463 Tests Passing)
+- **Status:** Complete & Iterating (Sprint 30 Verified, 481+ Tests Passing)
 - **Orchestrator:** Antigravity AI Orchestrator
 - **Branch:** main (isolated in `C:\Users\Admin\dev\kura-scroll`)
-- **Total Test Suites:** 82 test files, 463 passing tests (297 backend + 166 frontend, 100% PASS)
+- **Total Test Suites:** 86 test files, 481+ passing tests (285 backend + 176 frontend + benchmarks, 100% PASS)
 
 ## Rulings & Decisions
 - Ruling: Standalone Sibling Project ("Proyecto Hermano") chosen as requested by Carlos to prevent monolithic coupling with KuraStream while sharing branding/logo (KS).
@@ -159,4 +159,12 @@
   - [x] Task 29.4: Frontend Diagnostics Component `OfflineSyncHUD.tsx` with live network pill, pending IndexedDB mutations drawer, and "Sincronizar Ahora" action button
   - [x] Task 29.5: Navbar mount in `Navbar.tsx` featuring streak flame badge (`🔥 3d`) and `<OfflineSyncHUD />`
   - [x] Task 29.6: Monorepo test coverage (17 tests: `reading-streak-service.test.ts`, `reading-streak.test.ts`, `analytics-routes.test.ts`, `OfflineSyncHUD.test.tsx`, 100% PASS)
-- [ ] Part 30: Daily Reading Goals Customizer & Habit Notifications Engine
+- [x] Part 30: Daily Reading Goals Customizer & Habit Notifications Engine (Commit Sprint 30)
+  - [x] Task 30.1: Senior Architectural Blueprint Consultation with ChatGPT via Brave MCP (`docs/brainstorming/chatgpt-sprint30-reading-goals-and-write-behind-blueprint.md`)
+  - [x] Task 30.2: SQLite Tables `user_reading_goals`, `user_daily_activity`, and Covering Indexes `idx_user_daily_activity_date` & `idx_user_daily_activity_stats` (sub-millisecond queries, zero-scan)
+  - [x] Task 30.3: Typed SQLite Repository `ReadingGoalRepository.ts` (5/5 tests PASS)
+  - [x] Task 30.4: Write-Behind Coalescing Engine `ReadingActivityBuffer.ts` with IOCoordinator integration (`NORMAL` priority), threshold / timer / exit flushes, and telemetry tracking (6/6 tests PASS)
+  - [x] Task 30.5: Fastify Analytics Endpoints (`GET /api/v1/analytics/goals`, `PUT /api/v1/analytics/goals`, `POST /api/v1/analytics/activity/buffered`, `GET /api/v1/telemetry/buffer`, 5/5 tests PASS)
+  - [x] Task 30.6: Intel GMA 4500MHD Optimized Frontend Components `DailyGoalRing.tsx` and `DailyGoalModal.tsx` (9/9 tests PASS)
+  - [x] Task 30.7: Navbar Integration & Host SLA Audit (11/11 SLAs Passed, Vite build 9.87s)
+- [ ] Part 31: Advanced Reading Habit Milestones & Badge System

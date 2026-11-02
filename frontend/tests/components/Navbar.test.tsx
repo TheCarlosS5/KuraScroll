@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from 'vitest';
-import { render, screen } from '@testing-library/react';
+import { render, screen, fireEvent } from '@testing-library/react';
 import { Navbar } from '../../src/components/common/Navbar';
 import React from 'react';
 
@@ -51,5 +51,19 @@ describe('Navbar Component', () => {
 
     telemetryBtn.click();
     expect(handleTelemetry).toHaveBeenCalledTimes(1);
+  });
+
+  it('renders daily goal ring in navbar and opens goal modal on click', () => {
+    render(<Navbar onNavigate={() => {}} currentView="catalog" />);
+    const ring = screen.getByTestId('nav-daily-goal-ring');
+    expect(ring).toBeDefined();
+
+    const progressBar = screen.getByRole('progressbar');
+    expect(progressBar).toBeDefined();
+
+    // Click ring to open modal
+    fireEvent.click(progressBar);
+    expect(screen.getByRole('dialog')).toBeDefined();
+    expect(screen.getByText('Meta Diaria de Lectura')).toBeDefined();
   });
 });

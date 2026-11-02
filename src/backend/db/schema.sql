@@ -129,6 +129,36 @@ CREATE TABLE IF NOT EXISTS user_reading_streaks (
     updated_at TEXT DEFAULT (datetime('now'))
 );
 
+-- Daily Reading Targets & Habit Configuration
+CREATE TABLE IF NOT EXISTS user_reading_goals (
+    user_id TEXT PRIMARY KEY,
+    target_type TEXT NOT NULL CHECK(target_type IN ('pages', 'minutes')),
+    target_value INTEGER NOT NULL CHECK(target_value > 0),
+    notifications_enabled INTEGER NOT NULL DEFAULT 1 CHECK(notifications_enabled IN (0, 1)),
+    created_at TEXT DEFAULT (datetime('now')),
+    updated_at TEXT DEFAULT (datetime('now'))
+);
+
+-- Daily Reading Activity Logs for Calendars, Streaks, and Analytics
+CREATE TABLE IF NOT EXISTS user_daily_activity (
+    user_id TEXT NOT NULL,
+    date TEXT NOT NULL CHECK(length(date) = 10), -- Strict ISO 8601: YYYY-MM-DD
+    pages_read INTEGER NOT NULL DEFAULT 0 CHECK(pages_read >= 0),
+    reading_seconds INTEGER NOT NULL DEFAULT 0 CHECK(reading_seconds >= 0),
+    goal_completed INTEGER NOT NULL DEFAULT 0 CHECK(goal_completed IN (0, 1)),
+    completed_at TEXT, -- Timestamp when the daily goal was met (ISO 8601)
+    updated_at TEXT DEFAULT (datetime('now')),
+    PRIMARY KEY (user_id, date)
+);
+
+-- Covering Index for rapid streak calculation and date range lookups without table scans
+CREATE INDEX IF NOT EXISTS idx_user_daily_activity_date 
+    ON user_daily_activity(user_id, date DESC, goal_completed);
+
+-- Covering Index for lifetime stats aggregation without mechanical disk seeks
+CREATE INDEX IF NOT EXISTS idx_user_daily_activity_stats 
+    ON user_daily_activity(user_id, pages_read, reading_seconds, goal_completed);
+
 -- Incremental Folder Synchronization State (Avoids recursive 4TB HDD re-scanning)
 CREATE TABLE IF NOT EXISTS folder_sync_state (
     folder_path TEXT PRIMARY KEY,

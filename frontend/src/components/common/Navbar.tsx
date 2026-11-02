@@ -1,6 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { BookOpen, Bookmark, Sparkles, History, Database, Film, Flame } from 'lucide-react';
 import { OfflineSyncHUD } from './OfflineSyncHUD.js';
+import { DailyGoalRing } from '../habits/DailyGoalRing.js';
+import {
+  DailyGoalModal,
+  DailyGoalData,
+  TodayProgressData,
+  CalendarDayData,
+  LifetimeStatsData,
+} from '../habits/DailyGoalModal.js';
 
 export interface NavbarProps {
   currentView?: string;
@@ -22,6 +30,60 @@ export const Navbar: React.FC<NavbarProps> = ({
   const [streakDays, setStreakDays] = useState<number>(0);
   const [isStreakActiveToday, setIsStreakActiveToday] = useState<boolean>(false);
 
+  const [isGoalModalOpen, setIsGoalModalOpen] = useState(false);
+  const [goalData, setGoalData] = useState<DailyGoalData>({
+    targetType: 'pages',
+    targetValue: 30,
+    notificationsEnabled: true,
+  });
+  const [todayProgress, setTodayProgress] = useState<TodayProgressData>({
+    pagesRead: 0,
+    readingSeconds: 0,
+    goalCompleted: false,
+    progressPercentage: 0,
+  });
+  const [calendar, setCalendar] = useState<CalendarDayData[]>([]);
+  const [lifetime, setLifetime] = useState<LifetimeStatsData>({
+    lifetimePages: 0,
+    lifetimeSeconds: 0,
+    totalGoalsCompleted: 0,
+    currentStreak: 0,
+    bestStreak: 0,
+  });
+
+  const fetchGoalsAndProgress = async () => {
+    try {
+      const res = await fetch('/api/v1/analytics/goals?userId=local_user');
+      if (!res.ok) return;
+      const data = await res.json();
+      if (data?.success) {
+        if (data.goal) setGoalData(data.goal);
+        if (data.today) setTodayProgress(data.today);
+        if (data.calendar) setCalendar(data.calendar);
+        if (data.lifetime) setLifetime(data.lifetime);
+      }
+    } catch {
+      // Offline fallback
+    }
+  };
+
+  const handleSaveGoal = async (newGoal: DailyGoalData) => {
+    try {
+      const res = await fetch('/api/v1/analytics/goals', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ userId: 'local_user', ...newGoal }),
+      });
+      if (res.ok) {
+        const data = await res.json();
+        if (data?.goal) setGoalData(data.goal);
+        if (data?.today) setTodayProgress(data.today);
+      }
+    } catch {
+      // Offline fallback
+    }
+  };
+
   useEffect(() => {
     let isMounted = true;
     async function fetchStreak() {
@@ -38,6 +100,7 @@ export const Navbar: React.FC<NavbarProps> = ({
       }
     }
     fetchStreak();
+    fetchGoalsAndProgress();
     return () => {
       isMounted = false;
     };
@@ -130,6 +193,22 @@ export const Navbar: React.FC<NavbarProps> = ({
             </div>
           )}
 
+          {/* Daily Goal Ring Trigger */}
+          <div data-testid="nav-daily-goal-ring" className="flex items-center">
+            <DailyGoalRing
+              current={
+                goalData.targetType === 'pages'
+                  ? todayProgress.pagesRead
+                  : Math.round(todayProgress.readingSeconds / 60)
+              }
+              target={goalData.targetValue}
+              unit={goalData.targetType === 'pages' ? 'pág' : 'min'}
+              size={34}
+              strokeWidth={3}
+              onClick={() => setIsGoalModalOpen(true)}
+            />
+          </div>
+
           {/* Offline Sync Diagnostics HUD */}
           <OfflineSyncHUD />
 
@@ -198,6 +277,17 @@ export const Navbar: React.FC<NavbarProps> = ({
           </button>
         </div>
       </div>
+
+      {/* Daily Goal Customizer Modal */}
+      <DailyGoalModal
+        isOpen={isGoalModalOpen}
+        onClose={() => setIsGoalModalOpen(false)}
+        initialGoal={goalData}
+        todayProgress={todayProgress}
+        calendar={calendar}
+        lifetime={lifetime}
+        onSaveGoal={handleSaveGoal}
+      />
     </header>
   );
 };

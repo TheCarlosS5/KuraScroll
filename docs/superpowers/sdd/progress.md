@@ -561,6 +561,23 @@
   - [x] Task 78.5: Client useMagnifierLoupe Hook & MagnifierLoupeHUD Component (`frontend/src/reader/useMagnifierLoupe.ts`, `MagnifierLoupeHUD.tsx`, zero-blur solid `#18181b` containment, shape selector [Circular / Rectangular], zoom factor 1.25x-4.0x, lens radius 60-250px, smoothing slider, ring color picker, keyboard shortcut 'Z', 0 CLS)
   - [x] Task 78.6: Subagent Swarm Execution & SLA 42 Benchmark (SLA 42: 0.06 µs [333x faster than SLA target < 20 µs], 42/42 SLAs Passed)
   - [x] Task 78.7: Monorepo Verification & Git Commit (288 test files, 1,536 tests PASS [975 backend + 561 frontend], Vite build in 10.36s)
+- [x] Part 79: Intelligent Chapter Transition Pre-Baking Engine (Predictive Archive Unpack & Visual Continuity Curtain)
+  - [x] Task 79.1: Senior Architectural Blueprint Consultation with ChatGPT via Brave MCP (`docs/specs/sprint-79-transition-schema.md`)
+  - [x] Task 79.2: Dynamic Pre-baking Window Math ($P_{\text{curr}} \ge \max(1, P_{\text{total}} - \Delta_{\text{offset}} + 1)$), Non-Blocking HDD Seek Decoupling, and Zero-CLS Curtain Animation Specification (`docs/specs/sprint-79-transition-schema.md`, `docs/specs/sprint-79-transition-hud-spec.md`, `docs/specs/sprint-79-transition-user-perspective.md`, `docs/specs/sprint-79-transition-devops-audit.md`, `docs/specs/sprint-79-transition-qa-resilience.md`, `sprint79-transition-sla-spec.md`)
+  - [x] Task 79.3: Backend ChapterTransitionService & SQLite Table (`src/backend/services/chapter-transition-service.ts`, table `chapter_transition_profiles`, index `idx_chapter_transition_lookup`, zero-allocation evaluatePrebakeTrigger)
+  - [x] Task 79.4: Fastify Chapter Transition REST Endpoints (`src/backend/routes/chapter-transition-routes.ts`, `/profile/:seriesId`, `/profile`, `/evaluate-trigger`, HTTP 304 ETag caching)
+  - [x] Task 79.5: Client useChapterTransition Hook & ChapterTransitionCurtain Component (`frontend/src/reader/useChapterTransition.ts`, `ChapterTransitionCurtain.tsx`, solid `#18181b` containment, chapter metadata teaser, progress ring, zero backdrop-filter, keyboard trigger, 0 CLS)
+  - [x] Task 79.6: Subagent Swarm Execution & SLA 43 Benchmark (SLA 43: 0.11 µs [181x faster than SLA target < 20 µs], 43/43 SLAs Passed)
+  - [x] Task 79.7: Monorepo Verification & Git Commit (292 test files, 1,561 tests PASS [989 backend + 572 frontend], Vite build in 4.68s)
+- [ ] Part 80: Adaptive Ambient Lighting Reactive Backlight Engine (Dynamic Luminance Normalizer & Circadian Eye Shield)
+  - [ ] Task 80.1: Senior Architectural Blueprint Consultation with ChatGPT via Brave MCP
+  - [ ] Task 80.2: Ambient Lux to Melanopic LUX Curve, Dynamic White-Point Color Balancing ($K_{\text{temp}} = 1800\text{K} - 6500\text{K}$), and Hardware-Accelerated CSS Tone Curves Specification
+  - [ ] Task 80.3: Backend AmbientBacklightService & SQLite Table (`src/backend/services/ambient-backlight-service.ts`, table `ambient_backlight_profiles`, index `idx_ambient_backlight_lookup`, zero-allocation calculateColorTemperatureTransform)
+  - [ ] Task 80.4: Fastify Ambient Backlight REST Endpoints (`src/backend/routes/ambient-backlight-routes.ts`, HTTP 304 ETag caching)
+  - [ ] Task 80.5: Client useAmbientBacklight Hook & AmbientBacklightHUD Component (`frontend/src/reader/useAmbientBacklight.ts`, `AmbientBacklightHUD.tsx`, zero-blur solid `#18181b` containment, kelvin color slider, ambient sensor toggle, dark mode gamma curve, 0 CLS)
+  - [ ] Task 80.6: Subagent Swarm Execution & SLA 44 Benchmark
+  - [ ] Task 80.7: Monorepo Verification & Git Commit
+
 
 
 

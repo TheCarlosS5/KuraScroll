@@ -991,5 +991,23 @@ CREATE TABLE IF NOT EXISTS page_magnifier_profiles (
 CREATE INDEX IF NOT EXISTS idx_magnifier_lookup 
     ON page_magnifier_profiles(series_id, chapter_id);
 
+-- Sprint 79: Intelligent Chapter Transition Pre-Baking Engine
+CREATE TABLE IF NOT EXISTS chapter_transition_profiles (
+    id TEXT PRIMARY KEY,
+    series_id TEXT NOT NULL,
+    from_chapter_id TEXT,
+    to_chapter_id TEXT,
+    prebake_trigger_page_offset INTEGER NOT NULL DEFAULT 3 CHECK (prebake_trigger_page_offset >= 1 AND prebake_trigger_page_offset <= 5),
+    transition_style TEXT NOT NULL DEFAULT 'curtain' CHECK (transition_style IN ('curtain', 'infinite_scroll', 'page_turn')),
+    auto_advance_delay_ms INTEGER NOT NULL DEFAULT 1500 CHECK (auto_advance_delay_ms >= 0 AND auto_advance_delay_ms <= 5000),
+    show_reading_summary INTEGER NOT NULL DEFAULT 1 CHECK (show_reading_summary IN (0, 1)),
+    is_enabled INTEGER NOT NULL DEFAULT 1 CHECK (is_enabled IN (0, 1)),
+    updated_at INTEGER NOT NULL
+);
+
+CREATE INDEX IF NOT EXISTS idx_chapter_transition_lookup 
+    ON chapter_transition_profiles(series_id, from_chapter_id);
+
+
 
 

@@ -44,6 +44,8 @@ import { prefetchRoutes } from './routes/prefetch-routes.js';
 import { PredictivePrefetchDaemon } from './services/predictive-prefetch-daemon.js';
 import { dialogueSearchRoutes } from './routes/dialogue-search-routes.js';
 import { DialogueSearchService } from './services/dialogue-search-service.js';
+import { spatialHeatmapRoutes } from './routes/spatial-heatmap-routes.js';
+import { SpatialHeatmapService } from './services/spatial-heatmap-service.js';
 import { AdaptiveIngestionController } from './services/adaptive-ingestion-controller.js';
 import { DifferentialMirrorService } from './services/differential-mirror-service.js';
 
@@ -187,6 +189,10 @@ export function buildApp(options: AppOptions = {}): FastifyInstance {
   app.register(dialogueSearchRoutes, {
     db,
     dialogueService: new DialogueSearchService(db),
+  });
+  app.register(spatialHeatmapRoutes, {
+    db,
+    spatialHeatmapService: new SpatialHeatmapService(db),
   });
 
   return app;

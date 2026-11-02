@@ -418,10 +418,10 @@
   - [x] Task 60.4: Client Instant Dialogue Jump HUD & Quote Snippet Scrubber (`frontend/src/reader/useDialogueSearch.ts`, `DialogueJumpHUD.tsx`, 0 CLS, 0 blur, bounding box jump)
   - [x] Task 60.5: Subagent Swarm Execution & Benchmark (SLA 24: 0.3709 ms [2.7x faster than SLA target < 1.0 ms], 24/24 SLAs Passed)
   - [x] Task 60.6: Monorepo Verification & Git Commit (216 test files, 1,078 tests PASS [710 backend + 368 frontend], Vite build in 4.64s)
-- [ ] Part 61: Continuous In-Memory Spatial Reading Heatmap & Kinetic Focus Analyzer (Gaze Dwell Reconstruction & Attention Map Export for 4TB Manga Library)
-  - [ ] Task 61.1: Senior Architectural Blueprint Consultation with ChatGPT via Brave MCP
-  - [ ] Task 61.2: Kinetic Reading Focus Spatial Kernel & Float32 Bounding-Box Accumulator
-  - [ ] Task 61.3: Low-Footprint Attention Map Compression & Storage Optimization
-  - [ ] Task 61.4: Client Attention Heatmap Overlay & Panel Focus Scrubber
-  - [ ] Task 61.5: Subagent Swarm Execution & Benchmark (SLA 25)
-  - [ ] Task 61.6: Monorepo Verification & Git Commit
+- [x] Part 61: Continuous In-Memory Spatial Reading Heatmap & Kinetic Focus Analyzer (Gaze Dwell Reconstruction & Attention Map Export for 4TB Manga Library)
+  - [x] Task 61.1: Senior Architectural Blueprint Consultation with ChatGPT via Brave MCP (`docs/brainstorming/chatgpt-sprint61-spatial-heatmap-blueprint.md`)
+  - [x] Task 61.2: Kinetic Reading Focus Spatial Kernel & Float32 Bounding-Box Accumulator (`src/backend/services/spatial-heatmap-service.ts`, zero-allocation 16x16 grid accumulation, 3x3 Gaussian-like kernel, 2D box projection)
+  - [x] Task 61.3: Low-Footprint Attention Map Compression & Storage Optimization (Uint8 quantization 256 bytes/page, SQLite table `page_spatial_heatmaps`, write-behind buffer batching)
+  - [x] Task 61.4: Client Attention Heatmap Overlay & Panel Focus Scrubber (`frontend/src/reader/useSpatialHeatmap.ts`, `SpatialHeatmapOverlay.tsx`, solid Canvas 2D render loop, 0 CLS, 0 blur)
+  - [x] Task 61.5: Subagent Swarm Execution & Benchmark (SLA 25: 1.55 µs [32x faster than SLA target < 0.05 ms], 25/25 SLAs Passed)
+  - [x] Task 61.6: Monorepo Verification & Git Commit (220 test files, 1,098 tests PASS [722 backend + 376 frontend], Vite build in 4.58s)

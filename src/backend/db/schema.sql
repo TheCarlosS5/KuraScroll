@@ -604,6 +604,24 @@ CREATE INDEX IF NOT EXISTS idx_transcode_cache_lookup
 CREATE INDEX IF NOT EXISTS idx_transcode_lru_prune
     ON cached_transcoded_pages (last_accessed_at);
 
+-- Sprint 61: Continuous In-Memory Spatial Reading Heatmap & Kinetic Focus Analyzer
+CREATE TABLE IF NOT EXISTS page_spatial_heatmaps (
+    id TEXT PRIMARY KEY,
+    chapter_id TEXT NOT NULL REFERENCES chapters(id) ON DELETE CASCADE,
+    page_number INTEGER NOT NULL CHECK (page_number >= 1),
+    user_id TEXT NOT NULL,
+    grid_dim INTEGER NOT NULL DEFAULT 16 CHECK (grid_dim = 16),
+    total_dwell_ms INTEGER NOT NULL DEFAULT 0,
+    peak_intensity INTEGER NOT NULL DEFAULT 0 CHECK (peak_intensity BETWEEN 0 AND 255),
+    heatmap_blob BLOB NOT NULL,
+    created_at TEXT DEFAULT (datetime('now')),
+    updated_at TEXT DEFAULT (datetime('now')),
+    UNIQUE(chapter_id, page_number, user_id)
+);
+
+CREATE INDEX IF NOT EXISTS idx_spatial_heatmaps_lookup
+    ON page_spatial_heatmaps(chapter_id, page_number);
+
 
 
 

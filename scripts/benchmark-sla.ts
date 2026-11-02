@@ -101,6 +101,10 @@ import {
   ChapterSeamService,
   calculateChapterSeamKinematics,
 } from '../src/backend/services/chapter-seam-service.js';
+import {
+  BalloonFontService,
+  calculateBalloonFontScale,
+} from '../src/backend/services/balloon-font-service.js';
 
 export interface SlaResult {
   category: string;
@@ -2194,6 +2198,53 @@ export async function runHostSlaBenchmark(): Promise<SlaReport> {
     slaTarget: '< 0.02 ms',
     passed: seamLatency < 0.02,
     notes: 'Zero-Allocation Viscous Damping & Seam Pre-Baking Evaluation (< 20µs target)',
+  });
+
+  // 70. Adaptive Viewport Spatial Dialogue Balloon Glyph & Text Auto-Scaler (Sprint 106 - SLA 70)
+  const balloonFontService = new BalloonFontService(db);
+  // Warmup JIT
+  for (let i = 0; i < 5000; i++) {
+    calculateBalloonFontScale(
+      240,
+      180,
+      32,
+      1280,
+      720,
+      12,
+      28,
+      0.65,
+      true,
+      'comfort_legibility',
+      true
+    );
+  }
+
+  const fontIters = 20000;
+  const tFontStart = performance.now();
+  for (let i = 0; i < fontIters; i++) {
+    calculateBalloonFontScale(
+      240,
+      180,
+      32,
+      1280,
+      720,
+      12,
+      28,
+      0.65,
+      true,
+      'comfort_legibility',
+      true
+    );
+  }
+  const fontLatency = (performance.now() - tFontStart) / fontIters;
+
+  results.push({
+    category: 'Typography & Optical Engine',
+    name: 'Balloon Glyph & Font Auto-Scaler (SLA 70)',
+    measured: `${(fontLatency * 1000).toFixed(2)} µs (${fontLatency.toFixed(4)} ms)`,
+    slaTarget: '< 0.02 ms',
+    passed: fontLatency < 0.02,
+    notes: 'Zero-Allocation Optical Container Scaling & Ruby Furigana Clearance (< 20µs target)',
   });
 
   // Teardown

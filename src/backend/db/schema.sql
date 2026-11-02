@@ -1485,6 +1485,28 @@ CREATE TABLE IF NOT EXISTS chapter_seam_profiles (
 CREATE INDEX IF NOT EXISTS idx_chapter_seam_lookup 
     ON chapter_seam_profiles(series_id);
 
+-- Sprint 106: Adaptive Viewport Spatial Dialogue Balloon Glyph & Text Auto-Scaler (SLA 70)
+CREATE TABLE IF NOT EXISTS balloon_font_profiles (
+    series_id TEXT PRIMARY KEY,
+    scaling_mode TEXT NOT NULL DEFAULT 'comfort_legibility' CHECK (scaling_mode IN (
+        'comfort_legibility',
+        'compact_dialogue',
+        'large_print',
+        'disabled',
+        'custom'
+    )),
+    min_font_size_px INTEGER NOT NULL DEFAULT 10 CHECK (min_font_size_px >= 6 AND min_font_size_px <= 24),
+    max_font_size_px INTEGER NOT NULL DEFAULT 32 CHECK (max_font_size_px >= 16 AND max_font_size_px <= 72),
+    target_density_ratio REAL NOT NULL DEFAULT 0.65 CHECK (target_density_ratio >= 0.20 AND target_density_ratio <= 0.95),
+    is_furigana_preserved INTEGER NOT NULL DEFAULT 1 CHECK (is_furigana_preserved IN (0, 1)),
+    is_enabled INTEGER NOT NULL DEFAULT 1 CHECK (is_enabled IN (0, 1)),
+    created_at INTEGER NOT NULL,
+    updated_at INTEGER NOT NULL
+);
+
+CREATE INDEX IF NOT EXISTS idx_balloon_font_lookup 
+    ON balloon_font_profiles(series_id);
+
 
 
 

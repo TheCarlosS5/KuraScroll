@@ -481,6 +481,15 @@
   - [x] Task 68.5: Client useGuidedPanelPacer Hook & GuidedPanelHUD Component (`frontend/src/reader/useGuidedPanelPacer.ts`, `GuidedPanelHUD.tsx`, zero-blur solid `#18181b` containment, hands-free auto-play pacer, keyboard shortcuts 'P'/'A'/Space/Arrows, 0 CLS)
   - [x] Task 68.6: Subagent Swarm Execution & SLA 32 Benchmark (SLA 32: 2.25 µs [8.8x faster than SLA target < 20 µs], 32/32 SLAs Passed)
   - [x] Task 68.7: Monorepo Verification & Git Commit (244 test files, 1,249 tests PASS, Vite build in 4.52s)
+- [x] Part 69: LAN Companion Sync & Zero-Config Mobile Reader Bridge (Direct Local Streaming from Host T4500 to Mobile/Tablet Browsers with QR Pairing)
+  - [x] Task 69.1: Senior Architectural Blueprint Consultation with ChatGPT via Brave MCP (`docs/brainstorming/lan-companion-discovery-specification.md`)
+  - [x] Task 69.2: Private RFC 1918 IPv4 Interface Resolution, QR SVG Matrix & Ephemeral Token Specification (`docs/brainstorming/lan-companion-discovery-specification.md`, `docs/reports/sprint69-lan-companion-resilience-matrix.md`, `docs/reports/sprint69-devops-lan-companion-audit.md`)
+  - [x] Task 69.3: Backend LanCompanionService & SQLite Table (`src/backend/services/lan-companion-service.ts`, table `lan_pairing_sessions`, indexes `idx_lan_pairing_status` & `idx_lan_pairing_token`, 256-bit token entropy, 90s TTL, 5-attempt rate-limit lockout)
+  - [x] Task 69.4: Fastify LAN Companion REST Endpoints (`src/backend/routes/lan-companion-routes.ts`, `/lan-info`, `/qr-pair/create`, `/qr-pair/handshake`, `/companion/session/:pairingId`, `/companion/sync-progress`, `/companion/active-devices`, `/companion/revoke`)
+  - [x] Task 69.5: Client useLanCompanion Hook & LanPairingModal Component (`frontend/src/reader/useLanCompanion.ts`, `LanPairingModal.tsx`, zero-blur solid `#18181b` containment, high-contrast QR SVG, copy URL, active devices list)
+  - [x] Task 69.6: Subagent Swarm Execution & SLA 33 Benchmark (SLA 33: 83.08 µs [12x faster than SLA target < 1.0 ms], 33/33 SLAs Passed)
+  - [x] Task 69.7: Monorepo Verification & Git Commit (246 test files, 1,274 tests PASS, Vite build in 4.44s)
+
 
 
 

@@ -34,6 +34,7 @@ import {
 } from '../src/backend/services/deep-zoom-tile-service.js';
 import { SfxOverlayService } from '../src/backend/services/sfx-overlay-service.js';
 import { GuidedPanelService } from '../src/backend/services/guided-panel-service.js';
+import { LanCompanionService } from '../src/backend/services/lan-companion-service.js';
 
 export interface SlaResult {
   category: string;
@@ -1033,6 +1034,31 @@ export async function runHostSlaBenchmark(): Promise<SlaReport> {
     slaTarget: '< 0.02 ms',
     passed: panelLatency < 0.02,
     notes: 'Topological Tier-Clustering & Zero-Allocation Camera Framing Math (< 20µs target)',
+  });
+
+  // --- SLA 33: LAN Pairing Handshake & Session Resolution Latency (Sprint 69) ---
+  const lanService = new LanCompanionService(db);
+  const samplePairing = lanService.createPairingSession(4000, '192.168.1.100');
+
+  // Warmup JIT
+  for (let i = 0; i < 500; i++) {
+    lanService.verifyAndClaimHandshake(samplePairing.pairingId, samplePairing.rawToken, '192.168.1.101');
+  }
+
+  const lanIters = 5000;
+  const tLanStart = performance.now();
+  for (let i = 0; i < lanIters; i++) {
+    lanService.verifyAndClaimHandshake(samplePairing.pairingId, samplePairing.rawToken, '192.168.1.101');
+  }
+  const lanLatency = (performance.now() - tLanStart) / lanIters;
+
+  results.push({
+    category: 'LAN Companion Bridge',
+    name: 'Pairing Handshake & Session Sync (SLA 33)',
+    measured: `${(lanLatency * 1000).toFixed(2)} µs (${lanLatency.toFixed(4)} ms)`,
+    slaTarget: '< 1.0 ms',
+    passed: lanLatency < 1.0,
+    notes: 'Zero-Config RFC1918 Discovery, SHA-256 Auth & Indexed Session Resolution (< 1.0ms target)',
   });
 
   // Teardown

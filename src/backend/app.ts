@@ -60,6 +60,8 @@ import { sfxOverlayRoutes } from './routes/sfx-overlay-routes.js';
 import { SfxOverlayService } from './services/sfx-overlay-service.js';
 import { guidedPanelRoutes } from './routes/guided-panel-routes.js';
 import { GuidedPanelService } from './services/guided-panel-service.js';
+import { lanCompanionRoutes } from './routes/lan-companion-routes.js';
+import { LanCompanionService } from './services/lan-companion-service.js';
 import { AdaptiveIngestionController } from './services/adaptive-ingestion-controller.js';
 import { DifferentialMirrorService } from './services/differential-mirror-service.js';
 
@@ -78,6 +80,7 @@ export interface AppOptions {
   deepZoomService?: DeepZoomTileService;
   sfxOverlayService?: SfxOverlayService;
   guidedPanelService?: GuidedPanelService;
+  lanCompanionService?: LanCompanionService;
 }
 
 export function buildApp(options: AppOptions = {}): FastifyInstance {
@@ -246,6 +249,10 @@ export function buildApp(options: AppOptions = {}): FastifyInstance {
   app.register(guidedPanelRoutes, {
     db,
     guidedPanelService: options.guidedPanelService ?? new GuidedPanelService(db),
+  });
+  app.register(lanCompanionRoutes, {
+    db,
+    lanCompanionService: options.lanCompanionService ?? new LanCompanionService(db),
   });
 
   return app;

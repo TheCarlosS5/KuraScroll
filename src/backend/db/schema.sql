@@ -775,6 +775,32 @@ CREATE TABLE IF NOT EXISTS page_panel_sequences (
 CREATE INDEX IF NOT EXISTS idx_panel_seq_chapter_page
     ON page_panel_sequences(chapter_id, page_number, panel_index);
 
+-- Sprint 69: LAN Companion Pairing Sessions & Sync Bridge
+CREATE TABLE IF NOT EXISTS lan_pairing_sessions (
+    pairing_id TEXT PRIMARY KEY,
+    pairing_token_hash TEXT NOT NULL,
+    session_token_hash TEXT,
+    device_name TEXT,
+    device_type TEXT NOT NULL DEFAULT 'mobile' CHECK(device_type IN ('mobile', 'tablet', 'desktop_companion', 'unknown')),
+    client_ip TEXT NOT NULL,
+    status TEXT NOT NULL DEFAULT 'PENDING' CHECK(status IN ('PENDING', 'PAIRED', 'REVOKED', 'EXPIRED')),
+    active_series_id TEXT,
+    active_chapter_id TEXT,
+    active_page_number INTEGER NOT NULL DEFAULT 1 CHECK(active_page_number >= 1),
+    failed_attempts INTEGER NOT NULL DEFAULT 0,
+    created_at INTEGER NOT NULL,
+    expires_at INTEGER NOT NULL,
+    paired_at INTEGER,
+    last_seen_at INTEGER
+);
+
+CREATE INDEX IF NOT EXISTS idx_lan_pairing_status 
+    ON lan_pairing_sessions(status, expires_at);
+
+CREATE INDEX IF NOT EXISTS idx_lan_pairing_token 
+    ON lan_pairing_sessions(pairing_token_hash);
+
+
 
 
 

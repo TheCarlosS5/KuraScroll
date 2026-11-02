@@ -1,0 +1,88 @@
+# Sprint 70 QA Resilience Matrix: Kinetic Transitions & Climax Panel Parallax Engine
+
+## Executive Summary
+Sprint 70 introduces the **Kinetic Transitions & Climax Panel Parallax Engine**, bringing immersive 2.5D depth and multi-layered parallax scrolling to key climax panels in KuraScroll without sacrificing performance on low-spec hardware (such as the Intel Pentium T4500 reference machine).
+
+This report outlines the exhaustive test plans, edge-case fuzzing matrices, and failure recovery protocols for missing layer assets, motion sickness clamping ($\pm 8\text{px}$), gyroscope permission denial fallbacks, window resizing with zero Cumulative Layout Shift (CLS), and automatic thermal downgrades via the FramePacer.
+
+---
+
+## 1. Core Resilience Test Matrix
+
+| ID | Test Scenario | Input / Condition | Expected Behavior | Verification Target |
+| :--- | :--- | :--- | :--- | :--- |
+| **KIN-01** | **Missing Parallax Layer Assets** | Panel metadata references Layer 2 (foreground) but image asset returns 404 or fails decoding | Graceful fallback to flat 2D single-layer rendering without throwing exceptions or blocking render loop. | `kinetic-missing-layer.test.ts` |
+| **KIN-02** | **Motion Sickness / Excessive Input Clamping** | Extreme mouse velocity or aggressive mobile shake event (`deviceorientation` delta $> 45^\circ$) | Parallax displacement is strictly clamped to a maximum offset of $\pm 8\text{px}$ to prevent motion sickness and UI distortion. | `kinetic-clamping.test.ts` |
+| **KIN-03** | **Gyroscope Permission Denied** | Mobile browser denies DeviceOrientation API permission (`PermissionDeniedError`) | Seamless fallback to vertical scroll-driven parallax without console error storms or state freezes. | `kinetic-gyro-fallback.test.ts` |
+| **KIN-04** | **Window Resize During Animation** | Browser window dimensions change dynamically (`resize` event fired during active parallax pan) | Layout coordinates recalculate proportionally with zero Cumulative Layout Shift (`CLS = 0`). | `kinetic-cls.test.ts` |
+| **KIN-05** | **ThermalGuard / T4500 Degradation** | System thermal state enters `LOCKED_30` or CPU utilization exceeds 85% | FramePacer immediately deactivates kinetic parallax, falling back to static 2D mode to conserve CPU cycles. | `kinetic-thermal.test.ts` |
+
+---
+
+## 2. Vitest Test Suite Specifications
+
+### 2.1 Backend / Layer Sanitization & Clamping Unit Tests (`tests/unit/backend/services/kinetic-engine.test.ts`)
+```typescript
+import { describe, it, expect } from 'vitest';
+import { sanitizeParallaxLayers, clampParallaxOffset } from '../../../../src/backend/services/kinetic-engine';
+
+describe('Kinetic Parallax Engine Resilience & Clamping', () => {
+  it('falls back gracefully when intermediate layers are missing', () => {
+    const rawLayers = [
+      { id: 'bg', url: '/img/bg.webp', depth: 0.1 },
+      { id: 'fg-missing', url: '/img/404.webp', depth: 0.8 }, // Missing asset
+    ];
+    const sanitized = sanitizeParallaxLayers(rawLayers);
+    expect(sanitized.length).toBe(1);
+    expect(sanitized[0].id).toBe('bg');
+  });
+
+  it('strictly clamps excessive displacement offsets to ±8px', () => {
+    const extremeInputX = 45.7;
+    const extremeInputY = -92.3;
+    const clamped = clampParallaxOffset(extremeInputX, extremeInputY, 8.0);
+
+    expect(clamped.x).toBe(8.0);
+    expect(clamped.y).toBe(-8.0);
+  });
+});
+```
+
+### 2.2 Frontend Gyroscope & Thermal Fallback Hooks (`frontend/src/tests/useKineticParallax.test.ts`)
+```typescript
+import { describe, it, expect, vi } from 'vitest';
+import { renderHook, act } from '@testing-library/react';
+import { useKineticParallax } from '../hooks/useKineticParallax';
+
+describe('useKineticParallax Gyroscope & Thermal Fallback', () => {
+  it('falls back to scroll-driven parallax when device orientation permission is denied', async () => {
+    vi.stubGlobal('DeviceOrientationEvent', {
+      requestPermission: vi.fn().mockRejectedValue(new Error('Permission denied')),
+    });
+
+    const { result } = renderHook(() => useKineticParallax({ enableGyro: true }));
+
+    await act(async () => {
+      await result.current.initGyroscope();
+    });
+
+    expect(result.current.activeMode).toBe('scroll-fallback');
+    expect(result.current.error).toBeNull();
+  });
+
+  it('deactivates parallax under thermal throttling (LOCKED_30)', () => {
+    const { result } = renderHook(() => useKineticParallax({ thermalState: 'LOCKED_30' }));
+    expect(result.current.isEnabled).toBe(false);
+  });
+});
+```
+
+---
+
+## 3. Failure Recovery & Edge Case Guidelines
+
+1. **Thermal Auto-Downgrade:** When the system telemetry reports CPU load exceeding thresholds on legacy hardware (Intel Pentium T4500), the Kinetic Engine disables canvas transform loops and unbinds mouse/orientation listeners to prioritize smooth chapter reading.
+2. **Resize Stability:** Viewport resizing utilizes CSS transform matrices (`translate3d`) anchored around container centers, ensuring 0.00 CLS during active reading.
+
+---
+*Generated by Senior QA & Resilience Engineer for KuraScroll — Sprint 70.*

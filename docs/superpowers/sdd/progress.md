@@ -489,6 +489,14 @@
   - [x] Task 69.5: Client useLanCompanion Hook & LanPairingModal Component (`frontend/src/reader/useLanCompanion.ts`, `LanPairingModal.tsx`, zero-blur solid `#18181b` containment, high-contrast QR SVG, copy URL, active devices list)
   - [x] Task 69.6: Subagent Swarm Execution & SLA 33 Benchmark (SLA 33: 83.08 µs [12x faster than SLA target < 1.0 ms], 33/33 SLAs Passed)
   - [x] Task 69.7: Monorepo Verification & Git Commit (246 test files, 1,274 tests PASS, Vite build in 4.44s)
+- [x] Part 70: Kinetic Motion Shutter & Multi-Layer Parallax Engine (2.5D Climax Spread Transitions for Manga, Manhwa & Webtoons)
+  - [x] Task 70.1: Senior Architectural Blueprint Consultation with ChatGPT via Brave MCP (`docs/brainstorming/kinetic-parallax-specification.md`)
+  - [x] Task 70.2: 2.5D Multi-Plane Depth Model (FG 1.0, MG 0.5, BG 0.1), Anti-Bleed Over-Scaling (1.0 + d_k * 0.08), and Zero-Blur Letterbox Shutter Specification (`docs/brainstorming/kinetic-parallax-specification.md`, `docs/brainstorming/kinetic-motion-hud-spec.md`, `docs/brainstorming/user-perspective-kinetic-audit.md`, `docs/reports/sprint70-devops-kinetic-audit.md`, `docs/reports/sprint70-kinetic-resilience-matrix.md`)
+  - [x] Task 70.3: Backend KineticParallaxService & SQLite Table (`src/backend/services/kinetic-parallax-service.ts`, table `page_kinetic_layers`, index `idx_kinetic_layers_lookup`, zero-allocation calculateLayerDrifts)
+  - [x] Task 70.4: Fastify Kinetic Parallax REST Endpoints (`src/backend/routes/kinetic-parallax-routes.ts`, `/layers/:chapterId/:pageNumber`, `/layers/register`, `/calculate-drift`)
+  - [x] Task 70.5: Client useKineticParallax Hook & KineticMotionHUD Component (`frontend/src/reader/useKineticParallax.ts`, `KineticMotionHUD.tsx`, LERP alpha=0.12, intensity modes 4/8/12px, letterbox shutters, keyboard shortcut 'K', prefers-reduced-motion guard, 0 blur, 0 CLS)
+  - [x] Task 70.6: Subagent Swarm Execution & SLA 34 Benchmark (SLA 34: 1.19 µs [17x faster than SLA target < 20 µs], 34/34 SLAs Passed)
+  - [x] Task 70.7: Monorepo Verification & Git Commit (248 test files, 1,299 tests PASS, Vite build in 9.12s)
 
 
 

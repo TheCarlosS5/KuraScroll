@@ -800,6 +800,28 @@ CREATE INDEX IF NOT EXISTS idx_lan_pairing_status
 CREATE INDEX IF NOT EXISTS idx_lan_pairing_token 
     ON lan_pairing_sessions(pairing_token_hash);
 
+-- Sprint 70: Kinetic Motion Shutter & Multi-Layer Parallax Engine
+CREATE TABLE IF NOT EXISTS page_kinetic_layers (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    chapter_id TEXT NOT NULL,
+    page_number INTEGER NOT NULL,
+    panel_index INTEGER NOT NULL,
+    layer_index INTEGER NOT NULL,
+    layer_role TEXT NOT NULL DEFAULT 'MIDGROUND' CHECK(layer_role IN ('FOREGROUND', 'MIDGROUND', 'BACKGROUND', 'SFX_LAYER')),
+    norm_x REAL NOT NULL CHECK(norm_x >= 0.0 AND norm_x <= 1.0),
+    norm_y REAL NOT NULL CHECK(norm_y >= 0.0 AND norm_y <= 1.0),
+    norm_w REAL NOT NULL CHECK(norm_w > 0.0 AND norm_w <= 1.0),
+    norm_h REAL NOT NULL CHECK(norm_h > 0.0 AND norm_h <= 1.0),
+    depth_factor REAL NOT NULL CHECK(depth_factor >= 0.0 AND depth_factor <= 2.0),
+    asset_url TEXT,
+    created_at INTEGER NOT NULL,
+    UNIQUE(chapter_id, page_number, panel_index, layer_index)
+);
+
+CREATE INDEX IF NOT EXISTS idx_kinetic_layers_lookup 
+    ON page_kinetic_layers(chapter_id, page_number, panel_index);
+
+
 
 
 

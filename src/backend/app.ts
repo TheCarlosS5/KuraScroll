@@ -62,6 +62,8 @@ import { guidedPanelRoutes } from './routes/guided-panel-routes.js';
 import { GuidedPanelService } from './services/guided-panel-service.js';
 import { lanCompanionRoutes } from './routes/lan-companion-routes.js';
 import { LanCompanionService } from './services/lan-companion-service.js';
+import { kineticParallaxRoutes } from './routes/kinetic-parallax-routes.js';
+import { KineticParallaxService } from './services/kinetic-parallax-service.js';
 import { AdaptiveIngestionController } from './services/adaptive-ingestion-controller.js';
 import { DifferentialMirrorService } from './services/differential-mirror-service.js';
 
@@ -81,6 +83,7 @@ export interface AppOptions {
   sfxOverlayService?: SfxOverlayService;
   guidedPanelService?: GuidedPanelService;
   lanCompanionService?: LanCompanionService;
+  kineticParallaxService?: KineticParallaxService;
 }
 
 export function buildApp(options: AppOptions = {}): FastifyInstance {
@@ -253,6 +256,10 @@ export function buildApp(options: AppOptions = {}): FastifyInstance {
   app.register(lanCompanionRoutes, {
     db,
     lanCompanionService: options.lanCompanionService ?? new LanCompanionService(db),
+  });
+  app.register(kineticParallaxRoutes, {
+    db,
+    kineticParallaxService: options.kineticParallaxService ?? new KineticParallaxService(db),
   });
 
   return app;

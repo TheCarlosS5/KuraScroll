@@ -3,6 +3,7 @@ import { SearchBar } from '../components/catalog/SearchBar.js';
 import { SeriesCard } from '../components/catalog/SeriesCard.js';
 import { CatalogFilters } from '../components/catalog/CatalogFilters.js';
 import { SmartResumePointer } from '../components/home/SmartResumePointer.js';
+import { SmartRecommendationsRow } from '../components/recommendations/SmartRecommendationsRow.js';
 import { localClientStorage } from '../services/local-storage-service.js';
 import { BookOpen } from 'lucide-react';
 
@@ -220,6 +221,11 @@ export const CatalogPage: React.FC<CatalogPageProps> = ({
           onContinueReading={onContinueReading}
           onSelectSeries={onSelectSeries}
         />
+      )}
+
+      {/* Smart Recommendations Row (Personalized Otaku Discovery Shelf) */}
+      {!isBookmarksView && !searchQuery && (
+        <SmartRecommendationsRow onSelectSeries={onSelectSeries} />
       )}
 
       {/* Pill Filter Bar (Colección, Tipo, Estado, Géneros) */}

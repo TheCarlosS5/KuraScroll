@@ -1,11 +1,11 @@
 {
-  "timestamp": "2026-11-02T00:42:57.802Z",
+  "timestamp": "2026-11-02T00:58:39.276Z",
   "host": {
     "platform": "win32",
     "cpus": 8,
     "cpuModel": "AMD Ryzen 5 3500U with Radeon Vega Mobile Gfx   ",
     "totalMemMB": 15307,
-    "freeMemMB": 7445,
+    "freeMemMB": 7378,
     "isLowResourceTarget": false
   },
   "results": [
@@ -20,7 +20,7 @@
     {
       "category": "Hardware & Kernel",
       "name": "V8 Resident Set Size (RSS)",
-      "measured": "77 MB",
+      "measured": "74 MB",
       "slaTarget": "< 512 MB (T4500 budget)",
       "passed": true,
       "notes": "Safe within laptop 3GB-4GB memory ceiling"
@@ -52,7 +52,7 @@
     {
       "category": "Query & Search",
       "name": "SQLite Primary Key Point Lookup",
-      "measured": "0.159 ms",
+      "measured": "0.116 ms",
       "slaTarget": "< 1.0 ms",
       "passed": true,
       "notes": "Direct B-Tree index point retrieval"
@@ -60,7 +60,7 @@
     {
       "category": "Query & Search",
       "name": "FTS5 1-Kanji Prefix Search (\"鬼\")",
-      "measured": "0.226 ms",
+      "measured": "0.232 ms",
       "slaTarget": "< 5.0 ms (T4500 SLA)",
       "passed": true,
       "notes": "Accelerated by prefix='1 2 3' auxiliary B-Tree"
@@ -68,7 +68,7 @@
     {
       "category": "Query & Search",
       "name": "FTS5 Special Character Match (\"SPY×FAMILY\")",
-      "measured": "0.245 ms",
+      "measured": "0.261 ms",
       "slaTarget": "< 5.0 ms",
       "passed": true,
       "notes": "Sanitizer delimiter normalization"
@@ -76,7 +76,7 @@
     {
       "category": "Disk I/O & Streams",
       "name": "64KB Chunked Stream Copy (192KB)",
-      "measured": "7.68 ms",
+      "measured": "8.40 ms",
       "slaTarget": "< 150 ms",
       "passed": true,
       "notes": "Maintains bounded highWaterMark backpressure"
@@ -92,7 +92,7 @@
     {
       "category": "Media Engine",
       "name": "WebP 1440px Ahead-of-Time Encoding (Effort 2, Q=75)",
-      "measured": "99.00 ms (5 KB)",
+      "measured": "102.20 ms (5 KB)",
       "slaTarget": "< 1500 ms (Single Core T4500)",
       "passed": true,
       "notes": "Thermal Saver mode reduces CPU cycles by >55%"

@@ -974,4 +974,22 @@ CREATE TABLE IF NOT EXISTS page_halftone_profiles (
 CREATE INDEX IF NOT EXISTS idx_halftone_lookup 
     ON page_halftone_profiles(series_id, chapter_id);
 
+-- Sprint 78: Saccadic Glance & Panel Magnifier Loupe Engine
+CREATE TABLE IF NOT EXISTS page_magnifier_profiles (
+    id TEXT PRIMARY KEY,
+    series_id TEXT NOT NULL,
+    chapter_id TEXT,
+    shape TEXT NOT NULL DEFAULT 'circle' CHECK (shape IN ('circle', 'rectangle')),
+    zoom_factor REAL NOT NULL DEFAULT 2.0 CHECK (zoom_factor >= 1.25 AND zoom_factor <= 4.0),
+    lens_radius_px INTEGER NOT NULL DEFAULT 120 CHECK (lens_radius_px >= 60 AND lens_radius_px <= 250),
+    smoothing_factor REAL NOT NULL DEFAULT 0.15 CHECK (smoothing_factor >= 0.0 AND smoothing_factor <= 0.5),
+    border_color TEXT NOT NULL DEFAULT '#3b82f6',
+    is_enabled INTEGER NOT NULL DEFAULT 1 CHECK (is_enabled IN (0, 1)),
+    updated_at INTEGER NOT NULL
+);
+
+CREATE INDEX IF NOT EXISTS idx_magnifier_lookup 
+    ON page_magnifier_profiles(series_id, chapter_id);
+
+
 

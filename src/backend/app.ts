@@ -78,6 +78,8 @@ import { pageSplitStitchRoutes } from './routes/page-split-stitch-routes.js';
 import { PageSplitStitchService } from './services/page-split-stitch-service.js';
 import { pageHalftoneRoutes } from './routes/page-halftone-routes.js';
 import { PageHalftoneService } from './services/page-halftone-service.js';
+import { pageMagnifierRoutes } from './routes/page-magnifier-routes.js';
+import { PageMagnifierService } from './services/page-magnifier-service.js';
 import { AdaptiveIngestionController } from './services/adaptive-ingestion-controller.js';
 import { DifferentialMirrorService } from './services/differential-mirror-service.js';
 
@@ -105,6 +107,7 @@ export interface AppOptions {
   dialogueTTSService?: DialogueTTSService;
   pageSplitStitchService?: PageSplitStitchService;
   pageHalftoneService?: PageHalftoneService;
+  pageMagnifierService?: PageMagnifierService;
 }
 
 export function buildApp(options: AppOptions = {}): FastifyInstance {
@@ -309,6 +312,10 @@ export function buildApp(options: AppOptions = {}): FastifyInstance {
   app.register(pageHalftoneRoutes, {
     db,
     pageHalftoneService: options.pageHalftoneService ?? new PageHalftoneService(db),
+  });
+  app.register(pageMagnifierRoutes, {
+    db,
+    pageMagnifierService: options.pageMagnifierService ?? new PageMagnifierService(db),
   });
 
   return app;

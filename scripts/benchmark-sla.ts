@@ -105,6 +105,12 @@ import {
   BalloonFontService,
   calculateBalloonFontScale,
 } from '../src/backend/services/balloon-font-service.js';
+import {
+  TileInvalidationService,
+  calculateTileInvalidation,
+  TileCandidate,
+  ViewportKinematics,
+} from '../src/backend/services/tile-invalidation-service.js';
 
 export interface SlaResult {
   category: string;
@@ -2245,6 +2251,49 @@ export async function runHostSlaBenchmark(): Promise<SlaReport> {
     slaTarget: '< 0.02 ms',
     passed: fontLatency < 0.02,
     notes: 'Zero-Allocation Optical Container Scaling & Ruby Furigana Clearance (< 20µs target)',
+  });
+
+  // 71. Bi-Temporal Frame-Paced Adaptive Micro-Tile Invalidator & Memory Cache Garbage Collector (Sprint 107 - SLA 71)
+  const sampleTiles: TileCandidate[] = Array.from({ length: 16 }, (_, idx) => ({
+    id: `bench-tile-${idx}`,
+    x: (idx % 4) * 300,
+    y: Math.floor(idx / 4) * 400,
+    width: 256,
+    height: 256,
+    sizeBytes: 160000,
+    lastAccessedEpochMs: 100000 - idx * 200,
+  }));
+
+  const sampleKinematics: ViewportKinematics = {
+    viewportX: 0,
+    viewportY: 0,
+    viewportWidth: 1280,
+    viewportHeight: 720,
+    velocityX: 0,
+    velocityY: 250,
+    nowEpochMs: 105000,
+    currentHeapMb: 65,
+  };
+
+  // Warmup JIT
+  for (let i = 0; i < 5000; i++) {
+    calculateTileInvalidation(sampleTiles, sampleKinematics);
+  }
+
+  const tileInvalidationIters = 20000;
+  const tTileInvalidationStart = performance.now();
+  for (let i = 0; i < tileInvalidationIters; i++) {
+    calculateTileInvalidation(sampleTiles, sampleKinematics);
+  }
+  const tileInvalidationLatency = (performance.now() - tTileInvalidationStart) / tileInvalidationIters;
+
+  results.push({
+    category: 'Memory & Micro-Tile GC',
+    name: 'Micro-Tile Invalidation & Eviction (SLA 71)',
+    measured: `${(tileInvalidationLatency * 1000).toFixed(2)} µs (${tileInvalidationLatency.toFixed(4)} ms)`,
+    slaTarget: '< 0.02 ms',
+    passed: tileInvalidationLatency < 0.02,
+    notes: 'Bi-Temporal Zero-Alloc Predictive Tile Scoring & Eviction (< 20µs target)',
   });
 
   // Teardown

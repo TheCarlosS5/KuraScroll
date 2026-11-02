@@ -1507,6 +1507,24 @@ CREATE TABLE IF NOT EXISTS balloon_font_profiles (
 CREATE INDEX IF NOT EXISTS idx_balloon_font_lookup 
     ON balloon_font_profiles(series_id);
 
+-- Sprint 107: Bi-Temporal Frame-Paced Adaptive Micro-Tile Invalidator & Memory Cache Garbage Collector (SLA 71)
+CREATE TABLE IF NOT EXISTS tile_invalidation_profiles (
+    series_id TEXT PRIMARY KEY,
+    max_heap_mb REAL NOT NULL DEFAULT 128.0 CHECK (max_heap_mb >= 32.0 AND max_heap_mb <= 256.0),
+    viewport_margin_px REAL NOT NULL DEFAULT 600.0 CHECK (viewport_margin_px >= 100.0 AND viewport_margin_px <= 2000.0),
+    warm_margin_px REAL NOT NULL DEFAULT 1500.0 CHECK (warm_margin_px >= 500.0 AND warm_margin_px <= 5000.0),
+    eviction_budget_ms REAL NOT NULL DEFAULT 1.5 CHECK (eviction_budget_ms >= 0.5 AND eviction_budget_ms <= 8.0),
+    velocity_weight REAL NOT NULL DEFAULT 0.65 CHECK (velocity_weight >= 0.00 AND velocity_weight <= 1.00),
+    recency_weight REAL NOT NULL DEFAULT 0.25 CHECK (recency_weight >= 0.00 AND recency_weight <= 1.00),
+    size_weight REAL NOT NULL DEFAULT 0.10 CHECK (size_weight >= 0.00 AND size_weight <= 1.00),
+    is_auto_gc_enabled INTEGER NOT NULL DEFAULT 1 CHECK (is_auto_gc_enabled IN (0, 1)),
+    created_at INTEGER NOT NULL DEFAULT (strftime('%s', 'now') * 1000),
+    updated_at INTEGER NOT NULL DEFAULT (strftime('%s', 'now') * 1000)
+);
+
+CREATE INDEX IF NOT EXISTS idx_tile_invalidation_lookup 
+    ON tile_invalidation_profiles(series_id);
+
 
 
 

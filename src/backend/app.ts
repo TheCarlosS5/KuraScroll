@@ -136,6 +136,8 @@ import { chapterSeamRoutes } from './routes/chapter-seam-routes.js';
 import { ChapterSeamService } from './services/chapter-seam-service.js';
 import { balloonFontRoutes } from './routes/balloon-font-routes.js';
 import { BalloonFontService } from './services/balloon-font-service.js';
+import { tileInvalidationRoutes } from './routes/tile-invalidation-routes.js';
+import { TileInvalidationService } from './services/tile-invalidation-service.js';
 import { AdaptiveIngestionController } from './services/adaptive-ingestion-controller.js';
 import { DifferentialMirrorService } from './services/differential-mirror-service.js';
 
@@ -192,6 +194,7 @@ export interface AppOptions {
   eyeRestService?: EyeRestService;
   chapterSeamService?: ChapterSeamService;
   balloonFontService?: BalloonFontService;
+  tileInvalidationService?: TileInvalidationService;
 }
 
 export function buildApp(options: AppOptions = {}): FastifyInstance {
@@ -512,6 +515,10 @@ export function buildApp(options: AppOptions = {}): FastifyInstance {
   app.register(balloonFontRoutes, {
     db,
     balloonFontService: options.balloonFontService ?? new BalloonFontService(db),
+  });
+  app.register(tileInvalidationRoutes, {
+    db,
+    tileInvalidationService: options.tileInvalidationService ?? new TileInvalidationService(db),
   });
 
   return app;

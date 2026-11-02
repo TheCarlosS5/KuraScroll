@@ -317,4 +317,18 @@ CREATE TABLE IF NOT EXISTS chapter_speech_bubbles (
 CREATE INDEX IF NOT EXISTS idx_speech_bubbles_page 
     ON chapter_speech_bubbles(chapter_id, page_number, bubble_index ASC);
 
+-- Sprint 47: Semantic Vector Embeddings & Hybrid RRF Search
+CREATE TABLE IF NOT EXISTS series_embeddings (
+    series_id TEXT PRIMARY KEY REFERENCES series(id) ON DELETE CASCADE,
+    dimensions INTEGER NOT NULL DEFAULT 384 CHECK(dimensions = 384),
+    scale_factor REAL NOT NULL CHECK(scale_factor > 0.0),
+    magnitude REAL NOT NULL CHECK(magnitude > 0.0),
+    embedding_blob BLOB NOT NULL CHECK(length(embedding_blob) = 384),
+    model_version TEXT NOT NULL DEFAULT 'all-MiniLM-L6-v2-int8',
+    updated_at TEXT DEFAULT (datetime('now'))
+);
+
+CREATE INDEX IF NOT EXISTS idx_series_embeddings_lookup 
+    ON series_embeddings(series_id, magnitude);
+
 

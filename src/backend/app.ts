@@ -24,6 +24,7 @@ import { dedupRoutes } from './routes/dedup-routes.js';
 import { p2pRoutes } from './routes/p2p-routes.js';
 import { dwellRoutes } from './routes/dwell-routes.js';
 import { bubbleRoutes } from './routes/bubble-routes.js';
+import { vectorRoutes } from './routes/vector-routes.js';
 import { AdaptiveIngestionController } from './services/adaptive-ingestion-controller.js';
 import { DifferentialMirrorService } from './services/differential-mirror-service.js';
 
@@ -140,6 +141,7 @@ export function buildApp(options: AppOptions = {}): FastifyInstance {
   app.register(p2pRoutes);
   app.register(dwellRoutes, { db });
   app.register(bubbleRoutes, { db });
+  app.register(vectorRoutes, { db });
 
   return app;
 }

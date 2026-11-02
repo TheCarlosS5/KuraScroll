@@ -305,4 +305,13 @@
   - [x] Task 46.5: Subagent Swarm Execution (6 subagents active: performance benchmark, QA fuzzing matrix, UI/GSAP design audit, linguistic critic, DevOps memory audit)
   - [x] Task 46.6: Empirical Benchmark Report (`docs/reports/sprint46-speech-bubble-benchmark.md`, 0.1005ms SQLite cold query [5.0x faster than SLA], 0.0004ms LRU cache query [123x faster than SLA])
   - [x] Task 46.7: Monorepo Verification (149 test files, 784 tests PASS [508 backend + 276 frontend], 11/11 SLAs Passed, Vite build verified)
-- [ ] Part 47: Offline IndexedDB Vectorized Search & Embedding Prefetching for CJK Titles
+- [x] Part 47: Semantic Vector Embeddings & Hybrid RRF Search (Commit Sprint 47)
+  - [x] Task 47.1: Senior Architectural Blueprint Consultation with ChatGPT via Brave MCP (`docs/brainstorming/hybrid-vector-search-specification.md`)
+  - [x] Task 47.2: Vector Quantizer Utilities & Int8 Integer Dot Product (`src/backend/utils/vector-quantizer.ts`, 5/5 tests PASS)
+  - [x] Task 47.3: SQLite Table `series_embeddings` & Hybrid Vector Search Service (`src/backend/services/vector-search-service.ts`, 5/5 tests PASS)
+  - [x] Task 47.4: Fastify Endpoints in `src/backend/routes/vector-routes.ts` (`POST /search/hybrid`, `POST /admin/embeddings/batch`, `GET /admin/embeddings/stats`, 3/3 tests PASS)
+  - [x] Task 47.5: Zero-Blur Hardware-Accelerated Match Badge `HybridSearchMatchBadge.tsx` (`frontend/tests/components/HybridSearchMatchBadge.test.tsx`, 3/3 tests PASS)
+  - [x] Task 47.6: Subagent Swarm Execution (6 subagents active: performance benchmark, QA resilience plan, UI/GSAP design audit, otaku critic, DevOps memory audit)
+  - [x] Task 47.7: Empirical Benchmark Report (`docs/reports/sprint47-hybrid-vector-search-benchmark.md`, 0.5429ms 1,000 vector scan [1.8x faster than SLA], 0.0191ms RRF fusion [2.6x faster than SLA], 375KB RAM footprint)
+  - [x] Task 47.8: Monorepo Verification (154 test files, 803 tests PASS [523 backend + 280 frontend], 11/11 SLAs Passed, Vite build verified)
+- [ ] Part 48: Autonomous Intelligent Reading Companion & Dynamic Story Recap Engine

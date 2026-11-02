@@ -1059,6 +1059,22 @@ CREATE TABLE IF NOT EXISTS page_acoustics_profiles (
 CREATE INDEX IF NOT EXISTS idx_page_acoustics_lookup 
     ON page_acoustics_profiles(series_id, user_id);
 
+-- Sprint 83: Predictive Gaze Heatmap Trajectory & Eye Fixation Anti-Drift Restorer
+CREATE TABLE IF NOT EXISTS gaze_anchor_profiles (
+    series_id TEXT PRIMARY KEY,
+    mode TEXT NOT NULL DEFAULT 'manga_rtl' CHECK (mode IN ('webtoon', 'manga_rtl', 'manga_ltr')),
+    saccade_sensitivity REAL NOT NULL DEFAULT 1.0 CHECK (saccade_sensitivity >= 0.1 AND saccade_sensitivity <= 3.0),
+    dwell_threshold_ms INTEGER NOT NULL DEFAULT 250 CHECK (dwell_threshold_ms >= 50 AND dwell_threshold_ms <= 1000),
+    drift_tolerance_px REAL NOT NULL DEFAULT 40.0 CHECK (drift_tolerance_px >= 10.0 AND drift_tolerance_px <= 200.0),
+    return_anchor_enabled INTEGER NOT NULL DEFAULT 1 CHECK (return_anchor_enabled IN (0, 1)),
+    heatmap_resolution TEXT NOT NULL DEFAULT 'medium' CHECK (heatmap_resolution IN ('low', 'medium', 'high')),
+    updated_at INTEGER NOT NULL
+);
+
+CREATE INDEX IF NOT EXISTS idx_gaze_anchor_lookup 
+    ON gaze_anchor_profiles(series_id);
+
+
 
 
 

@@ -88,6 +88,8 @@ import { pageProjectionRoutes } from './routes/page-projection-routes.js';
 import { PageProjectionService } from './services/page-projection-service.js';
 import { pageAcousticsRoutes } from './routes/page-acoustics-routes.js';
 import { PageAcousticsService } from './services/page-acoustics-service.js';
+import { gazeAnchorRoutes } from './routes/gaze-anchor-routes.js';
+import { GazeAnchorService } from './services/gaze-anchor-service.js';
 import { AdaptiveIngestionController } from './services/adaptive-ingestion-controller.js';
 import { DifferentialMirrorService } from './services/differential-mirror-service.js';
 
@@ -120,6 +122,7 @@ export interface AppOptions {
   ambientBacklightService?: AmbientBacklightService;
   pageProjectionService?: PageProjectionService;
   pageAcousticsService?: PageAcousticsService;
+  gazeAnchorService?: GazeAnchorService;
 }
 
 export function buildApp(options: AppOptions = {}): FastifyInstance {
@@ -344,6 +347,10 @@ export function buildApp(options: AppOptions = {}): FastifyInstance {
   app.register(pageAcousticsRoutes, {
     db,
     pageAcousticsService: options.pageAcousticsService ?? new PageAcousticsService(db),
+  });
+  app.register(gazeAnchorRoutes, {
+    db,
+    gazeAnchorService: options.gazeAnchorService ?? new GazeAnchorService(db),
   });
 
   return app;

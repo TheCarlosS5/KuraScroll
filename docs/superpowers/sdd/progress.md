@@ -593,14 +593,22 @@
   - [x] Task 82.5: Client usePageAcoustics Hook & PageAcousticsHUD Component (`frontend/src/reader/usePageAcoustics.ts`, `PageAcousticsHUD.tsx`, zero-blur solid `#18181b` containment, volume slider, paper substrate selector, haptic pulse sync, keyboard shortcut 'A', 0 CLS)
   - [x] Task 82.6: Subagent Swarm Execution & SLA 46 Benchmark (SLA 46: 0.15 µs [133x faster than SLA target < 20 µs], 46/46 SLAs Passed)
   - [x] Task 82.7: Monorepo Verification & Git Commit (304 test files, 1,640 tests PASS [1,035 backend + 605 frontend], Vite build in 5.12s)
-- [ ] Part 83: Predictive Gaze Heatmap Trajectory & Eye Fixation Anti-Drift Restorer (Saccadic Gaze Anchor & Reading Fatigue Telemetry)
-  - [ ] Task 83.1: Senior Architectural Blueprint Consultation with ChatGPT via Brave MCP
-  - [ ] Task 83.2: Gaze Vector Trajectory Prediction Math, Saccadic Drift Dampening, and Reading Fatigue Metrics Specification
-  - [ ] Task 83.3: Backend GazeAnchorService & SQLite Table (`src/backend/services/gaze-anchor-service.ts`, table `gaze_anchor_profiles`, index `idx_gaze_anchor_lookup`, zero-allocation calculateGazeTrajectory)
-  - [ ] Task 83.4: Fastify Gaze Anchor REST Endpoints (`src/backend/routes/gaze-anchor-routes.ts`, HTTP 304 ETag caching)
-  - [ ] Task 83.5: Client useGazeAnchor Hook & GazeAnchorHUD Component (`frontend/src/reader/useGazeAnchor.ts`, `GazeAnchorHUD.tsx`, zero-blur solid `#18181b` containment, drift dampener slider, anchor color picker, fatigue warning indicator, keyboard shortcut 'G', 0 CLS)
-  - [ ] Task 83.6: Subagent Swarm Execution & SLA 47 Benchmark
-  - [ ] Task 83.7: Monorepo Verification & Git Commit
+- [x] Part 83: Predictive Gaze Heatmap Trajectory & Eye Fixation Anti-Drift Restorer (Saccadic Gaze Anchor & Reading Fatigue Telemetry)
+  - [x] Task 83.1: Senior Architectural Blueprint Consultation with ChatGPT via Brave MCP (`docs/specs/sprint-83-gaze-anchor-schema.md`)
+  - [x] Task 83.2: Gaze Vector Trajectory Prediction Math, Saccadic Drift Dampening, and Reading Fatigue Metrics Specification (`docs/specs/sprint-83-gaze-anchor-schema.md`, `sprint83-gaze-trajectory-sla-spec.md`, `docs/specs/sprint-83-gaze-devops-audit.md`, `docs/specs/sprint-83-gaze-anchor-qa-resilience.md`)
+  - [x] Task 83.3: Backend GazeAnchorService & SQLite Table (`src/backend/services/gaze-anchor-service.ts`, table `gaze_anchor_profiles`, index `idx_gaze_anchor_lookup`, zero-allocation calculateGazeTrajectory)
+  - [x] Task 83.4: Fastify Gaze Anchor REST Endpoints (`src/backend/routes/gaze-anchor-routes.ts`, `/profile/:seriesId`, `/profile`, `/calculate-trajectory`, `/modes`, HTTP 304 ETag caching)
+  - [x] Task 83.5: Client useGazeAnchor Hook & GazeAnchorHUD Component (`frontend/src/reader/useGazeAnchor.ts`, `GazeAnchorHUD.tsx`, zero-blur solid `#18181b` containment, sensitivity/dwell/drift sliders, heatmap resolution selector, telemetry readout, keyboard shortcut 'G', 0 CLS)
+  - [x] Task 83.6: Subagent Swarm Execution & SLA 47 Benchmark (SLA 47: 0.24 µs [83x faster than SLA target < 20 µs], 47/47 SLAs Passed)
+  - [x] Task 83.7: Monorepo Verification & Git Commit
+- [ ] Part 84: Adaptive Panel Dynamic Cropping & Smart Margin Trimming Engine (Intelligent White-Space Harvester & Zero-Allocation Bounding Box Optimizer)
+  - [ ] Task 84.1: Senior Architectural Blueprint Consultation with ChatGPT via Brave MCP
+  - [ ] Task 84.2: Zero-Loss Edge Bounding Box Detection Math, Aspect-Ratio Lock, and GMA 4500MHD Texture Slicing Specification
+  - [ ] Task 84.3: Backend SmartCropService & SQLite Table (`src/backend/services/smart-crop-service.ts`, table `smart_crop_profiles`, index `idx_smart_crop_lookup`, zero-allocation calculateCropBox)
+  - [ ] Task 84.4: Fastify Smart Crop REST Endpoints (`src/backend/routes/smart-crop-routes.ts`, HTTP 304 ETag caching)
+  - [ ] Task 84.5: Client useSmartCrop Hook & SmartCropHUD Component (`frontend/src/reader/useSmartCrop.ts`, `SmartCropHUD.tsx`, zero-blur solid `#18181b` containment, sensitivity/padding sliders, keyboard shortcut 'C', 0 CLS)
+  - [ ] Task 84.6: Subagent Swarm Execution & SLA 48 Benchmark
+  - [ ] Task 84.7: Monorepo Verification & Git Commit
 
 
 

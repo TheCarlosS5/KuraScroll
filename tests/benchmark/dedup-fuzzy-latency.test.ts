@@ -30,6 +30,13 @@ describe('Sprint 43: Fuzzy Matcher & Deduplication Latency Benchmark', () => {
     ];
 
     const iterations = 2000;
+
+    // Warmup JIT
+    for (let i = 0; i < 500; i++) {
+      const idx = i % titlesA.length;
+      compositeSimilarity(titlesA[idx], titlesB[idx]);
+    }
+
     const startTime = process.hrtime.bigint();
 
     for (let i = 0; i < iterations; i++) {

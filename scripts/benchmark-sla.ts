@@ -45,6 +45,7 @@ import {
   VaultChapterRecord,
 } from '../src/backend/services/storage-vault-service.js';
 import { AmbientSoundscapeService } from '../src/backend/services/ambient-soundscape-service.js';
+import { SpineDewarpService } from '../src/backend/services/spine-dewarp-service.js';
 
 export interface SlaResult {
   category: string;
@@ -1234,6 +1235,36 @@ export async function runHostSlaBenchmark(): Promise<SlaReport> {
     slaTarget: '< 0.02 ms',
     passed: crossFadeLatency < 0.02,
     notes: 'Zero-Allocation Cosine/Sine Equal-Power Acoustic Curve Math (< 20µs target)',
+  });
+
+  // 38. Smart Page Curvature & Spine Flattening Mesh Math Latency (Sprint 74)
+  const sampleDewarpOpts = {
+    isEnabled: true,
+    curvatureDepth: 0.30,
+    shadowCompensation: 0.20,
+    spineWidthPct: 0.25,
+    sliceCount: 16,
+  };
+
+  // Warmup JIT
+  for (let i = 0; i < 5000; i++) {
+    SpineDewarpService.calculateDewarpMesh(sampleDewarpOpts);
+  }
+
+  const dewarpIters = 20000;
+  const tDewarpStart = performance.now();
+  for (let i = 0; i < dewarpIters; i++) {
+    SpineDewarpService.calculateDewarpMesh(sampleDewarpOpts);
+  }
+  const dewarpLatency = (performance.now() - tDewarpStart) / dewarpIters;
+
+  results.push({
+    category: 'Spine Dewarp Engine',
+    name: 'Dewarping Slice Mesh Math (SLA 38)',
+    measured: `${(dewarpLatency * 1000).toFixed(2)} µs (${dewarpLatency.toFixed(4)} ms)`,
+    slaTarget: '< 0.02 ms',
+    passed: dewarpLatency < 0.02,
+    notes: 'Zero-Allocation 16-Slice Polynomial Tankōbon Gutter Flattening (< 20µs target)',
   });
 
   // Teardown

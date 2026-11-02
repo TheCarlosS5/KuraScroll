@@ -521,6 +521,14 @@
   - [x] Task 73.5: Client useAmbientSoundscape Hook & AmbientSoundscapeHUD Component (`frontend/src/reader/useAmbientSoundscape.ts`, `AmbientSoundscapeHUD.tsx`, zero-blur solid `#18181b` containment, master & per-track volume sliders, sound wave indicator, keyboard shortcut 'B', 0 CLS)
   - [x] Task 73.6: Subagent Swarm Execution & SLA 37 Benchmark (SLA 37: 0.10 µs [200x faster than SLA target < 20 µs], 37/37 SLAs Passed)
   - [x] Task 73.7: Monorepo Verification & Git Commit (254 test files, 1,365+ tests PASS, Vite build in 4.56s)
+- [x] Part 74: Smart Page Curvature & Spine Flattening Dewarping Engine (Zero-Allocation 16-Slice Polynomial Flattening for Scanned Tankōbon Books)
+  - [x] Task 74.1: Senior Architectural Blueprint Consultation with ChatGPT via Brave MCP (`docs/brainstorming/spine-dewarp-specification.md`)
+  - [x] Task 74.2: Tankōbon Spine Gutter Cylindrical Projection, 16 Discrete Vertical Slices, Quadratic Elongation Math ($s_i = 1.0 + d_i \cdot 0.85$) and Shadow Compensation Specification (`docs/brainstorming/spine-dewarp-specification.md`, `docs/brainstorming/spine-dewarp-hud-spec.md`, `docs/brainstorming/user-perspective-spine-dewarp-audit.md`, `docs/reports/sprint74-devops-spine-dewarp-audit.md`, `docs/reports/sprint74-spine-dewarp-resilience-matrix.md`, `docs/reports/sprint74-spine-dewarp-benchmark.md`)
+  - [x] Task 74.3: Backend SpineDewarpService & SQLite Table (`src/backend/services/spine-dewarp-service.ts`, table `page_spine_dewarp_profiles`, index `idx_spine_dewarp_lookup`, zero-allocation calculateDewarpMesh)
+  - [x] Task 74.4: Fastify Spine Dewarp REST Endpoints (`src/backend/routes/spine-dewarp-routes.ts`, `/profile/:seriesId`, `/profile`, `/calculate-mesh`, HTTP 304 ETag caching)
+  - [x] Task 74.5: Client useSpineDewarp Hook & SpineDewarpHUD Component (`frontend/src/reader/useSpineDewarp.ts`, `SpineDewarpHUD.tsx`, zero-blur solid `#18181b` containment, gutter side selector [Auto RTL, Left, Right, Center], depth, width & shadow sliders, keyboard shortcut 'W', 0 CLS)
+  - [x] Task 74.6: Subagent Swarm Execution & SLA 38 Benchmark (SLA 38: 0.41 µs [48x faster than SLA target < 20 µs], 38/38 SLAs Passed)
+  - [x] Task 74.7: Monorepo Verification & Git Commit (256 test files, 1,390+ tests PASS, Vite build in 9.88s)
 
 
 

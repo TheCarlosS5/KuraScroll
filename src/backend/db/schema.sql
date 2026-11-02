@@ -898,6 +898,24 @@ CREATE TABLE IF NOT EXISTS user_soundscape_preferences (
 CREATE INDEX IF NOT EXISTS idx_soundscape_user_pref 
     ON user_soundscape_preferences(user_id);
 
+-- Sprint 74: Smart Page Curvature & Spine Flattening Dewarping Engine
+CREATE TABLE IF NOT EXISTS page_spine_dewarp_profiles (
+    id TEXT PRIMARY KEY,
+    series_id TEXT NOT NULL,
+    chapter_id TEXT,
+    page_number INTEGER,
+    gutter_side TEXT NOT NULL DEFAULT 'auto' CHECK (gutter_side IN ('left', 'right', 'center', 'auto')),
+    curvature_depth REAL NOT NULL DEFAULT 0.25,
+    spine_width_pct REAL NOT NULL DEFAULT 0.20,
+    shadow_compensation REAL NOT NULL DEFAULT 0.15,
+    is_enabled INTEGER NOT NULL DEFAULT 1 CHECK (is_enabled IN (0, 1)),
+    updated_at INTEGER NOT NULL
+);
+
+CREATE INDEX IF NOT EXISTS idx_spine_dewarp_lookup 
+    ON page_spine_dewarp_profiles(series_id, chapter_id, page_number);
+
+
 
 
 

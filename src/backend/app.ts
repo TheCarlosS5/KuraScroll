@@ -70,6 +70,8 @@ import { storageVaultRoutes } from './routes/storage-vault-routes.js';
 import { StorageVaultService } from './services/storage-vault-service.js';
 import { ambientSoundscapeRoutes } from './routes/ambient-soundscape-routes.js';
 import { AmbientSoundscapeService } from './services/ambient-soundscape-service.js';
+import { spineDewarpRoutes } from './routes/spine-dewarp-routes.js';
+import { SpineDewarpService } from './services/spine-dewarp-service.js';
 import { AdaptiveIngestionController } from './services/adaptive-ingestion-controller.js';
 import { DifferentialMirrorService } from './services/differential-mirror-service.js';
 
@@ -93,6 +95,7 @@ export interface AppOptions {
   readingRulerService?: ReadingRulerService;
   storageVaultService?: StorageVaultService;
   ambientSoundscapeService?: AmbientSoundscapeService;
+  spineDewarpService?: SpineDewarpService;
 }
 
 export function buildApp(options: AppOptions = {}): FastifyInstance {
@@ -281,6 +284,10 @@ export function buildApp(options: AppOptions = {}): FastifyInstance {
   app.register(ambientSoundscapeRoutes, {
     db,
     soundscapeService: options.ambientSoundscapeService ?? new AmbientSoundscapeService(db),
+  });
+  app.register(spineDewarpRoutes, {
+    db,
+    spineDewarpService: options.spineDewarpService ?? new SpineDewarpService(db),
   });
 
   return app;

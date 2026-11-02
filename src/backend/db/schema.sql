@@ -837,6 +837,40 @@ CREATE TABLE IF NOT EXISTS reading_ruler_preferences (
 CREATE INDEX IF NOT EXISTS idx_ruler_pref_user 
     ON reading_ruler_preferences(user_id);
 
+-- Sprint 72: Offline Storage Vault & Quota Arbiter Engine
+CREATE TABLE IF NOT EXISTS offline_storage_vault (
+    id TEXT PRIMARY KEY,
+    user_id TEXT NOT NULL DEFAULT 'default_user',
+    series_id TEXT NOT NULL,
+    chapter_id TEXT NOT NULL,
+    chapter_number REAL NOT NULL,
+    series_title TEXT NOT NULL,
+    total_bytes INTEGER NOT NULL,
+    total_pages INTEGER NOT NULL,
+    is_pinned INTEGER NOT NULL DEFAULT 0 CHECK (is_pinned IN (0, 1)),
+    is_unread INTEGER NOT NULL DEFAULT 1 CHECK (is_unread IN (0, 1)),
+    is_favorite INTEGER NOT NULL DEFAULT 0 CHECK (is_favorite IN (0, 1)),
+    last_accessed_at INTEGER NOT NULL,
+    downloaded_at INTEGER NOT NULL,
+    UNIQUE(user_id, chapter_id)
+);
+
+CREATE INDEX IF NOT EXISTS idx_vault_user_chapter 
+    ON offline_storage_vault(user_id, chapter_id);
+
+CREATE INDEX IF NOT EXISTS idx_vault_eviction_sort 
+    ON offline_storage_vault(user_id, is_pinned, last_accessed_at ASC);
+
+CREATE TABLE IF NOT EXISTS storage_quota_policies (
+    user_id TEXT PRIMARY KEY,
+    max_quota_bytes INTEGER NOT NULL DEFAULT 1073741824, -- 1 GB default
+    high_watermark_pct REAL NOT NULL DEFAULT 0.75,
+    low_watermark_pct REAL NOT NULL DEFAULT 0.65,
+    auto_evict_enabled INTEGER NOT NULL DEFAULT 1 CHECK (auto_evict_enabled IN (0, 1)),
+    updated_at INTEGER NOT NULL
+);
+
+
 
 
 

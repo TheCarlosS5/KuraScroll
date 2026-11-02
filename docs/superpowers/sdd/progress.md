@@ -505,6 +505,14 @@
   - [x] Task 71.5: Client useReadingRuler Hook & ReadingRulerHUD Component (`frontend/src/reader/useReadingRuler.ts`, `ReadingRulerHUD.tsx`, pointer-events: none absolute, 5 optical tints [Amber, Mint, Rose, Neutral, Midnight], keyboard shortcut 'U', Space pacer pause, 0 blur, 0 CLS)
   - [x] Task 71.6: Subagent Swarm Execution & SLA 35 Benchmark (SLA 35: 0.25 µs [80x faster than SLA target < 20 µs], 35/35 SLAs Passed)
   - [x] Task 71.7: Monorepo Verification & Git Commit (250 test files, 1,324 tests PASS, Vite build in 4.43s)
+- [x] Part 72: Offline Storage Vault & Weighted LRU Quota Arbiter (Storage Vault HUD, Watermark Protection & Pinned Chapter Immunity)
+  - [x] Task 72.1: Senior Architectural Blueprint Consultation with ChatGPT via Brave MCP (`docs/brainstorming/offline-storage-vault-specification.md`)
+  - [x] Task 72.2: Origin Quota vs Application Inventory Decoupling, Pinned Immunity, and Multi-Factor Eviction Formula Specification (`docs/brainstorming/offline-storage-vault-specification.md`, `docs/brainstorming/storage-vault-hud-spec.md`, `docs/brainstorming/user-perspective-storage-vault-audit.md`, `docs/reports/sprint72-devops-vault-audit.md`, `docs/reports/sprint72-storage-vault-resilience-matrix.md`, `docs/reports/sprint72-storage-vault-benchmark.md`)
+  - [x] Task 72.3: Backend StorageVaultService & SQLite Tables (`src/backend/services/storage-vault-service.ts`, tables `offline_storage_vault`, `storage_quota_policies`, indexes `idx_vault_user_chapter`, `idx_vault_eviction_sort`, zero-allocation sortCandidates)
+  - [x] Task 72.4: Fastify Storage Vault REST Endpoints (`src/backend/routes/storage-vault-routes.ts`, `/inventory/:userId`, `/register`, `/pin`, `/evict`, `/status/:userId`, `/policy/:userId`, `/chapter/:userId/:chapterId`)
+  - [x] Task 72.5: Client useStorageVault Hook & StorageVaultHUD Component (`frontend/src/reader/useStorageVault.ts`, `StorageVaultHUD.tsx`, zero-blur solid `#18181b` containment, segmented quota progress bar, chapter list with status badges, quick cleanup button, keyboard shortcut 'V', 0 CLS)
+  - [x] Task 72.6: Subagent Swarm Execution & SLA 36 Benchmark (SLA 36: 15.52 µs [Target < 50 µs], 36/36 SLAs Passed)
+  - [x] Task 72.7: Monorepo Verification & Git Commit (Full Backend & Frontend Test Suites Passing, Vite Build Verified)
 
 
 

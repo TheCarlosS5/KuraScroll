@@ -66,6 +66,8 @@ import { kineticParallaxRoutes } from './routes/kinetic-parallax-routes.js';
 import { KineticParallaxService } from './services/kinetic-parallax-service.js';
 import { readingRulerRoutes } from './routes/reading-ruler-routes.js';
 import { ReadingRulerService } from './services/reading-ruler-service.js';
+import { storageVaultRoutes } from './routes/storage-vault-routes.js';
+import { StorageVaultService } from './services/storage-vault-service.js';
 import { AdaptiveIngestionController } from './services/adaptive-ingestion-controller.js';
 import { DifferentialMirrorService } from './services/differential-mirror-service.js';
 
@@ -87,6 +89,7 @@ export interface AppOptions {
   lanCompanionService?: LanCompanionService;
   kineticParallaxService?: KineticParallaxService;
   readingRulerService?: ReadingRulerService;
+  storageVaultService?: StorageVaultService;
 }
 
 export function buildApp(options: AppOptions = {}): FastifyInstance {
@@ -267,6 +270,10 @@ export function buildApp(options: AppOptions = {}): FastifyInstance {
   app.register(readingRulerRoutes, {
     db,
     readingRulerService: options.readingRulerService ?? new ReadingRulerService(db),
+  });
+  app.register(storageVaultRoutes, {
+    db,
+    storageVaultService: options.storageVaultService ?? new StorageVaultService(db),
   });
 
   return app;

@@ -396,6 +396,26 @@ CREATE TABLE IF NOT EXISTS user_eye_care_preferences (
     updated_at TEXT DEFAULT (datetime('now'))
 );
 
+-- Sprint 51: Dynamic Two-Page Spread Smart Splitter & Webtoon Seam Stitcher
+CREATE TABLE IF NOT EXISTS chapter_spread_manifests (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    chapter_id TEXT NOT NULL REFERENCES chapters(id) ON DELETE CASCADE,
+    source_page_number INTEGER NOT NULL CHECK (source_page_number >= 1),
+    source_width INTEGER NOT NULL CHECK (source_width > 0),
+    source_height INTEGER NOT NULL CHECK (source_height > 0),
+    aspect_ratio REAL NOT NULL,
+    layout_decision TEXT NOT NULL DEFAULT 'single' CHECK (layout_decision IN ('single', 'split_spread', 'panorama', 'stitch_webtoon')),
+    split_order TEXT NOT NULL DEFAULT 'rtl' CHECK (split_order IN ('rtl', 'ltr', 'none')),
+    split_position_pct REAL NOT NULL DEFAULT 50.0 CHECK (split_position_pct BETWEEN 10.0 AND 90.0),
+    segments_json TEXT NOT NULL DEFAULT '[]',
+    created_at TEXT DEFAULT (datetime('now')),
+    UNIQUE(chapter_id, source_page_number)
+);
+
+CREATE INDEX IF NOT EXISTS idx_spread_manifest_lookup
+    ON chapter_spread_manifests(chapter_id, source_page_number);
+
+
 
 
 

@@ -7,6 +7,10 @@ import { createDatabase, runMigrations } from '../src/backend/db/database.js';
 import { SeriesRepository } from '../src/backend/repositories/series-repository.js';
 import { getHardwareProfile } from '../src/backend/config/hardware-profile.js';
 import { copyFileWithBackpressure, calculateFileHashStream } from '../src/backend/utils/stream-copy.js';
+import { StoryRecapService } from '../src/backend/services/story-recap-service.js';
+import { AudioSFXService } from '../src/backend/services/audio-sfx-service.js';
+import { classifyPageChroma } from '../src/backend/utils/color-classifier.js';
+import { detectSpreadLayout } from '../src/backend/utils/spread-detector.js';
 
 export interface SlaResult {
   category: string;
@@ -238,6 +242,93 @@ export async function runHostSlaBenchmark(): Promise<SlaReport> {
     slaTarget: '< 1500 ms (Single Core T4500)',
     passed: webpLatency < 1500,
     notes: 'Thermal Saver mode reduces CPU cycles by >55%',
+  });
+
+  // 7. Anti-Spoiler Story Recap Seek Latency (Sprint 48)
+  const recapService = new StoryRecapService(db);
+  recapService.upsertRecap({
+    seriesId: 'sla-kny',
+    throughChapterSeq: 10,
+    arcTitle: 'Mugen Train',
+    summaryText: 'Summary text for Mugen Train arc',
+    languageTag: 'es',
+  });
+  // Warmup & 10-query average
+  recapService.getRecapForChapter('sla-kny', 11, 'es');
+  const t6 = performance.now();
+  for (let i = 0; i < 10; i++) {
+    recapService.getRecapForChapter('sla-kny', 11, 'es');
+  }
+  const recapLatency = (performance.now() - t6) / 10;
+  results.push({
+    category: 'Query & Engine',
+    name: 'Anti-Spoiler Story Recap Seek Latency (Sprint 48)',
+    measured: `${recapLatency.toFixed(4)} ms`,
+    slaTarget: '< 1.0 ms',
+    passed: recapLatency < 1.0,
+    notes: 'O(log S) compound B-tree lookup on idx_story_recaps_lookup',
+  });
+
+  // Seed chapter for audio cues test
+  db.prepare(`
+    INSERT INTO chapters (id, series_id, chapter_number, title, storage_path)
+    VALUES ('sla-chap-1', 'sla-kny', 1, 'Chapter 1', '/storage/sla1')
+  `).run();
+
+  // 8. Dynamic Audio SFX Page Lookup Latency (Sprint 49)
+  const audioService = new AudioSFXService(db);
+  audioService.addSfxCue({
+    chapterId: 'sla-chap-1',
+    pageNumber: 5,
+    cueIndex: 0,
+    sfxId: 'don_heavy',
+    onomatopoeiaText: 'DON!!',
+  });
+  // Warmup & 10-query average
+  audioService.getSfxCuesForPage('sla-chap-1', 5);
+  const t7 = performance.now();
+  for (let i = 0; i < 10; i++) {
+    audioService.getSfxCuesForPage('sla-chap-1', 5);
+  }
+  const audioLatency = (performance.now() - t7) / 10;
+  results.push({
+    category: 'Query & Audio Engine',
+    name: 'Dynamic Audio SFX Page Lookup Latency (Sprint 49)',
+    measured: `${audioLatency.toFixed(4)} ms`,
+    slaTarget: '< 0.5 ms',
+    passed: audioLatency < 0.5,
+    notes: 'Compound B-tree lookup on idx_sfx_cues_chapter_page',
+  });
+
+  // 9. Chroma Sampling & Eye Care Filter Latency (Sprint 50)
+  const sampleBuf = new Uint8Array(256).fill(128);
+  const t8 = performance.now();
+  for (let i = 0; i < 100; i++) {
+    classifyPageChroma(sampleBuf, 14);
+  }
+  const chromaLatency = (performance.now() - t8) / 100;
+  results.push({
+    category: 'Query & Vision Engine',
+    name: 'Chroma Sampling & Eye Care Filter Latency (Sprint 50)',
+    measured: `${chromaLatency.toFixed(4)} ms`,
+    slaTarget: '< 0.05 ms',
+    passed: chromaLatency < 0.05,
+    notes: 'Zero-allocation 8x8 RGBA downsampling with delta chroma classification',
+  });
+
+  // 10. Two-Page Spread Detection & Virtual Split Latency (Sprint 51)
+  const t9 = performance.now();
+  for (let i = 0; i < 100; i++) {
+    detectSpreadLayout({ width: 2400, height: 1800, sourcePageNumber: 42 });
+  }
+  const spreadLatency = (performance.now() - t9) / 100;
+  results.push({
+    category: 'Query & Geometry Engine',
+    name: 'Two-Page Spread Detection & Virtual Split Latency (Sprint 51)',
+    measured: `${spreadLatency.toFixed(4)} ms`,
+    slaTarget: '< 0.05 ms',
+    passed: spreadLatency < 0.05,
+    notes: 'Pure arithmetic geometry evaluation without buffer cloning or disk writes',
   });
 
   // Teardown

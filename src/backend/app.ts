@@ -28,6 +28,7 @@ import { vectorRoutes } from './routes/vector-routes.js';
 import { recapRoutes } from './routes/recap-routes.js';
 import { audioRoutes } from './routes/audio-routes.js';
 import { eyeCareRoutes } from './routes/eye-care-routes.js';
+import { spreadRoutes } from './routes/spread-routes.js';
 import { AdaptiveIngestionController } from './services/adaptive-ingestion-controller.js';
 import { DifferentialMirrorService } from './services/differential-mirror-service.js';
 
@@ -148,6 +149,7 @@ export function buildApp(options: AppOptions = {}): FastifyInstance {
   app.register(recapRoutes, { db });
   app.register(audioRoutes, { db });
   app.register(eyeCareRoutes, { db });
+  app.register(spreadRoutes, { db });
 
   return app;
 }

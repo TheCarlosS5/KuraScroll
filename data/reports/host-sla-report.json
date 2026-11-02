@@ -1,11 +1,11 @@
 {
-  "timestamp": "2026-11-02T06:54:21.607Z",
+  "timestamp": "2026-11-02T07:19:36.842Z",
   "host": {
     "platform": "win32",
     "cpus": 8,
     "cpuModel": "AMD Ryzen 5 3500U with Radeon Vega Mobile Gfx   ",
     "totalMemMB": 15307,
-    "freeMemMB": 5663,
+    "freeMemMB": 5516,
     "isLowResourceTarget": false
   },
   "results": [
@@ -20,7 +20,7 @@
     {
       "category": "Hardware & Kernel",
       "name": "V8 Resident Set Size (RSS)",
-      "measured": "72 MB",
+      "measured": "73 MB",
       "slaTarget": "< 512 MB (T4500 budget)",
       "passed": true,
       "notes": "Safe within laptop 3GB-4GB memory ceiling"
@@ -52,7 +52,7 @@
     {
       "category": "Query & Search",
       "name": "SQLite Primary Key Point Lookup",
-      "measured": "0.273 ms",
+      "measured": "0.253 ms",
       "slaTarget": "< 1.0 ms",
       "passed": true,
       "notes": "Direct B-Tree index point retrieval"
@@ -60,7 +60,7 @@
     {
       "category": "Query & Search",
       "name": "FTS5 1-Kanji Prefix Search (\"鬼\")",
-      "measured": "0.928 ms",
+      "measured": "1.268 ms",
       "slaTarget": "< 5.0 ms (T4500 SLA)",
       "passed": true,
       "notes": "Accelerated by prefix='1 2 3' auxiliary B-Tree"
@@ -68,7 +68,7 @@
     {
       "category": "Query & Search",
       "name": "FTS5 Special Character Match (\"SPY×FAMILY\")",
-      "measured": "1.141 ms",
+      "measured": "0.929 ms",
       "slaTarget": "< 5.0 ms",
       "passed": true,
       "notes": "Sanitizer delimiter normalization"
@@ -76,7 +76,7 @@
     {
       "category": "Disk I/O & Streams",
       "name": "64KB Chunked Stream Copy (192KB)",
-      "measured": "21.15 ms",
+      "measured": "15.34 ms",
       "slaTarget": "< 150 ms",
       "passed": true,
       "notes": "Maintains bounded highWaterMark backpressure"
@@ -84,7 +84,7 @@
     {
       "category": "Disk I/O & Streams",
       "name": "64KB Chunked SHA256 Stream Hashing",
-      "measured": "13.78 ms",
+      "measured": "4.23 ms",
       "slaTarget": "< 100 ms",
       "passed": true,
       "notes": "Zero memory inflation on large chapter files"
@@ -92,16 +92,48 @@
     {
       "category": "Media Engine",
       "name": "WebP 1440px Ahead-of-Time Encoding (Effort 2, Q=75)",
-      "measured": "188.39 ms (5 KB)",
+      "measured": "187.10 ms (5 KB)",
       "slaTarget": "< 1500 ms (Single Core T4500)",
       "passed": true,
       "notes": "Thermal Saver mode reduces CPU cycles by >55%"
+    },
+    {
+      "category": "Query & Engine",
+      "name": "Anti-Spoiler Story Recap Seek Latency (Sprint 48)",
+      "measured": "0.2008 ms",
+      "slaTarget": "< 1.0 ms",
+      "passed": true,
+      "notes": "O(log S) compound B-tree lookup on idx_story_recaps_lookup"
+    },
+    {
+      "category": "Query & Audio Engine",
+      "name": "Dynamic Audio SFX Page Lookup Latency (Sprint 49)",
+      "measured": "0.0454 ms",
+      "slaTarget": "< 0.5 ms",
+      "passed": true,
+      "notes": "Compound B-tree lookup on idx_sfx_cues_chapter_page"
+    },
+    {
+      "category": "Query & Vision Engine",
+      "name": "Chroma Sampling & Eye Care Filter Latency (Sprint 50)",
+      "measured": "0.0133 ms",
+      "slaTarget": "< 0.05 ms",
+      "passed": true,
+      "notes": "Zero-allocation 8x8 RGBA downsampling with delta chroma classification"
+    },
+    {
+      "category": "Query & Geometry Engine",
+      "name": "Two-Page Spread Detection & Virtual Split Latency (Sprint 51)",
+      "measured": "0.0114 ms",
+      "slaTarget": "< 0.05 ms",
+      "passed": true,
+      "notes": "Pure arithmetic geometry evaluation without buffer cloning or disk writes"
     }
   ],
   "allPassed": true,
   "summary": {
-    "total": 11,
-    "passed": 11,
+    "total": 15,
+    "passed": 15,
     "failed": 0
   }
 }

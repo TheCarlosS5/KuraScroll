@@ -116,10 +116,10 @@ export class StoryRecapService {
     const result = this.stmtUpsert.run(
       input.seriesId,
       input.throughChapterSeq,
-      input.arcTitle,
+      input.arcTitle || null,
       languageTag,
       recapKind,
-      input.summaryText,
+      input.summaryText || '',
       characterStatusesJson,
       keyEventsJson,
       input.cliffhangerWarning || null

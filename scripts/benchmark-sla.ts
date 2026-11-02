@@ -13,6 +13,7 @@ import { classifyPageChroma } from '../src/backend/utils/color-classifier.js';
 import { detectSpreadLayout } from '../src/backend/utils/spread-detector.js';
 import { PageAnnotationService } from '../src/backend/services/page-annotation-service.js';
 import { ReadingCadenceService } from '../src/backend/services/reading-cadence-service.js';
+import { FramePacer } from '../src/backend/utils/frame-pacer.js';
 
 export interface SlaResult {
   category: string;
@@ -395,6 +396,31 @@ export async function runHostSlaBenchmark(): Promise<SlaReport> {
     slaTarget: '< 0.50 ms',
     passed: cadLatency < 0.50,
     notes: 'Zero-allocation Kalman/EMA cadence updates with rapid skip filtering',
+  });
+
+  // 18. Adaptive Frame-Rate Pacer & Thermal Throttling Guard (Sprint 54)
+  const pacer = new FramePacer({ bufferSize: 60 });
+  let tPacer = 1000;
+  // Warmup
+  for (let i = 0; i < 60; i++) {
+    pacer.recordFrame(tPacer);
+    tPacer += 16.67;
+  }
+
+  const tPacerStart = performance.now();
+  const pacerIters = 20000;
+  for (let i = 0; i < pacerIters; i++) {
+    pacer.recordFrame(tPacer);
+    tPacer += 16.67;
+  }
+  const pacerLatency = (performance.now() - tPacerStart) / pacerIters;
+  results.push({
+    category: 'Frame Pacing & GPU',
+    name: 'Adaptive Frame Pacer Tick (Zero-Alloc Ring Buffer)',
+    measured: `${(pacerLatency * 1000).toFixed(2)} µs (${pacerLatency.toFixed(6)} ms)`,
+    slaTarget: '< 0.005 ms',
+    passed: pacerLatency < 0.005,
+    notes: 'Zero-allocation Float64Array circular buffer regulator for Intel GMA 4500MHD',
   });
 
   // Teardown

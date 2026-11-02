@@ -367,11 +367,19 @@
   - [x] Task 53.5: Zero-Blur HUD Component `ReadingVelocityHUD.tsx` (`frontend/tests/components/ReadingVelocityHUD.test.tsx`, 4/4 tests PASS)
   - [x] Task 53.6: Subagent Swarm Execution & Latency Benchmarks (SLA 17: 0.154ms transition, 0.00064ms cache lookup, 17/17 SLAs Passed)
   - [x] Task 53.7: Monorepo Verification (180 test files, 916 tests PASS [606 backend + 310 frontend], Vite build in 4.84s)
-- [ ] Part 54: Adaptive Frame-Rate Pacer & Thermal Throttling Guard (Intel GMA 4500MHD VSync Locking & Dynamic Canvas Downgrade Engine)
-  - [ ] Task 54.1: Senior Architectural Blueprint Consultation with ChatGPT via Brave MCP
-  - [ ] Task 54.2: Hardware Refresh Rate & Frame Drop Detection Utility
-  - [ ] Task 54.3: Thermal & GPU Load State Machine (60 FPS -> 30 FPS Lock -> Canvas Downgrade)
-  - [ ] Task 54.4: Fastify Telemetry Endpoint for Client Frame Drops
-  - [ ] Task 54.5: Frontend FPS Pacer Controller & Thermal Guard HUD
-  - [ ] Task 54.6: Subagent Swarm Execution & Latency Benchmarks (SLA 18)
-  - [ ] Task 54.7: Monorepo Verification & Git Commit
+- [x] Part 54: Adaptive Frame-Rate Pacer & Thermal Throttling Guard (Intel GMA 4500MHD VSync Locking & Dynamic Canvas Downgrade Engine)
+  - [x] Task 54.1: Senior Architectural Blueprint Consultation with ChatGPT via Brave MCP (`docs/brainstorming/chatgpt-sprint54-adaptive-frame-pacer-blueprint.md` & `chatgpt-sprint54-intel-gma4500mhd-fillrate-constraints.md`)
+  - [x] Task 54.2: Hardware Refresh Rate & Frame Drop Detection Utility (`src/backend/utils/frame-pacer.ts`, `Float64Array(60)` circular ring buffer, 5/5 tests PASS, 0.0010ms per tick, 998,600 ticks/s)
+  - [x] Task 54.3: Thermal & GPU Load State Machine (`NOMINAL_60` -> `PACED_30` -> `EMERGENCY_STEP` with hysteresis protection)
+  - [x] Task 54.4: Fastify Telemetry Endpoint for Client Frame Drops in `src/backend/routes/frame-telemetry-routes.ts` & `src/backend/services/frame-telemetry-service.ts` (0.0385ms write latency, 4/4 tests PASS)
+  - [x] Task 54.5: Frontend FPS Pacer Controller & Thermal Guard HUD in `frontend/src/reader/useFramePacer.ts` and `frontend/src/components/reader/ThermalGuardHUD.tsx` (10/10 tests PASS)
+  - [x] Task 54.6: Subagent Swarm Execution & Latency Benchmarks (SLA 18: 0.0010ms frame tick [5.0x faster than SLA], 18/18 SLAs Passed)
+  - [x] Task 54.7: Monorepo Verification & Git Commit (186 test files, 938 tests PASS [618 backend + 320 frontend], Vite build in 8.26s)
+- [ ] Part 55: High-Precision Panel Crop & Dialogue Bubble OCR Pre-Cacher (Zero-Copy Web Worker Tesseract/Onnx Pipeline & Bounding Box Indexing)
+  - [ ] Task 55.1: Senior Architectural Blueprint Consultation with ChatGPT via Brave MCP
+  - [ ] Task 55.2: SQLite Table `chapter_bubble_ocr_index` & Fast Bounding Box Spatial Indexing
+  - [ ] Task 55.3: Backend OCR Geometry & Text Indexing Service
+  - [ ] Task 55.4: Fastify Endpoints for Page Bubbles & OCR Search
+  - [ ] Task 55.5: Frontend High-Contrast Panel Inspector & Speech Bubble Overlay HUD
+  - [ ] Task 55.6: Subagent Swarm Execution & Benchmark (SLA 19)
+  - [ ] Task 55.7: Monorepo Verification & Git Commit

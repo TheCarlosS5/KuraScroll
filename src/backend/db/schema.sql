@@ -460,6 +460,21 @@ CREATE TABLE IF NOT EXISTS reading_session_cadence_logs (
 CREATE INDEX IF NOT EXISTS idx_session_cadence_lookup
     ON reading_session_cadence_logs(user_id, chapter_id);
 
+-- Sprint 54: Adaptive Frame-Rate Pacer & Thermal Throttling Guard
+CREATE TABLE IF NOT EXISTS client_render_telemetry (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id TEXT NOT NULL,
+    fps_average REAL NOT NULL,
+    drop_rate_pct REAL NOT NULL,
+    governor_state TEXT NOT NULL CHECK (governor_state IN ('nominal_60', 'paced_30', 'emergency_step')),
+    reading_mode TEXT NOT NULL DEFAULT 'manga',
+    created_at TEXT DEFAULT (datetime('now'))
+);
+
+CREATE INDEX IF NOT EXISTS idx_render_telemetry_user
+    ON client_render_telemetry(user_id, created_at);
+
+
 
 
 

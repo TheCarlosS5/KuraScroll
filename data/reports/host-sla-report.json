@@ -1,11 +1,11 @@
 {
-  "timestamp": "2026-11-02T07:48:28.837Z",
+  "timestamp": "2026-11-02T08:07:24.655Z",
   "host": {
     "platform": "win32",
     "cpus": 8,
     "cpuModel": "AMD Ryzen 5 3500U with Radeon Vega Mobile Gfx   ",
     "totalMemMB": 15307,
-    "freeMemMB": 5273,
+    "freeMemMB": 5140,
     "isLowResourceTarget": false
   },
   "results": [
@@ -52,7 +52,7 @@
     {
       "category": "Query & Search",
       "name": "SQLite Primary Key Point Lookup",
-      "measured": "0.295 ms",
+      "measured": "0.308 ms",
       "slaTarget": "< 1.0 ms",
       "passed": true,
       "notes": "Direct B-Tree index point retrieval"
@@ -60,7 +60,7 @@
     {
       "category": "Query & Search",
       "name": "FTS5 1-Kanji Prefix Search (\"鬼\")",
-      "measured": "0.946 ms",
+      "measured": "0.863 ms",
       "slaTarget": "< 5.0 ms (T4500 SLA)",
       "passed": true,
       "notes": "Accelerated by prefix='1 2 3' auxiliary B-Tree"
@@ -68,7 +68,7 @@
     {
       "category": "Query & Search",
       "name": "FTS5 Special Character Match (\"SPY×FAMILY\")",
-      "measured": "0.979 ms",
+      "measured": "0.936 ms",
       "slaTarget": "< 5.0 ms",
       "passed": true,
       "notes": "Sanitizer delimiter normalization"
@@ -76,7 +76,7 @@
     {
       "category": "Disk I/O & Streams",
       "name": "64KB Chunked Stream Copy (192KB)",
-      "measured": "19.24 ms",
+      "measured": "19.29 ms",
       "slaTarget": "< 150 ms",
       "passed": true,
       "notes": "Maintains bounded highWaterMark backpressure"
@@ -84,7 +84,7 @@
     {
       "category": "Disk I/O & Streams",
       "name": "64KB Chunked SHA256 Stream Hashing",
-      "measured": "7.40 ms",
+      "measured": "10.56 ms",
       "slaTarget": "< 100 ms",
       "passed": true,
       "notes": "Zero memory inflation on large chapter files"
@@ -92,7 +92,7 @@
     {
       "category": "Media Engine",
       "name": "WebP 1440px Ahead-of-Time Encoding (Effort 2, Q=75)",
-      "measured": "212.61 ms (5 KB)",
+      "measured": "216.71 ms (5 KB)",
       "slaTarget": "< 1500 ms (Single Core T4500)",
       "passed": true,
       "notes": "Thermal Saver mode reduces CPU cycles by >55%"
@@ -100,7 +100,7 @@
     {
       "category": "Query & Engine",
       "name": "Anti-Spoiler Story Recap Seek Latency (Sprint 48)",
-      "measured": "0.2012 ms",
+      "measured": "0.0496 ms",
       "slaTarget": "< 1.0 ms",
       "passed": true,
       "notes": "O(log S) compound B-tree lookup on idx_story_recaps_lookup"
@@ -108,7 +108,7 @@
     {
       "category": "Query & Audio Engine",
       "name": "Dynamic Audio SFX Page Lookup Latency (Sprint 49)",
-      "measured": "0.0554 ms",
+      "measured": "0.0504 ms",
       "slaTarget": "< 0.5 ms",
       "passed": true,
       "notes": "Compound B-tree lookup on idx_sfx_cues_chapter_page"
@@ -116,7 +116,7 @@
     {
       "category": "Query & Vision Engine",
       "name": "Chroma Sampling & Eye Care Filter Latency (Sprint 50)",
-      "measured": "0.0153 ms",
+      "measured": "0.0147 ms",
       "slaTarget": "< 0.05 ms",
       "passed": true,
       "notes": "Zero-allocation 8x8 RGBA downsampling with delta chroma classification"
@@ -124,7 +124,7 @@
     {
       "category": "Query & Geometry Engine",
       "name": "Two-Page Spread Detection & Virtual Split Latency (Sprint 51)",
-      "measured": "0.0131 ms",
+      "measured": "0.0128 ms",
       "slaTarget": "< 0.05 ms",
       "passed": true,
       "notes": "Pure arithmetic geometry evaluation without buffer cloning or disk writes"
@@ -132,7 +132,7 @@
     {
       "category": "Reader Annotations",
       "name": "Page Annotation Query with LRU Cache",
-      "measured": "2.04 µs (0.0020 ms)",
+      "measured": "1.39 µs (0.0014 ms)",
       "slaTarget": "< 0.50 ms",
       "passed": true,
       "notes": "Sub-millisecond point lookups for sticky note overlays"
@@ -140,16 +140,24 @@
     {
       "category": "Reading Velocity",
       "name": "Continuous Cadence EMA & Outlier Clamping",
-      "measured": "405.11 µs (0.4051 ms)",
+      "measured": "294.58 µs (0.2946 ms)",
       "slaTarget": "< 0.50 ms",
       "passed": true,
       "notes": "Zero-allocation Kalman/EMA cadence updates with rapid skip filtering"
+    },
+    {
+      "category": "Frame Pacing & GPU",
+      "name": "Adaptive Frame Pacer Tick (Zero-Alloc Ring Buffer)",
+      "measured": "1.22 µs (0.001216 ms)",
+      "slaTarget": "< 0.005 ms",
+      "passed": true,
+      "notes": "Zero-allocation Float64Array circular buffer regulator for Intel GMA 4500MHD"
     }
   ],
   "allPassed": true,
   "summary": {
-    "total": 17,
-    "passed": 17,
+    "total": 18,
+    "passed": 18,
     "failed": 0
   }
 }

@@ -159,7 +159,7 @@
   - [x] Task 29.4: Frontend Diagnostics Component `OfflineSyncHUD.tsx` with live network pill, pending IndexedDB mutations drawer, and "Sincronizar Ahora" action button
   - [x] Task 29.5: Navbar mount in `Navbar.tsx` featuring streak flame badge (`🔥 3d`) and `<OfflineSyncHUD />`
   - [x] Task 29.6: Monorepo test coverage (17 tests: `reading-streak-service.test.ts`, `reading-streak.test.ts`, `analytics-routes.test.ts`, `OfflineSyncHUD.test.tsx`, 100% PASS)
-- [x] Part 30: Daily Reading Goals Customizer & Habit Notifications Engine (Commit Sprint 30)
+- [x] Part 30: Daily Reading Goals Customizer & Habit Notifications Engine (Commit f4f5e29)
   - [x] Task 30.1: Senior Architectural Blueprint Consultation with ChatGPT via Brave MCP (`docs/brainstorming/chatgpt-sprint30-reading-goals-and-write-behind-blueprint.md`)
   - [x] Task 30.2: SQLite Tables `user_reading_goals`, `user_daily_activity`, and Covering Indexes `idx_user_daily_activity_date` & `idx_user_daily_activity_stats` (sub-millisecond queries, zero-scan)
   - [x] Task 30.3: Typed SQLite Repository `ReadingGoalRepository.ts` (5/5 tests PASS)

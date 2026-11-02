@@ -21,6 +21,7 @@ import { registerEventRoutes, EventBus } from './events/event-bus.js';
 import { registerTelemetryRoutes } from './routes/telemetry-routes.js';
 import { registerMaintenanceRoutes } from './routes/maintenance-routes.js';
 import { dedupRoutes } from './routes/dedup-routes.js';
+import { p2pRoutes } from './routes/p2p-routes.js';
 import { AdaptiveIngestionController } from './services/adaptive-ingestion-controller.js';
 import { DifferentialMirrorService } from './services/differential-mirror-service.js';
 
@@ -134,6 +135,7 @@ export function buildApp(options: AppOptions = {}): FastifyInstance {
   registerTelemetryRoutes(app, { db, storageRoot, adaptiveController: options.adaptiveController });
   registerMaintenanceRoutes(app, { db, storageRoot });
   app.register(dedupRoutes, { db });
+  app.register(p2pRoutes);
 
   return app;
 }

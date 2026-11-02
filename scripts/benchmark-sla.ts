@@ -131,6 +131,10 @@ import {
   TextureAtlasService,
   calculateTextureAtlasPlacement,
 } from '../src/backend/services/texture-atlas-service.js';
+import {
+  GlyphSharpenerService,
+  calculateGlyphSharpener,
+} from '../src/backend/services/glyph-sharpener-service.js';
 
 export interface SlaResult {
   category: string;
@@ -2460,6 +2464,36 @@ export async function runHostSlaBenchmark(): Promise<SlaReport> {
     slaTarget: '< 0.02 ms',
     passed: textureAtlasLatency < 0.02,
     notes: 'Zero-Allocation 2D Guillotine BSSF UV Mapping & 32MB VRAM Compaction (< 20µs target)',
+  });
+
+  // 77. Subpixel Micro-Vector Glyph Sharpener & Anti-Aliasing Edge Contrast Enhancer (Sprint 113 - SLA 77)
+  // Warmup JIT
+  for (let i = 0; i < 5000; i++) {
+    calculateGlyphSharpener(8, 1.0, 1.15, 1.05, 65, 'adaptive_kanji', true);
+  }
+
+  const glyphSharpenerIters = 20000;
+  const tGlyphSharpenerStart = performance.now();
+  for (let i = 0; i < glyphSharpenerIters; i++) {
+    calculateGlyphSharpener(
+      1 + (i % 28),
+      1.0 + (i % 3) * 0.5,
+      1.10 + (i % 5) * 0.05,
+      1.05,
+      65,
+      'adaptive_kanji',
+      true
+    );
+  }
+  const glyphSharpenerLatency = (performance.now() - tGlyphSharpenerStart) / glyphSharpenerIters;
+
+  results.push({
+    category: 'Typography & Subpixel',
+    name: 'Glyph Edge Sharpener (SLA 77)',
+    measured: `${(glyphSharpenerLatency * 1000).toFixed(2)} µs (${glyphSharpenerLatency.toFixed(4)} ms)`,
+    slaTarget: '< 0.02 ms',
+    passed: glyphSharpenerLatency < 0.02,
+    notes: 'Zero-Allocation Analytical Edge Contrast & Dense Stroke Protection (< 20µs target)',
   });
 
   // Teardown

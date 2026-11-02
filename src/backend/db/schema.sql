@@ -1640,3 +1640,30 @@ CREATE TABLE IF NOT EXISTS texture_atlas_profiles (
 
 CREATE INDEX IF NOT EXISTS idx_texture_atlas_lookup 
     ON texture_atlas_profiles(series_id);
+
+-- Sprint 113: Subpixel Micro-Vector Glyph Sharpener & Anti-Aliasing Edge Contrast Enhancer (SLA 77)
+CREATE TABLE IF NOT EXISTS glyph_sharpener_profiles (
+    series_id TEXT PRIMARY KEY,
+    sharpener_mode TEXT NOT NULL DEFAULT 'adaptive_kanji' CHECK (sharpener_mode IN (
+        'adaptive_kanji',
+        'high_contrast_furigana',
+        'kana_light',
+        'dense_cjk_compaction',
+        'custom_matrix'
+    )),
+    stroke_density_tier TEXT NOT NULL DEFAULT 'auto' CHECK (stroke_density_tier IN (
+        'auto',
+        'low_kana_1_5',
+        'mid_kanji_6_14',
+        'dense_kanji_15_plus'
+    )),
+    contrast_multiplier REAL NOT NULL DEFAULT 1.15 CHECK (contrast_multiplier >= 1.0 AND contrast_multiplier <= 1.50),
+    luminance_gamma REAL NOT NULL DEFAULT 1.05 CHECK (luminance_gamma >= 0.80 AND luminance_gamma <= 1.30),
+    stroke_protection_pct INTEGER NOT NULL DEFAULT 65 CHECK (stroke_protection_pct >= 0 AND stroke_protection_pct <= 100),
+    is_enabled INTEGER NOT NULL DEFAULT 1 CHECK (is_enabled IN (0, 1)),
+    created_at INTEGER NOT NULL,
+    updated_at INTEGER NOT NULL
+);
+
+CREATE INDEX IF NOT EXISTS idx_glyph_sharpener_lookup 
+    ON glyph_sharpener_profiles(series_id);

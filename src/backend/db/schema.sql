@@ -696,6 +696,25 @@ CREATE TABLE IF NOT EXISTS ephemeral_tab_sessions (
 CREATE INDEX IF NOT EXISTS idx_tab_sessions_user
     ON ephemeral_tab_sessions (user_id, last_heartbeat_ms DESC);
 
+-- Sprint 66: Memory-Bounded WebP Tile Tiling & Deep-Zoom Pyramidal Reader Engine
+CREATE TABLE IF NOT EXISTS page_pyramid_metadata (
+    chapter_id TEXT NOT NULL,
+    page_number INTEGER NOT NULL,
+    is_pyramidal INTEGER NOT NULL DEFAULT 0 CHECK (is_pyramidal IN (0, 1)),
+    original_width INTEGER NOT NULL,
+    original_height INTEGER NOT NULL,
+    tile_size INTEGER NOT NULL DEFAULT 512,
+    max_level INTEGER NOT NULL DEFAULT 0,
+    total_tiles INTEGER NOT NULL DEFAULT 1,
+    pyramid_json TEXT,
+    created_at INTEGER NOT NULL,
+    PRIMARY KEY (chapter_id, page_number)
+);
+
+CREATE INDEX IF NOT EXISTS idx_pyramid_chapter
+    ON page_pyramid_metadata (chapter_id);
+
+
 
 
 

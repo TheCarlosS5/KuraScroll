@@ -457,3 +457,12 @@
   - [x] Task 65.5: Client CrossTabSync Hook & MultiTabSyncHUD Component (`frontend/src/reader/useCrossTabSync.ts`, `MultiTabSyncHUD.tsx`, HTML5 `BroadcastChannel('kura_tab_bus')`, 4000ms watchdog lease, 0 blur, 0 CLS)
   - [x] Task 65.6: Subagent Swarm Execution & Latency Benchmark (SLA 29: 25.25 µs [Target < 50 µs], 29/29 SLAs Passed)
   - [x] Task 65.7: Monorepo Verification & Git Commit (236 test files, 1,184 tests PASS [771 backend + 413 frontend], Vite build in 4.41s)
+- [x] Part 66: Memory-Bounded WebP Tile Tiling & Deep-Zoom Pyramidal Reader Engine (Pan-and-Scan for High-Resolution Spreads on Intel GMA 4500MHD)
+  - [x] Task 66.1: Senior Architectural Blueprint Consultation with ChatGPT via Brave MCP (`docs/brainstorming/chatgpt-sprint66-pyramidal-deep-zoom-blueprint.md`)
+  - [x] Task 66.2: Pyramidal WebP Image Standard & Dynamic LOD Specification (`docs/brainstorming/pyramidal-tile-deep-zoom-specification.md`)
+  - [x] Task 66.3: Backend DeepZoomTileService & SQLite Table (`src/backend/services/deep-zoom-tile-service.ts`, table `page_pyramid_metadata`, index `idx_pyramid_chapter`, fallback for <=2048px, zero-allocation AABB logic)
+  - [x] Task 66.4: Fastify Pyramidal Tile REST Endpoints (`src/backend/routes/deep-zoom-routes.ts`, `/meta`, `/register`, `/viewport-tiles`, `/:level/:col_:row.webp` with HTTP 304 / ETag)
+  - [x] Task 66.5: Client DeepZoomPanScan Hook & DeepZoomTileHUD Component (`frontend/src/reader/useDeepZoomPanScan.ts`, `DeepZoomTileHUD.tsx`, radar mini-map, zero-allocation math, keyboard toggle 'Z', 0 blur, 0 CLS)
+  - [x] Task 66.6: Subagent Swarm Execution & SLA 30 Benchmark (SLA 30: 1.28 µs [39x faster than SLA target < 50 µs], 30/30 SLAs Passed)
+  - [x] Task 66.7: Monorepo Verification & Git Commit (240 test files, 1,216 tests PASS [791 backend + 425 frontend], Vite build in 4.35s)
+

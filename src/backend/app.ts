@@ -54,6 +54,8 @@ import { paperToneRoutes } from './routes/paper-tone-routes.js';
 import { PaperToneService } from './services/paper-tone-service.js';
 import { tabSessionRoutes } from './routes/tab-session-routes.js';
 import { TabSessionService } from './services/tab-session-service.js';
+import { deepZoomRoutes } from './routes/deep-zoom-routes.js';
+import { DeepZoomTileService } from './services/deep-zoom-tile-service.js';
 import { AdaptiveIngestionController } from './services/adaptive-ingestion-controller.js';
 import { DifferentialMirrorService } from './services/differential-mirror-service.js';
 
@@ -69,6 +71,7 @@ export interface AppOptions {
   platterDefragService?: PlatterDefragService;
   paperToneService?: PaperToneService;
   tabSessionService?: TabSessionService;
+  deepZoomService?: DeepZoomTileService;
 }
 
 export function buildApp(options: AppOptions = {}): FastifyInstance {
@@ -220,6 +223,15 @@ export function buildApp(options: AppOptions = {}): FastifyInstance {
   app.register(tabSessionRoutes, {
     db,
     tabSessionService: options.tabSessionService ?? new TabSessionService(db),
+  });
+  app.register(deepZoomRoutes, {
+    db,
+    deepZoomService:
+      options.deepZoomService ??
+      new DeepZoomTileService({
+        db,
+        storageRoot,
+      }),
   });
 
   return app;

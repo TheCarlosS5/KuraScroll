@@ -25,6 +25,13 @@ import { FuriganaLexiconService } from '../src/backend/services/furigana-lexicon
 import { PlatterDefragService, ChapterDiskMetadata } from '../src/backend/services/platter-defrag-service.js';
 import { PaperToneService, PaperTonePreset } from '../src/backend/services/paper-tone-service.js';
 import { TabSessionService } from '../src/backend/services/tab-session-service.js';
+import {
+  DeepZoomTileService,
+  calculateVisibleTiles,
+  computePyramidLevels,
+  DeepZoomManifest,
+  ViewportTransform,
+} from '../src/backend/services/deep-zoom-tile-service.js';
 
 export interface SlaResult {
   category: string;
@@ -899,6 +906,47 @@ export async function runHostSlaBenchmark(): Promise<SlaReport> {
     slaTarget: '< 0.05 ms',
     passed: tabLatency < 0.10,
     notes: 'In-Memory Indexed Tab Session Resolution & Ephemeral Heartbeat Arbitration (< 0.05ms isolation, < 0.10ms concurrent load)',
+  });
+
+  // --- SLA 30: Deep-Zoom Viewport AABB Resolution Latency (Sprint 66) ---
+  const deepZoomService = new DeepZoomTileService({
+    db,
+    cacheRoot: path.join(scratchDir, 'deep_zoom_cache'),
+  });
+  const mockSpreadManifest = deepZoomService.registerOrGetManifest(
+    'sla_berserk_double',
+    1,
+    6000,
+    4000,
+    512
+  );
+
+  const testTransforms: ViewportTransform[] = [
+    { panX: 0, panY: 0, scale: 1.0, viewportWidth: 1920, viewportHeight: 1080 },
+    { panX: -800, panY: -500, scale: 1.8, viewportWidth: 1920, viewportHeight: 1080 },
+    { panX: -1500, panY: -1200, scale: 3.0, viewportWidth: 1280, viewportHeight: 720 },
+    { panX: -2400, panY: -1600, scale: 4.0, viewportWidth: 1024, viewportHeight: 768 },
+  ];
+
+  // Warmup JIT
+  for (let i = 0; i < 2000; i++) {
+    calculateVisibleTiles(testTransforms[i % testTransforms.length], mockSpreadManifest);
+  }
+
+  const aabbIters = 20000;
+  const tAabbStart = performance.now();
+  for (let i = 0; i < aabbIters; i++) {
+    calculateVisibleTiles(testTransforms[i % testTransforms.length], mockSpreadManifest);
+  }
+  const aabbLatency = (performance.now() - tAabbStart) / aabbIters;
+
+  results.push({
+    category: 'Deep-Zoom & Pyramidal Tiling',
+    name: 'Viewport AABB Tile Resolution Latency (SLA 30)',
+    measured: `${(aabbLatency * 1000).toFixed(2)} µs (${aabbLatency.toFixed(4)} ms)`,
+    slaTarget: '< 0.05 ms',
+    passed: aabbLatency < 0.05,
+    notes: 'Zero-Allocation AABB Viewport LOD Math bounded to GMA 4500MHD texture limits (< 50µs target)',
   });
 
   // Teardown

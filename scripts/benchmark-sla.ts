@@ -44,6 +44,7 @@ import {
   StorageVaultService,
   VaultChapterRecord,
 } from '../src/backend/services/storage-vault-service.js';
+import { AmbientSoundscapeService } from '../src/backend/services/ambient-soundscape-service.js';
 
 export interface SlaResult {
   category: string;
@@ -1211,6 +1212,28 @@ export async function runHostSlaBenchmark(): Promise<SlaReport> {
     slaTarget: '< 0.05 ms',
     passed: vaultLatency < 0.05,
     notes: 'Sub-50µs zero-allocation sorting of 100 offline chapters on Intel Pentium T4500',
+  });
+
+  // 37. Multi-Track Ambient Soundscapes Equal-Power Cross-Fade Latency (Sprint 73)
+  // Warmup JIT
+  for (let i = 0; i < 5000; i++) {
+    AmbientSoundscapeService.calculateEqualPowerCrossFade((i % 100) / 100);
+  }
+
+  const crossFadeIters = 20000;
+  const tCrossFadeStart = performance.now();
+  for (let i = 0; i < crossFadeIters; i++) {
+    AmbientSoundscapeService.calculateEqualPowerCrossFade((i % 100) / 100);
+  }
+  const crossFadeLatency = (performance.now() - tCrossFadeStart) / crossFadeIters;
+
+  results.push({
+    category: 'Ambient Soundscape Engine',
+    name: 'Equal-Power Cross-Fade Math (SLA 37)',
+    measured: `${(crossFadeLatency * 1000).toFixed(2)} µs (${crossFadeLatency.toFixed(4)} ms)`,
+    slaTarget: '< 0.02 ms',
+    passed: crossFadeLatency < 0.02,
+    notes: 'Zero-Allocation Cosine/Sine Equal-Power Acoustic Curve Math (< 20µs target)',
   });
 
   // Teardown

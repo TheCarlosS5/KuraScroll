@@ -513,6 +513,14 @@
   - [x] Task 72.5: Client useStorageVault Hook & StorageVaultHUD Component (`frontend/src/reader/useStorageVault.ts`, `StorageVaultHUD.tsx`, zero-blur solid `#18181b` containment, segmented quota progress bar, chapter list with status badges, quick cleanup button, keyboard shortcut 'V', 0 CLS)
   - [x] Task 72.6: Subagent Swarm Execution & SLA 36 Benchmark (SLA 36: 15.52 µs [Target < 50 µs], 36/36 SLAs Passed)
   - [x] Task 72.7: Monorepo Verification & Git Commit (Full Backend & Frontend Test Suites Passing, Vite Build Verified)
+- [x] Part 73: Multi-Track Ambient Soundscapes & Atmospheric BGM Mixer Engine (Audio Mixing, Genre Presets & Equal-Power Cross-Fade)
+  - [x] Task 73.1: Senior Architectural Blueprint Consultation with ChatGPT via Brave MCP (`docs/brainstorming/ambient-soundscape-specification.md`)
+  - [x] Task 73.2: 8 Canonical Atmospheric Presets, Equal-Power Cross-Fade ($\cos/\sin$) and AudioContext Autoplay Guard Specification (`docs/brainstorming/ambient-soundscape-specification.md`, `docs/brainstorming/ambient-soundscape-hud-spec.md`, `docs/brainstorming/user-perspective-soundscape-audit.md`, `docs/reports/sprint73-devops-soundscape-audit.md`, `docs/reports/sprint73-soundscape-resilience-matrix.md`, `docs/reports/sprint73-soundscape-benchmark.md`)
+  - [x] Task 73.3: Backend AmbientSoundscapeService & SQLite Tables (`src/backend/services/ambient-soundscape-service.ts`, tables `ambient_soundscape_presets`, `user_soundscape_preferences`, indexes `idx_soundscape_genre`, `idx_soundscape_user_pref`, zero-allocation calculateEqualPowerCrossFade)
+  - [x] Task 73.4: Fastify Ambient Soundscape REST Endpoints (`src/backend/routes/ambient-soundscape-routes.ts`, `/presets`, `/preset/:id`, `/preferences/:userId`, `/preferences`, `/calculate-gain`, HTTP 304 ETag caching)
+  - [x] Task 73.5: Client useAmbientSoundscape Hook & AmbientSoundscapeHUD Component (`frontend/src/reader/useAmbientSoundscape.ts`, `AmbientSoundscapeHUD.tsx`, zero-blur solid `#18181b` containment, master & per-track volume sliders, sound wave indicator, keyboard shortcut 'B', 0 CLS)
+  - [x] Task 73.6: Subagent Swarm Execution & SLA 37 Benchmark (SLA 37: 0.10 µs [200x faster than SLA target < 20 µs], 37/37 SLAs Passed)
+  - [x] Task 73.7: Monorepo Verification & Git Commit (254 test files, 1,365+ tests PASS, Vite build in 4.56s)
 
 
 

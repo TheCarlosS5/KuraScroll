@@ -870,6 +870,35 @@ CREATE TABLE IF NOT EXISTS storage_quota_policies (
     updated_at INTEGER NOT NULL
 );
 
+-- Sprint 73: Multi-Track Ambient Soundscapes & Atmospheric BGM Mixer Engine
+CREATE TABLE IF NOT EXISTS ambient_soundscape_presets (
+    id TEXT PRIMARY KEY,
+    genre TEXT NOT NULL,
+    title TEXT NOT NULL,
+    track_base_url TEXT NOT NULL,
+    track_sub_url TEXT,
+    track_harmony_url TEXT,
+    default_volume REAL NOT NULL DEFAULT 0.5,
+    fade_duration_ms INTEGER NOT NULL DEFAULT 1500,
+    created_at INTEGER NOT NULL
+);
+
+CREATE INDEX IF NOT EXISTS idx_soundscape_genre 
+    ON ambient_soundscape_presets(genre);
+
+CREATE TABLE IF NOT EXISTS user_soundscape_preferences (
+    user_id TEXT PRIMARY KEY,
+    master_volume REAL NOT NULL DEFAULT 0.7,
+    is_muted INTEGER NOT NULL DEFAULT 0 CHECK (is_muted IN (0, 1)),
+    auto_play_on_reader INTEGER NOT NULL DEFAULT 0 CHECK (auto_play_on_reader IN (0, 1)),
+    active_preset_id TEXT NOT NULL DEFAULT 'silence_pure',
+    updated_at INTEGER NOT NULL
+);
+
+CREATE INDEX IF NOT EXISTS idx_soundscape_user_pref 
+    ON user_soundscape_preferences(user_id);
+
+
 
 
 

@@ -68,6 +68,8 @@ import { readingRulerRoutes } from './routes/reading-ruler-routes.js';
 import { ReadingRulerService } from './services/reading-ruler-service.js';
 import { storageVaultRoutes } from './routes/storage-vault-routes.js';
 import { StorageVaultService } from './services/storage-vault-service.js';
+import { ambientSoundscapeRoutes } from './routes/ambient-soundscape-routes.js';
+import { AmbientSoundscapeService } from './services/ambient-soundscape-service.js';
 import { AdaptiveIngestionController } from './services/adaptive-ingestion-controller.js';
 import { DifferentialMirrorService } from './services/differential-mirror-service.js';
 
@@ -90,6 +92,7 @@ export interface AppOptions {
   kineticParallaxService?: KineticParallaxService;
   readingRulerService?: ReadingRulerService;
   storageVaultService?: StorageVaultService;
+  ambientSoundscapeService?: AmbientSoundscapeService;
 }
 
 export function buildApp(options: AppOptions = {}): FastifyInstance {
@@ -274,6 +277,10 @@ export function buildApp(options: AppOptions = {}): FastifyInstance {
   app.register(storageVaultRoutes, {
     db,
     storageVaultService: options.storageVaultService ?? new StorageVaultService(db),
+  });
+  app.register(ambientSoundscapeRoutes, {
+    db,
+    soundscapeService: options.ambientSoundscapeService ?? new AmbientSoundscapeService(db),
   });
 
   return app;

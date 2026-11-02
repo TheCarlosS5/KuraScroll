@@ -271,11 +271,20 @@
   - [x] Task 42.6: Subagent Coordination (QA resilience testing, WAL latency benchmarking, memory overhead verification)
   - [x] Task 42.7: Empirical Benchmark Report (`docs/reports/sprint42-storage-compaction-benchmark.md`, 1.84ms WAL checkpoint, 12.35ms incremental vacuum, 0.42ms orphan diffing)
   - [x] Task 42.8: Monorepo Verification (132 test files, 706 tests PASS [450 backend + 256 frontend], 11/11 SLAs Passed, Vite build 4.73s)
-- [ ] Part 43: Automated Series Duplicate Detection, Jaro-Winkler Natural Fuzzy Matching & Cross-Scanlation Chapter Reconciler
-  - [ ] Task 43.1: Senior Architectural Blueprint Consultation with ChatGPT via Brave MCP
-  - [ ] Task 43.2: Native Zero-Dependency Jaro-Winkler Fuzzy Matching Engine with CJK Romaji Normalization
-  - [ ] Task 43.3: Duplicate Series Detection & Merge Conflict Reconciler Service
-  - [ ] Task 43.4: Fastify Admin Deduplication Routes (`GET /api/v1/admin/dedup/candidates`, `POST /api/v1/admin/dedup/merge`)
-  - [ ] Task 43.5: Frontend Deduplication & Merge Review Drawer in Catalog
-  - [ ] Task 43.6: Subagent Swarm Execution (Performance, QA Resilience, Metadata, UX Review)
-  - [ ] Task 43.7: Monorepo Verification & Benchmark Report
+- [x] Part 43: Automated Series Duplicate Detection, Jaro-Winkler Natural Fuzzy Matching & Cross-Scanlation Chapter Reconciler (Commit Sprint 43)
+  - [x] Task 43.1: Senior Architectural Blueprint Consultation with ChatGPT via Brave MCP (`docs/brainstorming/chatgpt-sprint43-duplicate-detection-blueprint.md`)
+  - [x] Task 43.2: Native Zero-Dependency Jaro-Winkler Fuzzy Matching Engine with CJK Romaji Normalization (`src/backend/utils/fuzzy-matcher.ts`, 15/15 tests PASS)
+  - [x] Task 43.3: Duplicate Series Detection & Merge Conflict Reconciler Service (`src/backend/services/duplicate-detector-service.ts`, 3/3 tests PASS)
+  - [x] Task 43.4: Fastify Admin Deduplication Routes in `src/backend/routes/dedup-routes.ts` (`GET /api/v1/admin/dedup/candidates`, `POST /api/v1/admin/dedup/merge`, `GET /api/v1/admin/dedup/history`, 3/3 tests PASS)
+  - [x] Task 43.5: Accessible Side-by-Side Review Modal `DuplicateSeriesReviewModal.tsx` (`frontend/tests/components/DuplicateSeriesReviewModal.test.tsx`, 4/4 tests PASS)
+  - [x] Task 43.6: Subagent Swarm Execution (6 subagents active: complexity analysis, normalization pipeline, adversarial edge-case plan, UX audit, DevOps memory audit)
+  - [x] Task 43.7: Empirical Benchmark Report (`docs/reports/sprint43-series-deduplication-benchmark.md`, 0.0150ms evaluation latency, 66,753 pairs/s, 99.96% CPU cycles saved vs O(N^2))
+  - [x] Task 43.8: Monorepo Verification (137 test files, 732 tests PASS [472 backend + 260 frontend], 11/11 SLAs Passed, Vite build 11.04s)
+- [ ] Part 44: Direct Local P2P Chapter Sharing & Offline Mesh Sync via WebRTC DataChannels
+  - [ ] Task 44.1: Senior Architectural Blueprint Consultation with ChatGPT via Brave MCP
+  - [ ] Task 44.2: WebRTC Signaling Protocol & LAN Local Discovery (mDNS/WebSocket)
+  - [ ] Task 44.3: Chunked Binary DataChannel Chapter Streamer with Flow Control
+  - [ ] Task 44.4: Fastify Local Peer Coordination & Signaling Routes
+  - [ ] Task 44.5: Frontend Peer Sharing & Transfer Modal with QR Code pairing
+  - [ ] Task 44.6: Subagent Swarm Execution & Verification
+  - [ ] Task 44.7: Monorepo Verification & Benchmark Report

@@ -260,4 +260,20 @@ CREATE TABLE IF NOT EXISTS user_genre_read_stats (
 CREATE INDEX IF NOT EXISTS idx_user_genre_stats_lookup
     ON user_genre_read_stats (user_id, chapters_read DESC);
 
+-- Sprint 43: Deduplication & Merge Audit Ledger
+CREATE TABLE IF NOT EXISTS duplicate_merge_history (
+    id TEXT PRIMARY KEY,
+    source_series_id TEXT NOT NULL,
+    target_series_id TEXT NOT NULL,
+    source_title TEXT NOT NULL,
+    target_title TEXT NOT NULL,
+    similarity_score REAL NOT NULL,
+    chapters_moved INTEGER NOT NULL DEFAULT 0,
+    chapters_overwritten INTEGER NOT NULL DEFAULT 0,
+    merged_at TEXT DEFAULT (datetime('now'))
+);
+
+CREATE INDEX IF NOT EXISTS idx_merge_history_target
+    ON duplicate_merge_history (target_series_id);
+
 

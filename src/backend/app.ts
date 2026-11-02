@@ -100,6 +100,8 @@ import { chunkedStreamRoutes } from './routes/chunked-stream-routes.js';
 import { ChunkedStreamService } from './services/chunked-stream-service.js';
 import { inertialScrollRoutes } from './routes/inertial-scroll-routes.js';
 import { InertialScrollService } from './services/inertial-scroll-service.js';
+import { dynamicToneRoutes } from './routes/dynamic-tone-routes.js';
+import { DynamicToneService } from './services/dynamic-tone-service.js';
 import { AdaptiveIngestionController } from './services/adaptive-ingestion-controller.js';
 import { DifferentialMirrorService } from './services/differential-mirror-service.js';
 
@@ -138,6 +140,7 @@ export interface AppOptions {
   slidingWindowService?: SlidingWindowService;
   chunkedStreamService?: ChunkedStreamService;
   inertialScrollService?: InertialScrollService;
+  dynamicToneService?: DynamicToneService;
 }
 
 export function buildApp(options: AppOptions = {}): FastifyInstance {
@@ -386,6 +389,10 @@ export function buildApp(options: AppOptions = {}): FastifyInstance {
   app.register(inertialScrollRoutes, {
     db,
     inertialScrollService: options.inertialScrollService ?? new InertialScrollService(db),
+  });
+  app.register(dynamicToneRoutes, {
+    db,
+    dynamicToneService: options.dynamicToneService ?? new DynamicToneService(db),
   });
 
   return app;

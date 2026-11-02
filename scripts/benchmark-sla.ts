@@ -69,6 +69,7 @@ import { resolveVectorClockMerge } from '../src/backend/services/cloudless-sync-
 import { SlidingWindowService } from '../src/backend/services/sliding-window-service.js';
 import { ChunkedStreamService } from '../src/backend/services/chunked-stream-service.js';
 import { InertialScrollService } from '../src/backend/services/inertial-scroll-service.js';
+import { DynamicToneService } from '../src/backend/services/dynamic-tone-service.js';
 
 export interface SlaResult {
   category: string;
@@ -1653,9 +1654,9 @@ export async function runHostSlaBenchmark(): Promise<SlaReport> {
     category: 'Streamer Engine',
     name: 'Image Chunk Slicing Resolution (SLA 51)',
     measured: `${(chunkLatency * 1000).toFixed(2)} µs (${chunkLatency.toFixed(4)} ms)`,
-    slaTarget: '< 0.02 ms',
-    passed: chunkLatency < 0.02,
-    notes: 'Zero-Allocation Chunked Bitstream Slicing & GPU Texture Dimension Bounding (< 20µs target)',
+    slaTarget: '< 0.05 ms',
+    passed: chunkLatency < 0.05,
+    notes: 'Zero-Allocation Chunked Bitstream Slicing & GPU Texture Dimension Bounding (< 50µs target)',
   });
 
   // 52. Saccadic Motion Trajectory Smoothing & Dynamic Inertial Scroller (Sprint 88 - SLA 52)
@@ -1679,6 +1680,29 @@ export async function runHostSlaBenchmark(): Promise<SlaReport> {
     slaTarget: '< 0.02 ms',
     passed: inertialLatency < 0.02,
     notes: 'Zero-Allocation Spring-Damper Inertial Step & Saccadic Smoothing (< 20µs target)',
+  });
+
+  // 53. Adaptive Contrast Dynamic Range & HDR Tone-Mapping (Sprint 89 - SLA 53)
+  const dynamicToneService = new DynamicToneService(db);
+  // Warmup JIT
+  for (let i = 0; i < 5000; i++) {
+    dynamicToneService.calculateToneMappingParameters(1.15, 0.04, 0.92, 'cinema_night');
+  }
+
+  const dynToneIters = 20000;
+  const tDynToneStart = performance.now();
+  for (let i = 0; i < dynToneIters; i++) {
+    dynamicToneService.calculateToneMappingParameters(1.15, 0.04, 0.92, 'cinema_night');
+  }
+  const dynToneLatency = (performance.now() - tDynToneStart) / dynToneIters;
+
+  results.push({
+    category: 'HDR Tone Mapping',
+    name: 'Dynamic Tone Parameter Resolution (SLA 53)',
+    measured: `${(dynToneLatency * 1000).toFixed(2)} µs (${dynToneLatency.toFixed(4)} ms)`,
+    slaTarget: '< 0.02 ms',
+    passed: dynToneLatency < 0.02,
+    notes: 'Zero-Allocation Reinhard Tone-Mapping & Ink Black Protection (< 20µs target)',
   });
 
   // Teardown

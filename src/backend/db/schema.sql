@@ -1150,6 +1150,20 @@ CREATE TABLE IF NOT EXISTS inertial_scroll_profiles (
 CREATE INDEX IF NOT EXISTS idx_inertial_scroll_lookup 
     ON inertial_scroll_profiles(series_id);
 
+-- Sprint 89: Adaptive Contrast Dynamic Range & HDR Tone-Mapping Engine
+CREATE TABLE IF NOT EXISTS dynamic_tone_profiles (
+    series_id TEXT PRIMARY KEY,
+    gamma_exponent REAL NOT NULL DEFAULT 1.15 CHECK (gamma_exponent >= 0.50 AND gamma_exponent <= 2.50),
+    black_point_lift REAL NOT NULL DEFAULT 0.04 CHECK (black_point_lift >= 0.00 AND black_point_lift <= 0.25),
+    white_point_compress REAL NOT NULL DEFAULT 0.92 CHECK (white_point_compress >= 0.70 AND white_point_compress <= 1.00),
+    ambient_adaptation_mode TEXT NOT NULL DEFAULT 'cinema_night' CHECK (ambient_adaptation_mode IN ('cinema_night', 'daylight_boost', 'oled_pure_black', 'daylight', 'oled_dark', 'sepia_dim', 'custom')),
+    is_enabled INTEGER NOT NULL DEFAULT 1 CHECK (is_enabled IN (0, 1)),
+    updated_at INTEGER NOT NULL
+);
+
+CREATE INDEX IF NOT EXISTS idx_dynamic_tone_lookup 
+    ON dynamic_tone_profiles(series_id);
+
 
 
 

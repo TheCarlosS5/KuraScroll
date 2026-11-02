@@ -1281,6 +1281,26 @@ CREATE TABLE IF NOT EXISTS motion_stabilizer_profiles (
 CREATE INDEX IF NOT EXISTS idx_motion_stabilizer_lookup 
     ON motion_stabilizer_profiles(series_id);
 
+-- Sprint 96: Bi-Directional Dual-Page Gutters & Crease Shadow Synthesizer for Tankōbon Spreads (SLA 60)
+CREATE TABLE IF NOT EXISTS crease_shadow_profiles (
+    series_id TEXT PRIMARY KEY,
+    spread_binding_mode TEXT NOT NULL DEFAULT 'tankobon_tight' CHECK (spread_binding_mode IN (
+        'tankobon_tight',
+        'magazine_wide',
+        'flat_lay',
+        'custom'
+    )),
+    spine_shadow_intensity REAL NOT NULL DEFAULT 0.65 CHECK (spine_shadow_intensity >= 0.00 AND spine_shadow_intensity <= 1.00),
+    gutter_width_px INTEGER NOT NULL DEFAULT 24 CHECK (gutter_width_px >= 8 AND gutter_width_px <= 64),
+    asymmetry_ratio REAL NOT NULL DEFAULT 0.50 CHECK (asymmetry_ratio >= 0.00 AND asymmetry_ratio <= 1.00),
+    is_rtl INTEGER NOT NULL DEFAULT 1 CHECK (is_rtl IN (0, 1)),
+    is_enabled INTEGER NOT NULL DEFAULT 1 CHECK (is_enabled IN (0, 1)),
+    updated_at INTEGER NOT NULL
+);
+
+CREATE INDEX IF NOT EXISTS idx_crease_shadow_lookup 
+    ON crease_shadow_profiles(series_id);
+
 
 
 

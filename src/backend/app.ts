@@ -114,6 +114,8 @@ import { storageTierRoutes } from './routes/storage-tier-routes.js';
 import { StorageTierService } from './services/storage-tier-service.js';
 import { motionStabilizerRoutes } from './routes/motion-stabilizer-routes.js';
 import { MotionStabilizerService } from './services/motion-stabilizer-service.js';
+import { creaseShadowRoutes } from './routes/crease-shadow-routes.js';
+import { CreaseShadowService } from './services/crease-shadow-service.js';
 import { AdaptiveIngestionController } from './services/adaptive-ingestion-controller.js';
 import { DifferentialMirrorService } from './services/differential-mirror-service.js';
 
@@ -159,6 +161,7 @@ export interface AppOptions {
   pageCurlService?: PageCurlService;
   storageTierService?: StorageTierService;
   motionStabilizerService?: MotionStabilizerService;
+  creaseShadowService?: CreaseShadowService;
 }
 
 export function buildApp(options: AppOptions = {}): FastifyInstance {
@@ -435,6 +438,10 @@ export function buildApp(options: AppOptions = {}): FastifyInstance {
   app.register(motionStabilizerRoutes, {
     db,
     motionStabilizerService: options.motionStabilizerService ?? new MotionStabilizerService(db),
+  });
+  app.register(creaseShadowRoutes, {
+    db,
+    creaseShadowService: options.creaseShadowService ?? new CreaseShadowService(db),
   });
 
   return app;

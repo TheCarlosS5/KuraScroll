@@ -76,6 +76,7 @@ import { AmbientGlowService } from '../src/backend/services/ambient-glow-service
 import { PageCurlService } from '../src/backend/services/page-curl-service.js';
 import { StorageTierService, TieringCandidateInput } from '../src/backend/services/storage-tier-service.js';
 import { MotionStabilizerService } from '../src/backend/services/motion-stabilizer-service.js';
+import { CreaseShadowService } from '../src/backend/services/crease-shadow-service.js';
 
 export interface SlaResult {
   category: string;
@@ -1890,6 +1891,29 @@ export async function runHostSlaBenchmark(): Promise<SlaReport> {
     slaTarget: '< 0.02 ms',
     passed: motionLatency < 0.02,
     notes: 'Zero-Allocation Spring-Damper Jitter Filtering & Dynamic Contrast Boost (< 20µs target)',
+  });
+
+  // 60. Bi-Directional Dual-Page Gutters & Crease Shadow Synthesizer (Sprint 96 - SLA 60)
+  const creaseShadowService = new CreaseShadowService(db);
+  // Warmup JIT
+  for (let i = 0; i < 5000; i++) {
+    creaseShadowService.calculateCreaseShadowParams(0.35, 0.65, 24, 0.50, true, 'tankobon_tight');
+  }
+
+  const creaseIters = 20000;
+  const tCreaseStart = performance.now();
+  for (let i = 0; i < creaseIters; i++) {
+    creaseShadowService.calculateCreaseShadowParams(0.35, 0.65, 24, 0.50, true, 'tankobon_tight');
+  }
+  const creaseLatency = (performance.now() - tCreaseStart) / creaseIters;
+
+  results.push({
+    category: 'Spine & Gutter Optics',
+    name: 'Crease Shadow Gradient Synthesis (SLA 60)',
+    measured: `${(creaseLatency * 1000).toFixed(2)} µs (${creaseLatency.toFixed(4)} ms)`,
+    slaTarget: '< 0.02 ms',
+    passed: creaseLatency < 0.02,
+    notes: 'Zero-Allocation Bilateral Spine Crease Shadow & Volume Asymmetry Gradient (< 20µs target)',
   });
 
   // Teardown

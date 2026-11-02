@@ -70,6 +70,7 @@ import { SlidingWindowService } from '../src/backend/services/sliding-window-ser
 import { ChunkedStreamService } from '../src/backend/services/chunked-stream-service.js';
 import { InertialScrollService } from '../src/backend/services/inertial-scroll-service.js';
 import { DynamicToneService } from '../src/backend/services/dynamic-tone-service.js';
+import { HistoryScrubberService } from '../src/backend/services/history-scrubber-service.js';
 
 export interface SlaResult {
   category: string;
@@ -1703,6 +1704,29 @@ export async function runHostSlaBenchmark(): Promise<SlaReport> {
     slaTarget: '< 0.02 ms',
     passed: dynToneLatency < 0.02,
     notes: 'Zero-Allocation Reinhard Tone-Mapping & Ink Black Protection (< 20µs target)',
+  });
+
+  // 54. Bi-Directional Manga & Webtoon Continuous Infinite History Scrubber (Sprint 90 - SLA 54)
+  const historyScrubberService = new HistoryScrubberService(db);
+  // Warmup JIT
+  for (let i = 0; i < 5000; i++) {
+    historyScrubberService.calculateTapeProjection(1000, 350, 1200, 'webtoon_continuous', 25);
+  }
+
+  const scrubberIters = 20000;
+  const tScrubberStart = performance.now();
+  for (let i = 0; i < scrubberIters; i++) {
+    historyScrubberService.calculateTapeProjection(1000, 350, 1200, 'webtoon_continuous', 25);
+  }
+  const scrubberLatency = (performance.now() - tScrubberStart) / scrubberIters;
+
+  results.push({
+    category: 'History Scrubber',
+    name: 'Tape Kinematic Projection (SLA 54)',
+    measured: `${(scrubberLatency * 1000).toFixed(2)} µs (${scrubberLatency.toFixed(4)} ms)`,
+    slaTarget: '< 0.02 ms',
+    passed: scrubberLatency < 0.02,
+    notes: 'Zero-Allocation Bi-Directional Infinite Tape Projection (< 20µs target)',
   });
 
   // Teardown

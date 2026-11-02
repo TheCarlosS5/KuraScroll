@@ -1164,6 +1164,26 @@ CREATE TABLE IF NOT EXISTS dynamic_tone_profiles (
 CREATE INDEX IF NOT EXISTS idx_dynamic_tone_lookup 
     ON dynamic_tone_profiles(series_id);
 
+-- Sprint 90: Bi-Directional Manga & Webtoon Continuous Infinite History Scrubber & Visual Heatmap Tape
+CREATE TABLE IF NOT EXISTS history_scrubber_profiles (
+    series_id TEXT PRIMARY KEY,
+    scrubber_mode TEXT NOT NULL DEFAULT 'webtoon_continuous' CHECK (scrubber_mode IN (
+        'webtoon_continuous',
+        'manga_rtl_continuous',
+        'manga_ltr_continuous'
+    )),
+    tape_thickness_px INTEGER NOT NULL DEFAULT 48 CHECK (tape_thickness_px >= 24 AND tape_thickness_px <= 120),
+    heatmap_intensity REAL NOT NULL DEFAULT 0.65 CHECK (heatmap_intensity >= 0.00 AND heatmap_intensity <= 1.00),
+    velocity_multiplier REAL NOT NULL DEFAULT 1.20 CHECK (velocity_multiplier >= 0.50 AND velocity_multiplier <= 3.00),
+    is_snap_to_chapter INTEGER NOT NULL DEFAULT 1 CHECK (is_snap_to_chapter IN (0, 1)),
+    is_enabled INTEGER NOT NULL DEFAULT 1 CHECK (is_enabled IN (0, 1)),
+    updated_at INTEGER NOT NULL
+);
+
+CREATE INDEX IF NOT EXISTS idx_history_scrubber_lookup 
+    ON history_scrubber_profiles(series_id);
+
+
 
 
 

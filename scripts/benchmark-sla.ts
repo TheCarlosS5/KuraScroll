@@ -12,6 +12,7 @@ import { AudioSFXService } from '../src/backend/services/audio-sfx-service.js';
 import { classifyPageChroma } from '../src/backend/utils/color-classifier.js';
 import { detectSpreadLayout } from '../src/backend/utils/spread-detector.js';
 import { PageAnnotationService } from '../src/backend/services/page-annotation-service.js';
+import { ReadingCadenceService } from '../src/backend/services/reading-cadence-service.js';
 
 export interface SlaResult {
   category: string;
@@ -360,6 +361,40 @@ export async function runHostSlaBenchmark(): Promise<SlaReport> {
     slaTarget: '< 0.50 ms',
     passed: annLatency < 0.50,
     notes: 'Sub-millisecond point lookups for sticky note overlays',
+  });
+
+  // 17. Reading Velocity & Cadence Estimation Latency (Sprint 53)
+  const cadenceService = new ReadingCadenceService(db);
+  // Warmup
+  cadenceService.recordTransition({
+    userId: 'sla_user',
+    chapterId: 'sla-chap-1',
+    pageNumber: 1,
+    dwellSeconds: 20.0,
+    readingMode: 'manga',
+    totalPages: 50,
+  });
+
+  const tCad = performance.now();
+  const cadIters = 500;
+  for (let i = 0; i < cadIters; i++) {
+    cadenceService.recordTransition({
+      userId: 'sla_user',
+      chapterId: 'sla-chap-1',
+      pageNumber: (i % 40) + 1,
+      dwellSeconds: 15.0 + (i % 6),
+      readingMode: 'manga',
+      totalPages: 50,
+    });
+  }
+  const cadLatency = (performance.now() - tCad) / cadIters;
+  results.push({
+    category: 'Reading Velocity',
+    name: 'Continuous Cadence EMA & Outlier Clamping',
+    measured: `${(cadLatency * 1000).toFixed(2)} µs (${cadLatency.toFixed(4)} ms)`,
+    slaTarget: '< 0.50 ms',
+    passed: cadLatency < 0.50,
+    notes: 'Zero-allocation Kalman/EMA cadence updates with rapid skip filtering',
   });
 
   // Teardown

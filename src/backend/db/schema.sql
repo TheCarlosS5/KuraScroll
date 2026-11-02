@@ -437,6 +437,30 @@ CREATE INDEX IF NOT EXISTS idx_page_annotations_lookup
 CREATE INDEX IF NOT EXISTS idx_page_annotations_user
     ON chapter_page_annotations(user_id);
 
+-- Sprint 53: Continuous Background Reading Velocity & Dynamic Completion Time Predictor
+CREATE TABLE IF NOT EXISTS user_reading_cadence (
+    user_id TEXT NOT NULL,
+    reading_mode TEXT NOT NULL CHECK (reading_mode IN ('manga', 'webtoon', 'comic')),
+    average_seconds_per_page REAL NOT NULL DEFAULT 24.0,
+    samples_count INTEGER NOT NULL DEFAULT 0,
+    last_active_at TEXT DEFAULT (datetime('now')),
+    PRIMARY KEY (user_id, reading_mode)
+);
+
+CREATE TABLE IF NOT EXISTS reading_session_cadence_logs (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id TEXT NOT NULL,
+    chapter_id TEXT NOT NULL REFERENCES chapters(id) ON DELETE CASCADE,
+    page_number INTEGER NOT NULL CHECK (page_number >= 1),
+    dwell_seconds REAL NOT NULL CHECK (dwell_seconds >= 0.0),
+    is_outlier INTEGER NOT NULL DEFAULT 0 CHECK (is_outlier IN (0, 1)),
+    created_at TEXT DEFAULT (datetime('now'))
+);
+
+CREATE INDEX IF NOT EXISTS idx_session_cadence_lookup
+    ON reading_session_cadence_logs(user_id, chapter_id);
+
+
 
 
 

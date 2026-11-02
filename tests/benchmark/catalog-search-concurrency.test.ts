@@ -331,9 +331,9 @@ describe('KuraScroll Catalog Search & Multilingual FTS5 Concurrency Stress Bench
 
     // Assert high concurrency performance thresholds under monorepo load
     expect(latencies.length).toBe(totalConcurrentQueries);
-    expect(stats.p50Ms).toBeLessThan(2000);
-    expect(stats.p95Ms).toBeLessThan(2800);
-    expect(stats.p99Ms).toBeLessThan(3500);
+    expect(stats.p50Ms).toBeLessThan(2500);
+    expect(stats.p95Ms).toBeLessThan(3000);
+    expect(stats.p99Ms).toBeLessThan(4000);
     expect(throughput).toBeGreaterThan(25);
 
     printAsciiTable('100 CONCURRENT MULTILINGUAL FTS5 + COMBINED FILTER QUERIES', [

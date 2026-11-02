@@ -30,6 +30,7 @@ import { audioRoutes } from './routes/audio-routes.js';
 import { eyeCareRoutes } from './routes/eye-care-routes.js';
 import { spreadRoutes } from './routes/spread-routes.js';
 import { annotationRoutes } from './routes/annotation-routes.js';
+import { cadenceRoutes } from './routes/cadence-routes.js';
 import { AdaptiveIngestionController } from './services/adaptive-ingestion-controller.js';
 import { DifferentialMirrorService } from './services/differential-mirror-service.js';
 
@@ -152,6 +153,7 @@ export function buildApp(options: AppOptions = {}): FastifyInstance {
   app.register(eyeCareRoutes, { db });
   app.register(spreadRoutes, { db });
   app.register(annotationRoutes, { db });
+  app.register(cadenceRoutes, { db });
 
   return app;
 }

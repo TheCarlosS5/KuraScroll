@@ -359,11 +359,19 @@
   - [x] Task 52.6: Subagent Swarm Execution (6 subagents active: performance benchmark, metadata research, QA resilience fuzzing, UX/GSAP design audit, reader critic, DevOps memory audit)
   - [x] Task 52.7: Empirical Benchmark Report (`docs/reports/sprint52-annotation-deck-benchmark.md`, 0.00047ms annotation lookup [1000x faster than SLA], 16/16 SLAs Passed)
   - [x] Task 52.8: Monorepo Verification (176 test files, 899 tests PASS [593 backend + 306 frontend], 16/16 SLAs Passed, Vite build in 5.01s)
-- [ ] Part 53: Continuous Background Reading Velocity & Dynamic Completion Time Predictor (Zero-Allocation Rolling Window Cadence Engine & Offline Prediction Cache)
-  - [ ] Task 53.1: Senior Architectural Blueprint Consultation with ChatGPT via Brave MCP
-  - [ ] Task 53.2: Zero-Allocation Rolling Window Cadence Estimator
-  - [ ] Task 53.3: SQLite Table `chapter_reading_cadence` & Cadence Service
-  - [ ] Task 53.4: Fastify Endpoints in `src/backend/routes/cadence-routes.ts`
-  - [ ] Task 53.5: Zero-Blur HUD Component `ReadingVelocityHUD.tsx`
-  - [ ] Task 53.6: Subagent Swarm Execution & Latency Benchmarks (SLA 17)
-  - [ ] Task 53.7: Monorepo Verification & Git Commit
+- [x] Part 53: Continuous Background Reading Velocity & Dynamic Completion Time Predictor (Zero-Allocation Rolling Window Cadence Engine & Offline Prediction Cache)
+  - [x] Task 53.1: Senior Architectural Blueprint Consultation with ChatGPT via Brave MCP (`docs/brainstorming/chatgpt-sprint53-reading-velocity-and-cadence-blueprint.md`)
+  - [x] Task 53.2: Zero-Allocation Rolling Window Cadence Estimator & Outlier Clamping in `src/backend/services/reading-cadence-service.ts` (7/7 tests PASS)
+  - [x] Task 53.3: SQLite Table `user_reading_cadence` & `reading_session_cadence_logs` in `src/backend/db/schema.sql`
+  - [x] Task 53.4: Fastify Endpoints in `src/backend/routes/cadence-routes.ts` (`GET /cadence`, `POST /record-transition`, `GET /estimate`, `DELETE /cadence`, 4/4 tests PASS)
+  - [x] Task 53.5: Zero-Blur HUD Component `ReadingVelocityHUD.tsx` (`frontend/tests/components/ReadingVelocityHUD.test.tsx`, 4/4 tests PASS)
+  - [x] Task 53.6: Subagent Swarm Execution & Latency Benchmarks (SLA 17: 0.154ms transition, 0.00064ms cache lookup, 17/17 SLAs Passed)
+  - [x] Task 53.7: Monorepo Verification (180 test files, 916 tests PASS [606 backend + 310 frontend], Vite build in 4.84s)
+- [ ] Part 54: Adaptive Frame-Rate Pacer & Thermal Throttling Guard (Intel GMA 4500MHD VSync Locking & Dynamic Canvas Downgrade Engine)
+  - [ ] Task 54.1: Senior Architectural Blueprint Consultation with ChatGPT via Brave MCP
+  - [ ] Task 54.2: Hardware Refresh Rate & Frame Drop Detection Utility
+  - [ ] Task 54.3: Thermal & GPU Load State Machine (60 FPS -> 30 FPS Lock -> Canvas Downgrade)
+  - [ ] Task 54.4: Fastify Telemetry Endpoint for Client Frame Drops
+  - [ ] Task 54.5: Frontend FPS Pacer Controller & Thermal Guard HUD
+  - [ ] Task 54.6: Subagent Swarm Execution & Latency Benchmarks (SLA 18)
+  - [ ] Task 54.7: Monorepo Verification & Git Commit

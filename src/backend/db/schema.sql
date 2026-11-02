@@ -386,6 +386,17 @@ CREATE TABLE IF NOT EXISTS chapter_sfx_cues (
 CREATE INDEX IF NOT EXISTS idx_sfx_cues_chapter_page 
     ON chapter_sfx_cues(chapter_id, page_number, cue_index ASC);
 
+-- Sprint 50: Smart Contrast Adaptive Filters & High-Dynamic OLED / E-Ink Eye Care Reading Engine
+CREATE TABLE IF NOT EXISTS user_eye_care_preferences (
+    user_id TEXT PRIMARY KEY,
+    filter_mode TEXT NOT NULL DEFAULT 'default' CHECK(filter_mode IN ('default', 'sepia_warm', 'oled_dark', 'smart_invert', 'e_ink_high_contrast')),
+    brightness_pct INTEGER NOT NULL DEFAULT 100 CHECK(brightness_pct BETWEEN 10 AND 200),
+    contrast_pct INTEGER NOT NULL DEFAULT 100 CHECK(contrast_pct BETWEEN 50 AND 250),
+    blue_light_reduction_pct INTEGER NOT NULL DEFAULT 0 CHECK(blue_light_reduction_pct BETWEEN 0 AND 100),
+    updated_at TEXT DEFAULT (datetime('now'))
+);
+
+
 
 
 

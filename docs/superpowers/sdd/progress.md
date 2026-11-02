@@ -332,4 +332,13 @@
   - [x] Task 49.6: Subagent Swarm Execution (6 subagents active: performance benchmark, onomatopoeia research, QA resilience test plan, UX/GSAP design audit, reader critic, DevOps memory audit)
   - [x] Task 49.7: Empirical Benchmark Report (`docs/reports/sprint49-audio-sfx-benchmark.md`, 0.0483ms page cues lookup [10.3x faster than SLA], 0.2759ms manifest lookup [3.6x faster than SLA], 6,699 QPS)
   - [x] Task 49.8: Monorepo Verification (162 test files, 836 tests PASS [546 backend + 290 frontend], 13/13 SLAs Passed, Vite build in 9.13s)
-- [ ] Part 50: Smart Contrast Adaptive Filter & High-Dynamic OLED/E-Ink Eye Care Reading Engine
+- [x] Part 50: Smart Contrast Adaptive Filter & High-Dynamic OLED / E-Ink Eye Care Reading Engine (Commit Sprint 50)
+  - [x] Task 50.1: Senior Architectural Blueprint Consultation with ChatGPT via Brave MCP (`docs/brainstorming/chatgpt-sprint50-eye-care-and-smart-invert-blueprint.md`)
+  - [x] Task 50.2: Zero-Allocation 8x8 Chroma Classifier Utility (`src/backend/utils/color-classifier.ts`, 4/4 tests PASS, 0.00104ms latency, 962,575 scans/s)
+  - [x] Task 50.3: SQLite Table `user_eye_care_preferences` & Eye Care Service (`src/backend/services/eye-care-service.ts`, 3/3 tests PASS)
+  - [x] Task 50.4: Fastify Endpoints in `src/backend/routes/eye-care-routes.ts` (`GET /preferences/eye-care/:userId`, `PUT /preferences/eye-care/:userId`, `POST /analysis/classify-page-chroma`, `POST /filters/compute-css`, 4/4 tests PASS)
+  - [x] Task 50.5: Zero-Blur Hardware-Safe Controller `EyeCareFilterHUD.tsx` (`frontend/tests/components/EyeCareFilterHUD.test.tsx`, 5/5 tests PASS)
+  - [x] Task 50.6: Subagent Swarm Execution (6 subagents active: performance benchmark, QA resilience fuzzing, UX/GSAP design audit, reader critic, DevOps memory audit)
+  - [x] Task 50.7: Empirical Benchmark Report (`docs/reports/sprint50-eye-care-filter-benchmark.md`, 0.00104ms chroma scan [48.1x faster than SLA], 0.0071ms SQLite lookup [70.4x faster than SLA], 14/14 SLAs Passed)
+  - [x] Task 50.8: Monorepo Verification (167 test files, 855 tests PASS [560 backend + 295 frontend], 14/14 SLAs Passed, Vite build verified)
+- [ ] Part 51: Dynamic Two-Page Spread Smart Splitter & Webtoon Seam Stitcher

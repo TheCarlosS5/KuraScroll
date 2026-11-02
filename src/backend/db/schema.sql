@@ -351,5 +351,41 @@ CREATE TABLE IF NOT EXISTS chapter_story_recaps (
 CREATE INDEX IF NOT EXISTS idx_story_recaps_lookup 
     ON chapter_story_recaps(series_id, through_chapter_seq DESC, language_tag);
 
+-- Sprint 49: MangaSFX Dynamic Sound Effects & Ambient Audio Engine
+CREATE TABLE IF NOT EXISTS chapter_audio_tracks (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    chapter_id TEXT NOT NULL REFERENCES chapters(id) ON DELETE CASCADE,
+    start_page INTEGER NOT NULL DEFAULT 1 CHECK(start_page >= 1),
+    end_page INTEGER CHECK(end_page IS NULL OR end_page >= start_page),
+    track_kind TEXT NOT NULL DEFAULT 'ambient' CHECK(track_kind IN ('ambient', 'battle', 'tension', 'silence')),
+    ambient_preset TEXT NOT NULL DEFAULT 'rain' CHECK(ambient_preset IN ('rain', 'storm', 'fire', 'tavern', 'wind', 'eerie', 'battle', 'silence')),
+    asset_url TEXT,
+    volume_level REAL NOT NULL DEFAULT 0.5 CHECK(volume_level >= 0.0 AND volume_level <= 1.0),
+    loop_enabled INTEGER NOT NULL DEFAULT 1 CHECK(loop_enabled IN (0, 1)),
+    created_at TEXT DEFAULT (datetime('now'))
+);
+
+CREATE INDEX IF NOT EXISTS idx_audio_tracks_chapter 
+    ON chapter_audio_tracks(chapter_id, start_page);
+
+CREATE TABLE IF NOT EXISTS chapter_sfx_cues (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    chapter_id TEXT NOT NULL REFERENCES chapters(id) ON DELETE CASCADE,
+    page_number INTEGER NOT NULL CHECK(page_number >= 1),
+    cue_index INTEGER NOT NULL DEFAULT 0 CHECK(cue_index >= 0),
+    sfx_id TEXT NOT NULL,
+    onomatopoeia_text TEXT NOT NULL,
+    trigger_type TEXT NOT NULL DEFAULT 'on_enter' CHECK(trigger_type IN ('on_enter', 'on_scroll_pct', 'on_tap')),
+    trigger_offset_pct REAL NOT NULL DEFAULT 0.0 CHECK(trigger_offset_pct >= 0.0 AND trigger_offset_pct <= 100.0),
+    synth_params_json TEXT DEFAULT '{}',
+    volume_level REAL NOT NULL DEFAULT 0.8 CHECK(volume_level >= 0.0 AND volume_level <= 1.0),
+    created_at TEXT DEFAULT (datetime('now')),
+    UNIQUE(chapter_id, page_number, cue_index)
+);
+
+CREATE INDEX IF NOT EXISTS idx_sfx_cues_chapter_page 
+    ON chapter_sfx_cues(chapter_id, page_number, cue_index ASC);
+
+
 
 

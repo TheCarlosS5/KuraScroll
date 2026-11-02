@@ -323,4 +323,13 @@
   - [x] Task 48.6: Subagent Swarm Execution (6 subagents active: performance benchmark, QA anti-spoiler test plan, UX/GSAP design audit, reader critic, DevOps memory audit)
   - [x] Task 48.7: Empirical Benchmark Report (`docs/reports/sprint48-story-recap-benchmark.md`, 0.0289ms lookup latency [34.6x faster than SLA], 16,565 QPS, 0 spoiler leaks in 1,000 queries)
   - [x] Task 48.8: Monorepo Verification (158 test files, 819 tests PASS [535 backend + 284 frontend], 12/12 SLAs Passed, Vite build in 4.61s)
-- [ ] Part 49: Real-Time Dynamic Sound Effects (SFX) & Ambient Narrative Audio Engine
+- [x] Part 49: Real-Time Dynamic Sound Effects (SFX) & Ambient Narrative Audio Engine (Commit Sprint 49)
+  - [x] Task 49.1: Senior Architectural Blueprint Consultation with ChatGPT via Brave MCP (`docs/brainstorming/manga-sfx-audio-specification.md`)
+  - [x] Task 49.2: SQLite Tables `chapter_audio_tracks` & `chapter_sfx_cues` with Covering Indexes `idx_audio_tracks_chapter` and `idx_sfx_cues_chapter_page`
+  - [x] Task 49.3: Audio SFX Backend Service (`src/backend/services/audio-sfx-service.ts`, 6/6 tests PASS)
+  - [x] Task 49.4: Fastify Endpoints in `src/backend/routes/audio-routes.ts` (`GET /manifest`, `GET /pages/:pageNumber/audio`, `POST /tracks`, `POST /cues`, `DELETE /tracks/:id`, `DELETE /cues/:id`, 4/4 tests PASS)
+  - [x] Task 49.5: Zero-Blur Hardware-Safe Audio Controller `AudioDeckHUD.tsx` (`frontend/tests/components/AudioDeckHUD.test.tsx`, 6/6 tests PASS)
+  - [x] Task 49.6: Subagent Swarm Execution (6 subagents active: performance benchmark, onomatopoeia research, QA resilience test plan, UX/GSAP design audit, reader critic, DevOps memory audit)
+  - [x] Task 49.7: Empirical Benchmark Report (`docs/reports/sprint49-audio-sfx-benchmark.md`, 0.0483ms page cues lookup [10.3x faster than SLA], 0.2759ms manifest lookup [3.6x faster than SLA], 6,699 QPS)
+  - [x] Task 49.8: Monorepo Verification (162 test files, 836 tests PASS [546 backend + 290 frontend], 13/13 SLAs Passed, Vite build in 9.13s)
+- [ ] Part 50: Smart Contrast Adaptive Filter & High-Dynamic OLED/E-Ink Eye Care Reading Engine

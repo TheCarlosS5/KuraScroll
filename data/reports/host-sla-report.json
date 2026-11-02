@@ -1,11 +1,11 @@
 {
-  "timestamp": "2026-11-02T06:31:55.304Z",
+  "timestamp": "2026-11-02T06:42:45.955Z",
   "host": {
     "platform": "win32",
     "cpus": 8,
     "cpuModel": "AMD Ryzen 5 3500U with Radeon Vega Mobile Gfx   ",
     "totalMemMB": 15307,
-    "freeMemMB": 5791,
+    "freeMemMB": 5735,
     "isLowResourceTarget": false
   },
   "results": [
@@ -52,7 +52,7 @@
     {
       "category": "Query & Search",
       "name": "SQLite Primary Key Point Lookup",
-      "measured": "0.301 ms",
+      "measured": "0.325 ms",
       "slaTarget": "< 1.0 ms",
       "passed": true,
       "notes": "Direct B-Tree index point retrieval"
@@ -68,7 +68,7 @@
     {
       "category": "Query & Search",
       "name": "FTS5 Special Character Match (\"SPY×FAMILY\")",
-      "measured": "0.961 ms",
+      "measured": "0.928 ms",
       "slaTarget": "< 5.0 ms",
       "passed": true,
       "notes": "Sanitizer delimiter normalization"
@@ -76,7 +76,7 @@
     {
       "category": "Disk I/O & Streams",
       "name": "64KB Chunked Stream Copy (192KB)",
-      "measured": "17.26 ms",
+      "measured": "16.21 ms",
       "slaTarget": "< 150 ms",
       "passed": true,
       "notes": "Maintains bounded highWaterMark backpressure"
@@ -84,7 +84,7 @@
     {
       "category": "Disk I/O & Streams",
       "name": "64KB Chunked SHA256 Stream Hashing",
-      "measured": "3.06 ms",
+      "measured": "2.76 ms",
       "slaTarget": "< 100 ms",
       "passed": true,
       "notes": "Zero memory inflation on large chapter files"
@@ -92,7 +92,7 @@
     {
       "category": "Media Engine",
       "name": "WebP 1440px Ahead-of-Time Encoding (Effort 2, Q=75)",
-      "measured": "189.85 ms (5 KB)",
+      "measured": "191.35 ms (5 KB)",
       "slaTarget": "< 1500 ms (Single Core T4500)",
       "passed": true,
       "notes": "Thermal Saver mode reduces CPU cycles by >55%"
@@ -104,12 +104,20 @@
       "slaTarget": "< 1.0 ms",
       "passed": true,
       "notes": "O(log S) compound B-tree lookup on (series_id, through_chapter_seq DESC, language_tag) with zero V8 heap overhead"
+    },
+    {
+      "category": "Query & Audio Engine",
+      "name": "Dynamic Audio SFX Page Lookup Latency (Sprint 49)",
+      "measured": "0.0483 ms (6,699 QPS)",
+      "slaTarget": "< 0.5 ms",
+      "passed": true,
+      "notes": "O(log N) compound B-tree lookup on (chapter_id, page_number, cue_index ASC) with procedural Web Audio synthesis"
     }
   ],
   "allPassed": true,
   "summary": {
-    "total": 12,
-    "passed": 12,
+    "total": 13,
+    "passed": 13,
     "failed": 0
   }
 }

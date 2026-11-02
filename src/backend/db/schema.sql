@@ -1717,3 +1717,25 @@ CREATE TABLE IF NOT EXISTS halftone_grain_profiles (
 
 CREATE INDEX IF NOT EXISTS idx_halftone_grain_lookup 
     ON halftone_grain_profiles(series_id);
+
+-- Sprint 116: Adaptive Dialogue Balloon Tail Tracking & Dynamic Focus Pointer (SLA 80)
+CREATE TABLE IF NOT EXISTS balloon_tail_profiles (
+    series_id TEXT PRIMARY KEY,
+    tail_style TEXT NOT NULL DEFAULT 'manga_compact' CHECK (tail_style IN (
+        'manga_compact',
+        'expressive_curve',
+        'manhwa_clean',
+        'whisper_subtle',
+        'shout_dynamic'
+    )),
+    balloon_shape TEXT NOT NULL DEFAULT 'ellipse' CHECK (balloon_shape IN ('ellipse', 'rounded_rect', 'polygon_shout')),
+    root_width_px REAL NOT NULL DEFAULT 14.0 CHECK (root_width_px >= 6.0 AND root_width_px <= 32.0),
+    curvature_factor REAL NOT NULL DEFAULT 0.15 CHECK (curvature_factor >= 0.0 AND curvature_factor <= 0.50),
+    tip_offset_px REAL NOT NULL DEFAULT 4.0 CHECK (tip_offset_px >= 0.0 AND tip_offset_px <= 20.0),
+    is_enabled INTEGER NOT NULL DEFAULT 1 CHECK (is_enabled IN (0, 1)),
+    created_at INTEGER NOT NULL,
+    updated_at INTEGER NOT NULL
+);
+
+CREATE INDEX IF NOT EXISTS idx_balloon_tail_lookup 
+    ON balloon_tail_profiles(series_id);

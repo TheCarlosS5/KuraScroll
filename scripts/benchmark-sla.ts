@@ -143,6 +143,10 @@ import {
   HalftoneGrainService,
   calculateHalftoneGrain,
 } from '../src/backend/services/halftone-grain-service.js';
+import {
+  BalloonTailService,
+  calculateBalloonTail,
+} from '../src/backend/services/balloon-tail-service.js';
 
 export interface SlaResult {
   category: string;
@@ -2568,6 +2572,41 @@ export async function runHostSlaBenchmark(): Promise<SlaReport> {
     slaTarget: '< 0.02 ms',
     passed: grainLatency < 0.02,
     notes: 'Zero-Allocation Micro-Stippling Parameter Resolution & 16KiB Micro-Tile Footprint (< 20µs target)',
+  });
+
+  // 80. Adaptive Dialogue Balloon Tail Tracking & Dynamic Focus Pointer (Sprint 116 - SLA 80)
+  // Warmup JIT
+  for (let i = 0; i < 5000; i++) {
+    calculateBalloonTail(200, 150, 75, 45, 300, 280, 'manga_compact', 'ellipse', 14.0, 0.15, 4.0, true);
+  }
+
+  const tailIters = 20000;
+  const tTailStart = performance.now();
+  for (let i = 0; i < tailIters; i++) {
+    calculateBalloonTail(
+      150 + (i % 50),
+      120 + (i % 40),
+      60 + (i % 20),
+      35 + (i % 15),
+      250 + (i % 80),
+      220 + (i % 70),
+      i % 2 === 0 ? 'manga_compact' : 'expressive_curve',
+      i % 3 === 0 ? 'rounded_rect' : 'ellipse',
+      12.0 + (i % 8),
+      0.15,
+      4.0,
+      true
+    );
+  }
+  const tailLatency = (performance.now() - tTailStart) / tailIters;
+
+  results.push({
+    category: 'Balloon & Vector Tail',
+    name: 'Balloon Tail Vector Tracking (SLA 80)',
+    measured: `${(tailLatency * 1000).toFixed(2)} µs (${tailLatency.toFixed(4)} ms)`,
+    slaTarget: '< 0.02 ms',
+    passed: tailLatency < 0.02,
+    notes: 'Zero-Allocation Trigonometric Unit Vector & Quadratic Bezier Path Synthesis (< 20µs target)',
   });
 
   // Teardown

@@ -50,6 +50,10 @@ import {
   DialogueTTSService,
   DialogueBubbleInput,
 } from '../src/backend/services/dialogue-tts-service.js';
+import {
+  PageSplitStitchService,
+  RawPageInput,
+} from '../src/backend/services/page-split-stitch-service.js';
 
 export interface SlaResult {
   category: string;
@@ -1308,6 +1312,42 @@ export async function runHostSlaBenchmark(): Promise<SlaReport> {
     slaTarget: '< 0.02 ms',
     passed: ttsLatency < 0.02,
     notes: 'Zero-Allocation 10-Bubble Role Resolution & Duration Estimation (< 20µs target)',
+  });
+
+  // 40. Virtual Split & Stitch Stream Geometry Resolution (Sprint 76)
+  const samplePages: RawPageInput[] = Array.from({ length: 50 }, (_, i) => ({
+    pageNumber: i + 1,
+    width: i % 5 === 0 ? 1600 : 800,
+    height: 1200,
+    aspectRatio: i % 5 === 0 ? 1.333 : 0.667,
+  }));
+
+  const sampleSplitProfile = {
+    mode: 'split_rtl' as const,
+    splitRatio: 0.50,
+    stitchGapPx: 0,
+    isEnabled: true,
+  };
+
+  // Warmup JIT
+  for (let i = 0; i < 5000; i++) {
+    PageSplitStitchService.resolveVirtualPageStream(samplePages, sampleSplitProfile);
+  }
+
+  const splitIters = 20000;
+  const tSplitStart = performance.now();
+  for (let i = 0; i < splitIters; i++) {
+    PageSplitStitchService.resolveVirtualPageStream(samplePages, sampleSplitProfile);
+  }
+  const splitLatency = (performance.now() - tSplitStart) / splitIters;
+
+  results.push({
+    category: 'Split & Stitch Engine',
+    name: 'Virtual Page Stream Resolution (SLA 40)',
+    measured: `${(splitLatency * 1000).toFixed(2)} µs (${splitLatency.toFixed(4)} ms)`,
+    slaTarget: '< 0.02 ms',
+    passed: splitLatency < 0.02,
+    notes: 'Zero-Allocation 50-Page Virtual Split/Stitch Geometry Mapping (< 20µs target)',
   });
 
   // Teardown

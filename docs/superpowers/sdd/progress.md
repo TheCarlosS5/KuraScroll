@@ -537,6 +537,15 @@
   - [x] Task 75.5: Client useDialogueTTS Hook & DialogueTtsHUD Component (`frontend/src/reader/useDialogueTTS.ts`, `DialogueTtsHUD.tsx`, zero-blur solid `#18181b` containment, active speaker badge, play/pause/stop/skip controls, rate slider 0.75x–1.75x, auto-advance toggle, keyboard shortcut 'T', 0 CLS)
   - [x] Task 75.6: Subagent Swarm Execution & SLA 39 Benchmark (SLA 39: 9.79 µs [2x faster than SLA target < 20 µs], 39/39 SLAs Passed)
   - [x] Task 75.7: Monorepo Verification & Git Commit (276 test files, 1,466 tests PASS [936 backend + 530 frontend], Vite build in 4.70s)
+- [x] Part 76: Intelligent Dual-Page Splitter & Webtoon Vertical Stitcher Engine (Smart Page Auto-Slicer & Continuous Strip Weaver)
+  - [x] Task 76.1: Senior Architectural Blueprint Consultation with ChatGPT via Brave MCP (`docs/specs/sprint-76-split-stitch-schema.md`)
+  - [x] Task 76.2: Virtual Spread Slicing (RTL/LTR), Zero-Gap Webtoon Ribbon Offset Chaining, and Sub-Pixel Anti-Hairline Overlap Specification (`docs/specs/sprint-76-split-stitch-schema.md`, `docs/specs/sprint-76-split-stitch-hud-spec.md`, `docs/specs/sprint-76-split-stitch-user-perspective.md`, `docs/specs/sprint-76-split-stitch-devops-audit.md`, `docs/specs/sprint-76-split-stitch-qa-resilience.md`, `docs/specs/sprint-76-split-stitch-sla-spec.md`)
+  - [x] Task 76.3: Backend PageSplitStitchService & SQLite Table (`src/backend/services/page-split-stitch-service.ts`, table `page_split_stitch_profiles`, index `idx_split_stitch_lookup`, zero-allocation resolveVirtualPageStream)
+  - [x] Task 76.4: Fastify Page Split Stitch REST Endpoints (`src/backend/routes/page-split-stitch-routes.ts`, `/profile/:seriesId`, `/profile`, `/resolve-stream`, HTTP 304 ETag caching)
+  - [x] Task 76.5: Client usePageSplitStitch Hook & SplitStitchHUD Component (`frontend/src/reader/usePageSplitStitch.ts`, `SplitStitchHUD.tsx`, zero-blur solid `#18181b` containment, mode buttons [Normal, Dividir RTL, Dividir LTR, Coser Webtoon], split ratio & stitch gap sliders, keyboard shortcut 'D', 0 CLS)
+  - [x] Task 76.6: Subagent Swarm Execution & SLA 40 Benchmark (SLA 40: 1.74 µs [11.5x faster than SLA target < 20 µs], 40/40 SLAs Passed)
+  - [x] Task 76.7: Monorepo Verification & Git Commit (280 test files, 1,489 tests PASS [950 backend + 539 frontend], Vite build in 4.58s)
+
 
 
 

@@ -939,3 +939,20 @@ CREATE TABLE IF NOT EXISTS user_tts_preferences (
     default_narrator_voice TEXT DEFAULT '',
     updated_at INTEGER NOT NULL DEFAULT 0
 );
+
+-- Sprint 76: Intelligent Dual-Page Splitter & Webtoon Vertical Stitcher Engine
+CREATE TABLE IF NOT EXISTS page_split_stitch_profiles (
+    id TEXT PRIMARY KEY,
+    series_id TEXT NOT NULL,
+    chapter_id TEXT,
+    page_number INTEGER,
+    mode TEXT NOT NULL DEFAULT 'none' CHECK (mode IN ('none', 'split_rtl', 'split_ltr', 'stitch_webtoon')),
+    split_ratio REAL NOT NULL DEFAULT 0.50,
+    stitch_gap_px INTEGER NOT NULL DEFAULT 0,
+    is_enabled INTEGER NOT NULL DEFAULT 1 CHECK (is_enabled IN (0, 1)),
+    updated_at INTEGER NOT NULL
+);
+
+CREATE INDEX IF NOT EXISTS idx_split_stitch_lookup 
+    ON page_split_stitch_profiles(series_id, chapter_id, page_number);
+

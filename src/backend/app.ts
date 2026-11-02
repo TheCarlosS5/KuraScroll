@@ -74,6 +74,8 @@ import { spineDewarpRoutes } from './routes/spine-dewarp-routes.js';
 import { SpineDewarpService } from './services/spine-dewarp-service.js';
 import { dialogueTTSRoutes } from './routes/dialogue-tts-routes.js';
 import { DialogueTTSService } from './services/dialogue-tts-service.js';
+import { pageSplitStitchRoutes } from './routes/page-split-stitch-routes.js';
+import { PageSplitStitchService } from './services/page-split-stitch-service.js';
 import { AdaptiveIngestionController } from './services/adaptive-ingestion-controller.js';
 import { DifferentialMirrorService } from './services/differential-mirror-service.js';
 
@@ -99,6 +101,7 @@ export interface AppOptions {
   ambientSoundscapeService?: AmbientSoundscapeService;
   spineDewarpService?: SpineDewarpService;
   dialogueTTSService?: DialogueTTSService;
+  pageSplitStitchService?: PageSplitStitchService;
 }
 
 export function buildApp(options: AppOptions = {}): FastifyInstance {
@@ -295,6 +298,10 @@ export function buildApp(options: AppOptions = {}): FastifyInstance {
   app.register(dialogueTTSRoutes, {
     db,
     dialogueTTSService: options.dialogueTTSService ?? new DialogueTTSService(db),
+  });
+  app.register(pageSplitStitchRoutes, {
+    db,
+    pageSplitStitchService: options.pageSplitStitchService ?? new PageSplitStitchService(db),
   });
 
   return app;

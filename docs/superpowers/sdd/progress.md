@@ -262,4 +262,20 @@
   - [x] Task 41.5: UI Integration in `Navbar.tsx` and `OtakuStatsModal.tsx` with full keyboard accessibility (3/3 tests PASS)
   - [x] Task 41.6: Subagent Coordination (6 subagents active: performance benchmarks, UX audit, genre taxonomy audit, DevOps memory verification)
   - [x] Task 41.7: Empirical Benchmark Report (`docs/reports/sprint41-stats-radar-benchmark.md`) and Monorepo Verification (130 test files, 700 tests PASS [445 backend + 255 frontend], 11/11 SLAs Passed, Vite build 4.76s)
-- [ ] Part 42: Automated Storage Compaction, SQLite WAL Checkpoint Tuning & Orphan Image Garbage Collector
+- [x] Part 42: Automated Storage Compaction, SQLite WAL Checkpoint Tuning & Orphan Image Garbage Collector (Commit Sprint 42)
+  - [x] Task 42.1: Senior Architectural Blueprint Consultation with ChatGPT via Brave MCP (`docs/brainstorming/chatgpt-sprint42-storage-compaction-blueprint.md`)
+  - [x] Task 42.2: Partitioned Orphan Garbage Collector & Safe Asset Whitelist (`src/backend/services/storage-compactor-service.ts`, 3/3 tests PASS)
+  - [x] Task 42.3: Non-blocking WAL Checkpointing (`PRAGMA wal_checkpoint(PASSIVE)`) & Incremental Vacuum (`PRAGMA incremental_vacuum(250)`)
+  - [x] Task 42.4: Fastify Maintenance Routes in `src/backend/routes/maintenance-routes.ts` (`POST /api/v1/admin/maintenance/compact`, `GET /api/v1/admin/maintenance/status`, 2/2 tests PASS)
+  - [x] Task 42.5: Frontend "Compactar & WAL" Action in `StorageTelemetryModal.tsx` (`frontend/tests/components/StorageTelemetryModal.test.tsx`, 7/7 tests PASS)
+  - [x] Task 42.6: Subagent Coordination (QA resilience testing, WAL latency benchmarking, memory overhead verification)
+  - [x] Task 42.7: Empirical Benchmark Report (`docs/reports/sprint42-storage-compaction-benchmark.md`, 1.84ms WAL checkpoint, 12.35ms incremental vacuum, 0.42ms orphan diffing)
+  - [x] Task 42.8: Monorepo Verification (132 test files, 706 tests PASS [450 backend + 256 frontend], 11/11 SLAs Passed, Vite build 4.73s)
+- [ ] Part 43: Automated Series Duplicate Detection, Jaro-Winkler Natural Fuzzy Matching & Cross-Scanlation Chapter Reconciler
+  - [ ] Task 43.1: Senior Architectural Blueprint Consultation with ChatGPT via Brave MCP
+  - [ ] Task 43.2: Native Zero-Dependency Jaro-Winkler Fuzzy Matching Engine with CJK Romaji Normalization
+  - [ ] Task 43.3: Duplicate Series Detection & Merge Conflict Reconciler Service
+  - [ ] Task 43.4: Fastify Admin Deduplication Routes (`GET /api/v1/admin/dedup/candidates`, `POST /api/v1/admin/dedup/merge`)
+  - [ ] Task 43.5: Frontend Deduplication & Merge Review Drawer in Catalog
+  - [ ] Task 43.6: Subagent Swarm Execution (Performance, QA Resilience, Metadata, UX Review)
+  - [ ] Task 43.7: Monorepo Verification & Benchmark Report

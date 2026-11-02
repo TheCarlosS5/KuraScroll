@@ -41,6 +41,9 @@ describe('StorageTelemetryModal Component (Pentium T4500 & Self-Healing)', () =>
         if (url === '/api/v1/admin/self-heal') {
           return Promise.resolve(new Response(JSON.stringify({ success: true, report: { integrity: { checkpointOk: true } } })));
         }
+        if (url === '/api/v1/admin/maintenance/compact') {
+          return Promise.resolve(new Response(JSON.stringify({ success: true, report: { orphanFilesDeleted: 3, orphanBytesReclaimed: 15360 } })));
+        }
         return Promise.resolve(new Response(JSON.stringify({ success: true, telemetry: mockTelemetry })));
       })
     );
@@ -122,5 +125,20 @@ describe('StorageTelemetryModal Component (Pentium T4500 & Self-Healing)', () =>
     await waitFor(() => {
       expect(screen.getByText('¡Liberada!')).toBeDefined();
     }, { timeout: 3000 });
+  });
+
+  it('triggers storage and WAL compaction on button click', async () => {
+    await act(async () => {
+      render(<StorageTelemetryModal isOpen={true} onClose={() => {}} />);
+    });
+
+    const compactBtn = await screen.findByTestId('compact-storage-btn');
+    await act(async () => {
+      fireEvent.click(compactBtn);
+    });
+
+    await waitFor(() => {
+      expect(screen.getByText('¡Compactado!')).toBeDefined();
+    });
   });
 });

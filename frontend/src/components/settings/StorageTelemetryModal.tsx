@@ -28,6 +28,9 @@ export function StorageTelemetryModal({ isOpen, onClose }: StorageTelemetryModal
   const [flushSuccess, setFlushSuccess] = useState(false);
   const [healing, setHealing] = useState(false);
   const [healingSuccess, setHealingSuccess] = useState(false);
+  const [compacting, setCompacting] = useState(false);
+  const [compactSuccess, setCompactSuccess] = useState(false);
+  const [compactMsg, setCompactMsg] = useState<string | null>(null);
   const [togglingIngestion, setTogglingIngestion] = useState(false);
 
   const modalRef = useFocusTrap({ isOpen, onClose });
@@ -90,6 +93,31 @@ export function StorageTelemetryModal({ isOpen, onClose }: StorageTelemetryModal
       }
     } catch {} finally {
       setHealing(false);
+    }
+  };
+
+  const handleCompactStorage = async () => {
+    setCompacting(true);
+    setCompactMsg(null);
+    try {
+      const res = await fetch('/api/v1/admin/maintenance/compact', { method: 'POST' });
+      if (res.ok) {
+        const data = await res.json();
+        setCompactSuccess(true);
+        if (data.report) {
+          const freedKb = Math.round((data.report.orphanBytesReclaimed || 0) / 1024);
+          setCompactMsg(`${data.report.orphanFilesDeleted} huérfanos (${freedKb} KB)`);
+        }
+        await fetchTelemetry();
+        setTimeout(() => {
+          setCompactSuccess(false);
+          setCompactMsg(null);
+        }, 4000);
+      }
+    } catch {
+      // Offline fallback
+    } finally {
+      setCompacting(false);
     }
   };
 
@@ -281,8 +309,8 @@ export function StorageTelemetryModal({ isOpen, onClose }: StorageTelemetryModal
               </div>
             </div>
 
-            {/* In-Memory ByteLRU Cache Flush & Self-Healing Actions */}
-            <div className="grid grid-cols-2 gap-3">
+            {/* In-Memory ByteLRU Cache Flush, Self-Healing, and Compaction Actions */}
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
               <div className="rounded-xl border border-slate-800 bg-slate-900/50 p-3 flex flex-col justify-between">
                 <div>
                   <span className="text-xs font-semibold text-white block">Memoria RAM ByteLRU</span>
@@ -337,6 +365,39 @@ export function StorageTelemetryModal({ isOpen, onClose }: StorageTelemetryModal
                     <>
                       <ShieldCheck className="w-3.5 h-3.5 text-cyan-400" />
                       <span>Autocuración</span>
+                    </>
+                  )}
+                </button>
+              </div>
+
+              <div className="rounded-xl border border-slate-800 bg-slate-900/50 p-3 flex flex-col justify-between">
+                <div>
+                  <span className="text-xs font-semibold text-white block">Compactar & WAL</span>
+                  <p className="text-[10px] text-slate-400 mt-0.5">
+                    {compactMsg || 'Purga huérfanos y checkpoint WAL'}
+                  </p>
+                </div>
+
+                <button
+                  data-testid="compact-storage-btn"
+                  onClick={handleCompactStorage}
+                  disabled={compacting}
+                  className="mt-3 flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-950/60 hover:bg-emerald-900/80 text-emerald-300 text-xs font-medium border border-emerald-500/40 hover:border-emerald-400 transition-colors"
+                >
+                  {compacting ? (
+                    <>
+                      <RefreshCw className="w-3.5 h-3.5 animate-spin text-emerald-400" />
+                      <span>Compactando...</span>
+                    </>
+                  ) : compactSuccess ? (
+                    <>
+                      <CheckCircle className="w-3.5 h-3.5 text-emerald-400" />
+                      <span>¡Compactado!</span>
+                    </>
+                  ) : (
+                    <>
+                      <Database className="w-3.5 h-3.5 text-emerald-400" />
+                      <span>Compactar</span>
                     </>
                   )}
                 </button>

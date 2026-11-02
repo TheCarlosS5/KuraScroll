@@ -19,6 +19,7 @@ import { registerBackupRoutes } from './routes/backup-routes.js';
 import { BackupDaemon } from './daemon/backup-daemon.js';
 import { registerEventRoutes, EventBus } from './events/event-bus.js';
 import { registerTelemetryRoutes } from './routes/telemetry-routes.js';
+import { registerMaintenanceRoutes } from './routes/maintenance-routes.js';
 import { AdaptiveIngestionController } from './services/adaptive-ingestion-controller.js';
 import { DifferentialMirrorService } from './services/differential-mirror-service.js';
 
@@ -130,6 +131,7 @@ export function buildApp(options: AppOptions = {}): FastifyInstance {
   registerBackupRoutes(app, db, backupDaemon, differentialMirror);
   registerEventRoutes(app, options.eventBus);
   registerTelemetryRoutes(app, { db, storageRoot, adaptiveController: options.adaptiveController });
+  registerMaintenanceRoutes(app, { db, storageRoot });
 
   return app;
 }

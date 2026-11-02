@@ -17,6 +17,7 @@ import { useReadingProgress } from '../hooks/useReadingProgress.js';
 import { useAutoScroll } from '../hooks/useAutoScroll.js';
 import { useZenModeGSAP } from '../hooks/useZenModeGSAP.js';
 import { ReadingStatsTracker } from '../services/reading-stats-service.js';
+import { syncCoordinator } from '../services/sync-coordinator.js';
 
 export interface ReaderPageProps {
   chapterId: string;
@@ -163,6 +164,17 @@ export const ReaderPage: React.FC<ReaderPageProps> = ({
   const handleToggleActiveBookmark = async () => {
     if (!seriesId || !chapterId) return;
     try {
+      if (typeof navigator !== 'undefined' && !navigator.onLine) {
+        await syncCoordinator.enqueue('CREATE_BOOKMARK', {
+          seriesId,
+          chapterId,
+          pageIndex: currentPage,
+        });
+        setBookmarkToast(`📌 Página ${currentPage} guardada en marcadores (offline)`);
+        setTimeout(() => setBookmarkToast(null), 2500);
+        return;
+      }
+
       const res = await fetch('/api/v1/bookmarks', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -176,21 +188,37 @@ export const ReaderPage: React.FC<ReaderPageProps> = ({
         setBookmarkToast(`📌 Página ${currentPage} guardada en marcadores`);
         setTimeout(() => setBookmarkToast(null), 2500);
         fetchQuickNavData(seriesId);
+      } else {
+        throw new Error('Bookmark request failed');
       }
-    } catch (e) {
-      console.error('Failed to save bookmark:', e);
+    } catch {
+      await syncCoordinator.enqueue('CREATE_BOOKMARK', {
+        seriesId,
+        chapterId,
+        pageIndex: currentPage,
+      });
+      setBookmarkToast(`📌 Página ${currentPage} guardada en marcadores (local)`);
+      setTimeout(() => setBookmarkToast(null), 2500);
     }
   };
 
   const handleDeleteBookmark = async (bookmarkId: number) => {
     try {
+      if (typeof navigator !== 'undefined' && !navigator.onLine) {
+        await syncCoordinator.enqueue('DELETE_BOOKMARK', { bookmarkId });
+        setSeriesBookmarks((prev) => prev.filter((b) => b.id !== bookmarkId));
+        return;
+      }
       const res = await fetch(`/api/v1/bookmarks/${bookmarkId}`, { method: 'DELETE' });
       if (res.ok) {
         setSeriesBookmarks((prev) => prev.filter((b) => b.id !== bookmarkId));
         if (seriesId) fetchQuickNavData(seriesId);
+      } else {
+        throw new Error('Delete bookmark failed');
       }
-    } catch (e) {
-      console.error('Failed to delete bookmark:', e);
+    } catch {
+      await syncCoordinator.enqueue('DELETE_BOOKMARK', { bookmarkId });
+      setSeriesBookmarks((prev) => prev.filter((b) => b.id !== bookmarkId));
     }
   };
 

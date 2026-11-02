@@ -234,3 +234,16 @@ CREATE INDEX IF NOT EXISTS idx_bookmarks_user_series_chapter
 
 CREATE INDEX IF NOT EXISTS idx_bookmarks_user_series_created
     ON user_bookmarks (user_id, series_id, created_at DESC, id DESC);
+
+-- Offline Mutation Idempotency & Replay Audit Ledger
+CREATE TABLE IF NOT EXISTS applied_mutations (
+    user_id TEXT NOT NULL,
+    client_mutation_id TEXT NOT NULL,
+    status TEXT NOT NULL,
+    applied_at TEXT NOT NULL DEFAULT (datetime('now')),
+    PRIMARY KEY (user_id, client_mutation_id)
+);
+
+CREATE INDEX IF NOT EXISTS idx_applied_mutations_lookup
+    ON applied_mutations (user_id, client_mutation_id);
+

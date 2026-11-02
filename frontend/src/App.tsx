@@ -7,6 +7,7 @@ import { HistoryPage } from './pages/HistoryPage.js';
 import { BackupModal } from './components/settings/BackupModal.js';
 import { SisterPlatformModal } from './components/common/SisterPlatformModal.js';
 import { StorageTelemetryModal } from './components/settings/StorageTelemetryModal.js';
+import { OfflineMutationOutboxHUD } from './components/sync/OfflineMutationOutboxHUD.js';
 
 export function App() {
   const [view, setView] = useState<'catalog' | 'bookmarks' | 'history' | 'detail' | 'reader'>('catalog');
@@ -110,6 +111,9 @@ export function App() {
         isOpen={isStorageModalOpen}
         onClose={() => setIsStorageModalOpen(false)}
       />
+
+      {/* Offline Mutation Outbox & Smart Replay HUD */}
+      <OfflineMutationOutboxHUD />
     </div>
   );
 }

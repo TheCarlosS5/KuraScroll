@@ -202,4 +202,15 @@
   - [x] Task 34.6: Intel GMA 4500MHD Optimized Drawer Component `ChapterQuickNavDrawer.tsx` (CSS transform slide-in, search filter, jump input, cross-volume bookmarks tab, 5/5 tests PASS)
   - [x] Task 34.7: Reader Mount in `ReaderPage.tsx` and `ReaderControls.tsx` with global keyboard shortcuts (`C` for drawer, `B` for instant page bookmark) and instant feedback toast
   - [x] Task 34.8: Monorepo Verification (111 test files, 591 tests PASS, 11/11 SLAs Passed, Vite build 9.41s)
-- [ ] Part 35: Offline IndexedDB Mutation Outbox & Smart Background Replay Engine
+- [x] Part 35: Offline IndexedDB Mutation Outbox & Smart Background Replay Engine (Commit Sprint 35)
+  - [x] Task 35.1: Senior Architectural Blueprint with ChatGPT via Brave MCP (`docs/brainstorming/chatgpt-sprint35-offline-outbox-replay-blueprint.md`)
+  - [x] Task 35.2: SQLite Table `applied_mutations` for server-side idempotency, out-of-order protection (`SKIPPED_OLDER`), and poison pill quarantine
+  - [x] Task 35.3: Production Batch Replay Service `SyncReplayService.ts` running inside single SQLite WAL transaction via `IOCoordinator` with `label: 'offline-sync-batch-replay'` (5/5 tests PASS)
+  - [x] Task 35.4: Fastify Endpoints in `sync-routes.ts` (`POST /api/v1/sync/replay` with 50-item limit and `GET /api/v1/sync/status`, 4/4 tests PASS)
+  - [x] Task 35.5: Benchmark Verification: Single-transaction batch replay yields **37.18x speedup** (18.4ms vs 684.2ms) and **98.0% IOPS reduction** on mechanical SATA II HDD (`docs/reports/sprint35-batch-replay-benchmark.md`)
+  - [x] Task 35.6: Client-Side Native IndexedDB Outbox Engine `mutation-outbox.ts` with compound indexes, auto-increment integer ID ordering, and crash recovery (`recoverInterruptedMutations`)
+  - [x] Task 35.7: Singleton `SyncCoordinator.ts` managing mutex state, Full Jitter exponential backoff $d_n = \min(30000, 1000 \cdot 2^n)$, online/offline listeners, and tab visibility recovery
+  - [x] Task 35.8: Intel GMA 4500MHD Compliant UI Component `OfflineMutationOutboxHUD.tsx` (0 blur, pure transform/opacity, amber offline badge, blue spinning indicator, auto-fading green synced toast, 4/4 tests PASS)
+  - [x] Task 35.9: Client Reading Integrations in `useReadingProgress.ts`, `ReaderPage.tsx`, and `App.tsx` with optimistic bookmark feedback and seamless fallback
+  - [x] Task 35.10: Monorepo Verification (114 test files, 604 tests PASS [392 backend + 212 frontend], 11/11 SLAs Passed, Vite build 4.29s)
+- [ ] Part 36: Full-Text Search Highlight Match Snippets & Natural Japanese/Korean Fuzzy Tokenizer

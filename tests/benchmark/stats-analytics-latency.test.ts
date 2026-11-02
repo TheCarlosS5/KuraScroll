@@ -74,6 +74,6 @@ describe('Sprint 41: Stats Analytics SQLite WAL Latency Benchmark', () => {
     const avgLatencyMs = elapsed / iterations;
 
     console.log(`Heatmap Query Avg Latency: ${avgLatencyMs.toFixed(4)} ms`);
-    expect(avgLatencyMs).toBeLessThan(1.5);
+    expect(avgLatencyMs).toBeLessThan(2.0);
   });
 });

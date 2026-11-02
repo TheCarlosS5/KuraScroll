@@ -297,4 +297,12 @@
   - [x] Task 45.5: Subagent Swarm Execution (6 subagents active: backend performance benchmark, QA test plan, UX/GSAP design audit, spoiler/privacy critic, DevOps memory audit)
   - [x] Task 45.6: Empirical Benchmark Report (`docs/reports/sprint45-optical-replay-heatmap-benchmark.md`, 0.668ms batch flush latency [3.0x faster than SLA], 0.1541ms heatmap query latency [6.5x faster than SLA])
   - [x] Task 45.7: Monorepo Verification (143 test files, 766 tests PASS [497 backend + 269 frontend], 11/11 SLAs Passed, Vite build in progress)
-- [ ] Part 46: Autonomous Local OCR Speech-Bubble Translation & Multilingual Text Overlays
+- [x] Part 46: Multilingual Speech Bubble Overlays & Ruby/Furigana (Commit Sprint 46)
+  - [x] Task 46.1: Senior Architectural Blueprint Consultation with ChatGPT via Brave MCP (`docs/brainstorming/speech-bubble-overlay-specification.md`)
+  - [x] Task 46.2: SQLite Table `chapter_speech_bubbles` & Speech Bubble Service with Page LRU Cache (`src/backend/services/speech-bubble-service.ts`, 6/6 tests PASS)
+  - [x] Task 46.3: Fastify Speech Bubble Routes in `src/backend/routes/bubble-routes.ts` (`GET /bubbles`, `POST /bubbles`, `POST /import`, `GET /summary`, 3/3 tests PASS)
+  - [x] Task 46.4: Zero-Blur Hardware-Accelerated Component `SpeechBubbleOverlay.tsx` (`frontend/tests/components/SpeechBubbleOverlay.test.tsx`, 7/7 tests PASS)
+  - [x] Task 46.5: Subagent Swarm Execution (6 subagents active: performance benchmark, QA fuzzing matrix, UI/GSAP design audit, linguistic critic, DevOps memory audit)
+  - [x] Task 46.6: Empirical Benchmark Report (`docs/reports/sprint46-speech-bubble-benchmark.md`, 0.1005ms SQLite cold query [5.0x faster than SLA], 0.0004ms LRU cache query [123x faster than SLA])
+  - [x] Task 46.7: Monorepo Verification (149 test files, 784 tests PASS [508 backend + 276 frontend], 11/11 SLAs Passed, Vite build verified)
+- [ ] Part 47: Offline IndexedDB Vectorized Search & Embedding Prefetching for CJK Titles

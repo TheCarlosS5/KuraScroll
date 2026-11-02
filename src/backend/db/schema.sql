@@ -294,4 +294,27 @@ CREATE INDEX IF NOT EXISTS idx_dwell_stats_lookup
 CREATE INDEX IF NOT EXISTS idx_dwell_stats_intensity 
     ON chapter_page_dwell_stats(chapter_id, dwell_intensity_score DESC);
 
+-- Sprint 46: Multilingual Speech Bubble Overlays & Ruby/Furigana
+CREATE TABLE IF NOT EXISTS chapter_speech_bubbles (
+    id TEXT PRIMARY KEY,
+    chapter_id TEXT NOT NULL REFERENCES chapters(id) ON DELETE CASCADE,
+    page_number INTEGER NOT NULL CHECK(page_number >= 1),
+    bubble_index INTEGER NOT NULL DEFAULT 0 CHECK(bubble_index >= 0),
+    bbox_x REAL NOT NULL CHECK(bbox_x >= 0.0 AND bbox_x <= 100.0),
+    bbox_y REAL NOT NULL CHECK(bbox_y >= 0.0 AND bbox_y <= 100.0),
+    bbox_width REAL NOT NULL CHECK(bbox_width > 0.0 AND bbox_width <= 100.0),
+    bbox_height REAL NOT NULL CHECK(bbox_height > 0.0 AND bbox_height <= 100.0),
+    reading_direction TEXT NOT NULL DEFAULT 'vertical' CHECK(reading_direction IN ('vertical', 'horizontal')),
+    raw_text TEXT NOT NULL,
+    translated_text_es TEXT,
+    translated_text_en TEXT,
+    ruby_furigana TEXT,
+    confidence_score REAL NOT NULL DEFAULT 1.0 CHECK(confidence_score >= 0.0 AND confidence_score <= 1.0),
+    created_at TEXT DEFAULT (datetime('now')),
+    UNIQUE(chapter_id, page_number, bubble_index)
+);
+
+CREATE INDEX IF NOT EXISTS idx_speech_bubbles_page 
+    ON chapter_speech_bubbles(chapter_id, page_number, bubble_index ASC);
+
 

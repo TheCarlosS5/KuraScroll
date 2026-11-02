@@ -1549,3 +1549,26 @@ CREATE TABLE IF NOT EXISTS acoustic_reverb_profiles (
 
 CREATE INDEX IF NOT EXISTS idx_acoustic_reverb_lookup 
     ON acoustic_reverb_profiles(series_id);
+
+-- Sprint 109: Bi-Directional Multi-Channel Tactile Page Edge Bevel & Stack Thickness Hologram Synthesizer (SLA 73)
+CREATE TABLE IF NOT EXISTS page_bevel_profiles (
+    series_id TEXT PRIMARY KEY,
+    paper_caliper_mode TEXT NOT NULL DEFAULT 'tankobon_silk_110um' CHECK (paper_caliper_mode IN (
+        'newsprint_65um',
+        'pulp_85um',
+        'tankobon_silk_110um',
+        'omnibus_coated_130um',
+        'custom'
+    )),
+    max_stack_thickness_px INTEGER NOT NULL DEFAULT 24 CHECK (max_stack_thickness_px >= 4 AND max_stack_thickness_px <= 48),
+    page_caliper_um REAL NOT NULL DEFAULT 110.0 CHECK (page_caliper_um >= 40.0 AND page_caliper_um <= 300.0),
+    curvature_sag_pct INTEGER NOT NULL DEFAULT 35 CHECK (curvature_sag_pct >= 0 AND curvature_sag_pct <= 100),
+    edge_bevel_shading_pct INTEGER NOT NULL DEFAULT 40 CHECK (edge_bevel_shading_pct >= 0 AND edge_bevel_shading_pct <= 100),
+    reading_direction TEXT NOT NULL DEFAULT 'rtl' CHECK (reading_direction IN ('rtl', 'ltr', 'vertical')),
+    is_enabled INTEGER NOT NULL DEFAULT 1 CHECK (is_enabled IN (0, 1)),
+    created_at INTEGER NOT NULL,
+    updated_at INTEGER NOT NULL
+);
+
+CREATE INDEX IF NOT EXISTS idx_page_bevel_lookup 
+    ON page_bevel_profiles(series_id);

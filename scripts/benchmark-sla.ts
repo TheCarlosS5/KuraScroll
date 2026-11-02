@@ -115,6 +115,10 @@ import {
   AcousticReverbService,
   calculateAcousticReverb,
 } from '../src/backend/services/acoustic-reverb-service.js';
+import {
+  PageBevelService,
+  calculatePageBevel,
+} from '../src/backend/services/page-bevel-service.js';
 
 export interface SlaResult {
   category: string;
@@ -2320,6 +2324,37 @@ export async function runHostSlaBenchmark(): Promise<SlaReport> {
     slaTarget: '< 0.02 ms',
     passed: reverbLatency < 0.02,
     notes: 'Zero-Allocation Schroeder-Moorer Parameter Synthesis (< 20µs target)',
+  });
+
+  // 73. Bi-Directional Multi-Channel Tactile Page Edge Bevel & Stack Thickness Hologram Synthesizer (Sprint 109 - SLA 73)
+  // Warmup JIT
+  for (let i = 0; i < 5000; i++) {
+    calculatePageBevel(50, 200, 'rtl', 24, 110.0, 35, 40, true);
+  }
+
+  const bevelIters = 20000;
+  const tBevelStart = performance.now();
+  for (let i = 0; i < bevelIters; i++) {
+    calculatePageBevel(
+      1 + (i % 200),
+      200,
+      i % 2 === 0 ? 'rtl' : 'ltr',
+      24,
+      110.0,
+      35,
+      40,
+      true
+    );
+  }
+  const bevelLatency = (performance.now() - tBevelStart) / bevelIters;
+
+  results.push({
+    category: 'Tactile Book Optics',
+    name: 'Page Bevel & Stack Synthesizer (SLA 73)',
+    measured: `${(bevelLatency * 1000).toFixed(2)} µs (${bevelLatency.toFixed(4)} ms)`,
+    slaTarget: '< 0.02 ms',
+    passed: bevelLatency < 0.02,
+    notes: 'Zero-Allocation Bi-Directional Stack Thickness & Spine Sag Synthesis (< 20µs target)',
   });
 
   // Teardown

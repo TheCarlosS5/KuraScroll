@@ -1122,6 +1122,21 @@ CREATE TABLE IF NOT EXISTS sliding_window_profiles (
 CREATE INDEX IF NOT EXISTS idx_sliding_window_lookup 
     ON sliding_window_profiles(series_id);
 
+-- Sprint 87: Progressive Image Decompression & Chunked Bitstream Pipeline
+CREATE TABLE IF NOT EXISTS chunked_stream_profiles (
+    series_id TEXT PRIMARY KEY,
+    chunk_height_px INTEGER NOT NULL DEFAULT 1024 CHECK (chunk_height_px >= 256 AND chunk_height_px <= 2048),
+    bitstream_quality INTEGER NOT NULL DEFAULT 80 CHECK (bitstream_quality >= 30 AND bitstream_quality <= 100),
+    progressive_pass_count INTEGER NOT NULL DEFAULT 2 CHECK (progressive_pass_count >= 1 AND progressive_pass_count <= 4),
+    idle_slice_budget_ms REAL NOT NULL DEFAULT 8.0 CHECK (idle_slice_budget_ms >= 1.0 AND idle_slice_budget_ms <= 16.0),
+    is_enabled INTEGER NOT NULL DEFAULT 1 CHECK (is_enabled IN (0, 1)),
+    updated_at INTEGER NOT NULL
+);
+
+CREATE INDEX IF NOT EXISTS idx_chunked_stream_lookup 
+    ON chunked_stream_profiles(series_id);
+
+
 
 
 

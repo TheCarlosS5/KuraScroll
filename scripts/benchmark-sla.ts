@@ -67,6 +67,7 @@ import { calculateGazeTrajectory } from '../src/backend/services/gaze-anchor-ser
 import { calculateCropBoundingBox } from '../src/backend/services/smart-crop-service.js';
 import { resolveVectorClockMerge } from '../src/backend/services/cloudless-sync-service.js';
 import { SlidingWindowService } from '../src/backend/services/sliding-window-service.js';
+import { ChunkedStreamService } from '../src/backend/services/chunked-stream-service.js';
 
 export interface SlaResult {
   category: string;
@@ -1631,6 +1632,29 @@ export async function runHostSlaBenchmark(): Promise<SlaReport> {
     slaTarget: '< 0.02 ms',
     passed: windowLatency < 0.02,
     notes: 'Zero-Allocation Sliding Window In-Viewport Micro-Cache & Prefetch Calculation (< 20µs target)',
+  });
+
+  // 51. Progressive Image Decompression & Chunked Slicing Resolution (Sprint 87 - SLA 51)
+  const chunkedStreamService = new ChunkedStreamService(db);
+  // Warmup JIT
+  for (let i = 0; i < 5000; i++) {
+    chunkedStreamService.calculateImageChunkSlices(1440, 8000, 1024);
+  }
+
+  const chunkIters = 20000;
+  const tChunkStart = performance.now();
+  for (let i = 0; i < chunkIters; i++) {
+    chunkedStreamService.calculateImageChunkSlices(1440, 8000, 1024);
+  }
+  const chunkLatency = (performance.now() - tChunkStart) / chunkIters;
+
+  results.push({
+    category: 'Streamer Engine',
+    name: 'Image Chunk Slicing Resolution (SLA 51)',
+    measured: `${(chunkLatency * 1000).toFixed(2)} µs (${chunkLatency.toFixed(4)} ms)`,
+    slaTarget: '< 0.02 ms',
+    passed: chunkLatency < 0.02,
+    notes: 'Zero-Allocation Chunked Bitstream Slicing & GPU Texture Dimension Bounding (< 20µs target)',
   });
 
   // Teardown

@@ -130,6 +130,8 @@ import { balloonCollisionRoutes } from './routes/balloon-collision-routes.js';
 import { BalloonCollisionService } from './services/balloon-collision-service.js';
 import { inkBleedRoutes } from './routes/ink-bleed-routes.js';
 import { InkBleedService } from './services/ink-bleed-service.js';
+import { eyeRestRoutes } from './routes/eye-rest-routes.js';
+import { EyeRestService } from './services/eye-rest-service.js';
 import { AdaptiveIngestionController } from './services/adaptive-ingestion-controller.js';
 import { DifferentialMirrorService } from './services/differential-mirror-service.js';
 
@@ -183,6 +185,7 @@ export interface AppOptions {
   pageTileRecyclerService?: PageTileRecyclerService;
   balloonCollisionService?: BalloonCollisionService;
   inkBleedService?: InkBleedService;
+  eyeRestService?: EyeRestService;
 }
 
 export function buildApp(options: AppOptions = {}): FastifyInstance {
@@ -491,6 +494,10 @@ export function buildApp(options: AppOptions = {}): FastifyInstance {
   app.register(inkBleedRoutes, {
     db,
     inkBleedService: options.inkBleedService ?? new InkBleedService(db),
+  });
+  app.register(eyeRestRoutes, {
+    db,
+    eyeRestService: options.eyeRestService ?? new EyeRestService(db),
   });
 
   return app;

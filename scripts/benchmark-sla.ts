@@ -93,6 +93,10 @@ import {
   InkBleedService,
   calculateInkBleedCompensation,
 } from '../src/backend/services/ink-bleed-service.js';
+import {
+  EyeRestService,
+  calculateEyeRestAperture,
+} from '../src/backend/services/eye-rest-service.js';
 
 export interface SlaResult {
   category: string;
@@ -2102,6 +2106,49 @@ export async function runHostSlaBenchmark(): Promise<SlaReport> {
     slaTarget: '< 0.02 ms',
     passed: inkLatency < 0.02,
     notes: 'Zero-Allocation Parametric Luminance Curve & Black-Point Lift (< 20µs target)',
+  });
+
+  // 68. Adaptive Per-Panel Reading Gaze Anchor & Eye-Rest Aperture Shutter (Sprint 104 - SLA 68)
+  const eyeRestService = new EyeRestService(db);
+  // Warmup JIT
+  for (let i = 0; i < 5000; i++) {
+    calculateEyeRestAperture(
+      { x: 640, y: 360 },
+      { width: 1280, height: 720 },
+      320,
+      35,
+      22,
+      20,
+      3200,
+      'subtle_vignette',
+      true
+    );
+  }
+
+  const eyeIters = 20000;
+  const tEyeStart = performance.now();
+  for (let i = 0; i < eyeIters; i++) {
+    calculateEyeRestAperture(
+      { x: 640, y: 360 },
+      { width: 1280, height: 720 },
+      320,
+      35,
+      22,
+      20,
+      3200,
+      'subtle_vignette',
+      true
+    );
+  }
+  const eyeLatency = (performance.now() - tEyeStart) / eyeIters;
+
+  results.push({
+    category: 'Eye Rest & Gaze Engine',
+    name: 'Eye-Rest Aperture Shutter (SLA 68)',
+    measured: `${(eyeLatency * 1000).toFixed(2)} µs (${eyeLatency.toFixed(4)} ms)`,
+    slaTarget: '< 0.02 ms',
+    passed: eyeLatency < 0.02,
+    notes: 'Zero-Allocation Parametric Aperture Focal Mask & Circadian Warmth Shutter (< 20µs target)',
   });
 
   // Teardown

@@ -1442,6 +1442,27 @@ CREATE TABLE IF NOT EXISTS ink_bleed_profiles (
 CREATE INDEX IF NOT EXISTS idx_ink_bleed_lookup 
     ON ink_bleed_profiles(series_id);
 
+-- Sprint 104: Adaptive Per-Panel Reading Gaze Anchor & Eye-Rest Aperture Shutter (SLA 68)
+CREATE TABLE IF NOT EXISTS eye_rest_profiles (
+    series_id TEXT PRIMARY KEY,
+    shutter_mode TEXT NOT NULL DEFAULT 'subtle_vignette' CHECK (shutter_mode IN (
+        'subtle_vignette',
+        'focus_spotlight',
+        'circadian_warmth',
+        'disabled'
+    )),
+    aperture_radius_px INTEGER NOT NULL DEFAULT 320 CHECK (aperture_radius_px >= 100 AND aperture_radius_px <= 800),
+    falloff_pct INTEGER NOT NULL DEFAULT 35 CHECK (falloff_pct >= 10 AND falloff_pct <= 80),
+    rest_interval_min INTEGER NOT NULL DEFAULT 20 CHECK (rest_interval_min >= 5 AND rest_interval_min <= 60),
+    eye_care_warmth_k INTEGER NOT NULL DEFAULT 3200 CHECK (eye_care_warmth_k >= 2200 AND eye_care_warmth_k <= 6500),
+    is_enabled INTEGER NOT NULL DEFAULT 1 CHECK (is_enabled IN (0, 1)),
+    created_at INTEGER NOT NULL,
+    updated_at INTEGER NOT NULL
+);
+
+CREATE INDEX IF NOT EXISTS idx_eye_rest_lookup 
+    ON eye_rest_profiles(series_id);
+
 
 
 

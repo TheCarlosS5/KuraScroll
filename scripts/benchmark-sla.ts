@@ -135,6 +135,10 @@ import {
   GlyphSharpenerService,
   calculateGlyphSharpener,
 } from '../src/backend/services/glyph-sharpener-service.js';
+import {
+  BoustrophedonCameraService,
+  calculateBoustrophedonCamera,
+} from '../src/backend/services/boustrophedon-camera-service.js';
 
 export interface SlaResult {
   category: string;
@@ -2494,6 +2498,41 @@ export async function runHostSlaBenchmark(): Promise<SlaReport> {
     slaTarget: '< 0.02 ms',
     passed: glyphSharpenerLatency < 0.02,
     notes: 'Zero-Allocation Analytical Edge Contrast & Dense Stroke Protection (< 20µs target)',
+  });
+
+  // 78. Adaptive Boustrophedon Panel Sequence Flow & Cinematic Camera Pan Director (Sprint 114 - SLA 78)
+  // Warmup JIT
+  for (let i = 0; i < 5000; i++) {
+    calculateBoustrophedonCamera(100, 100, 600, 800, 0.5, 'manga_rtl_zigzag', 'cubic_bezier_cinematic', 1.25, 15, 0.0, true);
+  }
+
+  const cameraPanIters = 20000;
+  const tCameraPanStart = performance.now();
+  for (let i = 0; i < cameraPanIters; i++) {
+    const t = (i % 100) / 100;
+    calculateBoustrophedonCamera(
+      100 + (i % 50),
+      100 + (i % 100),
+      600 + (i % 50),
+      800 + (i % 100),
+      t,
+      i % 2 === 0 ? 'manga_rtl_zigzag' : 'webtoon_vertical',
+      'cubic_bezier_cinematic',
+      1.25,
+      15,
+      0.0,
+      i % 3 === 0
+    );
+  }
+  const cameraPanLatency = (performance.now() - tCameraPanStart) / cameraPanIters;
+
+  results.push({
+    category: 'Camera & Pan Director',
+    name: 'Boustrophedon Camera Pan (SLA 78)',
+    measured: `${(cameraPanLatency * 1000).toFixed(2)} µs (${cameraPanLatency.toFixed(4)} ms)`,
+    slaTarget: '< 0.02 ms',
+    passed: cameraPanLatency < 0.02,
+    notes: 'Zero-Allocation Horner Cubic Bezier Polynomial & Focal Zoom Interpolation (< 20µs target)',
   });
 
   // Teardown

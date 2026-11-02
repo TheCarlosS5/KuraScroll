@@ -1667,3 +1667,29 @@ CREATE TABLE IF NOT EXISTS glyph_sharpener_profiles (
 
 CREATE INDEX IF NOT EXISTS idx_glyph_sharpener_lookup 
     ON glyph_sharpener_profiles(series_id);
+
+-- Sprint 114: Adaptive Boustrophedon Panel Sequence Flow & Cinematic Camera Pan Director (SLA 78)
+CREATE TABLE IF NOT EXISTS boustrophedon_camera_profiles (
+    series_id TEXT PRIMARY KEY,
+    reading_flow TEXT NOT NULL DEFAULT 'manga_rtl_zigzag' CHECK (reading_flow IN (
+        'manga_rtl_zigzag',
+        'webtoon_vertical',
+        'comic_ltr_zigzag',
+        'cinematic_freeflow'
+    )),
+    transition_easing TEXT NOT NULL DEFAULT 'cubic_bezier_cinematic' CHECK (transition_easing IN (
+        'cubic_bezier_cinematic',
+        'ease_in_out',
+        'snappy_linear',
+        'dramatic_punch'
+    )),
+    climax_zoom_multiplier REAL NOT NULL DEFAULT 1.25 CHECK (climax_zoom_multiplier >= 1.0 AND climax_zoom_multiplier <= 1.50),
+    pan_lead_in_pct INTEGER NOT NULL DEFAULT 15 CHECK (pan_lead_in_pct >= 0 AND pan_lead_in_pct <= 50),
+    max_rotation_deg REAL NOT NULL DEFAULT 0.0 CHECK (max_rotation_deg >= -5.0 AND max_rotation_deg <= 5.0),
+    is_enabled INTEGER NOT NULL DEFAULT 1 CHECK (is_enabled IN (0, 1)),
+    created_at INTEGER NOT NULL,
+    updated_at INTEGER NOT NULL
+);
+
+CREATE INDEX IF NOT EXISTS idx_boustrophedon_camera_lookup 
+    ON boustrophedon_camera_profiles(series_id);

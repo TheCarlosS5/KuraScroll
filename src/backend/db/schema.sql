@@ -1202,6 +1202,26 @@ CREATE TABLE IF NOT EXISTS chromatic_fringe_profiles (
 CREATE INDEX IF NOT EXISTS idx_chromatic_fringe_lookup 
     ON chromatic_fringe_profiles(series_id);
 
+-- Sprint 92: Adaptive Ambient Screen-Glow Dispersion & Border Bleed Light Engine
+CREATE TABLE IF NOT EXISTS ambient_glow_profiles (
+    series_id TEXT PRIMARY KEY,
+    glow_mode TEXT NOT NULL DEFAULT 'cinematic_reactive' CHECK (glow_mode IN (
+        'cinematic_reactive',
+        'dark_monochrome_dim',
+        'vibrant_manhwa_bleed',
+        'custom'
+    )),
+    glow_spread_px INTEGER NOT NULL DEFAULT 64 CHECK (glow_spread_px >= 16 AND glow_spread_px <= 256),
+    glow_opacity REAL NOT NULL DEFAULT 0.45 CHECK (glow_opacity >= 0.00 AND glow_opacity <= 1.00),
+    feather_smoothness REAL NOT NULL DEFAULT 1.20 CHECK (feather_smoothness >= 0.50 AND feather_smoothness <= 3.00),
+    is_enabled INTEGER NOT NULL DEFAULT 1 CHECK (is_enabled IN (0, 1)),
+    updated_at INTEGER NOT NULL
+);
+
+CREATE INDEX IF NOT EXISTS idx_ambient_glow_lookup 
+    ON ambient_glow_profiles(series_id);
+
+
 
 
 

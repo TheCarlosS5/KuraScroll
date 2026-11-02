@@ -72,6 +72,7 @@ import { InertialScrollService } from '../src/backend/services/inertial-scroll-s
 import { DynamicToneService } from '../src/backend/services/dynamic-tone-service.js';
 import { HistoryScrubberService } from '../src/backend/services/history-scrubber-service.js';
 import { ChromaticFringeService } from '../src/backend/services/chromatic-fringe-service.js';
+import { AmbientGlowService } from '../src/backend/services/ambient-glow-service.js';
 
 export interface SlaResult {
   category: string;
@@ -1751,6 +1752,29 @@ export async function runHostSlaBenchmark(): Promise<SlaReport> {
     slaTarget: '< 0.02 ms',
     passed: fringeLatency < 0.02,
     notes: 'Zero-Allocation Sub-Pixel Anti-Aliasing & Text Sharpening Matrix (< 20µs target)',
+  });
+
+  // 56. Adaptive Ambient Screen-Glow Dispersion & Border Bleed (Sprint 92 - SLA 56)
+  const ambientGlowService = new AmbientGlowService(db);
+  // Warmup JIT
+  for (let i = 0; i < 5000; i++) {
+    ambientGlowService.calculateGlowDispersionGradients('cinematic_reactive', 64, 0.45, 1.20, '40, 40, 50');
+  }
+
+  const glowIters = 20000;
+  const tGlowStart = performance.now();
+  for (let i = 0; i < glowIters; i++) {
+    ambientGlowService.calculateGlowDispersionGradients('cinematic_reactive', 64, 0.45, 1.20, '40, 40, 50');
+  }
+  const glowLatency = (performance.now() - tGlowStart) / glowIters;
+
+  results.push({
+    category: 'Ambient Immersion',
+    name: 'Glow Dispersion Gradient Synthesis (SLA 56)',
+    measured: `${(glowLatency * 1000).toFixed(2)} µs (${glowLatency.toFixed(4)} ms)`,
+    slaTarget: '< 0.02 ms',
+    passed: glowLatency < 0.02,
+    notes: 'Zero-Allocation Linear Border Bleed & Letterbox Glow Synthesis (< 20µs target)',
   });
 
   // Teardown

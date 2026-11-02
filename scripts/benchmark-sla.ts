@@ -119,6 +119,10 @@ import {
   PageBevelService,
   calculatePageBevel,
 } from '../src/backend/services/page-bevel-service.js';
+import {
+  ChromaBleedService,
+  calculateChromaBleed,
+} from '../src/backend/services/chroma-bleed-service.js';
 
 export interface SlaResult {
   category: string;
@@ -2355,6 +2359,35 @@ export async function runHostSlaBenchmark(): Promise<SlaReport> {
     slaTarget: '< 0.02 ms',
     passed: bevelLatency < 0.02,
     notes: 'Zero-Allocation Bi-Directional Stack Thickness & Spine Sag Synthesis (< 20µs target)',
+  });
+
+  // 74. Perceptual Ambient Chroma Bleed & Color-Temperature Adaptive Edge Backlight (Sprint 110 - SLA 74)
+  // Warmup JIT
+  for (let i = 0; i < 5000; i++) {
+    calculateChromaBleed(6500, 24, 35, 2.2, 'monochrome_bw', true);
+  }
+
+  const chromaBleedIters = 20000;
+  const tChromaBleedStart = performance.now();
+  for (let i = 0; i < chromaBleedIters; i++) {
+    calculateChromaBleed(
+      2000 + (i % 7000),
+      8 + (i % 56),
+      i % 100,
+      1.5 + (i % 2),
+      'custom',
+      true
+    );
+  }
+  const chromaBleedLatency = (performance.now() - tChromaBleedStart) / chromaBleedIters;
+
+  results.push({
+    category: 'Ambient Display & Opt',
+    name: 'Ambient Chroma Bleed Synthesizer (SLA 74)',
+    measured: `${(chromaBleedLatency * 1000).toFixed(2)} µs (${chromaBleedLatency.toFixed(4)} ms)`,
+    slaTarget: '< 0.02 ms',
+    passed: chromaBleedLatency < 0.02,
+    notes: 'Zero-Allocation Planckian Color Temperature & Perimeter Gradient Synthesis (< 20µs target)',
   });
 
   // Teardown

@@ -1572,3 +1572,26 @@ CREATE TABLE IF NOT EXISTS page_bevel_profiles (
 
 CREATE INDEX IF NOT EXISTS idx_page_bevel_lookup 
     ON page_bevel_profiles(series_id);
+
+-- Sprint 110: Perceptual Ambient Chroma Bleed & Color-Temperature Adaptive Edge Backlight (SLA 74)
+CREATE TABLE IF NOT EXISTS chroma_bleed_profiles (
+    series_id TEXT PRIMARY KEY,
+    color_mode TEXT NOT NULL DEFAULT 'monochrome_bw' CHECK (color_mode IN (
+        'monochrome_bw',
+        'sepia_vintage',
+        'night_crimson',
+        'cyberpunk_neon',
+        'oled_pitch_black',
+        'custom'
+    )),
+    color_temperature_k INTEGER NOT NULL DEFAULT 6500 CHECK (color_temperature_k >= 2000 AND color_temperature_k <= 9000),
+    bleed_spread_px INTEGER NOT NULL DEFAULT 24 CHECK (bleed_spread_px >= 8 AND bleed_spread_px <= 64),
+    ambient_intensity_pct INTEGER NOT NULL DEFAULT 35 CHECK (ambient_intensity_pct >= 0 AND ambient_intensity_pct <= 100),
+    edge_falloff_exponent REAL NOT NULL DEFAULT 2.2 CHECK (edge_falloff_exponent >= 1.0 AND edge_falloff_exponent <= 4.0),
+    is_enabled INTEGER NOT NULL DEFAULT 1 CHECK (is_enabled IN (0, 1)),
+    created_at INTEGER NOT NULL,
+    updated_at INTEGER NOT NULL
+);
+
+CREATE INDEX IF NOT EXISTS idx_chroma_bleed_lookup 
+    ON chroma_bleed_profiles(series_id);

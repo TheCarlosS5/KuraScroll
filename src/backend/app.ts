@@ -142,6 +142,8 @@ import { acousticReverbRoutes } from './routes/acoustic-reverb-routes.js';
 import { AcousticReverbService } from './services/acoustic-reverb-service.js';
 import { pageBevelRoutes } from './routes/page-bevel-routes.js';
 import { PageBevelService } from './services/page-bevel-service.js';
+import { chromaBleedRoutes } from './routes/chroma-bleed-routes.js';
+import { ChromaBleedService } from './services/chroma-bleed-service.js';
 import { AdaptiveIngestionController } from './services/adaptive-ingestion-controller.js';
 import { DifferentialMirrorService } from './services/differential-mirror-service.js';
 
@@ -201,6 +203,7 @@ export interface AppOptions {
   tileInvalidationService?: TileInvalidationService;
   acousticReverbService?: AcousticReverbService;
   pageBevelService?: PageBevelService;
+  chromaBleedService?: ChromaBleedService;
 }
 
 export function buildApp(options: AppOptions = {}): FastifyInstance {
@@ -533,6 +536,10 @@ export function buildApp(options: AppOptions = {}): FastifyInstance {
   app.register(pageBevelRoutes, {
     db,
     pageBevelService: options.pageBevelService ?? new PageBevelService(db),
+  });
+  app.register(chromaBleedRoutes, {
+    db,
+    chromaBleedService: options.chromaBleedService ?? new ChromaBleedService(db),
   });
 
   return app;

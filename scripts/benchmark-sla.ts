@@ -71,6 +71,7 @@ import { ChunkedStreamService } from '../src/backend/services/chunked-stream-ser
 import { InertialScrollService } from '../src/backend/services/inertial-scroll-service.js';
 import { DynamicToneService } from '../src/backend/services/dynamic-tone-service.js';
 import { HistoryScrubberService } from '../src/backend/services/history-scrubber-service.js';
+import { ChromaticFringeService } from '../src/backend/services/chromatic-fringe-service.js';
 
 export interface SlaResult {
   category: string;
@@ -1727,6 +1728,29 @@ export async function runHostSlaBenchmark(): Promise<SlaReport> {
     slaTarget: '< 0.02 ms',
     passed: scrubberLatency < 0.02,
     notes: 'Zero-Allocation Bi-Directional Infinite Tape Projection (< 20µs target)',
+  });
+
+  // 55. Adaptive Sub-Pixel Color Fringe Neutralizer & Sharpening (Sprint 91 - SLA 55)
+  const chromaticFringeService = new ChromaticFringeService(db);
+  // Warmup JIT
+  for (let i = 0; i < 5000; i++) {
+    chromaticFringeService.calculateFringeNeutralizerMatrix('subpixel_rgb', 0.75, 0.60, 1.25);
+  }
+
+  const fringeIters = 20000;
+  const tFringeStart = performance.now();
+  for (let i = 0; i < fringeIters; i++) {
+    chromaticFringeService.calculateFringeNeutralizerMatrix('subpixel_rgb', 0.75, 0.60, 1.25);
+  }
+  const fringeLatency = (performance.now() - tFringeStart) / fringeIters;
+
+  results.push({
+    category: 'Subpixel Optics',
+    name: 'Fringe Neutralizer Matrix Resolution (SLA 55)',
+    measured: `${(fringeLatency * 1000).toFixed(2)} µs (${fringeLatency.toFixed(4)} ms)`,
+    slaTarget: '< 0.02 ms',
+    passed: fringeLatency < 0.02,
+    notes: 'Zero-Allocation Sub-Pixel Anti-Aliasing & Text Sharpening Matrix (< 20µs target)',
   });
 
   // Teardown

@@ -104,6 +104,8 @@ import { dynamicToneRoutes } from './routes/dynamic-tone-routes.js';
 import { DynamicToneService } from './services/dynamic-tone-service.js';
 import { historyScrubberRoutes } from './routes/history-scrubber-routes.js';
 import { HistoryScrubberService } from './services/history-scrubber-service.js';
+import { chromaticFringeRoutes } from './routes/chromatic-fringe-routes.js';
+import { ChromaticFringeService } from './services/chromatic-fringe-service.js';
 import { AdaptiveIngestionController } from './services/adaptive-ingestion-controller.js';
 import { DifferentialMirrorService } from './services/differential-mirror-service.js';
 
@@ -144,6 +146,7 @@ export interface AppOptions {
   inertialScrollService?: InertialScrollService;
   dynamicToneService?: DynamicToneService;
   historyScrubberService?: HistoryScrubberService;
+  chromaticFringeService?: ChromaticFringeService;
 }
 
 export function buildApp(options: AppOptions = {}): FastifyInstance {
@@ -400,6 +403,10 @@ export function buildApp(options: AppOptions = {}): FastifyInstance {
   app.register(historyScrubberRoutes, {
     db,
     historyScrubberService: options.historyScrubberService ?? new HistoryScrubberService(db),
+  });
+  app.register(chromaticFringeRoutes, {
+    db,
+    chromaticFringeService: options.chromaticFringeService ?? new ChromaticFringeService(db),
   });
 
   return app;

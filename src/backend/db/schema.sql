@@ -1183,6 +1183,26 @@ CREATE TABLE IF NOT EXISTS history_scrubber_profiles (
 CREATE INDEX IF NOT EXISTS idx_history_scrubber_lookup 
     ON history_scrubber_profiles(series_id);
 
+-- Sprint 91: Adaptive Sub-Pixel Color Fringe Neutralizer & In-Viewport Text Sharpening Engine
+CREATE TABLE IF NOT EXISTS chromatic_fringe_profiles (
+    series_id TEXT PRIMARY KEY,
+    neutralizer_mode TEXT NOT NULL DEFAULT 'subpixel_rgb' CHECK (neutralizer_mode IN (
+        'subpixel_rgb',
+        'subpixel_bgr',
+        'monochrome_ink',
+        'custom'
+    )),
+    fringe_radius_px REAL NOT NULL DEFAULT 0.75 CHECK (fringe_radius_px >= 0.10 AND fringe_radius_px <= 2.50),
+    desaturation_strength REAL NOT NULL DEFAULT 0.60 CHECK (desaturation_strength >= 0.00 AND desaturation_strength <= 1.00),
+    sharpening_amount REAL NOT NULL DEFAULT 1.25 CHECK (sharpening_amount >= 0.50 AND sharpening_amount <= 3.00),
+    is_enabled INTEGER NOT NULL DEFAULT 1 CHECK (is_enabled IN (0, 1)),
+    updated_at INTEGER NOT NULL
+);
+
+CREATE INDEX IF NOT EXISTS idx_chromatic_fringe_lookup 
+    ON chromatic_fringe_profiles(series_id);
+
+
 
 
 

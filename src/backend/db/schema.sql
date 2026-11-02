@@ -662,6 +662,26 @@ CREATE TABLE IF NOT EXISTS disk_platter_defrag_runs (
 CREATE INDEX IF NOT EXISTS idx_defrag_runs_series
     ON disk_platter_defrag_runs (series_id, created_at DESC);
 
+-- Sprint 64: Adaptive Paper Tone, E-Ink Simulation & Palette Remapping Engine
+CREATE TABLE IF NOT EXISTS user_paper_tone_profiles (
+    id TEXT PRIMARY KEY,
+    user_id TEXT NOT NULL DEFAULT 'default_user',
+    series_id TEXT DEFAULT NULL REFERENCES series(id) ON DELETE CASCADE,
+    preset TEXT NOT NULL DEFAULT 'ORIGINAL' CHECK (preset IN ('ORIGINAL', 'SEPIA_CALIDO', 'PAPEL_E_INK', 'PERIODICO_VINTAGE', 'AMBAR_MEDIANOCHE', 'NOIR_ALTO_CONTRASTE')),
+    warmth REAL NOT NULL DEFAULT 0.0 CHECK (warmth BETWEEN -1.0 AND 1.0),
+    contrast REAL NOT NULL DEFAULT 1.0 CHECK (contrast BETWEEN 0.5 AND 2.0),
+    brightness REAL NOT NULL DEFAULT 1.0 CHECK (brightness BETWEEN 0.5 AND 1.5),
+    custom_matrix TEXT DEFAULT NULL,
+    updated_at TEXT NOT NULL DEFAULT (datetime('now'))
+);
+
+CREATE UNIQUE INDEX IF NOT EXISTS idx_user_paper_tone_scoped 
+    ON user_paper_tone_profiles(user_id, IFNULL(series_id, '__global__'));
+
+CREATE INDEX IF NOT EXISTS idx_user_paper_tone_user
+    ON user_paper_tone_profiles(user_id);
+
+
 
 
 

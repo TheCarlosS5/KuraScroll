@@ -90,6 +90,8 @@ import { pageAcousticsRoutes } from './routes/page-acoustics-routes.js';
 import { PageAcousticsService } from './services/page-acoustics-service.js';
 import { gazeAnchorRoutes } from './routes/gaze-anchor-routes.js';
 import { GazeAnchorService } from './services/gaze-anchor-service.js';
+import { smartCropRoutes } from './routes/smart-crop-routes.js';
+import { SmartCropService } from './services/smart-crop-service.js';
 import { AdaptiveIngestionController } from './services/adaptive-ingestion-controller.js';
 import { DifferentialMirrorService } from './services/differential-mirror-service.js';
 
@@ -123,6 +125,7 @@ export interface AppOptions {
   pageProjectionService?: PageProjectionService;
   pageAcousticsService?: PageAcousticsService;
   gazeAnchorService?: GazeAnchorService;
+  smartCropService?: SmartCropService;
 }
 
 export function buildApp(options: AppOptions = {}): FastifyInstance {
@@ -351,6 +354,10 @@ export function buildApp(options: AppOptions = {}): FastifyInstance {
   app.register(gazeAnchorRoutes, {
     db,
     gazeAnchorService: options.gazeAnchorService ?? new GazeAnchorService(db),
+  });
+  app.register(smartCropRoutes, {
+    db,
+    smartCropService: options.smartCropService ?? new SmartCropService(db),
   });
 
   return app;

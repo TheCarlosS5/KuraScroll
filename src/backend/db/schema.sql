@@ -1074,6 +1074,21 @@ CREATE TABLE IF NOT EXISTS gaze_anchor_profiles (
 CREATE INDEX IF NOT EXISTS idx_gaze_anchor_lookup 
     ON gaze_anchor_profiles(series_id);
 
+-- Sprint 84: Adaptive Panel Dynamic Cropping & Smart Margin Trimming Engine
+CREATE TABLE IF NOT EXISTS smart_crop_profiles (
+    series_id TEXT PRIMARY KEY,
+    mode TEXT NOT NULL DEFAULT 'dialogue_safe' CHECK (mode IN ('conservative', 'aggressive', 'dialogue_safe')),
+    margin_threshold REAL NOT NULL DEFAULT 0.96 CHECK (margin_threshold >= 0.80 AND margin_threshold <= 0.99),
+    aspect_ratio_lock INTEGER NOT NULL DEFAULT 0 CHECK (aspect_ratio_lock IN (0, 1)),
+    target_aspect_ratio REAL NOT NULL DEFAULT 0.70 CHECK (target_aspect_ratio >= 0.40 AND target_aspect_ratio <= 2.0),
+    padding_px INTEGER NOT NULL DEFAULT 12 CHECK (padding_px >= 0 AND padding_px <= 64),
+    is_enabled INTEGER NOT NULL DEFAULT 1 CHECK (is_enabled IN (0, 1)),
+    updated_at INTEGER NOT NULL
+);
+
+CREATE INDEX IF NOT EXISTS idx_smart_crop_lookup 
+    ON smart_crop_profiles(series_id);
+
 
 
 

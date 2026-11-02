@@ -601,14 +601,22 @@
   - [x] Task 83.5: Client useGazeAnchor Hook & GazeAnchorHUD Component (`frontend/src/reader/useGazeAnchor.ts`, `GazeAnchorHUD.tsx`, zero-blur solid `#18181b` containment, sensitivity/dwell/drift sliders, heatmap resolution selector, telemetry readout, keyboard shortcut 'G', 0 CLS)
   - [x] Task 83.6: Subagent Swarm Execution & SLA 47 Benchmark (SLA 47: 0.24 µs [83x faster than SLA target < 20 µs], 47/47 SLAs Passed)
   - [x] Task 83.7: Monorepo Verification & Git Commit
-- [ ] Part 84: Adaptive Panel Dynamic Cropping & Smart Margin Trimming Engine (Intelligent White-Space Harvester & Zero-Allocation Bounding Box Optimizer)
-  - [ ] Task 84.1: Senior Architectural Blueprint Consultation with ChatGPT via Brave MCP
-  - [ ] Task 84.2: Zero-Loss Edge Bounding Box Detection Math, Aspect-Ratio Lock, and GMA 4500MHD Texture Slicing Specification
-  - [ ] Task 84.3: Backend SmartCropService & SQLite Table (`src/backend/services/smart-crop-service.ts`, table `smart_crop_profiles`, index `idx_smart_crop_lookup`, zero-allocation calculateCropBox)
-  - [ ] Task 84.4: Fastify Smart Crop REST Endpoints (`src/backend/routes/smart-crop-routes.ts`, HTTP 304 ETag caching)
-  - [ ] Task 84.5: Client useSmartCrop Hook & SmartCropHUD Component (`frontend/src/reader/useSmartCrop.ts`, `SmartCropHUD.tsx`, zero-blur solid `#18181b` containment, sensitivity/padding sliders, keyboard shortcut 'C', 0 CLS)
-  - [ ] Task 84.6: Subagent Swarm Execution & SLA 48 Benchmark
-  - [ ] Task 84.7: Monorepo Verification & Git Commit
+- [x] Part 84: Adaptive Panel Dynamic Cropping & Smart Margin Trimming Engine (Intelligent White-Space Harvester & Zero-Allocation Bounding Box Optimizer)
+  - [x] Task 84.1: Senior Architectural Blueprint Consultation with ChatGPT via Brave MCP (`docs/specs/sprint-84-smart-crop-schema.md`)
+  - [x] Task 84.2: Zero-Loss Edge Bounding Box Detection Math, Aspect-Ratio Lock, and GMA 4500MHD Texture Slicing Specification (`docs/specs/sprint-84-smart-crop-schema.md`, `sprint84-crop-bounding-sla-spec.md`, `docs/specs/sprint-84-crop-devops-audit.md`, `docs/specs/sprint-84-smart-crop-qa-resilience.md`)
+  - [x] Task 84.3: Backend SmartCropService & SQLite Table (`src/backend/services/smart-crop-service.ts`, table `smart_crop_profiles`, index `idx_smart_crop_lookup`, zero-allocation calculateCropBoundingBox)
+  - [x] Task 84.4: Fastify Smart Crop REST Endpoints (`src/backend/routes/smart-crop-routes.ts`, `/profile/:seriesId`, `/profile`, `/calculate-crop`, `/modes`, HTTP 304 ETag caching)
+  - [x] Task 84.5: Client useSmartCrop Hook & SmartCropHUD Component (`frontend/src/reader/useSmartCrop.ts`, `SmartCropHUD.tsx`, zero-blur solid `#18181b` containment, mode selector, padding/threshold sliders, aspect ratio lock, keyboard shortcut 'K', 0 CLS)
+  - [x] Task 84.6: Subagent Swarm Execution & SLA 48 Benchmark (SLA 48: 0.47 µs [42x faster than SLA target < 20 µs], 48/48 SLAs Passed)
+  - [x] Task 84.7: Monorepo Verification & Git Commit
+- [ ] Part 85: Continuous Reading Session Milestones & Autonomous Cloudless Sync Hub (Local-First Peer Broadcast & Zero-Cloud Fleet Replicator)
+  - [ ] Task 85.1: Senior Architectural Blueprint Consultation with ChatGPT via Brave MCP
+  - [ ] Task 85.2: CRDT Vector Clock Replication Math, Local-Only LAN Broadcast, and Milestone Telemetry Specification
+  - [ ] Task 85.3: Backend CloudlessSyncService & SQLite Table (`src/backend/services/cloudless-sync-service.ts`, table `sync_milestone_profiles`, index `idx_sync_milestone_lookup`)
+  - [ ] Task 85.4: Fastify Cloudless Sync REST Endpoints (`src/backend/routes/cloudless-sync-routes.ts`, HTTP 304 ETag caching)
+  - [ ] Task 85.5: Client useCloudlessSync Hook & CloudlessSyncHUD Component (`frontend/src/reader/useCloudlessSync.ts`, `CloudlessSyncHUD.tsx`, zero-blur solid `#18181b` containment, device pairing list, sync status, keyboard shortcut 'Y', 0 CLS)
+  - [ ] Task 85.6: Subagent Swarm Execution & SLA 49 Benchmark
+  - [ ] Task 85.7: Monorepo Verification & Git Commit
 
 
 

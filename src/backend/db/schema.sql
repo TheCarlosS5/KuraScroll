@@ -204,3 +204,14 @@ CREATE TABLE IF NOT EXISTS corrupt_files_log (
     detected_at TEXT DEFAULT (datetime('now')),
     status TEXT DEFAULT 'pending_repair' CHECK(status IN ('pending_repair', 'repaired', 'quarantined'))
 );
+
+-- User Preferences & Hardware Power Profiles
+CREATE TABLE IF NOT EXISTS user_preferences (
+    user_id TEXT PRIMARY KEY,
+    reader_theme TEXT NOT NULL DEFAULT 'carbon' CHECK(reader_theme IN ('oled', 'sepia', 'carbon', 'midnight')),
+    battery_saver_enabled INTEGER NOT NULL DEFAULT 1 CHECK (battery_saver_enabled IN (0, 1)),
+    adaptive_prefetch INTEGER NOT NULL DEFAULT 1 CHECK (adaptive_prefetch IN (0, 1)),
+    animations_enabled INTEGER NOT NULL DEFAULT 1 CHECK (animations_enabled IN (0, 1)),
+    updated_at TEXT NOT NULL DEFAULT (datetime('now')),
+    version INTEGER NOT NULL DEFAULT 1
+);

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { BookOpen, Bookmark, Sparkles, History, Database, Film, Flame, Trophy } from 'lucide-react';
 import { OfflineSyncHUD } from './OfflineSyncHUD.js';
+import { BatterySaverHUD } from './BatterySaverHUD.js';
 import { DailyGoalRing } from '../habits/DailyGoalRing.js';
 import {
   DailyGoalModal,
@@ -254,6 +255,9 @@ export const Navbar: React.FC<NavbarProps> = ({
               onClick={() => setIsGoalModalOpen(true)}
             />
           </div>
+
+          {/* Hardware Battery Saver Indicator */}
+          <BatterySaverHUD />
 
           {/* Offline Sync Diagnostics HUD */}
           <OfflineSyncHUD />

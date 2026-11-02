@@ -184,4 +184,13 @@
   - [x] Task 32.5: Fastify Endpoints (`GET /api/v1/recommendations/personalized`, `GET /api/v1/analytics/reading-velocity`, `POST /api/v1/analytics/velocity/sample`, 4/4 tests PASS)
   - [x] Task 32.6: Intel GMA 4500MHD Optimized Frontend Components (`SmartRecommendationsRow.tsx` and `ReadingVelocityBadge.tsx`, 6/6 tests PASS)
   - [x] Task 32.7: CatalogPage mount and Monorepo Verification (100 test files, 551 passing tests, 11/11 SLAs Passed, Vite build 9.92s)
-- [ ] Part 33: Advanced Reading Color Palettes, Ambient Light Themes & Battery Saver Mode
+- [x] Part 33: Advanced Reading Color Palettes, Ambient Light Themes & Battery Saver Mode (Commit b5300ad)
+  - [x] Task 33.1: SQLite Table `user_preferences` schema (`reader_theme`, `battery_saver_enabled`, `adaptive_prefetch`, `animations_enabled`, `version`)
+  - [x] Task 33.2: Typed SQLite Repository `user-preferences-repository.ts` with atomic UPSERT and sub-0.1ms point lookups (4/4 tests PASS)
+  - [x] Task 33.3: Fastify Routes `preference-routes.ts` (`GET /api/v1/user/preferences`, `PUT /api/v1/user/preferences`, 3/3 tests PASS)
+  - [x] Task 33.4: Client-side Reactive Battery Engine `battery-saver-engine.ts` with 20%/23% hysteresis band, zero-allocation listener, and tab visibility change sleep (3/3 tests PASS)
+  - [x] Task 33.5: 4 Zero-CLS Ambient Reader Themes (`oled`, `sepia`, `carbon`, `midnight`) configured via CSS custom properties with pure transform/opacity and zero backdrop blur (Intel GMA 4500MHD target)
+  - [x] Task 33.6: Frontend Components `ThemeSelector.tsx` mounted in `ReaderVisualSettingsModal.tsx` and `BatterySaverHUD.tsx` mounted in `Navbar.tsx` (6/6 tests PASS)
+  - [x] Task 33.7: Vite Chunking Optimization (`vite.config.ts`) splitting vendor-react, vendor-gsap, vendor-icons (180KB main bundle, 4.23s build time)
+  - [x] Task 33.8: Monorepo Verification (106 test files, 571 tests PASS, 11/11 SLAs Passed)
+- [ ] Part 34: Chapter Quick-Navigation HUD & Reading Bookmarks Drawer

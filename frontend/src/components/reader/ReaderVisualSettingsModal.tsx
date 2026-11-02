@@ -1,6 +1,7 @@
 import React, { useEffect, useRef } from 'react';
 import gsap from 'gsap';
 import { useFocusTrap } from '../../hooks/useFocusTrap.js';
+import { ThemeSelector } from './ThemeSelector.js';
 import {
   Sun,
   Contrast,
@@ -176,6 +177,9 @@ export const ReaderVisualSettingsModal: React.FC<ReaderVisualSettingsModalProps>
         </div>
 
         <div className="space-y-6">
+          {/* Ambient Color Theme Selector (Sprint 33) */}
+          <ThemeSelector />
+
           {/* Section 1: Image Filters (Brightness & Contrast) */}
           <div className="space-y-4">
             <h4 className="text-xs font-bold uppercase tracking-wider text-cyan-400 flex items-center gap-1.5">

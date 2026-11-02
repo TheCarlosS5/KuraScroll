@@ -33,3 +33,47 @@ body {
 ::-webkit-scrollbar-thumb:hover {
   background: #374151;
 }
+
+/* Sprint 33: Low-Resource Ambient Reader Color Themes (Zero CLS, Zero Blurs) */
+[data-reader-theme="oled"] {
+  --reader-bg: #000000;
+  --reader-surface: #0a0a0a;
+  --reader-text: #e5e7eb;
+  --reader-muted: #9ca3af;
+  --reader-border: #27272a;
+  --reader-accent: #38bdf8;
+}
+
+[data-reader-theme="sepia"] {
+  --reader-bg: #f4ecd8;
+  --reader-surface: #ede3c8;
+  --reader-text: #3d3028;
+  --reader-muted: #735e50;
+  --reader-border: #dacdb0;
+  --reader-accent: #b45309;
+}
+
+[data-reader-theme="carbon"] {
+  --reader-bg: #18181a;
+  --reader-surface: #222225;
+  --reader-text: #e4e4e7;
+  --reader-muted: #a1a1aa;
+  --reader-border: #3f3f46;
+  --reader-accent: #818cf8;
+}
+
+[data-reader-theme="midnight"] {
+  --reader-bg: #0f172a;
+  --reader-surface: #172238;
+  --reader-text: #e2e8f0;
+  --reader-muted: #94a3b8;
+  --reader-border: #334155;
+  --reader-accent: #7dd3fc;
+}
+
+/* Power Saver Mode: Disables non-essential transitions for Intel GMA 4500MHD */
+[data-battery-saver="true"] * {
+  animation-duration: 0.001ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.001ms !important;
+}

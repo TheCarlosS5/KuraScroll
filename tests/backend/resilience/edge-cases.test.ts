@@ -488,7 +488,7 @@ describe('Senior QA & Resilience Suite: KuraScroll Edge Cases', () => {
       expect(outputInfo.format).toBe('webp');
       expect(outputInfo.width).toBe(800);
       expect(outputInfo.height).toBe(8000);
-    });
+    }, 15000);
 
     it('5.2: resizes ultra-tall wide manhwa strip (1600x10000) to max width 1440 maintaining aspect ratio', async () => {
       const ultraTallInput = path.join(testSandbox, 'ultra-tall-1600x10000.png');

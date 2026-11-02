@@ -10,6 +10,7 @@ import { registerProgressRoutes } from './routes/progress-routes.js';
 import { registerAnalyticsRoutes } from './routes/analytics-routes.js';
 import { registerBadgeRoutes } from './routes/badge-routes.js';
 import { registerRecommendationRoutes } from './routes/recommendation-routes.js';
+import { registerPreferenceRoutes } from './routes/preference-routes.js';
 import { registerHealthRoutes } from './routes/health-routes.js';
 import { registerBackupRoutes } from './routes/backup-routes.js';
 import { BackupDaemon } from './daemon/backup-daemon.js';
@@ -82,6 +83,7 @@ export function buildApp(options: AppOptions = {}): FastifyInstance {
   registerAnalyticsRoutes(app, db);
   registerBadgeRoutes(app, db);
   registerRecommendationRoutes(app, db);
+  registerPreferenceRoutes(app, db);
 
   const backupDaemon = options.backupDaemon ?? new BackupDaemon({
     db,

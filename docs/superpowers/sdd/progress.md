@@ -529,6 +529,15 @@
   - [x] Task 74.5: Client useSpineDewarp Hook & SpineDewarpHUD Component (`frontend/src/reader/useSpineDewarp.ts`, `SpineDewarpHUD.tsx`, zero-blur solid `#18181b` containment, gutter side selector [Auto RTL, Left, Right, Center], depth, width & shadow sliders, keyboard shortcut 'W', 0 CLS)
   - [x] Task 74.6: Subagent Swarm Execution & SLA 38 Benchmark (SLA 38: 0.41 µs [48x faster than SLA target < 20 µs], 38/38 SLAs Passed)
   - [x] Task 74.7: Monorepo Verification & Git Commit (256 test files, 1,390+ tests PASS, Vite build in 9.88s)
+- [x] Part 75: Dynamic Dialogue Text-to-Speech & Multi-Voice Actor Synthesizer (Zero-Server-Transcoding Client-Side Web Speech Synthesis, Role Mappings & Queue Dispatch)
+  - [x] Task 75.1: Senior Architectural Blueprint Consultation with ChatGPT via Brave MCP (`docs/specs/sprint-75-dialogue-tts-schema.md`)
+  - [x] Task 75.2: 6 Canonical Voice Actor Roles (`narrator`, `male_hero`, `female_hero`, `child_creature`, `villain`, `elder`), Acoustic Modulation Formulas ($P_{\text{eff}}, R_{\text{eff}}$), Soundscape Ducking ($-8\text{ dB}$) & Queue Dispatch Specification (`docs/specs/sprint-75-dialogue-tts-schema.md`, `docs/specs/sprint-75-dialogue-tts-hud-spec.md`, `docs/specs/sprint-75-tts-user-perspective.md`, `docs/specs/sprint-75-tts-devops-audit.md`, `docs/specs/sprint-75-tts-qa-resilience.md`, `docs/specs/sprint-75-tts-sla-spec.md`)
+  - [x] Task 75.3: Backend DialogueTTSService & SQLite Tables (`src/backend/services/dialogue-tts-service.ts`, tables `dialogue_voice_profiles`, `user_tts_preferences`, index `idx_dialogue_voice_lookup`, zero-allocation resolveDialogueQueue)
+  - [x] Task 75.4: Fastify Dialogue TTS REST Endpoints (`src/backend/routes/dialogue-tts-routes.ts`, `/profiles/:seriesId`, `/profile`, `/preferences/:userId`, `/preferences`, `/resolve-queue`, HTTP 304 ETag caching)
+  - [x] Task 75.5: Client useDialogueTTS Hook & DialogueTtsHUD Component (`frontend/src/reader/useDialogueTTS.ts`, `DialogueTtsHUD.tsx`, zero-blur solid `#18181b` containment, active speaker badge, play/pause/stop/skip controls, rate slider 0.75x–1.75x, auto-advance toggle, keyboard shortcut 'T', 0 CLS)
+  - [x] Task 75.6: Subagent Swarm Execution & SLA 39 Benchmark (SLA 39: 9.79 µs [2x faster than SLA target < 20 µs], 39/39 SLAs Passed)
+  - [x] Task 75.7: Monorepo Verification & Git Commit (276 test files, 1,466 tests PASS [936 backend + 530 frontend], Vite build in 4.70s)
+
 
 
 

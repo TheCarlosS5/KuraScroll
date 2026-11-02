@@ -915,26 +915,27 @@ CREATE TABLE IF NOT EXISTS page_spine_dewarp_profiles (
 CREATE INDEX IF NOT EXISTS idx_spine_dewarp_lookup 
     ON page_spine_dewarp_profiles(series_id, chapter_id, page_number);
 
+-- Sprint 75: Dynamic Dialogue TTS & Multi-Voice Actor Synthesizer
+CREATE TABLE IF NOT EXISTS dialogue_voice_profiles (
+    series_id TEXT NOT NULL,
+    character_name TEXT NOT NULL,
+    voice_role TEXT NOT NULL DEFAULT 'narrator' CHECK (voice_role IN ('narrator', 'male_hero', 'female_hero', 'child_creature', 'villain', 'elder')),
+    pitch_offset REAL NOT NULL DEFAULT 0.0,
+    rate_multiplier REAL NOT NULL DEFAULT 1.0,
+    preferred_voice_name TEXT DEFAULT '',
+    updated_at INTEGER NOT NULL DEFAULT 0,
+    PRIMARY KEY (series_id, character_name)
+);
 
+CREATE INDEX IF NOT EXISTS idx_dialogue_voice_lookup 
+    ON dialogue_voice_profiles(series_id, character_name);
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+CREATE TABLE IF NOT EXISTS user_tts_preferences (
+    user_id TEXT PRIMARY KEY,
+    master_rate REAL NOT NULL DEFAULT 1.0,
+    master_volume REAL NOT NULL DEFAULT 1.0,
+    auto_advance INTEGER NOT NULL DEFAULT 1 CHECK (auto_advance IN (0, 1)),
+    auto_play INTEGER NOT NULL DEFAULT 0 CHECK (auto_play IN (0, 1)),
+    default_narrator_voice TEXT DEFAULT '',
+    updated_at INTEGER NOT NULL DEFAULT 0
+);

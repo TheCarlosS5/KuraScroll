@@ -1,0 +1,90 @@
+# Sprint 75 QA Resilience Matrix: Dynamic Dialogue TTS Synthesizer & Web Speech API Engine
+
+## Executive Summary
+Sprint 75 introduces the **Dynamic Dialogue TTS Synthesizer**, allowing readers to listen to character dialogue bubbles synthesized in real-time via the browser's Web Speech API (`window.speechSynthesis`) or Fastify backend proxy endpoints, complete with audio ducking coordination and lifecycle safety guards.
+
+This document establishes the exhaustive test plans, edge-case fuzzing matrices, and failure recovery protocols for empty voice arrays on initial mount, immediate cancellation on page unmount, audio ducking with Sprint 73 ambient soundscapes, and Fastify endpoint validation (pitch/rate clamping, ETag 304 Not Modified).
+
+---
+
+## 1. Core Resilience Test Matrix
+
+| ID | Test Scenario | Input / Condition | Expected Behavior | Verification Target |
+| :--- | :--- | :--- | :--- | :--- |
+| **TTS-01** | **Empty Voices on Initial Mount** | `window.speechSynthesis.getVoices()` returns `[]` on first render (common in Chromium/Firefox) | TTS engine registers `onvoiceschanged` event listener, gracefully polling/waiting for voice hydration without crashing. | `tts-voices.test.ts` |
+| **TTS-02** | **Immediate Page Unmount / Navigation** | User flips page while dialogue utterance is actively speaking (`speechSynthesis.speaking = true`) | Component unmount cleanup invokes `speechSynthesis.cancel()` immediately to cut off lingering audio without stalling V8. | `tts-cancel.test.ts` |
+| **TTS-03** | **Audio Ducking Coordination** | TTS utterance starts speaking while Sprint 73 Ambient Soundscapes BGM is playing | Audio coordinator ducks BGM gain by 50% (`0.5x`) during speech and smoothly restores BGM volume upon `utterance.onend`. | `tts-ducking.test.ts` |
+| **TTS-04** | **Fastify Endpoint Parameter Fuzzing** | Invalid role types, out-of-range pitch (`> 2.0` or `< 0.1`), or out-of-range rate (`> 3.0` or `< 0.2`) | Fastify validation middleware clamps values or returns HTTP 400 Bad Request with descriptive error messages. | `tts-api.test.ts` |
+| **TTS-05** | **ETag HTTP 304 Verification** | Client requests cached audio dialogue asset with matching `If-None-Match` ETag header | Fastify server responds with HTTP 304 Not Modified, skipping redundant binary generation or disk reads. | `tts-etag.test.ts` |
+
+---
+
+## 2. Vitest Test Suite Specifications
+
+### 2.1 Backend / Fastify TTS Endpoint & Validation Unit Tests (`tests/unit/backend/services/tts-api.test.ts`)
+```typescript
+import { describe, it, expect } from 'vitest';
+import { validateTtsParams, computeAudioEtag } from '../../../../src/backend/services/tts-service';
+
+describe('Fastify TTS Endpoint Validation & ETag Resilience', () => {
+  it('clamps out-of-range pitch and rate parameters', () => {
+    const invalidPayload = { text: 'Hello', pitch: 5.0, rate: -1.0 };
+    const sanitized = validateTtsParams(invalidPayload);
+
+    expect(sanitized.pitch).toBe(2.0); // Clamped to max
+    expect(sanitized.rate).toBe(0.2);  // Clamped to min
+  });
+
+  it('generates consistent ETags and verifies HTTP 304 responses', () => {
+    const textAsset = 'Character dialogue snippet';
+    const etag1 = computeAudioEtag(textAsset, 'ja-JP', 1.0);
+    const etag2 = computeAudioEtag(textAsset, 'ja-JP', 1.0);
+
+    expect(etag1).toBe(etag2);
+    expect(etag1).toMatch(/^"[\da-f]+"$/);
+  });
+});
+```
+
+### 2.2 Frontend Web Speech API & Audio Ducking Hooks (`frontend/src/tests/useDialogueTts.test.ts`)
+```typescript
+import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { renderHook, act } from '@testing-library/react';
+import { useDialogueTts } from '../hooks/useDialogueTts';
+
+describe('useDialogueTts Web Speech API & Ducking Resilience', () => {
+  beforeEach(() => {
+    vi.stubGlobal('speechSynthesis', {
+      getVoices: vi.fn().mockReturnValue([]),
+      speak: vi.fn((utterance) => {
+        setTimeout(() => utterance.onend?.({} as any), 50);
+      }),
+      cancel: vi.fn(),
+      addEventListener: vi.fn(),
+      removeEventListener: vi.fn(),
+    });
+  });
+
+  it('handles empty voices array on mount and listens to onvoiceschanged', () => {
+    const { result } = renderHook(() => useDialogueTts());
+    expect(result.current.voices).toEqual([]);
+    expect(speechSynthesis.getVoices).toHaveBeenCalled();
+  });
+
+  it('invokes speechSynthesis.cancel() on unmount', () => {
+    const { unmount } = renderHook(() => useDialogueTts());
+    unmount();
+    expect(speechSynthesis.cancel).toHaveBeenCalled();
+  });
+});
+```
+
+---
+
+## 3. Failure Recovery & Edge Case Guidelines
+
+1. **Voice Unavailable Fallback:** If no localized speech synthesis voices are available in the host operating system, the TTS engine falls back to visual subtitle highlighting without throwing unhandled promise rejections.
+2. **Audio Ducking Safety:** BGM ducking is wrapped in safe gain-ramp transitions (`linearRampToValueAtTime`) to prevent audio popping clicks during speech start and end events.
+
+---
+*Generated by Senior QA & Resilience Engineer for KuraScroll — Sprint 75.*

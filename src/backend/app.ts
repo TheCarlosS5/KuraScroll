@@ -72,6 +72,8 @@ import { ambientSoundscapeRoutes } from './routes/ambient-soundscape-routes.js';
 import { AmbientSoundscapeService } from './services/ambient-soundscape-service.js';
 import { spineDewarpRoutes } from './routes/spine-dewarp-routes.js';
 import { SpineDewarpService } from './services/spine-dewarp-service.js';
+import { dialogueTTSRoutes } from './routes/dialogue-tts-routes.js';
+import { DialogueTTSService } from './services/dialogue-tts-service.js';
 import { AdaptiveIngestionController } from './services/adaptive-ingestion-controller.js';
 import { DifferentialMirrorService } from './services/differential-mirror-service.js';
 
@@ -96,6 +98,7 @@ export interface AppOptions {
   storageVaultService?: StorageVaultService;
   ambientSoundscapeService?: AmbientSoundscapeService;
   spineDewarpService?: SpineDewarpService;
+  dialogueTTSService?: DialogueTTSService;
 }
 
 export function buildApp(options: AppOptions = {}): FastifyInstance {
@@ -288,6 +291,10 @@ export function buildApp(options: AppOptions = {}): FastifyInstance {
   app.register(spineDewarpRoutes, {
     db,
     spineDewarpService: options.spineDewarpService ?? new SpineDewarpService(db),
+  });
+  app.register(dialogueTTSRoutes, {
+    db,
+    dialogueTTSService: options.dialogueTTSService ?? new DialogueTTSService(db),
   });
 
   return app;

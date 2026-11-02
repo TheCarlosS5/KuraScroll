@@ -46,6 +46,10 @@ import {
 } from '../src/backend/services/storage-vault-service.js';
 import { AmbientSoundscapeService } from '../src/backend/services/ambient-soundscape-service.js';
 import { SpineDewarpService } from '../src/backend/services/spine-dewarp-service.js';
+import {
+  DialogueTTSService,
+  DialogueBubbleInput,
+} from '../src/backend/services/dialogue-tts-service.js';
 
 export interface SlaResult {
   category: string;
@@ -1265,6 +1269,45 @@ export async function runHostSlaBenchmark(): Promise<SlaReport> {
     slaTarget: '< 0.02 ms',
     passed: dewarpLatency < 0.02,
     notes: 'Zero-Allocation 16-Slice Polynomial Tankōbon Gutter Flattening (< 20µs target)',
+  });
+
+  // 39. Dynamic Dialogue Queue Serialization & Voice Dispatch (Sprint 75)
+  const ttsService = new DialogueTTSService(db);
+  const sampleBubbles: DialogueBubbleInput[] = Array.from({ length: 10 }, (_, i) => ({
+    id: `b_sla_${i}`,
+    pageIndex: 0,
+    characterName: i % 3 === 0 ? 'Luffy' : i % 3 === 1 ? 'Nami' : 'Chopper',
+    text: `Diálogo de prueba número ${i} para medir la latencia de serialización y resolución de roles.`,
+    boundingBox: { x: 10, y: i * 8, w: 40, h: 6 },
+  }));
+
+  const sampleProfiles = [
+    { seriesId: 'sla-tts', characterName: 'Luffy', voiceRole: 'male_hero' as const, pitchOffset: 0.05, rateMultiplier: 1.1 },
+    { seriesId: 'sla-tts', characterName: 'Nami', voiceRole: 'female_hero' as const, pitchOffset: 0.1, rateMultiplier: 1.0 },
+    { seriesId: 'sla-tts', characterName: 'Chopper', voiceRole: 'child_creature' as const, pitchOffset: 0.2, rateMultiplier: 1.15 },
+  ];
+
+  const sampleUserPrefs = { masterRate: 1.1, masterVolume: 1.0 };
+
+  // Warmup JIT
+  for (let i = 0; i < 5000; i++) {
+    ttsService.resolveDialogueQueue(sampleBubbles, sampleProfiles, sampleUserPrefs);
+  }
+
+  const ttsIters = 20000;
+  const tTtsStart = performance.now();
+  for (let i = 0; i < ttsIters; i++) {
+    ttsService.resolveDialogueQueue(sampleBubbles, sampleProfiles, sampleUserPrefs);
+  }
+  const ttsLatency = (performance.now() - tTtsStart) / ttsIters;
+
+  results.push({
+    category: 'Dialogue TTS Engine',
+    name: 'Dialogue Queue Serialization & Voice Dispatch (SLA 39)',
+    measured: `${(ttsLatency * 1000).toFixed(2)} µs (${ttsLatency.toFixed(4)} ms)`,
+    slaTarget: '< 0.02 ms',
+    passed: ttsLatency < 0.02,
+    notes: 'Zero-Allocation 10-Bubble Role Resolution & Duration Estimation (< 20µs target)',
   });
 
   // Teardown

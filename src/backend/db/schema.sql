@@ -1829,3 +1829,28 @@ CREATE TABLE IF NOT EXISTS spatial_audio_profiles (
 
 CREATE INDEX IF NOT EXISTS idx_spatial_audio_lookup 
     ON spatial_audio_profiles(series_id);
+
+-- Sprint 121: Dynamic Atmospheric Vignette Shader & Depth-of-Field Aperture Simulator
+CREATE TABLE IF NOT EXISTS vignette_aperture_profiles (
+    series_id TEXT PRIMARY KEY,
+    preset_name TEXT NOT NULL DEFAULT 'subtle_vignette' CHECK (preset_name IN (
+        'cinematic_macro',
+        'action_tunnel',
+        'subtle_vignette',
+        'dream_flashback',
+        'raw_disabled'
+    )),
+    inner_radius REAL NOT NULL DEFAULT 0.45 CHECK (inner_radius >= 0.0 AND inner_radius <= 1.0),
+    outer_radius REAL NOT NULL DEFAULT 1.10 CHECK (outer_radius >= 0.1 AND outer_radius <= 2.5),
+    vignette_strength REAL NOT NULL DEFAULT 0.40 CHECK (vignette_strength >= 0.0 AND vignette_strength <= 1.0),
+    dof_blur_factor REAL NOT NULL DEFAULT 0.35 CHECK (dof_blur_factor >= 0.0 AND dof_blur_factor <= 1.0),
+    focus_x_pct REAL NOT NULL DEFAULT 50.0 CHECK (focus_x_pct >= 0.0 AND focus_x_pct <= 100.0),
+    focus_y_pct REAL NOT NULL DEFAULT 50.0 CHECK (focus_y_pct >= 0.0 AND focus_y_pct <= 100.0),
+    aspect_ratio REAL NOT NULL DEFAULT 1.0 CHECK (aspect_ratio >= 0.2 AND aspect_ratio <= 5.0),
+    is_enabled INTEGER NOT NULL DEFAULT 1 CHECK (is_enabled IN (0, 1)),
+    created_at INTEGER NOT NULL,
+    updated_at INTEGER NOT NULL
+);
+
+CREATE INDEX IF NOT EXISTS idx_vignette_aperture_lookup 
+    ON vignette_aperture_profiles(series_id);

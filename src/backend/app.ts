@@ -164,6 +164,8 @@ import { bayerDitherRoutes } from './routes/bayer-dither-routes.js';
 import { BayerDitherService } from './services/bayer-dither-service.js';
 import { spatialAudioRoutes } from './routes/spatial-audio-routes.js';
 import { SpatialAudioService } from './services/spatial-audio-service.js';
+import { vignetteApertureRoutes } from './routes/vignette-aperture-routes.js';
+import { VignetteApertureService } from './services/vignette-aperture-service.js';
 import { AdaptiveIngestionController } from './services/adaptive-ingestion-controller.js';
 import { DifferentialMirrorService } from './services/differential-mirror-service.js';
 
@@ -234,6 +236,7 @@ export interface AppOptions {
   darkAdaptationService?: DarkAdaptationService;
   bayerDitherService?: BayerDitherService;
   spatialAudioService?: SpatialAudioService;
+  vignetteApertureService?: VignetteApertureService;
 }
 
 export function buildApp(options: AppOptions = {}): FastifyInstance {
@@ -611,6 +614,11 @@ export function buildApp(options: AppOptions = {}): FastifyInstance {
   app.register(spatialAudioRoutes, {
     db,
     spatialAudioService: options.spatialAudioService ?? new SpatialAudioService(db),
+  });
+  app.register(vignetteApertureRoutes, {
+    db,
+    vignetteApertureService:
+      options.vignetteApertureService ?? new VignetteApertureService(db),
   });
 
   return app;

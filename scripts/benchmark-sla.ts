@@ -164,6 +164,10 @@ import {
   SpatialAudioService,
   calculateSpatialAudio,
 } from '../src/backend/services/spatial-audio-service.js';
+import {
+  VignetteApertureService,
+  calculateVignetteAperture,
+} from '../src/backend/services/vignette-aperture-service.js';
 
 export interface SlaResult {
   category: string;
@@ -2775,6 +2779,55 @@ export async function runHostSlaBenchmark(): Promise<SlaReport> {
     slaTarget: '< 0.02 ms',
     passed: spatialAudioLatency < 0.02,
     notes: 'Zero-Allocation Logarithmic Cutoff Occlusion & Equal-Power Panning (< 20µs target)',
+  });
+
+  // 85. Dynamic Atmospheric Vignette Shader & Depth-of-Field Aperture Simulator (Sprint 121 - SLA 85)
+  // Target: < 0.02 ms (20 µs) on Intel Pentium T4500
+  // Warmup JIT
+  for (let i = 0; i < 2000; i++) {
+    calculateVignetteAperture(
+      400 + (i % 400),
+      300 + (i % 300),
+      800,
+      600,
+      50.0,
+      50.0,
+      0.45,
+      1.10,
+      0.40,
+      0.35,
+      1.0,
+      true
+    );
+  }
+
+  const tVignetteStart = performance.now();
+  const vignetteIters = 20000;
+  for (let i = 0; i < vignetteIters; i++) {
+    calculateVignetteAperture(
+      400 + (i % 400),
+      300 + (i % 300),
+      800,
+      600,
+      50.0,
+      50.0,
+      0.45,
+      1.10,
+      0.40,
+      0.35,
+      1.0,
+      true
+    );
+  }
+  const vignetteLatency = (performance.now() - tVignetteStart) / vignetteIters;
+
+  results.push({
+    category: 'Optical & Atmosphere',
+    name: 'Atmospheric Vignette & DoF Aperture (SLA 85)',
+    measured: `${(vignetteLatency * 1000).toFixed(2)} µs (${vignetteLatency.toFixed(4)} ms)`,
+    slaTarget: '< 0.02 ms',
+    passed: vignetteLatency < 0.02,
+    notes: 'Zero-Allocation Hermite Smoothstep Elliptical Vignette & DoF Edge Contrast (< 20µs target)',
   });
 
   // Teardown

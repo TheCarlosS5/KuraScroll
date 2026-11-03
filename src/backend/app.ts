@@ -190,6 +190,8 @@ import { motionDeblurRoutes } from './routes/motion-deblur-routes.js';
 import { MotionDeblurService } from './services/motion-deblur-service.js';
 import { celluloseReliefRoutes } from './routes/cellulose-relief-routes.js';
 import { CelluloseReliefService } from './services/cellulose-relief-service.js';
+import { inkSplatterRoutes } from './routes/ink-splatter-routes.js';
+import { InkSplatterService } from './services/ink-splatter-service.js';
 import { AdaptiveIngestionController } from './services/adaptive-ingestion-controller.js';
 import { DifferentialMirrorService } from './services/differential-mirror-service.js';
 
@@ -273,6 +275,7 @@ export interface AppOptions {
   inkTrappingService?: InkTrappingService;
   motionDeblurService?: MotionDeblurService;
   celluloseReliefService?: CelluloseReliefService;
+  inkSplatterService?: InkSplatterService;
 }
 
 export function buildApp(options: AppOptions = {}): FastifyInstance {
@@ -711,6 +714,11 @@ export function buildApp(options: AppOptions = {}): FastifyInstance {
     db,
     celluloseReliefService:
       options.celluloseReliefService ?? new CelluloseReliefService(db),
+  });
+  app.register(inkSplatterRoutes, {
+    db,
+    inkSplatterService:
+      options.inkSplatterService ?? new InkSplatterService(db),
   });
 
   return app;

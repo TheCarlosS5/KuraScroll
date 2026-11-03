@@ -2147,3 +2147,26 @@ CREATE TABLE IF NOT EXISTS cellulose_relief_profiles (
 CREATE INDEX IF NOT EXISTS idx_cellulose_relief_lookup 
     ON cellulose_relief_profiles(series_id);
 
+-- Sprint 134: Dynamic Ink Splatter & Bleed Feathering Physics (SLA 98)
+CREATE TABLE IF NOT EXISTS ink_splatter_profiles (
+    series_id TEXT PRIMARY KEY,
+    preset_name TEXT NOT NULL DEFAULT 'shonen_impact_burst' CHECK (preset_name IN (
+        'shonen_impact_burst',
+        'vintage_gpen_newsprint',
+        'deluxe_bristol_clean',
+        'dramatic_blood_splatter',
+        'raw_fixed'
+    )),
+    stroke_velocity REAL NOT NULL DEFAULT 250.0 CHECK (stroke_velocity >= 0.0 AND stroke_velocity <= 1000.0),
+    bleed_radius_px REAL NOT NULL DEFAULT 1.2 CHECK (bleed_radius_px >= 0.0 AND bleed_radius_px <= 5.0),
+    splatter_density REAL NOT NULL DEFAULT 0.3 CHECK (splatter_density >= 0.0 AND splatter_density <= 1.0),
+    wicking_rate REAL NOT NULL DEFAULT 0.4 CHECK (wicking_rate >= 0.0 AND wicking_rate <= 1.0),
+    is_enabled INTEGER NOT NULL DEFAULT 1 CHECK (is_enabled IN (0, 1)),
+    created_at INTEGER NOT NULL,
+    updated_at INTEGER NOT NULL
+);
+
+CREATE INDEX IF NOT EXISTS idx_ink_splatter_lookup 
+    ON ink_splatter_profiles(series_id);
+
+

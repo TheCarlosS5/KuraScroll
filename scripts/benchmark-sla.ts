@@ -216,6 +216,9 @@ import {
 import {
   CelluloseReliefService,
 } from '../src/backend/services/cellulose-relief-service.js';
+import {
+  InkSplatterService,
+} from '../src/backend/services/ink-splatter-service.js';
 
 export interface SlaResult {
   category: string;
@@ -3399,6 +3402,49 @@ export async function runHostSlaBenchmark(): Promise<SlaReport> {
     slaTarget: '< 0.02 ms',
     passed: crLatency < 0.02,
     notes: 'Zero-Allocation Analytical Fiber Micro-Relief, Grazing Shadow & Ink Absorption Barrier (< 20µs target)',
+  });
+
+  // 98. Subpixel Dynamic Ink Splatter & Bleed Feathering Physics (Sprint 134 - SLA 98)
+  const splatterService = new InkSplatterService(db);
+  const isProfile = {
+    strokeVelocity: 750.0,
+    bleedRadiusPx: 1.8,
+    splatterDensity: 0.70,
+    wickingRate: 0.55,
+    isEnabled: true,
+  };
+
+  // Warmup JIT
+  for (let i = 0; i < 5000; i++) {
+    splatterService.evaluateSplatter(
+      (i * 17) % 512,
+      (i * 23) % 512,
+      ((i * 13) % 628) / 100.0,
+      ((i * 37) % 800) + 200,
+      isProfile
+    );
+  }
+
+  const tIsStart = performance.now();
+  const isIters = 20000;
+  for (let i = 0; i < isIters; i++) {
+    splatterService.evaluateSplatter(
+      (i * 17) % 512,
+      (i * 23) % 512,
+      ((i * 13) % 628) / 100.0,
+      ((i * 37) % 800) + 200,
+      isProfile
+    );
+  }
+  const isLatency = (performance.now() - tIsStart) / isIters;
+
+  results.push({
+    category: 'Ink & Calligraphy',
+    name: 'Dynamic Ink Splatter & Bleed (SLA 98)',
+    measured: `${(isLatency * 1000).toFixed(2)} µs (${isLatency.toFixed(4)} ms)`,
+    slaTarget: '< 0.02 ms',
+    passed: isLatency < 0.02,
+    notes: 'Zero-Allocation G-Pen Splatter Ejection & Jurin-Washburn Capillary Feathering (< 20µs target)',
   });
 
   // Teardown

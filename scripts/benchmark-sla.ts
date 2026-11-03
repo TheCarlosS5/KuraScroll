@@ -197,6 +197,10 @@ import {
   CmykSimulatorService,
   calculateCmykSimulation,
 } from '../src/backend/services/cmyk-simulator-service.js';
+import {
+  GazeVignetteService,
+  calculateGazeVignette,
+} from '../src/backend/services/gaze-vignette-service.js';
 
 export interface SlaResult {
   category: string;
@@ -3131,6 +3135,62 @@ export async function runHostSlaBenchmark(): Promise<SlaReport> {
     slaTarget: '< 0.02 ms',
     passed: cmykLatency < 0.02,
     notes: 'Zero-Allocation Closed-Form CMYK Separation, Dot Gain & TAC Clamping (< 20µs target)',
+  });
+
+  // 93. Kinetic Peripheral Vignette & Micro-Saccade Gaze Stabilizer (Sprint 129 - SLA 93)
+  // Warmup JIT
+  for (let i = 0; i < 5000; i++) {
+    calculateGazeVignette(
+      100 + (i % 200),
+      100 + (i % 200),
+      120 + (i % 200),
+      120 + (i % 200),
+      0,
+      0,
+      0.016,
+      8.0,
+      1.5,
+      120.0,
+      0.12,
+      0.55,
+      0.65,
+      0.70,
+      1.20,
+      true
+    );
+  }
+
+  const tKineticGazeStart = performance.now();
+  const kineticGazeIters = 20000;
+  for (let i = 0; i < kineticGazeIters; i++) {
+    calculateGazeVignette(
+      100 + (i % 200),
+      100 + (i % 200),
+      120 + (i % 200),
+      120 + (i % 200),
+      0,
+      0,
+      0.016,
+      8.0,
+      1.5,
+      120.0,
+      0.12,
+      0.55,
+      0.65,
+      0.70,
+      1.20,
+      true
+    );
+  }
+  const kineticGazeLatency = (performance.now() - tKineticGazeStart) / kineticGazeIters;
+
+  results.push({
+    category: 'Gaze & Optics',
+    name: 'Gaze Stabilizer & Vignette (SLA 93)',
+    measured: `${(kineticGazeLatency * 1000).toFixed(2)} µs (${kineticGazeLatency.toFixed(4)} ms)`,
+    slaTarget: '< 0.02 ms',
+    passed: kineticGazeLatency < 0.02,
+    notes: 'Zero-Allocation Micro-Saccade Damping, Editorial Snapping & Elliptical Vignette (< 20µs target)',
   });
 
   // Teardown

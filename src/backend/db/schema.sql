@@ -2020,3 +2020,29 @@ CREATE TABLE IF NOT EXISTS cmyk_simulator_profiles (
 
 CREATE INDEX IF NOT EXISTS idx_cmyk_simulator_lookup 
     ON cmyk_simulator_profiles(series_id);
+
+-- Sprint 129: Kinetic Peripheral Vignette & Micro-Saccade Gaze Stabilizer
+CREATE TABLE IF NOT EXISTS gaze_vignette_profiles (
+    series_id TEXT PRIMARY KEY,
+    preset_name TEXT NOT NULL DEFAULT 'relaxed_reading_calm' CHECK (preset_name IN (
+        'deep_focus_tunnel',
+        'shonen_action_burst',
+        'relaxed_reading_calm',
+        'night_monochrome',
+        'raw_fixed'
+    )),
+    omega REAL NOT NULL DEFAULT 8.0 CHECK (omega >= 1.0 AND omega <= 40.0),
+    dead_zone_px REAL NOT NULL DEFAULT 1.5 CHECK (dead_zone_px >= 0.0 AND dead_zone_px <= 20.0),
+    snap_threshold_px REAL NOT NULL DEFAULT 120.0 CHECK (snap_threshold_px >= 20.0 AND snap_threshold_px <= 500.0),
+    vignette_max REAL NOT NULL DEFAULT 0.12 CHECK (vignette_max >= 0.0 AND vignette_max <= 0.80),
+    radius_x REAL NOT NULL DEFAULT 0.55 CHECK (radius_x >= 0.10 AND radius_x <= 1.50),
+    radius_y REAL NOT NULL DEFAULT 0.65 CHECK (radius_y >= 0.10 AND radius_y <= 1.50),
+    q0 REAL NOT NULL DEFAULT 0.70 CHECK (q0 >= 0.0 AND q0 <= 2.0),
+    q1 REAL NOT NULL DEFAULT 1.20 CHECK (q1 >= 0.10 AND q1 <= 3.0),
+    is_enabled INTEGER NOT NULL DEFAULT 1 CHECK (is_enabled IN (0, 1)),
+    created_at INTEGER NOT NULL,
+    updated_at INTEGER NOT NULL
+);
+
+CREATE INDEX IF NOT EXISTS idx_gaze_vignette_lookup 
+    ON gaze_vignette_profiles(series_id);

@@ -180,6 +180,8 @@ import { moireSuppressorRoutes } from './routes/moire-suppressor-routes.js';
 import { MoireSuppressorService } from './services/moire-suppressor-service.js';
 import { cmykSimulatorRoutes } from './routes/cmyk-simulator-routes.js';
 import { CmykSimulatorService } from './services/cmyk-simulator-service.js';
+import { gazeVignetteRoutes } from './routes/gaze-vignette-routes.js';
+import { GazeVignetteService } from './services/gaze-vignette-service.js';
 import { AdaptiveIngestionController } from './services/adaptive-ingestion-controller.js';
 import { DifferentialMirrorService } from './services/differential-mirror-service.js';
 
@@ -258,6 +260,7 @@ export interface AppOptions {
   lensDistortionService?: LensDistortionService;
   moireSuppressorService?: MoireSuppressorService;
   cmykSimulatorService?: CmykSimulatorService;
+  gazeVignetteService?: GazeVignetteService;
 }
 
 export function buildApp(options: AppOptions = {}): FastifyInstance {
@@ -671,6 +674,11 @@ export function buildApp(options: AppOptions = {}): FastifyInstance {
     db,
     cmykSimulatorService:
       options.cmykSimulatorService ?? new CmykSimulatorService(db),
+  });
+  app.register(gazeVignetteRoutes, {
+    db,
+    gazeVignetteService:
+      options.gazeVignetteService ?? new GazeVignetteService(db),
   });
 
   return app;

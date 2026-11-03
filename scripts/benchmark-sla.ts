@@ -180,6 +180,11 @@ import {
   CJKKerningService,
   calculateCJKKerning,
 } from '../src/backend/services/cjk-kerning-service.js';
+import {
+  SpeedLineService,
+  calculateSpeedLines,
+  evaluateImpactPulse,
+} from '../src/backend/services/speed-line-service.js';
 
 export interface SlaResult {
   category: string;
@@ -2952,6 +2957,42 @@ export async function runHostSlaBenchmark(): Promise<SlaReport> {
     slaTarget: '< 0.02 ms',
     passed: cjkLatency < 0.02,
     notes: 'Zero-Allocation CJK Stroke Density Classification & Subpixel Kerning Resolution (< 20µs target)',
+  });
+
+  // 89. Dynamic Speed-Line Vector Synthesizer & Kinetic Focus Engine (Sprint 125 - SLA 89)
+  // Warmup JIT
+  for (let i = 0; i < 2000; i++) {
+    calculateSpeedLines('radial', 72, 0.50, 0.50, 0.035, 0.25, 0.95, 0.70, 2.00, 1337 + i, true);
+    evaluateImpactPulse(i % 320, 320, 1.0, 0.25);
+  }
+
+  const tSpeedLineStart = performance.now();
+  const speedLineIters = 20000;
+  for (let i = 0; i < speedLineIters; i++) {
+    calculateSpeedLines(
+      'radial',
+      72,
+      0.50,
+      0.50,
+      0.035,
+      0.25,
+      0.95,
+      0.70,
+      2.00,
+      1337 + (i & 0xff),
+      true
+    );
+    evaluateImpactPulse(i % 320, 320, 1.0, 0.25);
+  }
+  const speedLineLatency = (performance.now() - tSpeedLineStart) / speedLineIters;
+
+  results.push({
+    category: 'Action & Impact Lines',
+    name: 'Speed-Line Vector & Impact Focus (SLA 89)',
+    measured: `${(speedLineLatency * 1000).toFixed(2)} µs (${speedLineLatency.toFixed(4)} ms)`,
+    slaTarget: '< 0.02 ms',
+    passed: speedLineLatency < 0.02,
+    notes: 'Zero-Allocation Speed-Line Synthesis & O(1) Kinetic Impact Pulse Evaluator (< 20µs target)',
   });
 
   // Teardown

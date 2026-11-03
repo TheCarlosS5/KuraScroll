@@ -1921,3 +1921,33 @@ CREATE TABLE IF NOT EXISTS cjk_kerning_profiles (
 
 CREATE INDEX IF NOT EXISTS idx_cjk_kerning_lookup 
     ON cjk_kerning_profiles(series_id);
+
+-- Sprint 125: Dynamic Speed-Line Vector Synthesizer & Kinetic Impact Focus Engine
+CREATE TABLE IF NOT EXISTS speed_line_profiles (
+    series_id TEXT PRIMARY KEY,
+    preset_name TEXT NOT NULL DEFAULT 'shonen_radial_climax' CHECK (preset_name IN (
+        'shonen_radial_climax',
+        'dash_horizontal',
+        'explosion_burst',
+        'suspense_vortex',
+        'raw_fixed'
+    )),
+    mode TEXT NOT NULL DEFAULT 'radial' CHECK (mode IN ('radial', 'parallel', 'none')),
+    line_count INTEGER NOT NULL DEFAULT 72 CHECK (line_count >= 0 AND line_count <= 256),
+    focus_x REAL NOT NULL DEFAULT 0.50 CHECK (focus_x >= 0.0 AND focus_x <= 1.0),
+    focus_y REAL NOT NULL DEFAULT 0.50 CHECK (focus_y >= 0.0 AND focus_y <= 1.0),
+    angle_jitter REAL NOT NULL DEFAULT 0.035 CHECK (angle_jitter >= 0.0 AND angle_jitter <= 0.50),
+    min_length_ratio REAL NOT NULL DEFAULT 0.25 CHECK (min_length_ratio >= 0.0 AND min_length_ratio <= 1.0),
+    max_length_ratio REAL NOT NULL DEFAULT 0.95 CHECK (max_length_ratio >= 0.0 AND max_length_ratio <= 1.0),
+    min_width_px REAL NOT NULL DEFAULT 0.70 CHECK (min_width_px >= 0.10 AND min_width_px <= 10.0),
+    max_width_px REAL NOT NULL DEFAULT 2.00 CHECK (max_width_px >= 0.10 AND max_width_px <= 10.0),
+    pulse_duration_ms INTEGER NOT NULL DEFAULT 320 CHECK (pulse_duration_ms >= 0 AND pulse_duration_ms <= 2000),
+    is_enabled INTEGER NOT NULL DEFAULT 1 CHECK (is_enabled IN (0, 1)),
+    created_at INTEGER NOT NULL,
+    updated_at INTEGER NOT NULL,
+    CHECK (min_length_ratio <= max_length_ratio),
+    CHECK (min_width_px <= max_width_px)
+);
+
+CREATE INDEX IF NOT EXISTS idx_speed_line_lookup 
+    ON speed_line_profiles(series_id);

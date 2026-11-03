@@ -184,6 +184,8 @@ import { gazeVignetteRoutes } from './routes/gaze-vignette-routes.js';
 import { GazeVignetteService } from './services/gaze-vignette-service.js';
 import { paperLightingRoutes } from './routes/paper-lighting-routes.js';
 import { PaperLightingService } from './services/paper-lighting-service.js';
+import { inkTrappingRoutes } from './routes/ink-trapping-routes.js';
+import { InkTrappingService } from './services/ink-trapping-service.js';
 import { AdaptiveIngestionController } from './services/adaptive-ingestion-controller.js';
 import { DifferentialMirrorService } from './services/differential-mirror-service.js';
 
@@ -264,6 +266,7 @@ export interface AppOptions {
   cmykSimulatorService?: CmykSimulatorService;
   gazeVignetteService?: GazeVignetteService;
   paperLightingService?: PaperLightingService;
+  inkTrappingService?: InkTrappingService;
 }
 
 export function buildApp(options: AppOptions = {}): FastifyInstance {
@@ -687,6 +690,11 @@ export function buildApp(options: AppOptions = {}): FastifyInstance {
     db,
     paperLightingService:
       options.paperLightingService ?? new PaperLightingService(db),
+  });
+  app.register(inkTrappingRoutes, {
+    db,
+    inkTrappingService:
+      options.inkTrappingService ?? new InkTrappingService(db),
   });
 
   return app;

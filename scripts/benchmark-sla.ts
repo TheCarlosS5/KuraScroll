@@ -205,6 +205,10 @@ import {
   PaperLightingService,
   calculatePaperLighting,
 } from '../src/backend/services/paper-lighting-service.js';
+import {
+  InkTrappingService,
+  calculateInkTrapping,
+} from '../src/backend/services/ink-trapping-service.js';
 
 export interface SlaResult {
   category: string;
@@ -3247,6 +3251,64 @@ export async function runHostSlaBenchmark(): Promise<SlaReport> {
     slaTarget: '< 0.02 ms',
     passed: paperLightingLatency < 0.02,
     notes: 'Zero-Allocation Diffuse Lambertian, Blinn-Schlick Specular & Ink Guard (< 20µs target)',
+  });
+
+  // 95. Subpixel Mechanical Rotary Press Plate Misregistration & Ink Trapping Compensator (Sprint 131 - SLA 95)
+  // Warmup JIT
+  for (let i = 0; i < 5000; i++) {
+    calculateInkTrapping(
+      (i * 17) % 256,
+      (i * 23) % 256,
+      (i * 31) % 256,
+      0.6,
+      0.3,
+      0.60,
+      -0.40,
+      -0.30,
+      0.50,
+      0.20,
+      0.40,
+      0.0,
+      0.0,
+      0.35,
+      'auto',
+      0.15,
+      true
+    );
+  }
+
+  const tTrappingStart = performance.now();
+  const trappingIters = 20000;
+  for (let i = 0; i < trappingIters; i++) {
+    calculateInkTrapping(
+      (i * 17) % 256,
+      (i * 23) % 256,
+      (i * 31) % 256,
+      0.6,
+      0.3,
+      0.60,
+      -0.40,
+      -0.30,
+      0.50,
+      0.20,
+      0.40,
+      0.0,
+      0.0,
+      0.35,
+      'auto',
+      0.15,
+      true
+    );
+  }
+  const trappingLatency = (performance.now() - tTrappingStart) / trappingIters;
+
+  results.push({
+    category: 'Color & Printing',
+    name: 'Plate Misregistration & Trapping (SLA 95)',
+    measured: `${(trappingLatency * 1000).toFixed(2)} µs (${trappingLatency.toFixed(4)} ms)`,
+    slaTarget: '< 0.02 ms',
+    passed: trappingLatency < 0.02,
+    notes: 'Zero-Allocation CMYK Plate Shift, Directional Edge Gradient & Trapping Dilation (< 20µs target)',
   });
 
   // Teardown

@@ -2072,3 +2072,32 @@ CREATE TABLE IF NOT EXISTS paper_lighting_profiles (
 
 CREATE INDEX IF NOT EXISTS idx_paper_lighting_lookup 
     ON paper_lighting_profiles(series_id);
+
+-- Sprint 131: Subpixel Mechanical Rotary Press Plate Misregistration & Ink Trapping Compensator
+CREATE TABLE IF NOT EXISTS ink_trapping_profiles (
+    series_id TEXT PRIMARY KEY,
+    preset_name TEXT NOT NULL DEFAULT 'vintage_rotary_offset_80s' CHECK (preset_name IN (
+        'vintage_rotary_offset_80s',
+        'shonen_color_centerfold',
+        'modern_cmyk_tight',
+        'misregistered_retro_fringe',
+        'raw_fixed'
+    )),
+    shift_cx REAL NOT NULL DEFAULT 0.60 CHECK (shift_cx >= -3.0 AND shift_cx <= 3.0),
+    shift_cy REAL NOT NULL DEFAULT -0.40 CHECK (shift_cy >= -3.0 AND shift_cy <= 3.0),
+    shift_mx REAL NOT NULL DEFAULT -0.30 CHECK (shift_mx >= -3.0 AND shift_mx <= 3.0),
+    shift_my REAL NOT NULL DEFAULT 0.50 CHECK (shift_my >= -3.0 AND shift_my <= 3.0),
+    shift_yx REAL NOT NULL DEFAULT 0.20 CHECK (shift_yx >= -3.0 AND shift_yx <= 3.0),
+    shift_yy REAL NOT NULL DEFAULT 0.40 CHECK (shift_yy >= -3.0 AND shift_yy <= 3.0),
+    shift_kx REAL NOT NULL DEFAULT 0.00 CHECK (shift_kx >= -3.0 AND shift_kx <= 3.0),
+    shift_ky REAL NOT NULL DEFAULT 0.00 CHECK (shift_ky >= -3.0 AND shift_ky <= 3.0),
+    trap_width REAL NOT NULL DEFAULT 0.35 CHECK (trap_width >= 0.0 AND trap_width <= 2.0),
+    trap_mode TEXT NOT NULL DEFAULT 'auto' CHECK (trap_mode IN ('spread', 'choke', 'auto')),
+    edge_threshold REAL NOT NULL DEFAULT 0.15 CHECK (edge_threshold >= 0.01 AND edge_threshold <= 1.0),
+    is_enabled INTEGER NOT NULL DEFAULT 1 CHECK (is_enabled IN (0, 1)),
+    created_at INTEGER NOT NULL,
+    updated_at INTEGER NOT NULL
+);
+
+CREATE INDEX IF NOT EXISTS idx_ink_trapping_lookup 
+    ON ink_trapping_profiles(series_id);

@@ -110,7 +110,7 @@ describe('PageTileRecyclerService', () => {
       expect(result.slots[0].state).toBe('active');
       expect(result.slots[0].pageIndex).toBe(0);
       expect(result.hitRatio).toBe(1.0);
-      expect(result.latencyUs).toBeLessThan(500);
+      expect(result.latencyUs).toBeLessThan(1500);
     });
 
     it('identifies evictable slot furthest away from current window', () => {

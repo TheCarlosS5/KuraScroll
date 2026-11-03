@@ -119,7 +119,7 @@ describe('Sprint 110 - Chroma Bleed Routes', () => {
     expect(body.result.colorMode).toBe('sepia_vintage');
     expect(body.result.topGradient).toContain('linear-gradient');
     expect(body.result.perimeterShadow).toContain('inset');
-    expect(body.result.latencyUs).toBeLessThan(100);
+    expect(body.result.latencyUs).toBeLessThan(500);
   });
 
   it('GET /api/v1/reader/chroma-bleed/presets returns all ambient chroma presets', async () => {

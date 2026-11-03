@@ -2124,3 +2124,26 @@ CREATE TABLE IF NOT EXISTS motion_deblur_profiles (
 
 CREATE INDEX IF NOT EXISTS idx_motion_deblur_lookup 
     ON motion_deblur_profiles(series_id);
+
+-- Sprint 133: Cellulose Fiber Micro-Relief & Paper Grain Texture Engine (SLA 97)
+CREATE TABLE IF NOT EXISTS cellulose_relief_profiles (
+    series_id TEXT PRIMARY KEY,
+    preset_name TEXT NOT NULL DEFAULT 'tankobon_woodfree_matte' CHECK (preset_name IN (
+        'tankobon_woodfree_matte',
+        'shonen_pulp_unbleached',
+        'kanzenban_cotton_satin',
+        'vintage_aged_newsprint',
+        'raw_fixed'
+    )),
+    grain_scale REAL NOT NULL DEFAULT 1.00 CHECK (grain_scale >= 0.1 AND grain_scale <= 5.0),
+    relief_depth REAL NOT NULL DEFAULT 0.25 CHECK (relief_depth >= 0.0 AND relief_depth <= 1.0),
+    fiber_density REAL NOT NULL DEFAULT 0.50 CHECK (fiber_density >= 0.0 AND fiber_density <= 1.0),
+    light_angle REAL NOT NULL DEFAULT 0.785398 CHECK (light_angle >= 0.0 AND light_angle <= 1.570796),
+    is_enabled INTEGER NOT NULL DEFAULT 1 CHECK (is_enabled IN (0, 1)),
+    created_at INTEGER NOT NULL,
+    updated_at INTEGER NOT NULL
+);
+
+CREATE INDEX IF NOT EXISTS idx_cellulose_relief_lookup 
+    ON cellulose_relief_profiles(series_id);
+

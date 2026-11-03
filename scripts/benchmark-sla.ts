@@ -213,6 +213,9 @@ import {
   MotionDeblurService,
   calculateMotionDeblur,
 } from '../src/backend/services/motion-deblur-service.js';
+import {
+  CelluloseReliefService,
+} from '../src/backend/services/cellulose-relief-service.js';
 
 export interface SlaResult {
   category: string;
@@ -3355,6 +3358,47 @@ export async function runHostSlaBenchmark(): Promise<SlaReport> {
     slaTarget: '< 0.02 ms',
     passed: deblurLatency < 0.02,
     notes: 'Zero-Allocation Temporal Overdrive, Asymmetric Fall/Rise & Corona Guard (< 20µs target)',
+  });
+
+  // 97. Subpixel Paper Fiber Micro-Relief & Cellulose Texture Shader (Sprint 133 - SLA 97)
+  const celluloseService = new CelluloseReliefService(db);
+  const crProfile = {
+    grainScale: 1.0,
+    reliefDepth: 0.25,
+    fiberDensity: 0.50,
+    lightAngle: 0.785398,
+    isEnabled: true,
+  };
+
+  // Warmup JIT
+  for (let i = 0; i < 5000; i++) {
+    celluloseService.evaluateRelief(
+      (i * 17) % 512,
+      (i * 23) % 512,
+      ((i * 7) % 100) / 100.0,
+      crProfile
+    );
+  }
+
+  const tCrStart = performance.now();
+  const crIters = 20000;
+  for (let i = 0; i < crIters; i++) {
+    celluloseService.evaluateRelief(
+      (i * 17) % 512,
+      (i * 23) % 512,
+      ((i * 7) % 100) / 100.0,
+      crProfile
+    );
+  }
+  const crLatency = (performance.now() - tCrStart) / crIters;
+
+  results.push({
+    category: 'Paper & Texture',
+    name: 'Cellulose Relief & Texture (SLA 97)',
+    measured: `${(crLatency * 1000).toFixed(2)} µs (${crLatency.toFixed(4)} ms)`,
+    slaTarget: '< 0.02 ms',
+    passed: crLatency < 0.02,
+    notes: 'Zero-Allocation Analytical Fiber Micro-Relief, Grazing Shadow & Ink Absorption Barrier (< 20µs target)',
   });
 
   // Teardown

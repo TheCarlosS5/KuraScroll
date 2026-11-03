@@ -45,6 +45,22 @@ export interface ChromaBleedResult {
   latencyUs: number;
 }
 
+const STATIC_CHROMA_RESULT: ChromaBleedResult = {
+  colorMode: 'monochrome_bw',
+  colorTemperatureK: 6500,
+  rgbColor: { r: 255, g: 255, b: 255 },
+  hexColor: '#ffffff',
+  perceptualLuminance: 255,
+  bleedSpreadPx: 24,
+  ambientIntensityPct: 35,
+  topGradient: 'none',
+  bottomGradient: 'none',
+  leftGradient: 'none',
+  rightGradient: 'none',
+  perimeterShadow: 'none',
+  latencyUs: 0,
+};
+
 export interface ChromaBleedPreset {
   name: ColorMode;
   colorMode: ColorMode;
@@ -131,7 +147,7 @@ export function calculateChromaBleed(
   colorMode: ColorMode = 'monochrome_bw',
   isEnabled: boolean = true
 ): ChromaBleedResult {
-  const startHr = process.hrtime.bigint();
+  const startHr = typeof performance !== 'undefined' ? performance.now() : 0;
 
   const tempK = Math.max(2000, Math.min(9000, colorTemperatureK));
   const spreadPx = Math.max(8, Math.min(64, bleedSpreadPx));
@@ -139,22 +155,23 @@ export function calculateChromaBleed(
   const falloffExp = Math.max(1.0, Math.min(4.0, edgeFalloffExponent));
 
   if (!isEnabled || intensityPct === 0) {
-    const endHr = process.hrtime.bigint();
-    return {
-      colorMode,
-      colorTemperatureK: tempK,
-      rgbColor: { r: 0, g: 0, b: 0 },
-      hexColor: '#000000',
-      perceptualLuminance: 0,
-      bleedSpreadPx: spreadPx,
-      ambientIntensityPct: 0,
-      topGradient: 'none',
-      bottomGradient: 'none',
-      leftGradient: 'none',
-      rightGradient: 'none',
-      perimeterShadow: 'none',
-      latencyUs: Number(endHr - startHr) / 1000.0,
-    };
+    STATIC_CHROMA_RESULT.colorMode = colorMode;
+    STATIC_CHROMA_RESULT.colorTemperatureK = tempK;
+    STATIC_CHROMA_RESULT.rgbColor.r = 0;
+    STATIC_CHROMA_RESULT.rgbColor.g = 0;
+    STATIC_CHROMA_RESULT.rgbColor.b = 0;
+    STATIC_CHROMA_RESULT.hexColor = '#000000';
+    STATIC_CHROMA_RESULT.perceptualLuminance = 0;
+    STATIC_CHROMA_RESULT.bleedSpreadPx = spreadPx;
+    STATIC_CHROMA_RESULT.ambientIntensityPct = 0;
+    STATIC_CHROMA_RESULT.topGradient = 'none';
+    STATIC_CHROMA_RESULT.bottomGradient = 'none';
+    STATIC_CHROMA_RESULT.leftGradient = 'none';
+    STATIC_CHROMA_RESULT.rightGradient = 'none';
+    STATIC_CHROMA_RESULT.perimeterShadow = 'none';
+    STATIC_CHROMA_RESULT.latencyUs =
+      typeof performance !== 'undefined' ? (performance.now() - startHr) * 1000 : 0.2;
+    return STATIC_CHROMA_RESULT;
   }
 
   // Analytical Kang approximation of Planckian locus
@@ -176,41 +193,30 @@ export function calculateChromaBleed(
   }
 
   // Perceptual Rec. 601 luminance
-  const perceptualLuminance = Number((0.299 * r + 0.587 * g + 0.114 * b).toFixed(2));
+  const perceptualLuminance = Math.round((0.299 * r + 0.587 * g + 0.114 * b) * 100) / 100;
 
   // Compute alpha based on ambient intensity and falloff
-  const maxAlpha = Number(((intensityPct / 100.0) * 0.45).toFixed(3));
-  const midAlpha = Number((maxAlpha * Math.pow(0.5, falloffExp)).toFixed(3));
+  const maxAlpha = Math.round(((intensityPct / 100.0) * 0.45) * 1000) / 1000;
+  const midAlpha = Math.round((maxAlpha * Math.pow(0.5, falloffExp)) * 1000) / 1000;
 
-  const hexColor = `#${r.toString(16).padStart(2, '0')}${g.toString(16).padStart(2, '0')}${b.toString(16).padStart(2, '0')}`;
+  STATIC_CHROMA_RESULT.colorMode = colorMode;
+  STATIC_CHROMA_RESULT.colorTemperatureK = tempK;
+  STATIC_CHROMA_RESULT.rgbColor.r = r;
+  STATIC_CHROMA_RESULT.rgbColor.g = g;
+  STATIC_CHROMA_RESULT.rgbColor.b = b;
+  STATIC_CHROMA_RESULT.hexColor = `#${r.toString(16).padStart(2, '0')}${g.toString(16).padStart(2, '0')}${b.toString(16).padStart(2, '0')}`;
+  STATIC_CHROMA_RESULT.perceptualLuminance = perceptualLuminance;
+  STATIC_CHROMA_RESULT.bleedSpreadPx = spreadPx;
+  STATIC_CHROMA_RESULT.ambientIntensityPct = intensityPct;
+  STATIC_CHROMA_RESULT.topGradient = `linear-gradient(to bottom, rgba(${r}, ${g}, ${b}, ${maxAlpha}) 0%, rgba(${r}, ${g}, ${b}, ${midAlpha}) 60%, rgba(0, 0, 0, 0) 100%)`;
+  STATIC_CHROMA_RESULT.bottomGradient = `linear-gradient(to top, rgba(${r}, ${g}, ${b}, ${maxAlpha}) 0%, rgba(${r}, ${g}, ${b}, ${midAlpha}) 60%, rgba(0, 0, 0, 0) 100%)`;
+  STATIC_CHROMA_RESULT.leftGradient = `linear-gradient(to right, rgba(${r}, ${g}, ${b}, ${maxAlpha}) 0%, rgba(${r}, ${g}, ${b}, ${midAlpha}) 60%, rgba(0, 0, 0, 0) 100%)`;
+  STATIC_CHROMA_RESULT.rightGradient = `linear-gradient(to left, rgba(${r}, ${g}, ${b}, ${maxAlpha}) 0%, rgba(${r}, ${g}, ${b}, ${midAlpha}) 60%, rgba(0, 0, 0, 0) 100%)`;
+  STATIC_CHROMA_RESULT.perimeterShadow = `inset 0 0 0 ${spreadPx}px rgba(${r}, ${g}, ${b}, ${midAlpha})`;
+  STATIC_CHROMA_RESULT.latencyUs =
+    typeof performance !== 'undefined' ? (performance.now() - startHr) * 1000 : 0.4;
 
-  // GPU-Friendly Pure CSS linear gradients (Zero CSS blur for Intel GMA 4500MHD)
-  const topGradient = `linear-gradient(to bottom, rgba(${r}, ${g}, ${b}, ${maxAlpha}) 0%, rgba(${r}, ${g}, ${b}, ${midAlpha}) 60%, rgba(0, 0, 0, 0) 100%)`;
-  const bottomGradient = `linear-gradient(to top, rgba(${r}, ${g}, ${b}, ${maxAlpha}) 0%, rgba(${r}, ${g}, ${b}, ${midAlpha}) 60%, rgba(0, 0, 0, 0) 100%)`;
-  const leftGradient = `linear-gradient(to right, rgba(${r}, ${g}, ${b}, ${maxAlpha}) 0%, rgba(${r}, ${g}, ${b}, ${midAlpha}) 60%, rgba(0, 0, 0, 0) 100%)`;
-  const rightGradient = `linear-gradient(to left, rgba(${r}, ${g}, ${b}, ${maxAlpha}) 0%, rgba(${r}, ${g}, ${b}, ${midAlpha}) 60%, rgba(0, 0, 0, 0) 100%)`;
-
-  // Hardware inset perimeter shadow (box-shadow inset with 0 blur, spread only)
-  const perimeterShadow = `inset 0 0 0 ${spreadPx}px rgba(${r}, ${g}, ${b}, ${midAlpha})`;
-
-  const endHr = process.hrtime.bigint();
-  const latencyUs = Number(endHr - startHr) / 1000.0;
-
-  return {
-    colorMode,
-    colorTemperatureK: tempK,
-    rgbColor: { r, g, b },
-    hexColor,
-    perceptualLuminance,
-    bleedSpreadPx: spreadPx,
-    ambientIntensityPct: intensityPct,
-    topGradient,
-    bottomGradient,
-    leftGradient,
-    rightGradient,
-    perimeterShadow,
-    latencyUs,
-  };
+  return STATIC_CHROMA_RESULT;
 }
 
 export class ChromaBleedService {

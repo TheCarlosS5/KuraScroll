@@ -176,6 +176,8 @@ import { speedLineRoutes } from './routes/speed-line-routes.js';
 import { SpeedLineService } from './services/speed-line-service.js';
 import { lensDistortionRoutes } from './routes/lens-distortion-routes.js';
 import { LensDistortionService } from './services/lens-distortion-service.js';
+import { moireSuppressorRoutes } from './routes/moire-suppressor-routes.js';
+import { MoireSuppressorService } from './services/moire-suppressor-service.js';
 import { AdaptiveIngestionController } from './services/adaptive-ingestion-controller.js';
 import { DifferentialMirrorService } from './services/differential-mirror-service.js';
 
@@ -252,6 +254,7 @@ export interface AppOptions {
   cjkKerningService?: CJKKerningService;
   speedLineService?: SpeedLineService;
   lensDistortionService?: LensDistortionService;
+  moireSuppressorService?: MoireSuppressorService;
 }
 
 export function buildApp(options: AppOptions = {}): FastifyInstance {
@@ -655,6 +658,11 @@ export function buildApp(options: AppOptions = {}): FastifyInstance {
     db,
     lensDistortionService:
       options.lensDistortionService ?? new LensDistortionService(db),
+  });
+  app.register(moireSuppressorRoutes, {
+    db,
+    moireSuppressorService:
+      options.moireSuppressorService ?? new MoireSuppressorService(db),
   });
 
   return app;

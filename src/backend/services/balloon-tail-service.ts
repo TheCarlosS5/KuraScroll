@@ -220,7 +220,14 @@ export function calculateBalloonTail(
   const controlY = midY + curveOffset * ny;
 
   // 7. Compact SVG Path definition
-  const svgPathD = `M ${rootLeftX.toFixed(1)} ${rootLeftY.toFixed(1)} Q ${controlX.toFixed(1)} ${controlY.toFixed(1)} ${tipX.toFixed(1)} ${tipY.toFixed(1)} Q ${controlX.toFixed(1)} ${controlY.toFixed(1)} ${rootRightX.toFixed(1)} ${rootRightY.toFixed(1)} Z`;
+  const rLx = Math.round(rootLeftX * 10) / 10;
+  const rLy = Math.round(rootLeftY * 10) / 10;
+  const cx = Math.round(controlX * 10) / 10;
+  const cy = Math.round(controlY * 10) / 10;
+  const tx = Math.round(tipX * 10) / 10;
+  const ty = Math.round(tipY * 10) / 10;
+  const rRx = Math.round(rootRightX * 10) / 10;
+  const rRy = Math.round(rootRightY * 10) / 10;
 
   STATIC_TAIL_RESULT.tailStyle = tailStyle;
   STATIC_TAIL_RESULT.balloonShape = balloonShape;
@@ -234,7 +241,7 @@ export function calculateBalloonTail(
   STATIC_TAIL_RESULT.tipY = tipY;
   STATIC_TAIL_RESULT.angleDeg = angleDeg;
   STATIC_TAIL_RESULT.lengthPx = tailLength;
-  STATIC_TAIL_RESULT.svgPathD = svgPathD;
+  STATIC_TAIL_RESULT.svgPathD = `M ${rLx} ${rLy} Q ${cx} ${cy} ${tx} ${ty} Q ${cx} ${cy} ${rRx} ${rRy} Z`;
   STATIC_TAIL_RESULT.latencyUs =
     typeof performance !== 'undefined' ? (performance.now() - startHr) * 1000 : 0.5;
 

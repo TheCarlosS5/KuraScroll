@@ -1976,3 +1976,25 @@ CREATE TABLE IF NOT EXISTS lens_distortion_profiles (
 
 CREATE INDEX IF NOT EXISTS idx_lens_distortion_lookup 
     ON lens_distortion_profiles(series_id);
+
+-- Sprint 127: Adaptive Moiré Pattern Suppressor & Halftone Screentone De-Aliasing Filter
+CREATE TABLE IF NOT EXISTS moire_suppressor_profiles (
+    series_id TEXT PRIMARY KEY,
+    preset_name TEXT NOT NULL DEFAULT 'manga_screentone_soften' CHECK (preset_name IN (
+        'manga_screentone_soften',
+        'newsprint_despeckle',
+        'dense_crosshatch_calm',
+        'vintage_magazine_smooth',
+        'raw_fixed'
+    )),
+    suppression_strength REAL NOT NULL DEFAULT 0.45 CHECK (suppression_strength >= 0.0 AND suppression_strength <= 1.0),
+    delta_clamp REAL NOT NULL DEFAULT 16.0 CHECK (delta_clamp >= 0.0 AND delta_clamp <= 64.0),
+    edge_threshold REAL NOT NULL DEFAULT 32.0 CHECK (edge_threshold >= 5.0 AND edge_threshold <= 100.0),
+    filter_radius INTEGER NOT NULL DEFAULT 2 CHECK (filter_radius >= 1 AND filter_radius <= 5),
+    is_enabled INTEGER NOT NULL DEFAULT 1 CHECK (is_enabled IN (0, 1)),
+    created_at INTEGER NOT NULL,
+    updated_at INTEGER NOT NULL
+);
+
+CREATE INDEX IF NOT EXISTS idx_moire_suppressor_lookup 
+    ON moire_suppressor_profiles(series_id);

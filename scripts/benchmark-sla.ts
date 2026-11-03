@@ -189,6 +189,10 @@ import {
   LensDistortionService,
   calculateLensDistortion,
 } from '../src/backend/services/lens-distortion-service.js';
+import {
+  MoireSuppressorService,
+  calculateMoireSuppression,
+} from '../src/backend/services/moire-suppressor-service.js';
 
 export interface SlaResult {
   category: string;
@@ -3041,6 +3045,48 @@ export async function runHostSlaBenchmark(): Promise<SlaReport> {
     slaTarget: '< 0.02 ms',
     passed: lensLatency < 0.02,
     notes: 'Zero-Allocation Brown-Conrady Radial Distortion & Q=4 Subpixel Chromatic Alignment (< 20µs target)',
+  });
+
+  // 91. Adaptive Moiré Pattern Suppressor & Halftone Screentone De-Aliasing Filter (Sprint 127 - SLA 91)
+  // Warmup JIT
+  for (let i = 0; i < 2000; i++) {
+    calculateMoireSuppression(
+      (i * 13) % 256,
+      ((i * 17) + 20) % 256,
+      (i % 50) - 25,
+      ((i * 3) % 50) - 25,
+      ((i % 100) / 100),
+      0.45,
+      16.0,
+      32.0,
+      true
+    );
+  }
+
+  const tMoireStart = performance.now();
+  const moireIters = 20000;
+  for (let i = 0; i < moireIters; i++) {
+    calculateMoireSuppression(
+      (i * 13) % 256,
+      ((i * 17) + 20) % 256,
+      (i % 50) - 25,
+      ((i * 3) % 50) - 25,
+      ((i % 100) / 100),
+      0.45,
+      16.0,
+      32.0,
+      true
+    );
+  }
+  const moireLatency = (performance.now() - tMoireStart) / moireIters;
+
+  results.push({
+    category: 'Screentone & De-Aliasing',
+    name: 'Adaptive Moiré & Screentone De-Aliasing (SLA 91)',
+    measured: `${(moireLatency * 1000).toFixed(2)} µs (${moireLatency.toFixed(4)} ms)`,
+    slaTarget: '< 0.02 ms',
+    passed: moireLatency < 0.02,
+    notes: 'Zero-Allocation Autocorrelation Periodicity Suppression & Edge Barrier (< 20µs target)',
   });
 
   // Teardown

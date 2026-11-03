@@ -209,6 +209,10 @@ import {
   InkTrappingService,
   calculateInkTrapping,
 } from '../src/backend/services/ink-trapping-service.js';
+import {
+  MotionDeblurService,
+  calculateMotionDeblur,
+} from '../src/backend/services/motion-deblur-service.js';
 
 export interface SlaResult {
   category: string;
@@ -3309,6 +3313,48 @@ export async function runHostSlaBenchmark(): Promise<SlaReport> {
     slaTarget: '< 0.02 ms',
     passed: trappingLatency < 0.02,
     notes: 'Zero-Allocation CMYK Plate Shift, Directional Edge Gradient & Trapping Dilation (< 20µs target)',
+  });
+
+  // 96. Kinetic Scrolling Motion Deblur & Retinal Persistence Overdrive (Sprint 132 - SLA 96)
+  // Warmup JIT
+  for (let i = 0; i < 5000; i++) {
+    calculateMotionDeblur(
+      (i * 17) % 256,
+      (i * 23) % 256,
+      1200.0,
+      1.35,
+      650.0,
+      45.0,
+      1.30,
+      1.00,
+      true
+    );
+  }
+
+  const tDeblurStart = performance.now();
+  const deblurIters = 20000;
+  for (let i = 0; i < deblurIters; i++) {
+    calculateMotionDeblur(
+      (i * 17) % 256,
+      (i * 23) % 256,
+      1200.0,
+      1.35,
+      650.0,
+      45.0,
+      1.30,
+      1.00,
+      true
+    );
+  }
+  const deblurLatency = (performance.now() - tDeblurStart) / deblurIters;
+
+  results.push({
+    category: 'Motion & Response',
+    name: 'Motion Deblur & Overdrive (SLA 96)',
+    measured: `${(deblurLatency * 1000).toFixed(2)} µs (${deblurLatency.toFixed(4)} ms)`,
+    slaTarget: '< 0.02 ms',
+    passed: deblurLatency < 0.02,
+    notes: 'Zero-Allocation Temporal Overdrive, Asymmetric Fall/Rise & Corona Guard (< 20µs target)',
   });
 
   // Teardown

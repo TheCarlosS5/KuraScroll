@@ -2101,3 +2101,26 @@ CREATE TABLE IF NOT EXISTS ink_trapping_profiles (
 
 CREATE INDEX IF NOT EXISTS idx_ink_trapping_lookup 
     ON ink_trapping_profiles(series_id);
+
+-- Sprint 132: Kinetic Scrolling Motion Deblur & Retinal Persistence Overdrive Compensator
+CREATE TABLE IF NOT EXISTS motion_deblur_profiles (
+    series_id TEXT PRIMARY KEY,
+    preset_name TEXT NOT NULL DEFAULT 'tn_slow_panel_compensation' CHECK (preset_name IN (
+        'tn_slow_panel_compensation',
+        'webtoon_high_speed_flick',
+        'subtle_lcd_response_boost',
+        'extreme_ghosting_killer',
+        'raw_fixed'
+    )),
+    kod REAL NOT NULL DEFAULT 1.35 CHECK (kod >= 0.0 AND kod <= 3.0),
+    v_half REAL NOT NULL DEFAULT 650.0 CHECK (v_half >= 50.0 AND v_half <= 3000.0),
+    max_delta REAL NOT NULL DEFAULT 45.0 CHECK (max_delta >= 5.0 AND max_delta <= 120.0),
+    gamma_fall REAL NOT NULL DEFAULT 1.30 CHECK (gamma_fall >= 0.5 AND gamma_fall <= 2.5),
+    gamma_rise REAL NOT NULL DEFAULT 1.00 CHECK (gamma_rise >= 0.5 AND gamma_rise <= 2.5),
+    is_enabled INTEGER NOT NULL DEFAULT 1 CHECK (is_enabled IN (0, 1)),
+    created_at INTEGER NOT NULL,
+    updated_at INTEGER NOT NULL
+);
+
+CREATE INDEX IF NOT EXISTS idx_motion_deblur_lookup 
+    ON motion_deblur_profiles(series_id);

@@ -186,6 +186,8 @@ import { paperLightingRoutes } from './routes/paper-lighting-routes.js';
 import { PaperLightingService } from './services/paper-lighting-service.js';
 import { inkTrappingRoutes } from './routes/ink-trapping-routes.js';
 import { InkTrappingService } from './services/ink-trapping-service.js';
+import { motionDeblurRoutes } from './routes/motion-deblur-routes.js';
+import { MotionDeblurService } from './services/motion-deblur-service.js';
 import { AdaptiveIngestionController } from './services/adaptive-ingestion-controller.js';
 import { DifferentialMirrorService } from './services/differential-mirror-service.js';
 
@@ -267,6 +269,7 @@ export interface AppOptions {
   gazeVignetteService?: GazeVignetteService;
   paperLightingService?: PaperLightingService;
   inkTrappingService?: InkTrappingService;
+  motionDeblurService?: MotionDeblurService;
 }
 
 export function buildApp(options: AppOptions = {}): FastifyInstance {
@@ -695,6 +698,11 @@ export function buildApp(options: AppOptions = {}): FastifyInstance {
     db,
     inkTrappingService:
       options.inkTrappingService ?? new InkTrappingService(db),
+  });
+  app.register(motionDeblurRoutes, {
+    db,
+    motionDeblurService:
+      options.motionDeblurService ?? new MotionDeblurService(db),
   });
 
   return app;

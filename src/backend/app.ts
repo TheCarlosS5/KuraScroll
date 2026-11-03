@@ -160,6 +160,8 @@ import { tilePrefetchRoutes } from './routes/tile-prefetch-routes.js';
 import { TilePrefetchService } from './services/tile-prefetch-service.js';
 import { darkAdaptationRoutes } from './routes/dark-adaptation-routes.js';
 import { DarkAdaptationService } from './services/dark-adaptation-service.js';
+import { bayerDitherRoutes } from './routes/bayer-dither-routes.js';
+import { BayerDitherService } from './services/bayer-dither-service.js';
 import { AdaptiveIngestionController } from './services/adaptive-ingestion-controller.js';
 import { DifferentialMirrorService } from './services/differential-mirror-service.js';
 
@@ -228,6 +230,7 @@ export interface AppOptions {
   balloonTailService?: BalloonTailService;
   tilePrefetchService?: TilePrefetchService;
   darkAdaptationService?: DarkAdaptationService;
+  bayerDitherService?: BayerDitherService;
 }
 
 export function buildApp(options: AppOptions = {}): FastifyInstance {
@@ -597,6 +600,10 @@ export function buildApp(options: AppOptions = {}): FastifyInstance {
   app.register(darkAdaptationRoutes, {
     db,
     darkAdaptationService: options.darkAdaptationService ?? new DarkAdaptationService(db),
+  });
+  app.register(bayerDitherRoutes, {
+    db,
+    bayerDitherService: options.bayerDitherService ?? new BayerDitherService(db),
   });
 
   return app;

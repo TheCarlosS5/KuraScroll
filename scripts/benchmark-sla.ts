@@ -156,6 +156,10 @@ import {
   DarkAdaptationService,
   calculateDarkAdaptation,
 } from '../src/backend/services/dark-adaptation-service.js';
+import {
+  BayerDitherService,
+  calculateBayerDither,
+} from '../src/backend/services/bayer-dither-service.js';
 
 export interface SlaResult {
   category: string;
@@ -2683,6 +2687,39 @@ export async function runHostSlaBenchmark(): Promise<SlaReport> {
     slaTarget: '< 0.02 ms',
     passed: adaptLatency < 0.02,
     notes: 'Zero-Allocation Asymmetric EMA Adaptation & White-Point Clamping (< 20µs target)',
+  });
+
+  // 83. Adaptive Subpixel Color De-Banding & Ordered Bayer Dither Matrix Latency (Sprint 119 - SLA 83)
+  // Warmup JIT
+  for (let i = 0; i < 5000; i++) {
+    calculateBayerDither(i % 8, (i >> 3) % 8, 120 + (i % 64), 120 + (i % 64), 120 + (i % 64), 8, 6, 0.85, 0.25, true);
+  }
+
+  const bayerIters = 20000;
+  const tBayerStart = performance.now();
+  for (let i = 0; i < bayerIters; i++) {
+    calculateBayerDither(
+      i % 8,
+      (i >> 3) % 8,
+      100 + (i % 100),
+      100 + ((i + 33) % 100),
+      100 + ((i + 66) % 100),
+      8,
+      6,
+      0.85,
+      0.25,
+      true
+    );
+  }
+  const bayerLatency = (performance.now() - tBayerStart) / bayerIters;
+
+  results.push({
+    category: 'Display & De-Band Opt',
+    name: 'Ordered Bayer Dither Matrix (SLA 83)',
+    measured: `${(bayerLatency * 1000).toFixed(2)} µs (${bayerLatency.toFixed(4)} ms)`,
+    slaTarget: '< 0.02 ms',
+    passed: bayerLatency < 0.02,
+    notes: 'Zero-Allocation Bitwise Spatial Bayer Matrix Lookup & 6-bit Quantization (< 20µs target)',
   });
 
   // Teardown

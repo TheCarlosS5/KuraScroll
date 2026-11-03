@@ -1781,24 +1781,46 @@ CREATE TABLE IF NOT EXISTS dark_adaptation_profiles (
 CREATE INDEX IF NOT EXISTS idx_dark_adaptation_lookup 
     ON dark_adaptation_profiles(series_id);
 
--- Sprint 118: Adaptive Perceptual Dark-Adaptation Retinal Preserver & Contrast Compensator (SLA 82)
-CREATE TABLE IF NOT EXISTS dark_adaptation_profiles (
+-- Sprint 119: Adaptive Subpixel Color De-Banding & Ordered Bayer Dither Matrix Synthesizer (SLA 83)
+CREATE TABLE IF NOT EXISTS bayer_dither_profiles (
     series_id TEXT PRIMARY KEY,
-    adaptation_mode TEXT NOT NULL DEFAULT 'mesopic_amber' CHECK (adaptation_mode IN (
-        'scotopic_red',
-        'mesopic_amber',
-        'luma_clamp_soft',
-        'custom'
+    preset_name TEXT NOT NULL DEFAULT 'tn_6bit_default' CHECK (preset_name IN (
+        'tn_6bit_default',
+        'smooth_gradient',
+        'dark_interface',
+        'photo_conservative',
+        'text_protected'
     )),
-    retinal_sensitivity REAL NOT NULL DEFAULT 0.85 CHECK (retinal_sensitivity >= 0.0 AND retinal_sensitivity <= 1.0),
-    shock_threshold_delta REAL NOT NULL DEFAULT 0.70 CHECK (shock_threshold_delta >= 0.20 AND shock_threshold_delta <= 0.95),
-    transition_duration_ms INTEGER NOT NULL DEFAULT 150 CHECK (transition_duration_ms >= 50 AND transition_duration_ms <= 1000),
-    white_point_clamp_pct INTEGER NOT NULL DEFAULT 82 CHECK (white_point_clamp_pct >= 50 AND white_point_clamp_pct <= 100),
-    contrast_boost_factor REAL NOT NULL DEFAULT 1.25 CHECK (contrast_boost_factor >= 1.00 AND contrast_boost_factor <= 2.00),
+    matrix_size INTEGER NOT NULL DEFAULT 8 CHECK (matrix_size IN (2, 4, 8, 16)),
+    target_bits INTEGER NOT NULL DEFAULT 6 CHECK (target_bits BETWEEN 5 AND 10),
+    dither_strength REAL NOT NULL DEFAULT 0.85 CHECK (dither_strength >= 0.0 AND dither_strength <= 1.0),
+    edge_protection REAL NOT NULL DEFAULT 0.25 CHECK (edge_protection >= 0.0 AND edge_protection <= 1.0),
+    channel_mode TEXT NOT NULL DEFAULT 'shared' CHECK (channel_mode IN ('shared', 'independent')),
     is_enabled INTEGER NOT NULL DEFAULT 1 CHECK (is_enabled IN (0, 1)),
     created_at INTEGER NOT NULL,
     updated_at INTEGER NOT NULL
 );
 
-CREATE INDEX IF NOT EXISTS idx_dark_adaptation_lookup 
-    ON dark_adaptation_profiles(series_id);
+CREATE INDEX IF NOT EXISTS idx_bayer_dither_lookup 
+    ON bayer_dither_profiles(series_id);
+
+-- Sprint 119: Adaptive Subpixel Color De-Banding & Ordered Bayer Dither Matrix Synthesizer (SLA 83)
+CREATE TABLE IF NOT EXISTS bayer_dither_profiles (
+    series_id TEXT PRIMARY KEY,
+    matrix_size INTEGER NOT NULL DEFAULT 4 CHECK (matrix_size IN (2, 4, 8)),
+    bit_depth INTEGER NOT NULL DEFAULT 8 CHECK (bit_depth IN (1, 4, 6, 8)),
+    dither_intensity REAL NOT NULL DEFAULT 0.85 CHECK (dither_intensity >= 0.0 AND dither_intensity <= 1.0),
+    deband_threshold REAL NOT NULL DEFAULT 0.04 CHECK (deband_threshold >= 0.01 AND deband_threshold <= 0.20),
+    screentone_preservation_mode TEXT NOT NULL DEFAULT 'gradient_selective' CHECK (screentone_preservation_mode IN (
+        'gradient_selective',
+        'uniform',
+        'shadows_only',
+        'disabled'
+    )),
+    is_enabled INTEGER NOT NULL DEFAULT 1 CHECK (is_enabled IN (0, 1)),
+    created_at INTEGER NOT NULL,
+    updated_at INTEGER NOT NULL
+);
+
+CREATE INDEX IF NOT EXISTS idx_bayer_dither_lookup 
+    ON bayer_dither_profiles(series_id);

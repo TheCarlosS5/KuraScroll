@@ -1739,3 +1739,19 @@ CREATE TABLE IF NOT EXISTS balloon_tail_profiles (
 
 CREATE INDEX IF NOT EXISTS idx_balloon_tail_lookup 
     ON balloon_tail_profiles(series_id);
+
+-- Sprint 117: Predictive Subpixel Canvas Tile Cache Prefetcher & LRU Texture Swapper (SLA 81)
+CREATE TABLE IF NOT EXISTS tile_prefetch_profiles (
+    series_id TEXT PRIMARY KEY,
+    reading_flow TEXT NOT NULL DEFAULT 'manga_rtl' CHECK (reading_flow IN ('manga_rtl', 'comic_ltr', 'webtoon_vertical', 'cinematic_dynamic')),
+    prediction_horizon_ms INTEGER NOT NULL DEFAULT 350 CHECK (prediction_horizon_ms >= 100 AND prediction_horizon_ms <= 1000),
+    recency_tau_ms INTEGER NOT NULL DEFAULT 8000 CHECK (recency_tau_ms >= 1000 AND recency_tau_ms <= 30000),
+    max_prefetch_tiles INTEGER NOT NULL DEFAULT 3 CHECK (max_prefetch_tiles >= 1 AND max_prefetch_tiles <= 8),
+    hysteresis_threshold REAL NOT NULL DEFAULT 0.65 CHECK (hysteresis_threshold >= 0.50 AND hysteresis_threshold <= 0.90),
+    is_enabled INTEGER NOT NULL DEFAULT 1 CHECK (is_enabled IN (0, 1)),
+    created_at INTEGER NOT NULL,
+    updated_at INTEGER NOT NULL
+);
+
+CREATE INDEX IF NOT EXISTS idx_tile_prefetch_lookup 
+    ON tile_prefetch_profiles(series_id);

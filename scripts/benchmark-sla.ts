@@ -147,6 +147,11 @@ import {
   BalloonTailService,
   calculateBalloonTail,
 } from '../src/backend/services/balloon-tail-service.js';
+import {
+  TilePrefetchService,
+  calculateTilePrefetchDecision,
+  resetPrefetchRingBuffer,
+} from '../src/backend/services/tile-prefetch-service.js';
 
 export interface SlaResult {
   category: string;
@@ -2607,6 +2612,35 @@ export async function runHostSlaBenchmark(): Promise<SlaReport> {
     slaTarget: '< 0.02 ms',
     passed: tailLatency < 0.02,
     notes: 'Zero-Allocation Trigonometric Unit Vector & Quadratic Bezier Path Synthesis (< 20µs target)',
+  });
+
+  // 81. Predictive Subpixel Canvas Tile Cache Prefetcher & LRU Texture Swapper Latency (Sprint 117 - SLA 81)
+  resetPrefetchRingBuffer();
+  // Warmup JIT
+  for (let i = 0; i < 5000; i++) {
+    calculateTilePrefetchDecision(100, 101 + (i % 64), 0.75, 0.65, false);
+  }
+
+  const prefetchIters = 20000;
+  const tPrefetchStart = performance.now();
+  for (let i = 0; i < prefetchIters; i++) {
+    calculateTilePrefetchDecision(
+      100 + (i % 32),
+      200 + (i % 128),
+      0.60 + ((i % 5) * 0.08),
+      0.65,
+      (i % 16) === 0
+    );
+  }
+  const prefetchLatency = (performance.now() - tPrefetchStart) / prefetchIters;
+
+  results.push({
+    category: 'Tile Prefetch Engine',
+    name: 'Predictive Tile Cache Prefetch & LRU (SLA 81)',
+    measured: `${(prefetchLatency * 1000).toFixed(2)} µs (${prefetchLatency.toFixed(4)} ms)`,
+    slaTarget: '< 0.02 ms',
+    passed: prefetchLatency < 0.02,
+    notes: 'Zero-Allocation TypedArray 64-Ring Buffer & Markov Hysteresis Decision (< 20µs target)',
   });
 
   // Teardown

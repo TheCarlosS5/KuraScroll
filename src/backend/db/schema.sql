@@ -1876,3 +1876,25 @@ CREATE TABLE IF NOT EXISTS unsharp_mask_profiles (
 
 CREATE INDEX IF NOT EXISTS idx_unsharp_mask_lookup 
     ON unsharp_mask_profiles(series_id);
+
+-- Sprint 123: Adaptive Dynamic Range (ADR) Tone Equalizer & Black-Crush Compensator
+CREATE TABLE IF NOT EXISTS adr_tone_profiles (
+    series_id TEXT PRIMARY KEY,
+    preset_name TEXT NOT NULL DEFAULT 'berserk_night_recovery' CHECK (preset_name IN (
+        'berserk_night_recovery',
+        'shonen_deep_black',
+        'vintage_newsprint_gamma',
+        'webtoon_vibrant_range',
+        'raw_linear'
+    )),
+    shadow_lift REAL NOT NULL DEFAULT 0.55 CHECK (shadow_lift >= 0.0 AND shadow_lift <= 1.0),
+    gamma REAL NOT NULL DEFAULT 1.25 CHECK (gamma >= 0.2 AND gamma <= 3.0),
+    shoulder_clamp REAL NOT NULL DEFAULT 0.95 CHECK (shoulder_clamp >= 0.50 AND shoulder_clamp <= 1.0),
+    white_point REAL NOT NULL DEFAULT 1.00 CHECK (white_point >= 0.80 AND white_point <= 1.0),
+    is_enabled INTEGER NOT NULL DEFAULT 1 CHECK (is_enabled IN (0, 1)),
+    created_at INTEGER NOT NULL,
+    updated_at INTEGER NOT NULL
+);
+
+CREATE INDEX IF NOT EXISTS idx_adr_tone_lookup 
+    ON adr_tone_profiles(series_id);

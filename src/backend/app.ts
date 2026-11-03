@@ -168,6 +168,8 @@ import { vignetteApertureRoutes } from './routes/vignette-aperture-routes.js';
 import { VignetteApertureService } from './services/vignette-aperture-service.js';
 import { unsharpMaskRoutes } from './routes/unsharp-mask-routes.js';
 import { UnsharpMaskService } from './services/unsharp-mask-service.js';
+import { adrToneRoutes } from './routes/adr-tone-routes.js';
+import { ADRToneService } from './services/adr-tone-service.js';
 import { AdaptiveIngestionController } from './services/adaptive-ingestion-controller.js';
 import { DifferentialMirrorService } from './services/differential-mirror-service.js';
 
@@ -240,6 +242,7 @@ export interface AppOptions {
   spatialAudioService?: SpatialAudioService;
   vignetteApertureService?: VignetteApertureService;
   unsharpMaskService?: UnsharpMaskService;
+  adrToneService?: ADRToneService;
 }
 
 export function buildApp(options: AppOptions = {}): FastifyInstance {
@@ -626,6 +629,10 @@ export function buildApp(options: AppOptions = {}): FastifyInstance {
   app.register(unsharpMaskRoutes, {
     db,
     unsharpMaskService: options.unsharpMaskService ?? new UnsharpMaskService(db),
+  });
+  app.register(adrToneRoutes, {
+    db,
+    adrToneService: options.adrToneService ?? new ADRToneService(db),
   });
 
   return app;

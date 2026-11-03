@@ -172,6 +172,10 @@ import {
   UnsharpMaskService,
   calculateUnsharpMask,
 } from '../src/backend/services/unsharp-mask-service.js';
+import {
+  ADRToneService,
+  calculateADRTone,
+} from '../src/backend/services/adr-tone-service.js';
 
 export interface SlaResult {
   category: string;
@@ -2877,6 +2881,43 @@ export async function runHostSlaBenchmark(): Promise<SlaReport> {
     slaTarget: '< 0.02 ms',
     passed: unsharpLatency < 0.02,
     notes: 'Zero-Allocation 5-Point Cross Stencil CAS/USM & Anti-Halo Ringing Guard (< 20µs target)',
+  });
+
+  // 87. Adaptive Dynamic Range (ADR) Tone Equalizer & Black-Crush Compensator (Sprint 123 - SLA 87)
+  // Target: < 0.02 ms (20 µs) on Intel Pentium T4500
+  // Warmup JIT
+  for (let i = 0; i < 2000; i++) {
+    calculateADRTone(
+      i % 256,
+      0.55,
+      1.25,
+      0.95,
+      1.00,
+      true
+    );
+  }
+
+  const tAdrStart = performance.now();
+  const adrIters = 20000;
+  for (let i = 0; i < adrIters; i++) {
+    calculateADRTone(
+      i % 256,
+      0.55,
+      1.25,
+      0.95,
+      1.00,
+      true
+    );
+  }
+  const adrLatency = (performance.now() - tAdrStart) / adrIters;
+
+  results.push({
+    category: 'Dynamic Range & Tone',
+    name: 'Adaptive Dynamic Range Equalizer (SLA 87)',
+    measured: `${(adrLatency * 1000).toFixed(2)} µs (${adrLatency.toFixed(4)} ms)`,
+    slaTarget: '< 0.02 ms',
+    passed: adrLatency < 0.02,
+    notes: 'Zero-Allocation 3-Segment Piecewise Tone Curve & Black-Crush Mitigation (< 20µs target)',
   });
 
   // Teardown

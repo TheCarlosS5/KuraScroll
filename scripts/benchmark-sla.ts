@@ -168,6 +168,10 @@ import {
   VignetteApertureService,
   calculateVignetteAperture,
 } from '../src/backend/services/vignette-aperture-service.js';
+import {
+  UnsharpMaskService,
+  calculateUnsharpMask,
+} from '../src/backend/services/unsharp-mask-service.js';
 
 export interface SlaResult {
   category: string;
@@ -2828,6 +2832,51 @@ export async function runHostSlaBenchmark(): Promise<SlaReport> {
     slaTarget: '< 0.02 ms',
     passed: vignetteLatency < 0.02,
     notes: 'Zero-Allocation Hermite Smoothstep Elliptical Vignette & DoF Edge Contrast (< 20µs target)',
+  });
+
+  // 86. Contrast-Adaptive Subpixel Unsharp Mask & Micro-Sharpening Synthesizer (Sprint 122 - SLA 86)
+  // Target: < 0.02 ms (20 µs) on Intel Pentium T4500
+  // Warmup JIT
+  for (let i = 0; i < 2000; i++) {
+    calculateUnsharpMask(
+      45 + (i % 50),
+      180 + (i % 40),
+      180 + (i % 40),
+      45 + (i % 30),
+      45 + (i % 30),
+      0.85,
+      12.0,
+      0.05,
+      0.35,
+      true
+    );
+  }
+
+  const tUnsharpStart = performance.now();
+  const unsharpIters = 20000;
+  for (let i = 0; i < unsharpIters; i++) {
+    calculateUnsharpMask(
+      45 + (i % 50),
+      180 + (i % 40),
+      180 + (i % 40),
+      45 + (i % 30),
+      45 + (i % 30),
+      0.85,
+      12.0,
+      0.05,
+      0.35,
+      true
+    );
+  }
+  const unsharpLatency = (performance.now() - tUnsharpStart) / unsharpIters;
+
+  results.push({
+    category: 'Subpixel Sharpening',
+    name: 'Contrast-Adaptive Unsharp Mask (SLA 86)',
+    measured: `${(unsharpLatency * 1000).toFixed(2)} µs (${unsharpLatency.toFixed(4)} ms)`,
+    slaTarget: '< 0.02 ms',
+    passed: unsharpLatency < 0.02,
+    notes: 'Zero-Allocation 5-Point Cross Stencil CAS/USM & Anti-Halo Ringing Guard (< 20µs target)',
   });
 
   // Teardown

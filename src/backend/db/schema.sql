@@ -1854,3 +1854,25 @@ CREATE TABLE IF NOT EXISTS vignette_aperture_profiles (
 
 CREATE INDEX IF NOT EXISTS idx_vignette_aperture_lookup 
     ON vignette_aperture_profiles(series_id);
+
+-- Sprint 122: Contrast-Adaptive Subpixel Unsharp Mask & Micro-Sharpening Synthesizer
+CREATE TABLE IF NOT EXISTS unsharp_mask_profiles (
+    series_id TEXT PRIMARY KEY,
+    preset_name TEXT NOT NULL DEFAULT 'webtoon_ribbon_crisp' CHECK (preset_name IN (
+        'webtoon_ribbon_crisp',
+        'tankobon_ink_accent',
+        'vintage_grain_pass',
+        'furigana_edge_guard',
+        'raw_neutral'
+    )),
+    sharpness REAL NOT NULL DEFAULT 0.85 CHECK (sharpness >= 0.0 AND sharpness <= 2.0),
+    edge_threshold REAL NOT NULL DEFAULT 12.0 CHECK (edge_threshold >= 0.0 AND edge_threshold <= 255.0),
+    halo_clamp REAL NOT NULL DEFAULT 0.05 CHECK (halo_clamp >= 0.0 AND halo_clamp <= 0.50),
+    max_weight REAL NOT NULL DEFAULT 0.35 CHECK (max_weight >= 0.0 AND max_weight <= 0.50),
+    is_enabled INTEGER NOT NULL DEFAULT 1 CHECK (is_enabled IN (0, 1)),
+    created_at INTEGER NOT NULL,
+    updated_at INTEGER NOT NULL
+);
+
+CREATE INDEX IF NOT EXISTS idx_unsharp_mask_lookup 
+    ON unsharp_mask_profiles(series_id);

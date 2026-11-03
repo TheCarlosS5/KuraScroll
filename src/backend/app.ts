@@ -158,6 +158,8 @@ import { balloonTailRoutes } from './routes/balloon-tail-routes.js';
 import { BalloonTailService } from './services/balloon-tail-service.js';
 import { tilePrefetchRoutes } from './routes/tile-prefetch-routes.js';
 import { TilePrefetchService } from './services/tile-prefetch-service.js';
+import { darkAdaptationRoutes } from './routes/dark-adaptation-routes.js';
+import { DarkAdaptationService } from './services/dark-adaptation-service.js';
 import { AdaptiveIngestionController } from './services/adaptive-ingestion-controller.js';
 import { DifferentialMirrorService } from './services/differential-mirror-service.js';
 
@@ -225,6 +227,7 @@ export interface AppOptions {
   halftoneGrainService?: HalftoneGrainService;
   balloonTailService?: BalloonTailService;
   tilePrefetchService?: TilePrefetchService;
+  darkAdaptationService?: DarkAdaptationService;
 }
 
 export function buildApp(options: AppOptions = {}): FastifyInstance {
@@ -590,6 +593,10 @@ export function buildApp(options: AppOptions = {}): FastifyInstance {
   app.register(tilePrefetchRoutes, {
     db,
     tilePrefetchService: options.tilePrefetchService ?? new TilePrefetchService(db),
+  });
+  app.register(darkAdaptationRoutes, {
+    db,
+    darkAdaptationService: options.darkAdaptationService ?? new DarkAdaptationService(db),
   });
 
   return app;

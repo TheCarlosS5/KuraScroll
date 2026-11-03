@@ -152,6 +152,10 @@ import {
   calculateTilePrefetchDecision,
   resetPrefetchRingBuffer,
 } from '../src/backend/services/tile-prefetch-service.js';
+import {
+  DarkAdaptationService,
+  calculateDarkAdaptation,
+} from '../src/backend/services/dark-adaptation-service.js';
 
 export interface SlaResult {
   category: string;
@@ -2641,6 +2645,44 @@ export async function runHostSlaBenchmark(): Promise<SlaReport> {
     slaTarget: '< 0.02 ms',
     passed: prefetchLatency < 0.02,
     notes: 'Zero-Allocation TypedArray 64-Ring Buffer & Markov Hysteresis Decision (< 20µs target)',
+  });
+
+  // 82. Adaptive Perceptual Dark-Adaptation Retinal Preserver & Contrast Compensator Latency (Sprint 118 - SLA 82)
+  // Warmup JIT
+  let simAdapted = 0.20;
+  for (let i = 0; i < 5000; i++) {
+    const res = calculateDarkAdaptation(0.08 + (i % 80) * 0.01, simAdapted, 16.67, 1800, 450, 0.22, 0.70, 0.88, 0.35, 1.08, 0.22, true);
+    simAdapted = res.adaptedLuminance;
+  }
+
+  const adaptIters = 20000;
+  const tAdaptStart = performance.now();
+  for (let i = 0; i < adaptIters; i++) {
+    const res = calculateDarkAdaptation(
+      0.05 + ((i % 100) * 0.009),
+      simAdapted,
+      16.67,
+      1800,
+      450,
+      0.22,
+      0.70,
+      0.88,
+      0.35,
+      1.08,
+      0.22,
+      true
+    );
+    simAdapted = res.adaptedLuminance;
+  }
+  const adaptLatency = (performance.now() - tAdaptStart) / adaptIters;
+
+  results.push({
+    category: 'Vision & Retinal Opt',
+    name: 'Dark-Adaptation & Contrast Preserver (SLA 82)',
+    measured: `${(adaptLatency * 1000).toFixed(2)} µs (${adaptLatency.toFixed(4)} ms)`,
+    slaTarget: '< 0.02 ms',
+    passed: adaptLatency < 0.02,
+    notes: 'Zero-Allocation Asymmetric EMA Adaptation & White-Point Clamping (< 20µs target)',
   });
 
   // Teardown

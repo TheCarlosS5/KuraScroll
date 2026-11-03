@@ -1755,3 +1755,50 @@ CREATE TABLE IF NOT EXISTS tile_prefetch_profiles (
 
 CREATE INDEX IF NOT EXISTS idx_tile_prefetch_lookup 
     ON tile_prefetch_profiles(series_id);
+
+-- Sprint 118: Adaptive Perceptual Dark-Adaptation Retinal Preserver & Contrast Compensator (SLA 82)
+CREATE TABLE IF NOT EXISTS dark_adaptation_profiles (
+    series_id TEXT PRIMARY KEY,
+    preset_name TEXT NOT NULL DEFAULT 'midnight_reader' CHECK (preset_name IN (
+        'night_shonen',
+        'midnight_reader',
+        'daylight_crisp',
+        'paper_sepia'
+    )),
+    tau_dark_ms INTEGER NOT NULL DEFAULT 1800 CHECK (tau_dark_ms >= 500 AND tau_dark_ms <= 5000),
+    tau_bright_ms INTEGER NOT NULL DEFAULT 450 CHECK (tau_bright_ms >= 100 AND tau_bright_ms <= 2000),
+    comfort_luminance REAL NOT NULL DEFAULT 0.22 CHECK (comfort_luminance >= 0.05 AND comfort_luminance <= 0.80),
+    glare_threshold REAL NOT NULL DEFAULT 0.70 CHECK (glare_threshold >= 0.40 AND glare_threshold <= 0.95),
+    base_white_point REAL NOT NULL DEFAULT 0.92 CHECK (base_white_point >= 0.50 AND base_white_point <= 1.0),
+    glare_attenuation REAL NOT NULL DEFAULT 0.35 CHECK (glare_attenuation >= 0.0 AND glare_attenuation <= 0.80),
+    contrast_base REAL NOT NULL DEFAULT 1.05 CHECK (contrast_base >= 0.80 AND contrast_base <= 1.50),
+    contrast_compensation REAL NOT NULL DEFAULT 0.20 CHECK (contrast_compensation >= 0.0 AND contrast_compensation <= 0.50),
+    is_enabled INTEGER NOT NULL DEFAULT 1 CHECK (is_enabled IN (0, 1)),
+    created_at INTEGER NOT NULL,
+    updated_at INTEGER NOT NULL
+);
+
+CREATE INDEX IF NOT EXISTS idx_dark_adaptation_lookup 
+    ON dark_adaptation_profiles(series_id);
+
+-- Sprint 118: Adaptive Perceptual Dark-Adaptation Retinal Preserver & Contrast Compensator (SLA 82)
+CREATE TABLE IF NOT EXISTS dark_adaptation_profiles (
+    series_id TEXT PRIMARY KEY,
+    adaptation_mode TEXT NOT NULL DEFAULT 'mesopic_amber' CHECK (adaptation_mode IN (
+        'scotopic_red',
+        'mesopic_amber',
+        'luma_clamp_soft',
+        'custom'
+    )),
+    retinal_sensitivity REAL NOT NULL DEFAULT 0.85 CHECK (retinal_sensitivity >= 0.0 AND retinal_sensitivity <= 1.0),
+    shock_threshold_delta REAL NOT NULL DEFAULT 0.70 CHECK (shock_threshold_delta >= 0.20 AND shock_threshold_delta <= 0.95),
+    transition_duration_ms INTEGER NOT NULL DEFAULT 150 CHECK (transition_duration_ms >= 50 AND transition_duration_ms <= 1000),
+    white_point_clamp_pct INTEGER NOT NULL DEFAULT 82 CHECK (white_point_clamp_pct >= 50 AND white_point_clamp_pct <= 100),
+    contrast_boost_factor REAL NOT NULL DEFAULT 1.25 CHECK (contrast_boost_factor >= 1.00 AND contrast_boost_factor <= 2.00),
+    is_enabled INTEGER NOT NULL DEFAULT 1 CHECK (is_enabled IN (0, 1)),
+    created_at INTEGER NOT NULL,
+    updated_at INTEGER NOT NULL
+);
+
+CREATE INDEX IF NOT EXISTS idx_dark_adaptation_lookup 
+    ON dark_adaptation_profiles(series_id);

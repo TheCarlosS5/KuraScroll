@@ -1951,3 +1951,28 @@ CREATE TABLE IF NOT EXISTS speed_line_profiles (
 
 CREATE INDEX IF NOT EXISTS idx_speed_line_lookup 
     ON speed_line_profiles(series_id);
+
+-- Sprint 126: Subpixel Chromatic Aberration & Lens Distortion Compensator
+CREATE TABLE IF NOT EXISTS lens_distortion_profiles (
+    series_id TEXT PRIMARY KEY,
+    preset_name TEXT NOT NULL DEFAULT 'tankobon_flatbed_scanner' CHECK (preset_name IN (
+        'tankobon_flatbed_scanner',
+        'aged_lens_barrel',
+        'pincushion_edge_fix',
+        'subtle_neutralizer',
+        'raw_fixed'
+    )),
+    k1 REAL NOT NULL DEFAULT -0.015 CHECK (k1 >= -0.20 AND k1 <= 0.20),
+    k2 REAL NOT NULL DEFAULT 0.002 CHECK (k2 >= -0.05 AND k2 <= 0.05),
+    red_shift REAL NOT NULL DEFAULT 0.004 CHECK (red_shift >= -0.05 AND red_shift <= 0.05),
+    blue_shift REAL NOT NULL DEFAULT -0.004 CHECK (blue_shift >= -0.05 AND blue_shift <= 0.05),
+    center_x REAL NOT NULL DEFAULT 0.50 CHECK (center_x >= 0.0 AND center_x <= 1.0),
+    center_y REAL NOT NULL DEFAULT 0.50 CHECK (center_y >= 0.0 AND center_y <= 1.0),
+    scale REAL NOT NULL DEFAULT 1.00 CHECK (scale >= 0.80 AND scale <= 1.20),
+    is_enabled INTEGER NOT NULL DEFAULT 1 CHECK (is_enabled IN (0, 1)),
+    created_at INTEGER NOT NULL,
+    updated_at INTEGER NOT NULL
+);
+
+CREATE INDEX IF NOT EXISTS idx_lens_distortion_lookup 
+    ON lens_distortion_profiles(series_id);

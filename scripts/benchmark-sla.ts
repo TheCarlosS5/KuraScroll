@@ -185,6 +185,10 @@ import {
   calculateSpeedLines,
   evaluateImpactPulse,
 } from '../src/backend/services/speed-line-service.js';
+import {
+  LensDistortionService,
+  calculateLensDistortion,
+} from '../src/backend/services/lens-distortion-service.js';
 
 export interface SlaResult {
   category: string;
@@ -2993,6 +2997,50 @@ export async function runHostSlaBenchmark(): Promise<SlaReport> {
     slaTarget: '< 0.02 ms',
     passed: speedLineLatency < 0.02,
     notes: 'Zero-Allocation Speed-Line Synthesis & O(1) Kinetic Impact Pulse Evaluator (< 20µs target)',
+  });
+
+  // 90. Subpixel Chromatic Aberration & Lens Distortion Compensator (Sprint 126 - SLA 90)
+  // Warmup JIT
+  for (let i = 0; i < 2000; i++) {
+    calculateLensDistortion(
+      (i % 100) / 100,
+      ((i * 7) % 100) / 100,
+      -0.015,
+      0.002,
+      0.004,
+      -0.004,
+      0.50,
+      0.50,
+      1.00,
+      true
+    );
+  }
+
+  const tLensStart = performance.now();
+  const lensIters = 20000;
+  for (let i = 0; i < lensIters; i++) {
+    calculateLensDistortion(
+      (i % 100) / 100,
+      ((i * 7) % 100) / 100,
+      -0.015,
+      0.002,
+      0.004,
+      -0.004,
+      0.50,
+      0.50,
+      1.00,
+      true
+    );
+  }
+  const lensLatency = (performance.now() - tLensStart) / lensIters;
+
+  results.push({
+    category: 'Optics & Lens Correction',
+    name: 'Brown-Conrady Distortion & Chroma Shift (SLA 90)',
+    measured: `${(lensLatency * 1000).toFixed(2)} µs (${lensLatency.toFixed(4)} ms)`,
+    slaTarget: '< 0.02 ms',
+    passed: lensLatency < 0.02,
+    notes: 'Zero-Allocation Brown-Conrady Radial Distortion & Q=4 Subpixel Chromatic Alignment (< 20µs target)',
   });
 
   // Teardown

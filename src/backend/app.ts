@@ -174,6 +174,8 @@ import { cjkKerningRoutes } from './routes/cjk-kerning-routes.js';
 import { CJKKerningService } from './services/cjk-kerning-service.js';
 import { speedLineRoutes } from './routes/speed-line-routes.js';
 import { SpeedLineService } from './services/speed-line-service.js';
+import { lensDistortionRoutes } from './routes/lens-distortion-routes.js';
+import { LensDistortionService } from './services/lens-distortion-service.js';
 import { AdaptiveIngestionController } from './services/adaptive-ingestion-controller.js';
 import { DifferentialMirrorService } from './services/differential-mirror-service.js';
 
@@ -249,6 +251,7 @@ export interface AppOptions {
   adrToneService?: ADRToneService;
   cjkKerningService?: CJKKerningService;
   speedLineService?: SpeedLineService;
+  lensDistortionService?: LensDistortionService;
 }
 
 export function buildApp(options: AppOptions = {}): FastifyInstance {
@@ -647,6 +650,11 @@ export function buildApp(options: AppOptions = {}): FastifyInstance {
   app.register(speedLineRoutes, {
     db,
     speedLineService: options.speedLineService ?? new SpeedLineService(db),
+  });
+  app.register(lensDistortionRoutes, {
+    db,
+    lensDistortionService:
+      options.lensDistortionService ?? new LensDistortionService(db),
   });
 
   return app;

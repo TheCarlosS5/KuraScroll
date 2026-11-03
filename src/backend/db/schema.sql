@@ -2046,3 +2046,29 @@ CREATE TABLE IF NOT EXISTS gaze_vignette_profiles (
 
 CREATE INDEX IF NOT EXISTS idx_gaze_vignette_lookup 
     ON gaze_vignette_profiles(series_id);
+
+-- Sprint 130: Subpixel Matte Paper Specular Reflection & Angular Lighting Modulator
+CREATE TABLE IF NOT EXISTS paper_lighting_profiles (
+    series_id TEXT PRIMARY KEY,
+    preset_name TEXT NOT NULL DEFAULT 'tankobon_deluxe_matte' CHECK (preset_name IN (
+        'tankobon_deluxe_matte',
+        'shonen_pulp_newsprint',
+        'doujinshi_satin',
+        'vintage_aged_pulp',
+        'raw_fixed'
+    )),
+    light_x REAL NOT NULL DEFAULT 0.50 CHECK (light_x >= -2.0 AND light_x <= 3.0),
+    light_y REAL NOT NULL DEFAULT 0.30 CHECK (light_y >= -2.0 AND light_y <= 3.0),
+    light_z REAL NOT NULL DEFAULT 1.20 CHECK (light_z >= 0.10 AND light_z <= 5.0),
+    diffuse_kd REAL NOT NULL DEFAULT 0.85 CHECK (diffuse_kd >= 0.0 AND diffuse_kd <= 2.0),
+    specular_ks REAL NOT NULL DEFAULT 0.12 CHECK (specular_ks >= 0.0 AND specular_ks <= 1.0),
+    roughness REAL NOT NULL DEFAULT 0.45 CHECK (roughness >= 0.05 AND roughness <= 1.0),
+    ink_absorption REAL NOT NULL DEFAULT 0.85 CHECK (ink_absorption >= 0.0 AND ink_absorption <= 1.0),
+    ambient_ka REAL NOT NULL DEFAULT 0.20 CHECK (ambient_ka >= 0.0 AND ambient_ka <= 1.0),
+    is_enabled INTEGER NOT NULL DEFAULT 1 CHECK (is_enabled IN (0, 1)),
+    created_at INTEGER NOT NULL,
+    updated_at INTEGER NOT NULL
+);
+
+CREATE INDEX IF NOT EXISTS idx_paper_lighting_lookup 
+    ON paper_lighting_profiles(series_id);

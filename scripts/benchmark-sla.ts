@@ -201,6 +201,10 @@ import {
   GazeVignetteService,
   calculateGazeVignette,
 } from '../src/backend/services/gaze-vignette-service.js';
+import {
+  PaperLightingService,
+  calculatePaperLighting,
+} from '../src/backend/services/paper-lighting-service.js';
 
 export interface SlaResult {
   category: string;
@@ -3191,6 +3195,58 @@ export async function runHostSlaBenchmark(): Promise<SlaReport> {
     slaTarget: '< 0.02 ms',
     passed: kineticGazeLatency < 0.02,
     notes: 'Zero-Allocation Micro-Saccade Damping, Editorial Snapping & Elliptical Vignette (< 20µs target)',
+  });
+
+  // 94. Subpixel Matte Paper Specular Reflection & Angular Lighting Modulator (Sprint 130 - SLA 94)
+  // Warmup JIT
+  for (let i = 0; i < 5000; i++) {
+    calculatePaperLighting(
+      0.1 + ((i % 80) / 100),
+      0.1 + ((i % 80) / 100),
+      (i * 17) % 256,
+      (i * 23) % 256,
+      (i * 31) % 256,
+      0.50,
+      0.30,
+      1.20,
+      0.85,
+      0.12,
+      0.45,
+      0.85,
+      0.20,
+      true
+    );
+  }
+
+  const tPaperLightingStart = performance.now();
+  const paperLightingIters = 20000;
+  for (let i = 0; i < paperLightingIters; i++) {
+    calculatePaperLighting(
+      0.1 + ((i % 80) / 100),
+      0.1 + ((i % 80) / 100),
+      (i * 17) % 256,
+      (i * 23) % 256,
+      (i * 31) % 256,
+      0.50,
+      0.30,
+      1.20,
+      0.85,
+      0.12,
+      0.45,
+      0.85,
+      0.20,
+      true
+    );
+  }
+  const paperLightingLatency = (performance.now() - tPaperLightingStart) / paperLightingIters;
+
+  results.push({
+    category: 'Paper & Optics',
+    name: 'Paper Specular & Angular Lighting (SLA 94)',
+    measured: `${(paperLightingLatency * 1000).toFixed(2)} µs (${paperLightingLatency.toFixed(4)} ms)`,
+    slaTarget: '< 0.02 ms',
+    passed: paperLightingLatency < 0.02,
+    notes: 'Zero-Allocation Diffuse Lambertian, Blinn-Schlick Specular & Ink Guard (< 20µs target)',
   });
 
   // Teardown

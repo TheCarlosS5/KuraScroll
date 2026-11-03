@@ -182,6 +182,8 @@ import { cmykSimulatorRoutes } from './routes/cmyk-simulator-routes.js';
 import { CmykSimulatorService } from './services/cmyk-simulator-service.js';
 import { gazeVignetteRoutes } from './routes/gaze-vignette-routes.js';
 import { GazeVignetteService } from './services/gaze-vignette-service.js';
+import { paperLightingRoutes } from './routes/paper-lighting-routes.js';
+import { PaperLightingService } from './services/paper-lighting-service.js';
 import { AdaptiveIngestionController } from './services/adaptive-ingestion-controller.js';
 import { DifferentialMirrorService } from './services/differential-mirror-service.js';
 
@@ -261,6 +263,7 @@ export interface AppOptions {
   moireSuppressorService?: MoireSuppressorService;
   cmykSimulatorService?: CmykSimulatorService;
   gazeVignetteService?: GazeVignetteService;
+  paperLightingService?: PaperLightingService;
 }
 
 export function buildApp(options: AppOptions = {}): FastifyInstance {
@@ -679,6 +682,11 @@ export function buildApp(options: AppOptions = {}): FastifyInstance {
     db,
     gazeVignetteService:
       options.gazeVignetteService ?? new GazeVignetteService(db),
+  });
+  app.register(paperLightingRoutes, {
+    db,
+    paperLightingService:
+      options.paperLightingService ?? new PaperLightingService(db),
   });
 
   return app;

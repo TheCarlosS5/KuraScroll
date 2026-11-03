@@ -170,6 +170,8 @@ import { unsharpMaskRoutes } from './routes/unsharp-mask-routes.js';
 import { UnsharpMaskService } from './services/unsharp-mask-service.js';
 import { adrToneRoutes } from './routes/adr-tone-routes.js';
 import { ADRToneService } from './services/adr-tone-service.js';
+import { cjkKerningRoutes } from './routes/cjk-kerning-routes.js';
+import { CJKKerningService } from './services/cjk-kerning-service.js';
 import { AdaptiveIngestionController } from './services/adaptive-ingestion-controller.js';
 import { DifferentialMirrorService } from './services/differential-mirror-service.js';
 
@@ -243,6 +245,7 @@ export interface AppOptions {
   vignetteApertureService?: VignetteApertureService;
   unsharpMaskService?: UnsharpMaskService;
   adrToneService?: ADRToneService;
+  cjkKerningService?: CJKKerningService;
 }
 
 export function buildApp(options: AppOptions = {}): FastifyInstance {
@@ -633,6 +636,10 @@ export function buildApp(options: AppOptions = {}): FastifyInstance {
   app.register(adrToneRoutes, {
     db,
     adrToneService: options.adrToneService ?? new ADRToneService(db),
+  });
+  app.register(cjkKerningRoutes, {
+    db,
+    cjkKerningService: options.cjkKerningService ?? new CJKKerningService(db),
   });
 
   return app;

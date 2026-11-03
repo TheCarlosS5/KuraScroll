@@ -1898,3 +1898,26 @@ CREATE TABLE IF NOT EXISTS adr_tone_profiles (
 
 CREATE INDEX IF NOT EXISTS idx_adr_tone_lookup 
     ON adr_tone_profiles(series_id);
+
+-- Sprint 124: Subpixel Font Kerning & CJK Stroke Density Balancer
+CREATE TABLE IF NOT EXISTS cjk_kerning_profiles (
+    series_id TEXT PRIMARY KEY,
+    preset_name TEXT NOT NULL DEFAULT 'manga_dense_kanji' CHECK (preset_name IN (
+        'manga_dense_kanji',
+        'webtoon_hangul_flow',
+        'furigana_compact',
+        'dialogue_whisper',
+        'raw_fixed'
+    )),
+    base_kerning_em REAL NOT NULL DEFAULT 0.04 CHECK (base_kerning_em >= -0.10 AND base_kerning_em <= 0.50),
+    tracking_ratio REAL NOT NULL DEFAULT 0.015 CHECK (tracking_ratio >= 0.0 AND tracking_ratio <= 0.10),
+    min_kerning_em REAL NOT NULL DEFAULT -0.02 CHECK (min_kerning_em >= -0.20 AND min_kerning_em <= 0.0),
+    max_kerning_em REAL NOT NULL DEFAULT 0.20 CHECK (max_kerning_em >= 0.0 AND max_kerning_em <= 1.0),
+    optical_weight_ratio REAL NOT NULL DEFAULT 0.25 CHECK (optical_weight_ratio >= 0.0 AND optical_weight_ratio <= 1.0),
+    is_enabled INTEGER NOT NULL DEFAULT 1 CHECK (is_enabled IN (0, 1)),
+    created_at INTEGER NOT NULL,
+    updated_at INTEGER NOT NULL
+);
+
+CREATE INDEX IF NOT EXISTS idx_cjk_kerning_lookup 
+    ON cjk_kerning_profiles(series_id);

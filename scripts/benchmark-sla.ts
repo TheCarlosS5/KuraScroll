@@ -160,6 +160,10 @@ import {
   BayerDitherService,
   calculateBayerDither,
 } from '../src/backend/services/bayer-dither-service.js';
+import {
+  SpatialAudioService,
+  calculateSpatialAudio,
+} from '../src/backend/services/spatial-audio-service.js';
 
 export interface SlaResult {
   category: string;
@@ -2720,6 +2724,57 @@ export async function runHostSlaBenchmark(): Promise<SlaReport> {
     slaTarget: '< 0.02 ms',
     passed: bayerLatency < 0.02,
     notes: 'Zero-Allocation Bitwise Spatial Bayer Matrix Lookup & 6-bit Quantization (< 20µs target)',
+  });
+
+  // 84. Spatial Audio Reverberation Occlusion & Distance Attenuation Engine (Sprint 120 - SLA 84)
+  // Target: < 0.02 ms (20 µs) on Intel Pentium T4500
+  // Warmup JIT
+  for (let i = 0; i < 2000; i++) {
+    calculateSpatialAudio(
+      300 + (i % 200),
+      200 + (i % 150),
+      200,
+      200,
+      (i % 10) * 0.1,
+      120.0,
+      1.0,
+      0.025,
+      1400.0,
+      480.0,
+      18000.0,
+      2500.0,
+      true
+    );
+  }
+
+  const tSpatialAudioStart = performance.now();
+  const spatialAudioIters = 20000;
+  for (let i = 0; i < spatialAudioIters; i++) {
+    calculateSpatialAudio(
+      300 + (i % 200),
+      200 + (i % 150),
+      200,
+      200,
+      (i % 10) * 0.1,
+      120.0,
+      1.0,
+      0.025,
+      1400.0,
+      480.0,
+      18000.0,
+      2500.0,
+      true
+    );
+  }
+  const spatialAudioLatency = (performance.now() - tSpatialAudioStart) / spatialAudioIters;
+
+  results.push({
+    category: 'Spatial Audio Opt',
+    name: 'Spatial Audio Distance & Occlusion (SLA 84)',
+    measured: `${(spatialAudioLatency * 1000).toFixed(2)} µs (${spatialAudioLatency.toFixed(4)} ms)`,
+    slaTarget: '< 0.02 ms',
+    passed: spatialAudioLatency < 0.02,
+    notes: 'Zero-Allocation Logarithmic Cutoff Occlusion & Equal-Power Panning (< 20µs target)',
   });
 
   // Teardown

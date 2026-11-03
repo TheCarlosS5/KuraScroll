@@ -1804,23 +1804,28 @@ CREATE TABLE IF NOT EXISTS bayer_dither_profiles (
 CREATE INDEX IF NOT EXISTS idx_bayer_dither_lookup 
     ON bayer_dither_profiles(series_id);
 
--- Sprint 119: Adaptive Subpixel Color De-Banding & Ordered Bayer Dither Matrix Synthesizer (SLA 83)
-CREATE TABLE IF NOT EXISTS bayer_dither_profiles (
+-- Sprint 120: Spatial Audio Reverberation Occlusion & Distance Attenuation Engine for Dialogue SFX (SLA 84)
+CREATE TABLE IF NOT EXISTS spatial_audio_profiles (
     series_id TEXT PRIMARY KEY,
-    matrix_size INTEGER NOT NULL DEFAULT 4 CHECK (matrix_size IN (2, 4, 8)),
-    bit_depth INTEGER NOT NULL DEFAULT 8 CHECK (bit_depth IN (1, 4, 6, 8)),
-    dither_intensity REAL NOT NULL DEFAULT 0.85 CHECK (dither_intensity >= 0.0 AND dither_intensity <= 1.0),
-    deband_threshold REAL NOT NULL DEFAULT 0.04 CHECK (deband_threshold >= 0.01 AND deband_threshold <= 0.20),
-    screentone_preservation_mode TEXT NOT NULL DEFAULT 'gradient_selective' CHECK (screentone_preservation_mode IN (
-        'gradient_selective',
-        'uniform',
-        'shadows_only',
-        'disabled'
+    preset_name TEXT NOT NULL DEFAULT 'dialogue_near' CHECK (preset_name IN (
+        'dialogue_near',
+        'dialogue_occluded',
+        'indoor_scene',
+        'action_impact',
+        'webtoon_vertical_flow'
     )),
+    reference_distance_px REAL NOT NULL DEFAULT 120.0 CHECK (reference_distance_px >= 20.0 AND reference_distance_px <= 500.0),
+    rolloff_factor REAL NOT NULL DEFAULT 1.0 CHECK (rolloff_factor >= 0.1 AND rolloff_factor <= 3.0),
+    min_gain REAL NOT NULL DEFAULT 0.025 CHECK (min_gain >= 0.0 AND min_gain <= 0.20),
+    max_distance_px REAL NOT NULL DEFAULT 1400.0 CHECK (max_distance_px >= 200.0 AND max_distance_px <= 5000.0),
+    pan_radius_px REAL NOT NULL DEFAULT 480.0 CHECK (pan_radius_px >= 100.0 AND pan_radius_px <= 2000.0),
+    cutoff_open_hz REAL NOT NULL DEFAULT 18000.0 CHECK (cutoff_open_hz >= 5000.0 AND cutoff_open_hz <= 22050.0),
+    cutoff_closed_hz REAL NOT NULL DEFAULT 2500.0 CHECK (cutoff_closed_hz >= 200.0 AND cutoff_closed_hz <= 8000.0),
+    filter_q REAL NOT NULL DEFAULT 0.707 CHECK (filter_q >= 0.1 AND filter_q <= 4.0),
     is_enabled INTEGER NOT NULL DEFAULT 1 CHECK (is_enabled IN (0, 1)),
     created_at INTEGER NOT NULL,
     updated_at INTEGER NOT NULL
 );
 
-CREATE INDEX IF NOT EXISTS idx_bayer_dither_lookup 
-    ON bayer_dither_profiles(series_id);
+CREATE INDEX IF NOT EXISTS idx_spatial_audio_lookup 
+    ON spatial_audio_profiles(series_id);

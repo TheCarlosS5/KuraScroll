@@ -162,6 +162,8 @@ import { darkAdaptationRoutes } from './routes/dark-adaptation-routes.js';
 import { DarkAdaptationService } from './services/dark-adaptation-service.js';
 import { bayerDitherRoutes } from './routes/bayer-dither-routes.js';
 import { BayerDitherService } from './services/bayer-dither-service.js';
+import { spatialAudioRoutes } from './routes/spatial-audio-routes.js';
+import { SpatialAudioService } from './services/spatial-audio-service.js';
 import { AdaptiveIngestionController } from './services/adaptive-ingestion-controller.js';
 import { DifferentialMirrorService } from './services/differential-mirror-service.js';
 
@@ -231,6 +233,7 @@ export interface AppOptions {
   tilePrefetchService?: TilePrefetchService;
   darkAdaptationService?: DarkAdaptationService;
   bayerDitherService?: BayerDitherService;
+  spatialAudioService?: SpatialAudioService;
 }
 
 export function buildApp(options: AppOptions = {}): FastifyInstance {
@@ -604,6 +607,10 @@ export function buildApp(options: AppOptions = {}): FastifyInstance {
   app.register(bayerDitherRoutes, {
     db,
     bayerDitherService: options.bayerDitherService ?? new BayerDitherService(db),
+  });
+  app.register(spatialAudioRoutes, {
+    db,
+    spatialAudioService: options.spatialAudioService ?? new SpatialAudioService(db),
   });
 
   return app;

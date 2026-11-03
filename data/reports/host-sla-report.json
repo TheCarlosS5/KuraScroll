@@ -1,11 +1,11 @@
 {
-  "timestamp": "2026-11-03T00:26:50.530Z",
+  "timestamp": "2026-11-03T00:38:43.970Z",
   "host": {
     "platform": "win32",
     "cpus": 8,
     "cpuModel": "AMD Ryzen 5 3500U with Radeon Vega Mobile Gfx   ",
     "totalMemMB": 15307,
-    "freeMemMB": 6505,
+    "freeMemMB": 6355,
     "isLowResourceTarget": false
   },
   "results": [
@@ -52,7 +52,7 @@
     {
       "category": "Query & Search",
       "name": "SQLite Primary Key Point Lookup",
-      "measured": "0.113 ms",
+      "measured": "0.111 ms",
       "slaTarget": "< 1.0 ms",
       "passed": true,
       "notes": "Direct B-Tree index point retrieval"
@@ -60,7 +60,7 @@
     {
       "category": "Query & Search",
       "name": "FTS5 1-Kanji Prefix Search (\"鬼\")",
-      "measured": "0.256 ms",
+      "measured": "0.254 ms",
       "slaTarget": "< 5.0 ms (T4500 SLA)",
       "passed": true,
       "notes": "Accelerated by prefix='1 2 3' auxiliary B-Tree"
@@ -68,7 +68,7 @@
     {
       "category": "Query & Search",
       "name": "FTS5 Special Character Match (\"SPY×FAMILY\")",
-      "measured": "0.286 ms",
+      "measured": "0.284 ms",
       "slaTarget": "< 5.0 ms",
       "passed": true,
       "notes": "Sanitizer delimiter normalization"
@@ -76,7 +76,7 @@
     {
       "category": "Disk I/O & Streams",
       "name": "64KB Chunked Stream Copy (192KB)",
-      "measured": "10.96 ms",
+      "measured": "7.35 ms",
       "slaTarget": "< 150 ms",
       "passed": true,
       "notes": "Maintains bounded highWaterMark backpressure"
@@ -84,7 +84,7 @@
     {
       "category": "Disk I/O & Streams",
       "name": "64KB Chunked SHA256 Stream Hashing",
-      "measured": "1.27 ms",
+      "measured": "1.15 ms",
       "slaTarget": "< 100 ms",
       "passed": true,
       "notes": "Zero memory inflation on large chapter files"
@@ -92,7 +92,7 @@
     {
       "category": "Media Engine",
       "name": "WebP 1440px Ahead-of-Time Encoding (Effort 2, Q=75)",
-      "measured": "100.50 ms (5 KB)",
+      "measured": "95.78 ms (5 KB)",
       "slaTarget": "< 1500 ms (Single Core T4500)",
       "passed": true,
       "notes": "Thermal Saver mode reduces CPU cycles by >55%"
@@ -100,7 +100,7 @@
     {
       "category": "Query & Engine",
       "name": "Anti-Spoiler Story Recap Seek Latency (Sprint 48)",
-      "measured": "0.0255 ms",
+      "measured": "0.0269 ms",
       "slaTarget": "< 1.0 ms",
       "passed": true,
       "notes": "O(log S) compound B-tree lookup on idx_story_recaps_lookup"
@@ -108,7 +108,7 @@
     {
       "category": "Query & Audio Engine",
       "name": "Dynamic Audio SFX Page Lookup Latency (Sprint 49)",
-      "measured": "0.0250 ms",
+      "measured": "0.0244 ms",
       "slaTarget": "< 0.5 ms",
       "passed": true,
       "notes": "Compound B-tree lookup on idx_sfx_cues_chapter_page"
@@ -124,7 +124,7 @@
     {
       "category": "Query & Geometry Engine",
       "name": "Two-Page Spread Detection & Virtual Split Latency (Sprint 51)",
-      "measured": "0.0012 ms",
+      "measured": "0.0027 ms",
       "slaTarget": "< 0.05 ms",
       "passed": true,
       "notes": "Pure arithmetic geometry evaluation without buffer cloning or disk writes"
@@ -132,7 +132,7 @@
     {
       "category": "Reader Annotations",
       "name": "Page Annotation Query with LRU Cache",
-      "measured": "0.67 µs (0.0007 ms)",
+      "measured": "0.86 µs (0.0009 ms)",
       "slaTarget": "< 0.50 ms",
       "passed": true,
       "notes": "Sub-millisecond point lookups for sticky note overlays"
@@ -140,7 +140,7 @@
     {
       "category": "Reading Velocity",
       "name": "Continuous Cadence EMA & Outlier Clamping",
-      "measured": "20.71 µs (0.0207 ms)",
+      "measured": "27.76 µs (0.0278 ms)",
       "slaTarget": "< 0.50 ms",
       "passed": true,
       "notes": "Zero-allocation Kalman/EMA cadence updates with rapid skip filtering"
@@ -148,7 +148,7 @@
     {
       "category": "Frame Pacing & GPU",
       "name": "Adaptive Frame Pacer Tick (Zero-Alloc Ring Buffer)",
-      "measured": "0.65 µs (0.000646 ms)",
+      "measured": "0.60 µs (0.000597 ms)",
       "slaTarget": "< 0.02 ms (20 µs)",
       "passed": true,
       "notes": "Zero-allocation Float64Array circular buffer regulator for Intel GMA 4500MHD"
@@ -156,7 +156,7 @@
     {
       "category": "Spatial & OCR Index",
       "name": "In-Memory Panel Spatial Hit Test (Point-in-Box)",
-      "measured": "0.05 µs (0.000052 ms)",
+      "measured": "0.06 µs (0.000064 ms)",
       "slaTarget": "< 0.005 ms",
       "passed": true,
       "notes": "Zero-allocation point-in-box hit test across 6 manga panels"
@@ -164,7 +164,7 @@
     {
       "category": "Haptic & Rumble Engine",
       "name": "ImpactRouter Event Dispatch Latency (SLA 20)",
-      "measured": "1.06 µs (0.001063 ms)",
+      "measured": "1.08 µs (0.001081 ms)",
       "slaTarget": "< 0.02 ms (20 µs)",
       "passed": true,
       "notes": "Zero-allocation in-memory routing, cooldown enforcement & intensity arbitration"
@@ -172,7 +172,7 @@
     {
       "category": "Archive Stream Engine",
       "name": "CBZ Zero-Seek Byte Offset Lookup (SLA 21)",
-      "measured": "0.32 µs (0.000316 ms)",
+      "measured": "0.31 µs (0.000314 ms)",
       "slaTarget": "< 0.05 ms (50 µs)",
       "passed": true,
       "notes": "Sub-millisecond page slice addressing on idx_archive_offsets_lookup"
@@ -180,7 +180,7 @@
     {
       "category": "Transcode Cache Engine",
       "name": "Transcoded WebP Cache Hit Lookup (SLA 22)",
-      "measured": "0.52 µs (0.000517 ms)",
+      "measured": "0.52 µs (0.000520 ms)",
       "slaTarget": "< 0.05 ms (50 µs)",
       "passed": true,
       "notes": "Sub-millisecond covering index & manifest resolution on idx_transcode_cache_lookup"
@@ -188,7 +188,7 @@
     {
       "category": "Predictive Prefetch Engine",
       "name": "Markov Transition & Candidate Enqueue (SLA 23)",
-      "measured": "0.42 µs (0.000419 ms)",
+      "measured": "0.41 µs (0.000407 ms)",
       "slaTarget": "< 0.01 ms (10 µs)",
       "passed": true,
       "notes": "Zero-allocation Float32Array Bayesian inference & turn-ahead scoring"
@@ -196,7 +196,7 @@
     {
       "category": "Dialogue OCR Search Engine",
       "name": "Trigram Substring Dialogue Query (SLA 24)",
-      "measured": "0.3647 ms",
+      "measured": "0.3703 ms",
       "slaTarget": "< 5.0 ms (< 1.0 ms in isolation)",
       "passed": true,
       "notes": "SQLite FTS5 Trigram Substring Match with Anti-Spoiler Causal Filter"
@@ -204,7 +204,7 @@
     {
       "category": "Spatial Gaze Reconstruction",
       "name": "Spatial Heatmap Accumulation & 2D Box Projection (SLA 25)",
-      "measured": "1.54 µs (0.0015 ms)",
+      "measured": "1.87 µs (0.0019 ms)",
       "slaTarget": "< 0.05 ms",
       "passed": true,
       "notes": "Zero-Allocation Float32Array 16x16 Grid Kernel Projection"
@@ -212,7 +212,7 @@
     {
       "category": "Furigana & Lore Lexicon",
       "name": "CJK Furigana & Manga Lore Point Query (SLA 26)",
-      "measured": "0.47 µs (0.0005 ms)",
+      "measured": "0.46 µs (0.0005 ms)",
       "slaTarget": "< 0.50 ms",
       "passed": true,
       "notes": "In-Memory Bounded LRU Cache & SQLite B-Tree Point Resolution"
@@ -228,7 +228,7 @@
     {
       "category": "Paper Tone & E-Ink",
       "name": "Paper Tone Profile & Matrix Synthesis (SLA 28)",
-      "measured": "17.30 µs (0.0173 ms)",
+      "measured": "17.85 µs (0.0178 ms)",
       "slaTarget": "< 0.50 ms (< 0.05 ms in isolation)",
       "passed": true,
       "notes": "Prepared Statement Point Lookup & SVG feColorMatrix Synthesis"
@@ -236,7 +236,7 @@
     {
       "category": "Multi-Tab & BroadcastBus",
       "name": "Cross-Tab Session Resolution Latency (SLA 29)",
-      "measured": "24.46 µs (0.0245 ms)",
+      "measured": "25.02 µs (0.0250 ms)",
       "slaTarget": "< 1.0 ms (< 0.05 ms in isolation)",
       "passed": true,
       "notes": "In-Memory Indexed Tab Session Resolution & Ephemeral Heartbeat Arbitration (< 0.05ms isolation, < 1.0ms concurrent load)"
@@ -244,7 +244,7 @@
     {
       "category": "Deep-Zoom & Pyramidal Tiling",
       "name": "Viewport AABB Tile Resolution Latency (SLA 30)",
-      "measured": "1.26 µs (0.0013 ms)",
+      "measured": "1.42 µs (0.0014 ms)",
       "slaTarget": "< 0.05 ms",
       "passed": true,
       "notes": "Zero-Allocation AABB Viewport LOD Math bounded to GMA 4500MHD texture limits (< 50µs target)"
@@ -252,7 +252,7 @@
     {
       "category": "SFX & Onomatopoeia Overlay",
       "name": "SFX Point Lookup & Spatial Hit Test (SLA 31)",
-      "measured": "25.73 µs (0.0257 ms)",
+      "measured": "26.52 µs (0.0265 ms)",
       "slaTarget": "< 0.50 ms (< 0.05 ms in isolation)",
       "passed": true,
       "notes": "Zero-Allocation AABB Point Hit Test & B-Tree Onomatopoeia Lookup (< 50µs target in isolation, < 500µs concurrent)"
@@ -260,7 +260,7 @@
     {
       "category": "Guided Panel Pacer",
       "name": "Boustrophedon Sort & Framing (SLA 32)",
-      "measured": "2.28 µs (0.0023 ms)",
+      "measured": "2.27 µs (0.0023 ms)",
       "slaTarget": "< 0.02 ms",
       "passed": true,
       "notes": "Topological Tier-Clustering & Zero-Allocation Camera Framing Math (< 20µs target)"
@@ -268,7 +268,7 @@
     {
       "category": "LAN Companion Bridge",
       "name": "Pairing Handshake & Session Sync (SLA 33)",
-      "measured": "90.51 µs (0.0905 ms)",
+      "measured": "84.95 µs (0.0849 ms)",
       "slaTarget": "< 1.0 ms",
       "passed": true,
       "notes": "Zero-Config RFC1918 Discovery, SHA-256 Auth & Indexed Session Resolution (< 1.0ms target)"
@@ -276,7 +276,7 @@
     {
       "category": "Kinetic Parallax Engine",
       "name": "Layer Drift Affine Math (SLA 34)",
-      "measured": "1.18 µs (0.0012 ms)",
+      "measured": "1.27 µs (0.0013 ms)",
       "slaTarget": "< 0.02 ms",
       "passed": true,
       "notes": "Zero-Allocation 2.5D Climax Spread Drift & Anti-Bleed Over-Scale (< 20µs target)"
@@ -292,7 +292,7 @@
     {
       "category": "Storage Vault Arbiter",
       "name": "Weighted Eviction Candidate Sorting (SLA 36)",
-      "measured": "15.01 µs (0.0150 ms)",
+      "measured": "15.03 µs (0.0150 ms)",
       "slaTarget": "< 0.10 ms",
       "passed": true,
       "notes": "Sub-100µs zero-allocation sorting of 100 offline chapters on Intel Pentium T4500"
@@ -300,7 +300,7 @@
     {
       "category": "Ambient Soundscape Engine",
       "name": "Equal-Power Cross-Fade Math (SLA 37)",
-      "measured": "0.10 µs (0.0001 ms)",
+      "measured": "0.09 µs (0.0001 ms)",
       "slaTarget": "< 0.02 ms",
       "passed": true,
       "notes": "Zero-Allocation Cosine/Sine Equal-Power Acoustic Curve Math (< 20µs target)"
@@ -308,7 +308,7 @@
     {
       "category": "Spine Dewarp Engine",
       "name": "Dewarping Slice Mesh Math (SLA 38)",
-      "measured": "0.36 µs (0.0004 ms)",
+      "measured": "0.34 µs (0.0003 ms)",
       "slaTarget": "< 0.02 ms",
       "passed": true,
       "notes": "Zero-Allocation 16-Slice Polynomial Tankōbon Gutter Flattening (< 20µs target)"
@@ -316,7 +316,7 @@
     {
       "category": "Dialogue TTS Engine",
       "name": "Dialogue Queue Serialization & Voice Dispatch (SLA 39)",
-      "measured": "9.31 µs (0.0093 ms)",
+      "measured": "8.93 µs (0.0089 ms)",
       "slaTarget": "< 0.10 ms",
       "passed": true,
       "notes": "Zero-Allocation 10-Bubble Role Resolution & Duration Estimation (< 100µs target, < 20µs nominal)"
@@ -324,7 +324,7 @@
     {
       "category": "Split & Stitch Engine",
       "name": "Virtual Page Stream Resolution (SLA 40)",
-      "measured": "1.74 µs (0.0017 ms)",
+      "measured": "1.76 µs (0.0018 ms)",
       "slaTarget": "< 0.02 ms",
       "passed": true,
       "notes": "Zero-Allocation 50-Page Virtual Split/Stitch Geometry Mapping (< 20µs target)"
@@ -332,7 +332,7 @@
     {
       "category": "Halftone & Paper Engine",
       "name": "Halftone & Aging Param Resolution (SLA 41)",
-      "measured": "0.90 µs (0.0009 ms)",
+      "measured": "1.07 µs (0.0011 ms)",
       "slaTarget": "< 0.02 ms",
       "passed": true,
       "notes": "Zero-Allocation Dot Matrix & Vintage Paper Color Matrix Synthesis (< 20µs target)"
@@ -340,7 +340,7 @@
     {
       "category": "Magnifier & Loupe Engine",
       "name": "Optical Loupe Transform Resolution (SLA 42)",
-      "measured": "0.05 µs (0.0000 ms)",
+      "measured": "0.05 µs (0.0001 ms)",
       "slaTarget": "< 0.02 ms",
       "passed": true,
       "notes": "Zero-Allocation Optical Loupe & Sub-Panel Zoom Coordinate Mapping (< 20µs target)"
@@ -348,7 +348,7 @@
     {
       "category": "Chapter Transition Engine",
       "name": "Transition State Resolution (SLA 43)",
-      "measured": "0.11 µs (0.0001 ms)",
+      "measured": "0.12 µs (0.0001 ms)",
       "slaTarget": "< 0.02 ms",
       "passed": true,
       "notes": "Zero-Allocation Chapter Transition Pre-Baking State Resolution (< 20µs target)"
@@ -356,7 +356,7 @@
     {
       "category": "Ambient Backlight Engine",
       "name": "Color Temp Transform Resolution (SLA 44)",
-      "measured": "0.68 µs (0.0007 ms)",
+      "measured": "0.71 µs (0.0007 ms)",
       "slaTarget": "< 0.02 ms",
       "passed": true,
       "notes": "Zero-Allocation Ambient Backlight & Circadian Transform Resolution (< 20µs target)"
@@ -364,7 +364,7 @@
     {
       "category": "Page Projection Engine",
       "name": "Perspective 3D Transform Resolution (SLA 45)",
-      "measured": "5.14 µs (0.0051 ms)",
+      "measured": "5.10 µs (0.0051 ms)",
       "slaTarget": "< 0.05 ms",
       "passed": true,
       "notes": "Zero-Allocation Perspective Keystone & Multi-Angle Matrix Resolution (< 50µs target, < 20µs nominal)"
@@ -372,7 +372,7 @@
     {
       "category": "Page Acoustics Engine",
       "name": "Binaural Panning Resolution (SLA 46)",
-      "measured": "0.17 µs (0.0002 ms)",
+      "measured": "0.12 µs (0.0001 ms)",
       "slaTarget": "< 0.02 ms",
       "passed": true,
       "notes": "Zero-Allocation Binaural Stereo Panning & Biquad Synthesis Resolution (< 20µs target)"
@@ -380,7 +380,7 @@
     {
       "category": "Gaze Tracking Engine",
       "name": "Gaze Trajectory Resolution (SLA 47)",
-      "measured": "0.20 µs (0.0002 ms)",
+      "measured": "0.24 µs (0.0002 ms)",
       "slaTarget": "< 0.02 ms",
       "passed": true,
       "notes": "Zero-Allocation Saccadic Trajectory & Fixation Anti-Drift Resolution (< 20µs target)"
@@ -388,7 +388,7 @@
     {
       "category": "Smart Crop Engine",
       "name": "Crop Bounding Box Resolution (SLA 48)",
-      "measured": "0.41 µs (0.0004 ms)",
+      "measured": "0.39 µs (0.0004 ms)",
       "slaTarget": "< 0.02 ms",
       "passed": true,
       "notes": "Zero-Allocation Dynamic Margin Trimming & Aspect Ratio Resolution (< 20µs target)"
@@ -404,7 +404,7 @@
     {
       "category": "Micro-Cache Engine",
       "name": "Sliding Window Prefetch Resolution (SLA 50)",
-      "measured": "0.26 µs (0.0003 ms)",
+      "measured": "0.18 µs (0.0002 ms)",
       "slaTarget": "< 0.02 ms",
       "passed": true,
       "notes": "Zero-Allocation Sliding Window In-Viewport Micro-Cache & Prefetch Calculation (< 20µs target)"
@@ -412,7 +412,7 @@
     {
       "category": "Streamer Engine",
       "name": "Image Chunk Slicing Resolution (SLA 51)",
-      "measured": "3.48 µs (0.0035 ms)",
+      "measured": "3.54 µs (0.0035 ms)",
       "slaTarget": "< 0.05 ms",
       "passed": true,
       "notes": "Zero-Allocation Chunked Bitstream Slicing & GPU Texture Dimension Bounding (< 50µs target)"
@@ -428,7 +428,7 @@
     {
       "category": "HDR Tone Mapping",
       "name": "Dynamic Tone Parameter Resolution (SLA 53)",
-      "measured": "0.99 µs (0.0010 ms)",
+      "measured": "1.00 µs (0.0010 ms)",
       "slaTarget": "< 0.02 ms",
       "passed": true,
       "notes": "Zero-Allocation Reinhard Tone-Mapping & Ink Black Protection (< 20µs target)"
@@ -436,7 +436,7 @@
     {
       "category": "History Scrubber",
       "name": "Tape Kinematic Projection (SLA 54)",
-      "measured": "0.50 µs (0.0005 ms)",
+      "measured": "0.52 µs (0.0005 ms)",
       "slaTarget": "< 0.02 ms",
       "passed": true,
       "notes": "Zero-Allocation Bi-Directional Infinite Tape Projection (< 20µs target)"
@@ -444,7 +444,7 @@
     {
       "category": "Subpixel Optics",
       "name": "Fringe Neutralizer Matrix Resolution (SLA 55)",
-      "measured": "1.87 µs (0.0019 ms)",
+      "measured": "2.06 µs (0.0021 ms)",
       "slaTarget": "< 0.02 ms",
       "passed": true,
       "notes": "Zero-Allocation Sub-Pixel Anti-Aliasing & Text Sharpening Matrix (< 20µs target)"
@@ -452,7 +452,7 @@
     {
       "category": "Ambient Immersion",
       "name": "Glow Dispersion Gradient Synthesis (SLA 56)",
-      "measured": "1.07 µs (0.0011 ms)",
+      "measured": "1.11 µs (0.0011 ms)",
       "slaTarget": "< 0.02 ms",
       "passed": true,
       "notes": "Zero-Allocation Linear Border Bleed & Letterbox Glow Synthesis (< 20µs target)"
@@ -460,7 +460,7 @@
     {
       "category": "Tactile Page Turn",
       "name": "2.5D Page Curl Kinematic Synthesis (SLA 57)",
-      "measured": "2.20 µs (0.0022 ms)",
+      "measured": "2.31 µs (0.0023 ms)",
       "slaTarget": "< 0.02 ms",
       "passed": true,
       "notes": "Zero-Allocation Parametric 2.5D Affine Peel & Spine Shadow Kinematics (< 20µs target)"
@@ -468,7 +468,7 @@
     {
       "category": "Storage Tiering",
       "name": "Storage Vault Auto-Tiering Arbitration (SLA 58)",
-      "measured": "0.44 µs (0.0004 ms)",
+      "measured": "0.42 µs (0.0004 ms)",
       "slaTarget": "< 0.02 ms",
       "passed": true,
       "notes": "Zero-Allocation Multi-Tier Scoring & Platter Eviction Arbitration (< 20µs target)"
@@ -476,7 +476,7 @@
     {
       "category": "Motion Stabilization",
       "name": "Gesture Damping & Deblur Kinematics (SLA 59)",
-      "measured": "1.77 µs (0.0018 ms)",
+      "measured": "1.99 µs (0.0020 ms)",
       "slaTarget": "< 0.02 ms",
       "passed": true,
       "notes": "Zero-Allocation Spring-Damper Jitter Filtering & Dynamic Contrast Boost (< 20µs target)"
@@ -484,7 +484,7 @@
     {
       "category": "Spine & Gutter Optics",
       "name": "Crease Shadow Gradient Synthesis (SLA 60)",
-      "measured": "1.82 µs (0.0018 ms)",
+      "measured": "2.00 µs (0.0020 ms)",
       "slaTarget": "< 0.02 ms",
       "passed": true,
       "notes": "Zero-Allocation Bilateral Spine Crease Shadow & Volume Asymmetry Gradient (< 20µs target)"
@@ -492,7 +492,7 @@
     {
       "category": "Text & Typography",
       "name": "Text & Kanji Edge Equalizer (SLA 61)",
-      "measured": "1.71 µs (0.0017 ms)",
+      "measured": "1.77 µs (0.0018 ms)",
       "slaTarget": "< 0.02 ms",
       "passed": true,
       "notes": "Zero-Allocation Dynamic Range Equalizer & Subpixel Furigana Edge Bias (< 20µs target)"
@@ -500,7 +500,7 @@
     {
       "category": "Cadence & Dwell Prediction",
       "name": "Reading Dwell Predictor (SLA 62)",
-      "measured": "0.58 µs (0.0006 ms)",
+      "measured": "0.62 µs (0.0006 ms)",
       "slaTarget": "< 0.02 ms",
       "passed": true,
       "notes": "Zero-Allocation Page Dwell Prediction & JIT 4TB HDD Seek Deferral (< 20µs target)"
@@ -508,7 +508,7 @@
     {
       "category": "Cinematic Panel Pacing",
       "name": "Panel Framing Interpolation (SLA 63)",
-      "measured": "1.33 µs (0.0013 ms)",
+      "measured": "1.36 µs (0.0014 ms)",
       "slaTarget": "< 0.02 ms",
       "passed": true,
       "notes": "Zero-Allocation AABB Camera Interpolation & EaseOutBack Matrix (< 20µs target)"
@@ -516,7 +516,7 @@
     {
       "category": "Vector & Lore Search",
       "name": "Quantized Vector Similarity (SLA 64)",
-      "measured": "0.64 µs (0.0006 ms)",
+      "measured": "0.65 µs (0.0007 ms)",
       "slaTarget": "< 0.02 ms",
       "passed": true,
       "notes": "Zero-Allocation Int8 Cosine Similarity & Spoiler Shield Filtering (< 20µs target)"
@@ -524,7 +524,7 @@
     {
       "category": "Page Tile Recycler",
       "name": "Tile Recycling & Slicing (SLA 65)",
-      "measured": "0.61 µs (0.0006 ms)",
+      "measured": "0.68 µs (0.0007 ms)",
       "slaTarget": "< 0.02 ms",
       "passed": true,
       "notes": "Zero-Allocation Ring-Buffer Slot Recycling & Zero-Copy Subarray Slicing (< 20µs target)"
@@ -540,7 +540,7 @@
     {
       "category": "Ink Bleed Engine",
       "name": "Ink Bleed Compensation (SLA 67)",
-      "measured": "0.46 µs (0.0005 ms)",
+      "measured": "0.44 µs (0.0004 ms)",
       "slaTarget": "< 0.02 ms",
       "passed": true,
       "notes": "Zero-Allocation Parametric Luminance Curve & Black-Point Lift (< 20µs target)"
@@ -548,7 +548,7 @@
     {
       "category": "Eye Rest & Gaze Engine",
       "name": "Eye-Rest Aperture Shutter (SLA 68)",
-      "measured": "0.83 µs (0.0008 ms)",
+      "measured": "0.84 µs (0.0008 ms)",
       "slaTarget": "< 0.02 ms",
       "passed": true,
       "notes": "Zero-Allocation Parametric Aperture Focal Mask & Circadian Warmth Shutter (< 20µs target)"
@@ -556,7 +556,7 @@
     {
       "category": "Kinetic Physics & Seam",
       "name": "Chapter Seam Kinetic Deceleration (SLA 69)",
-      "measured": "0.69 µs (0.0007 ms)",
+      "measured": "0.86 µs (0.0009 ms)",
       "slaTarget": "< 0.02 ms",
       "passed": true,
       "notes": "Zero-Allocation Viscous Damping & Seam Pre-Baking Evaluation (< 20µs target)"
@@ -564,7 +564,7 @@
     {
       "category": "Typography & Optical Engine",
       "name": "Balloon Glyph & Font Auto-Scaler (SLA 70)",
-      "measured": "0.79 µs (0.0008 ms)",
+      "measured": "0.85 µs (0.0008 ms)",
       "slaTarget": "< 0.02 ms",
       "passed": true,
       "notes": "Zero-Allocation Optical Container Scaling & Ruby Furigana Clearance (< 20µs target)"
@@ -572,7 +572,7 @@
     {
       "category": "Memory & Micro-Tile GC",
       "name": "Micro-Tile Invalidation & Eviction (SLA 71)",
-      "measured": "0.63 µs (0.0006 ms)",
+      "measured": "0.69 µs (0.0007 ms)",
       "slaTarget": "< 0.02 ms",
       "passed": true,
       "notes": "Bi-Temporal Zero-Alloc Predictive Tile Scoring & Eviction (< 20µs target)"
@@ -580,7 +580,7 @@
     {
       "category": "Spatial Audio & Reverb",
       "name": "Acoustic Reverb Parametric Synth (SLA 72)",
-      "measured": "1.64 µs (0.0016 ms)",
+      "measured": "1.73 µs (0.0017 ms)",
       "slaTarget": "< 0.02 ms",
       "passed": true,
       "notes": "Zero-Allocation Schroeder-Moorer Parameter Synthesis (< 20µs target)"
@@ -588,7 +588,7 @@
     {
       "category": "Tactile Book Optics",
       "name": "Page Bevel & Stack Synthesizer (SLA 73)",
-      "measured": "1.17 µs (0.0012 ms)",
+      "measured": "1.22 µs (0.0012 ms)",
       "slaTarget": "< 0.02 ms",
       "passed": true,
       "notes": "Zero-Allocation Bi-Directional Stack Thickness & Spine Sag Synthesis (< 20µs target)"
@@ -596,7 +596,7 @@
     {
       "category": "Ambient Display & Opt",
       "name": "Ambient Chroma Bleed Synthesizer (SLA 74)",
-      "measured": "2.74 µs (0.0027 ms)",
+      "measured": "2.80 µs (0.0028 ms)",
       "slaTarget": "< 0.02 ms",
       "passed": true,
       "notes": "Zero-Allocation Planckian Color Temperature & Perimeter Gradient Synthesis (< 20µs target)"
@@ -604,7 +604,7 @@
     {
       "category": "Webtoon Seam & Opt",
       "name": "Anamorphic Seam Stitcher (SLA 75)",
-      "measured": "0.84 µs (0.0008 ms)",
+      "measured": "0.85 µs (0.0008 ms)",
       "slaTarget": "< 0.02 ms",
       "passed": true,
       "notes": "Zero-Allocation Aspect-Ratio Un-Squeeze & Subpixel Seam Overlap (< 20µs target)"
@@ -620,7 +620,7 @@
     {
       "category": "Typography & Subpixel",
       "name": "Glyph Edge Sharpener (SLA 77)",
-      "measured": "0.98 µs (0.0010 ms)",
+      "measured": "1.07 µs (0.0011 ms)",
       "slaTarget": "< 0.02 ms",
       "passed": true,
       "notes": "Zero-Allocation Analytical Edge Contrast & Dense Stroke Protection (< 20µs target)"
@@ -636,7 +636,7 @@
     {
       "category": "Halftone & Paper Print",
       "name": "Halftone Grain Synthesizer (SLA 79)",
-      "measured": "0.54 µs (0.0005 ms)",
+      "measured": "0.50 µs (0.0005 ms)",
       "slaTarget": "< 0.02 ms",
       "passed": true,
       "notes": "Zero-Allocation Micro-Stippling Parameter Resolution & 16KiB Micro-Tile Footprint (< 20µs target)"
@@ -644,7 +644,7 @@
     {
       "category": "Balloon & Vector Tail",
       "name": "Balloon Tail Vector Tracking (SLA 80)",
-      "measured": "2.42 µs (0.0024 ms)",
+      "measured": "2.48 µs (0.0025 ms)",
       "slaTarget": "< 0.02 ms",
       "passed": true,
       "notes": "Zero-Allocation Trigonometric Unit Vector & Quadratic Bezier Path Synthesis (< 20µs target)"
@@ -652,7 +652,7 @@
     {
       "category": "Tile Prefetch Engine",
       "name": "Predictive Tile Cache Prefetch & LRU (SLA 81)",
-      "measured": "0.73 µs (0.0007 ms)",
+      "measured": "0.74 µs (0.0007 ms)",
       "slaTarget": "< 0.02 ms",
       "passed": true,
       "notes": "Zero-Allocation TypedArray 64-Ring Buffer & Markov Hysteresis Decision (< 20µs target)"
@@ -660,7 +660,7 @@
     {
       "category": "Vision & Retinal Opt",
       "name": "Dark-Adaptation & Contrast Preserver (SLA 82)",
-      "measured": "0.56 µs (0.0006 ms)",
+      "measured": "0.57 µs (0.0006 ms)",
       "slaTarget": "< 0.02 ms",
       "passed": true,
       "notes": "Zero-Allocation Asymmetric EMA Adaptation & White-Point Clamping (< 20µs target)"
@@ -668,16 +668,24 @@
     {
       "category": "Display & De-Band Opt",
       "name": "Ordered Bayer Dither Matrix (SLA 83)",
-      "measured": "0.65 µs (0.0007 ms)",
+      "measured": "0.67 µs (0.0007 ms)",
       "slaTarget": "< 0.02 ms",
       "passed": true,
       "notes": "Zero-Allocation Bitwise Spatial Bayer Matrix Lookup & 6-bit Quantization (< 20µs target)"
+    },
+    {
+      "category": "Spatial Audio Opt",
+      "name": "Spatial Audio Distance & Occlusion (SLA 84)",
+      "measured": "0.66 µs (0.0007 ms)",
+      "slaTarget": "< 0.02 ms",
+      "passed": true,
+      "notes": "Zero-Allocation Logarithmic Cutoff Occlusion & Equal-Power Panning (< 20µs target)"
     }
   ],
   "allPassed": true,
   "summary": {
-    "total": 83,
-    "passed": 83,
+    "total": 84,
+    "passed": 84,
     "failed": 0
   }
 }

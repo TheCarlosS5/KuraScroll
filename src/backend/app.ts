@@ -178,6 +178,8 @@ import { lensDistortionRoutes } from './routes/lens-distortion-routes.js';
 import { LensDistortionService } from './services/lens-distortion-service.js';
 import { moireSuppressorRoutes } from './routes/moire-suppressor-routes.js';
 import { MoireSuppressorService } from './services/moire-suppressor-service.js';
+import { cmykSimulatorRoutes } from './routes/cmyk-simulator-routes.js';
+import { CmykSimulatorService } from './services/cmyk-simulator-service.js';
 import { AdaptiveIngestionController } from './services/adaptive-ingestion-controller.js';
 import { DifferentialMirrorService } from './services/differential-mirror-service.js';
 
@@ -255,6 +257,7 @@ export interface AppOptions {
   speedLineService?: SpeedLineService;
   lensDistortionService?: LensDistortionService;
   moireSuppressorService?: MoireSuppressorService;
+  cmykSimulatorService?: CmykSimulatorService;
 }
 
 export function buildApp(options: AppOptions = {}): FastifyInstance {
@@ -663,6 +666,11 @@ export function buildApp(options: AppOptions = {}): FastifyInstance {
     db,
     moireSuppressorService:
       options.moireSuppressorService ?? new MoireSuppressorService(db),
+  });
+  app.register(cmykSimulatorRoutes, {
+    db,
+    cmykSimulatorService:
+      options.cmykSimulatorService ?? new CmykSimulatorService(db),
   });
 
   return app;

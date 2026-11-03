@@ -193,6 +193,10 @@ import {
   MoireSuppressorService,
   calculateMoireSuppression,
 } from '../src/backend/services/moire-suppressor-service.js';
+import {
+  CmykSimulatorService,
+  calculateCmykSimulation,
+} from '../src/backend/services/cmyk-simulator-service.js';
 
 export interface SlaResult {
   category: string;
@@ -3087,6 +3091,46 @@ export async function runHostSlaBenchmark(): Promise<SlaReport> {
     slaTarget: '< 0.02 ms',
     passed: moireLatency < 0.02,
     notes: 'Zero-Allocation Autocorrelation Periodicity Suppression & Edge Barrier (< 20µs target)',
+  });
+
+  // 92. Perceptual Color Gamut Mapping & CMYK Ink Density Simulator (Sprint 128 - SLA 92)
+  // Warmup JIT
+  for (let i = 0; i < 2000; i++) {
+    calculateCmykSimulation(
+      (i * 17) % 256,
+      (i * 23) % 256,
+      (i * 31) % 256,
+      2.80,
+      0.10,
+      0.10,
+      0.15,
+      true
+    );
+  }
+
+  const tCmykStart = performance.now();
+  const cmykIters = 20000;
+  for (let i = 0; i < cmykIters; i++) {
+    calculateCmykSimulation(
+      (i * 17) % 256,
+      (i * 23) % 256,
+      (i * 31) % 256,
+      2.80,
+      0.10,
+      0.10,
+      0.15,
+      true
+    );
+  }
+  const cmykLatency = (performance.now() - tCmykStart) / cmykIters;
+
+  results.push({
+    category: 'Color & Ink Simulation',
+    name: 'CMYK Ink Density & Gamut Mapping (SLA 92)',
+    measured: `${(cmykLatency * 1000).toFixed(2)} µs (${cmykLatency.toFixed(4)} ms)`,
+    slaTarget: '< 0.02 ms',
+    passed: cmykLatency < 0.02,
+    notes: 'Zero-Allocation Closed-Form CMYK Separation, Dot Gain & TAC Clamping (< 20µs target)',
   });
 
   // Teardown

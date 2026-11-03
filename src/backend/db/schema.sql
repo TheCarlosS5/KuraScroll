@@ -1998,3 +1998,25 @@ CREATE TABLE IF NOT EXISTS moire_suppressor_profiles (
 
 CREATE INDEX IF NOT EXISTS idx_moire_suppressor_lookup 
     ON moire_suppressor_profiles(series_id);
+
+-- Sprint 128: Perceptual Color Gamut Mapping & CMYK Ink Density Simulator
+CREATE TABLE IF NOT EXISTS cmyk_simulator_profiles (
+    series_id TEXT PRIMARY KEY,
+    preset_name TEXT NOT NULL DEFAULT 'tankobon_four_color' CHECK (preset_name IN (
+        'shonen_color_spread',
+        'tankobon_four_color',
+        'vintage_faded_pulp',
+        'cyberpunk_cmyk_boost',
+        'raw_fixed'
+    )),
+    tac_limit REAL NOT NULL DEFAULT 2.80 CHECK (tac_limit >= 1.50 AND tac_limit <= 4.00),
+    dot_gain REAL NOT NULL DEFAULT 0.10 CHECK (dot_gain >= 0.0 AND dot_gain <= 0.50),
+    black_absorption REAL NOT NULL DEFAULT 0.10 CHECK (black_absorption >= 0.0 AND black_absorption <= 0.50),
+    gamut_compression REAL NOT NULL DEFAULT 0.15 CHECK (gamut_compression >= 0.0 AND gamut_compression <= 1.00),
+    is_enabled INTEGER NOT NULL DEFAULT 1 CHECK (is_enabled IN (0, 1)),
+    created_at INTEGER NOT NULL,
+    updated_at INTEGER NOT NULL
+);
+
+CREATE INDEX IF NOT EXISTS idx_cmyk_simulator_lookup 
+    ON cmyk_simulator_profiles(series_id);

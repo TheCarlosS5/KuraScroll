@@ -22,6 +22,7 @@ docs/superpowers/specs/2026-11-04-kurascroll-public-web-design.md
 
 - Mantener el host predeterminado del backend en 127.0.0.1 y publicar detrás de proxy HTTPS.
 - No enviar un API_TOKEN al JavaScript del navegador.
+- Para producción con el middleware actual, el proxy elimina cualquier `x-api-token` entrante e inyecta el secreto al upstream por el canal de confianza; el token solo acredita el proxy y nunca concede identidad ni rol.
 - No usar un userId recibido en query/body como identidad del usuario.
 - Progreso y rachas personales son privados; el invitado guarda progreso en IndexedDB.
 - El botón Omitir aparece siempre que no haya una sesión válida, con conexión y sin ella.
@@ -88,7 +89,7 @@ export interface AuthResult { identity: SessionIdentity; expiresAt: string }
 - [ ] Marcar backup, mantenimiento, importación, ingesta local, telemetría administrativa y gestión de cuentas como administrador.
 - [ ] Marcar catálogo, perfiles públicos, capítulos publicados, comentarios públicos, salud y login/verificación como públicos.
 - [ ] Dejar denegadas las rutas que no estén inventariadas; revisar que todas las rutas de lectura necesarias para el lector estén clasificadas.
-- [ ] Registrar los casos de compatibilidad de localhost y API_TOKEN sin publicar el token en el frontend.
+- [ ] Documentar desarrollo localhost y proxy HTTPS de producción: quitar el `x-api-token` del cliente, inyectar API_TOKEN solo al upstream, no registrarlo y nunca interpretarlo como identidad/rol.
 
 **Entregable:** matriz con método, patrón, rol requerido y límite de recurso para cada ruta.
 
@@ -165,6 +166,7 @@ CREATE TABLE auth_sessions (
 - [ ] Rechazar escrituras de una cuenta deshabilitada o sin correo verificado cuando la política lo requiera.
 - [ ] Restringir rutas de backup, mantenimiento, importación y gestión de cuentas a admin.
 - [ ] Asegurar que API_TOKEN no convierta una solicitud del navegador en administrador ni permita saltarse la matriz de rutas.
+- [ ] Confirmar que la guía de despliegue configura API_TOKEN solo en el proxy/backend; no debe aparecer en HTML, JavaScript, source maps, respuestas ni logs.
 - [ ] Responder 401/403 con mensajes sanitizados y no filtrar datos privados en logs o errores.
 - [ ] Mantener una ruta pública solo si aparece explícitamente en la matriz.
 

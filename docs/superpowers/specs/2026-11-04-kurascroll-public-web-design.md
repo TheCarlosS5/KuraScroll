@@ -192,11 +192,12 @@ Se añaden tablas para cuentas, sesiones, perfil, carga temporal, comentarios y 
 | Revisar reportes, ocultar contenido, suspender cuenta, backup, mantenimiento e importación | Administrador |
 | Ruta no inventariada o no clasificada | Denegada hasta que tenga una política explícita |
 
-El API_TOKEN no se incluye en JavaScript. Si se mantiene para automatizaciones máquina a máquina, no sustituye a la sesión de usuario y se limita a esas integraciones.
+El API_TOKEN no se incluye en JavaScript ni se entrega al navegador. Como el backend actual valida ese token globalmente, el proxy HTTPS de producción debe quitar cualquier `x-api-token` recibido del cliente e inyectar el secreto configurado al reenviar cada solicitud al backend por el canal de confianza. El token solo acredita que la petición pasó por el proxy; nunca identifica una cuenta, concede rol ni reemplaza la matriz de acceso por sesión. Si se retira esta validación global, cualquier uso de token debe limitarse explícitamente a integraciones máquina a máquina.
 
 ## 10. Despliegue y protección de recursos
 
-- El backend mantiene 127.0.0.1 como host predeterminado. La publicación se hace a través de un proxy HTTPS configurado para la aplicación.
+- El backend mantiene 127.0.0.1 como host predeterminado. La publicación web se hace a través de un proxy HTTPS; el backend no se expone directamente a Internet.
+- El proxy termina TLS, elimina el `x-api-token` que pudiera enviar el navegador e inyecta el API_TOKEN del servidor al upstream. No registra ese secreto ni lo reenvía en respuestas.
 - Se permiten únicamente los orígenes configurados. No se usa CORS abierto.
 - Se documentan los ajustes de dominio, URL pública, SMTP y cuota; los secretos permanecen en variables de entorno.
 - Se aplica límite de frecuencia por IP/cuenta a registro, login, comentario, reporte y subida.

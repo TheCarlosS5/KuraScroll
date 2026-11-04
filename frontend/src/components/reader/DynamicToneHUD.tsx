@@ -110,9 +110,7 @@ export const DynamicToneHUD: React.FC<DynamicToneHUDProps> = ({
             lineHeight: 1,
             padding: '2px 6px',
           }}
-        >
-          ✕
-        </button>
+        >&times;</button>
       </div>
 
       {/* Preset Selector */}

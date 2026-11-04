@@ -56,7 +56,7 @@ export const BadgeUnlockToast: React.FC<BadgeUnlockToastProps> = ({
           flexShrink: 0,
         }}
       >
-        🏆
+        
       </div>
       <div style={{ flex: 1 }}>
         <div style={{ fontSize: '0.75rem', fontWeight: 700, color: '#F59E0B', textTransform: 'uppercase', letterSpacing: '0.05em' }}>

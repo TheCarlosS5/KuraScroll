@@ -101,7 +101,7 @@ export const HalftoneScreentoneHUD: React.FC<HalftoneScreentoneHUDProps> = ({
         }}
       >
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-          <span style={{ fontSize: '18px' }}>📰</span>
+          
           <span style={{ fontWeight: 600, fontSize: '14px' }}>
             Trama Halftone &amp; Papel Retro
           </span>
@@ -129,9 +129,7 @@ export const HalftoneScreentoneHUD: React.FC<HalftoneScreentoneHUDProps> = ({
             lineHeight: 1,
             padding: '4px',
           }}
-        >
-          ✕
-        </button>
+        >&times;</button>
       </div>
 
       {/* Main Switch */}

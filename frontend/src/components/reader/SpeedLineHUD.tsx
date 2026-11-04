@@ -130,7 +130,7 @@ export const SpeedLineHUD: React.FC<SpeedLineHUDProps> = ({
         className="fixed bottom-4 left-4 z-40 bg-zinc-900 border border-zinc-700 text-zinc-300 px-3 py-1.5 text-xs font-mono rounded shadow hover:bg-zinc-800 transition-colors"
         title="Open Speed-Line Synthesizer HUD (Hotkey: L)"
       >
-        <span className="text-amber-400 font-bold mr-1.5">⚡ SPEED-LINE</span>
+        <span className="text-amber-400 font-bold mr-1.5">SPEED-LINE</span>
         <kbd className="bg-zinc-800 px-1 py-0.5 rounded text-[10px] text-zinc-400 border border-zinc-700">L</kbd>
       </button>
     );
@@ -146,7 +146,7 @@ export const SpeedLineHUD: React.FC<SpeedLineHUDProps> = ({
       {/* Header */}
       <div className="flex items-center justify-between border-b border-zinc-800 pb-2 mb-3">
         <div className="flex items-center gap-2">
-          <span className="text-amber-400 font-bold text-sm">⚡ SPEED-LINE FOCUS</span>
+          <span className="text-amber-400 font-bold text-sm">SPEED-LINE FOCUS</span>
           <span className="bg-zinc-800 text-zinc-400 border border-zinc-700 px-1.5 py-0.5 rounded text-[10px]">
             SLA 89
           </span>
@@ -160,9 +160,7 @@ export const SpeedLineHUD: React.FC<SpeedLineHUDProps> = ({
             onClick={() => setIsHUDOpen(false)}
             className="text-zinc-400 hover:text-white px-1"
             title="Close (L)"
-          >
-            ✕
-          </button>
+           aria-label="Cerrar">&times;</button>
         </div>
       </div>
 
@@ -196,7 +194,7 @@ export const SpeedLineHUD: React.FC<SpeedLineHUDProps> = ({
                 : 'bg-zinc-800 border-zinc-600 text-zinc-200 hover:bg-zinc-700'
             }`}
           >
-            {pulseOutput.isActive ? '🔥 IMPACT PULSING' : '💥 TRIGGER IMPACT PULSE'}
+            {pulseOutput.isActive ? 'IMPACT PULSING' : 'TRIGGER IMPACT PULSE'}
           </button>
         </div>
       </div>

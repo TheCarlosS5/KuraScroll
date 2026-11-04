@@ -81,7 +81,7 @@ export const ScreenRumbleHUD: React.FC<ScreenRumbleHUDProps> = ({ engine, onClos
       {/* Header */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '14px' }}>
         <div style={{ fontWeight: 700, fontSize: '14px', letterSpacing: '0.02em', display: 'flex', alignItems: 'center', gap: '8px' }}>
-          <span style={{ color: '#ec4899' }}>⚡</span>
+          <span style={{ color: '#ec4899', fontSize: '11px', fontWeight: 'bold' }}>RUMBLE</span>
           <span>Tactile & Rumble Engine</span>
         </div>
         {onClose && (
@@ -95,9 +95,7 @@ export const ScreenRumbleHUD: React.FC<ScreenRumbleHUDProps> = ({ engine, onClos
               cursor: 'pointer',
               fontSize: '16px',
             }}
-          >
-            ✕
-          </button>
+          >&times;</button>
         )}
       </div>
 

@@ -114,10 +114,10 @@ export const SeriesDetailPage: React.FC<SeriesDetailPageProps> = ({
       </button>
 
       {/* Series Hero Section */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-8 bg-[#0c121e] rounded-3xl border border-gray-800/80 p-6 md:p-8 shadow-2xl">
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-8 bg-zinc-900/60 rounded-2xl border border-zinc-800/80 p-6 md:p-8 shadow-sm">
         {/* Cover Art */}
         <div className="md:col-span-1">
-          <div className="aspect-[2/3] w-full rounded-2xl overflow-hidden bg-gray-900 shadow-xl border border-gray-800">
+          <div className="aspect-[2/3] w-full rounded-xl overflow-hidden bg-zinc-950 shadow-md border border-zinc-800">
             {series.coverImage ? (
               <img
                 src={series.coverImage}
@@ -125,8 +125,8 @@ export const SeriesDetailPage: React.FC<SeriesDetailPageProps> = ({
                 className="w-full h-full object-cover"
               />
             ) : (
-              <div className="w-full h-full flex items-center justify-center bg-gray-800">
-                <BookOpen className="w-16 h-16 text-gray-600" />
+              <div className="w-full h-full flex items-center justify-center bg-zinc-900">
+                <BookOpen className="w-12 h-12 text-zinc-600" />
               </div>
             )}
           </div>
@@ -136,33 +136,33 @@ export const SeriesDetailPage: React.FC<SeriesDetailPageProps> = ({
         <div className="md:col-span-3 flex flex-col justify-between">
           <div>
             <div className="flex flex-wrap items-center gap-2 mb-2">
-              <span className="text-xs font-extrabold uppercase px-2.5 py-0.5 rounded-md bg-cyan-950 text-cyan-400 border border-cyan-800/60">
+              <span className="text-[11px] font-semibold uppercase px-2 py-0.5 rounded bg-zinc-800 text-zinc-200 border border-zinc-700/60">
                 {series.type}
               </span>
-              <span className="text-xs font-semibold uppercase px-2.5 py-0.5 rounded-md bg-gray-800 text-gray-300">
+              <span className="text-[11px] font-medium uppercase px-2 py-0.5 rounded bg-zinc-800/60 text-zinc-400">
                 {series.status}
               </span>
               {shelf !== 'none' && (
-                <span className="text-xs font-bold px-2.5 py-0.5 rounded-md bg-cyan-950/80 text-cyan-300 border border-cyan-600/70">
+                <span className="text-[11px] font-medium px-2 py-0.5 rounded bg-indigo-950/60 text-indigo-300 border border-indigo-800/60">
                   {shelfLabels[shelf]}
                 </span>
               )}
             </div>
 
-            <h1 className="text-2xl md:text-4xl font-extrabold text-white tracking-tight mb-3">
+            <h1 className="text-2xl md:text-3xl font-bold text-white tracking-tight mb-2.5">
               {series.titlePrimary}
             </h1>
 
             {/* Localized Titles Pill Badges */}
             {series.titles && series.titles.length > 0 && (
-              <div className="flex flex-wrap items-center gap-2 mb-4">
-                <Globe className="w-3.5 h-3.5 text-gray-500" />
+              <div className="flex flex-wrap items-center gap-1.5 mb-3.5">
+                <Globe className="w-3.5 h-3.5 text-zinc-500" />
                 {series.titles.map((t: any, idx: number) => (
                   <span
                     key={idx}
-                    className="text-xs px-2.5 py-1 rounded-lg bg-gray-900 border border-gray-800 text-gray-300"
+                    className="text-xs px-2 py-0.5 rounded-md bg-zinc-900 border border-zinc-800 text-zinc-400"
                   >
-                    <strong className="text-gray-500 uppercase text-[10px] mr-1">
+                    <strong className="text-zinc-500 uppercase text-[10px] mr-1">
                       {t.languageCode}:
                     </strong>
                     {t.title}
@@ -171,17 +171,17 @@ export const SeriesDetailPage: React.FC<SeriesDetailPageProps> = ({
               </div>
             )}
 
-            <p className="text-gray-300 text-sm md:text-base leading-relaxed line-clamp-4 mt-2">
+            <p className="text-zinc-300 text-sm leading-relaxed line-clamp-4 mt-2">
               {series.synopsis || 'Sin sinopsis disponible.'}
             </p>
           </div>
 
           {/* Action Buttons: Read, Shelf Selector & Favorite */}
-          <div className="flex flex-wrap items-center gap-3.5 mt-6 pt-6 border-t border-gray-800/80">
+          <div className="flex flex-wrap items-center gap-3 mt-6 pt-5 border-t border-zinc-800/60">
             {continueChapterId && (
               <button
                 onClick={() => onReadChapter(continueChapterId)}
-                className="px-6 py-3 rounded-xl bg-gradient-to-r from-cyan-500 to-indigo-600 hover:from-cyan-400 hover:to-indigo-500 text-white font-bold text-sm shadow-[0_0_20px_rgba(0,229,255,0.3)] transition-all flex items-center gap-2 cursor-pointer"
+                className="px-5 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-semibold text-sm shadow-sm transition-all active:scale-[0.98] flex items-center gap-2 cursor-pointer"
               >
                 <BookOpen className="w-4 h-4" />
                 {lastReadChapterId ? 'Continuar Leyendo' : 'Empezar a Leer'}
@@ -189,14 +189,14 @@ export const SeriesDetailPage: React.FC<SeriesDetailPageProps> = ({
             )}
 
             {/* Bookshelf Selector Dropdown */}
-            <div className="relative flex items-center bg-gray-900 border border-gray-800 rounded-xl px-3 py-1.5 hover:border-gray-700 transition-colors">
-              <Library className="w-4 h-4 text-cyan-400 mr-2 shrink-0 pointer-events-none" />
+            <div className="relative flex items-center bg-zinc-900 border border-zinc-800 rounded-xl px-3 py-1 hover:border-zinc-700 transition-colors">
+              <Library className="w-4 h-4 text-zinc-400 mr-2 shrink-0 pointer-events-none" />
               <select
                 data-testid="shelf-select"
                 value={shelf}
                 onChange={(e) => handleShelfChange(e.target.value as SeriesShelfType)}
                 aria-label="Seleccionar estado en biblioteca"
-                className="bg-transparent text-sm font-semibold text-gray-200 outline-none cursor-pointer pr-2 py-1.5"
+                className="bg-transparent text-xs sm:text-sm font-medium text-zinc-200 outline-none cursor-pointer pr-2 py-1"
               >
                 <option value="none" className="bg-gray-900 text-gray-400">
                   Quitar de Biblioteca

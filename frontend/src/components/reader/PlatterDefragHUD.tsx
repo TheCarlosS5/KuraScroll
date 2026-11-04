@@ -100,9 +100,7 @@ export const PlatterDefragHUD: React.FC<PlatterDefragHUDProps> = ({
             onClick={onClose}
             className="text-zinc-400 hover:text-zinc-200 transition-colors p-1 text-sm font-bold"
             aria-label="Cerrar modal"
-          >
-            ✕
-          </button>
+          >&times;</button>
         </div>
 
         {/* Fragmentation & PLI Card */}

@@ -166,84 +166,84 @@ export function StorageTelemetryModal({ isOpen, onClose }: StorageTelemetryModal
         role="dialog"
         aria-modal="true"
         aria-labelledby="storage-modal-title"
-        className="w-full max-w-xl rounded-2xl border border-cyan-500/30 bg-[#0d121f] p-6 shadow-2xl text-slate-100 max-h-[90vh] overflow-y-auto"
+        className="w-full max-w-xl rounded-2xl border border-zinc-800 bg-[#090d16] p-6 shadow-2xl text-zinc-100 max-h-[90vh] overflow-y-auto"
       >
         {/* Header */}
-        <div className="flex items-center justify-between pb-4 border-b border-slate-800">
+        <div className="flex items-center justify-between pb-4 border-b border-zinc-800">
           <div className="flex items-center gap-3">
-            <div className="flex items-center justify-center w-10 h-10 rounded-xl bg-gradient-to-br from-cyan-500 to-blue-600 shadow-[0_0_15px_rgba(0,229,255,0.4)]">
-              <HardDrive className="w-5 h-5 text-white" />
+            <div className="flex items-center justify-center w-10 h-10 rounded-xl bg-zinc-800/80 border border-zinc-700/60 text-indigo-400">
+              <HardDrive className="w-5 h-5 text-indigo-400" />
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <h2 id="storage-modal-title" className="text-xl font-bold tracking-tight text-white">
+                <h2 id="storage-modal-title" className="text-lg font-bold tracking-tight text-zinc-100">
                   Telemetría 4TB & Perfil T4500
                 </h2>
-                <span className="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full bg-cyan-950/80 border border-cyan-500/40 text-cyan-300">
+                <span className="text-[10px] uppercase font-semibold tracking-wider px-2 py-0.5 rounded-full bg-zinc-800 border border-zinc-700 text-zinc-300">
                   Pentium T4500 Host
                 </span>
               </div>
-              <p className="text-xs text-slate-400">Eficiencia WebP & control de saturación de disco mecánico</p>
+              <p className="text-xs text-zinc-400">Eficiencia WebP & control de I/O en disco local</p>
             </div>
           </div>
           <button
             onClick={onClose}
             aria-label="Cerrar telemetría"
-            className="rounded-lg p-2 text-slate-400 hover:bg-slate-800 hover:text-white transition-colors"
+            className="rounded-lg p-2 text-zinc-400 hover:bg-zinc-800 hover:text-white transition-colors cursor-pointer"
           >
             <X className="w-5 h-5" />
           </button>
         </div>
 
         {loading && !telemetry ? (
-          <div className="py-12 flex flex-col items-center justify-center text-slate-400">
-            <RefreshCw className="w-6 h-6 animate-spin text-cyan-400 mb-2" />
-            <p className="text-xs">Consultando estadísticas físicas del repositorio 4TB...</p>
+          <div className="py-12 flex flex-col items-center justify-center text-zinc-400">
+            <RefreshCw className="w-6 h-6 animate-spin text-indigo-400 mb-2" />
+            <p className="text-xs">Consultando estadísticas físicas del repositorio...</p>
           </div>
         ) : (
           <div className="my-5 space-y-4">
-            {/* 4TB Capacity & Savings Hero */}
+            {/* Storage Capacity & Savings Hero */}
             <div className="grid grid-cols-2 gap-3">
-              <div className="rounded-xl border border-cyan-500/30 bg-cyan-950/20 p-3.5">
-                <span className="text-[11px] font-medium text-cyan-400 flex items-center gap-1.5">
-                  <Zap className="w-3.5 h-3.5" /> Ahorro por WebP (q=82)
+              <div className="rounded-xl border border-zinc-800 bg-zinc-900/60 p-3.5">
+                <span className="text-[11px] font-medium text-zinc-400 flex items-center gap-1.5">
+                  <Zap className="w-3.5 h-3.5 text-indigo-400" /> Ahorro por WebP (q=82)
                 </span>
-                <p className="text-2xl font-black text-white mt-1">
+                <p className="text-2xl font-black text-zinc-100 mt-1">
                   {telemetry?.savingsPercentage ?? 85.0}%
                 </p>
-                <p className="text-[10px] text-slate-400 mt-0.5">
+                <p className="text-[10px] text-zinc-500 mt-0.5">
                   {formatBytes(telemetry?.savedBytes ?? 0)} de espacio físico preservado
                 </p>
               </div>
 
-              <div className="rounded-xl border border-indigo-500/30 bg-indigo-950/20 p-3.5">
-                <span className="text-[11px] font-medium text-indigo-400 flex items-center gap-1.5">
-                  <Database className="w-3.5 h-3.5" /> Capacidad Proyectada
+              <div className="rounded-xl border border-zinc-800 bg-zinc-900/60 p-3.5">
+                <span className="text-[11px] font-medium text-zinc-400 flex items-center gap-1.5">
+                  <Database className="w-3.5 h-3.5 text-indigo-400" /> Capacidad Proyectada
                 </span>
-                <p className="text-2xl font-black text-white mt-1">
+                <p className="text-2xl font-black text-zinc-100 mt-1">
                   ~{(telemetry?.projected4TBCapacityChapters ?? 220000).toLocaleString()}
                 </p>
-                <p className="text-[10px] text-slate-400 mt-0.5">
-                  Capítulos totales soportados en tu disco 4TB
+                <p className="text-[10px] text-zinc-500 mt-0.5">
+                  Capítulos totales soportados en disco
                 </p>
               </div>
             </div>
 
             {/* Hardware Profile & Adaptive Ingestion Status Banner */}
-            <div className="rounded-xl border border-slate-800 bg-slate-900/70 p-3.5 space-y-2.5">
+            <div className="rounded-xl border border-zinc-800 bg-zinc-900/60 p-3.5 space-y-2.5">
               <div className="flex items-center justify-between">
-                <span className="text-xs font-semibold text-white flex items-center gap-1.5">
-                  <Cpu className="w-4 h-4 text-cyan-400" />
+                <span className="text-xs font-semibold text-zinc-200 flex items-center gap-1.5">
+                  <Cpu className="w-4 h-4 text-indigo-400" />
                   Control Adaptativo de Ingesta (AIC)
                 </span>
 
                 <span
-                  className={`text-[10px] font-bold px-2 py-0.5 rounded-full border ${
+                  className={`text-[10px] font-medium px-2 py-0.5 rounded-md border ${
                     adaptiveState === 'RUNNING'
-                      ? 'bg-emerald-950/60 text-emerald-400 border-emerald-500/40'
+                      ? 'bg-emerald-950/40 text-emerald-300 border-emerald-800/50'
                       : adaptiveState === 'THROTTLED'
-                      ? 'bg-amber-950/60 text-amber-400 border-amber-500/40'
-                      : 'bg-red-950/60 text-red-400 border-red-500/40'
+                      ? 'bg-amber-950/40 text-amber-300 border-amber-800/50'
+                      : 'bg-rose-950/40 text-rose-300 border-rose-800/50'
                   }`}
                 >
                   {adaptiveState === 'RUNNING' ? '● ESTADO: NORMAL (15ms sleep)' : adaptiveState === 'THROTTLED' ? '▲ ATENUADO (200ms sleep)' : '■ PAUSADO (Protegiendo lector)'}

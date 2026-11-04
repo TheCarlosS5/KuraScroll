@@ -80,7 +80,7 @@ export const GuidedPanelHUD: React.FC<GuidedPanelHUDProps> = ({
           }`}
           title="Alternar modo viñeta a viñeta (Tecla P)"
         >
-          {isPacingActive ? '⛶ Modo Viñeta' : '▢ Página Completa'}
+          {isPacingActive ? 'Modo Viñeta' : 'Página Completa'}
         </button>
 
         {/* Panel Counter Badge */}
@@ -157,7 +157,7 @@ export const GuidedPanelHUD: React.FC<GuidedPanelHUDProps> = ({
             }`}
             title="Auto-pacing continuo manos libres (Tecla A)"
           >
-            <span>{isAutoPlay ? '⏸ Auto' : '▶ Auto'}</span>
+            <span>{isAutoPlay ? 'Pausa Auto' : 'Play Auto'}</span>
           </button>
         )}
 

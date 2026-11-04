@@ -6,7 +6,7 @@ import { SeriesRepository } from '../src/backend/repositories/series-repository.
 import { ChapterRepository } from '../src/backend/repositories/chapter-repository.js';
 
 async function seedDemoData() {
-  console.log('🌱 Starting KuraScroll Demo Seeding...');
+  console.log('[KuraScroll] Starting Demo Seeding...');
 
   const dbPath = path.resolve('./data/kura-scroll.db');
   const storageRoot = path.resolve('./data/storage');
@@ -184,7 +184,7 @@ async function seedDemoData() {
         <!-- Graphic Center Art Mockup -->
         <circle cx="240" cy="300" r="140" fill="none" stroke="${item.color}" stroke-width="3" stroke-dasharray="12 8" opacity="0.6"/>
         <circle cx="240" cy="300" r="110" fill="#080c14" opacity="0.8"/>
-        <text x="240" y="320" font-family="sans-serif" font-size="64" font-weight="900" fill="${item.color}" text-anchor="middle">⚡</text>
+        <text x="240" y="320" font-family="sans-serif" font-size="64" font-weight="900" fill="${item.color}" text-anchor="middle">KS</text>
         
         <!-- Bottom Panel -->
         <rect x="0" y="520" width="480" height="200" fill="#05080f" opacity="0.95"/>
@@ -192,7 +192,7 @@ async function seedDemoData() {
         
         <text x="24" y="565" font-family="sans-serif" font-size="24" font-weight="bold" fill="#ffffff">${item.titlePrimary}</text>
         <text x="24" y="598" font-family="sans-serif" font-size="14" fill="#a1a1aa">${item.author} • ${item.releaseYear}</text>
-        <text x="24" y="635" font-family="sans-serif" font-size="13" fill="${item.color}">★ ${item.genres.slice(0, 3).join(' • ')}</text>
+        <text x="24" y="635" font-family="sans-serif" font-size="13" fill="${item.color}">• ${item.genres.slice(0, 3).join(' • ')}</text>
         <text x="24" y="685" font-family="monospace" font-size="11" fill="#71717a">KuraScroll Local Storage • 4TB Archive</text>
       </svg>
     `;
@@ -298,11 +298,11 @@ async function seedDemoData() {
     }
   }
 
-  console.log('✅ Demo seeding finished successfully!');
+  console.log('[KuraScroll] Demo seeding finished successfully.');
   db.close();
 }
 
 seedDemoData().catch((err) => {
-  console.error('❌ Seeding failed:', err);
+  console.error('[KuraScroll] Seeding failed:', err);
   process.exit(1);
 });

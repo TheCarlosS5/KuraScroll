@@ -110,7 +110,7 @@ describe('ReadingDwellHeatmapOverlay Component Unit Suite (Sprint 45)', () => {
 
     expect(screen.getByTestId('dwell-hover-card')).toBeDefined();
     expect(screen.getByText('Page 3')).toBeDefined();
-    expect(screen.getByText('⚡ DEEP')).toBeDefined();
+    expect(screen.getByText('DEEP')).toBeDefined();
     expect(screen.getByText('55.0s')).toBeDefined();
 
     fireEvent.mouseLeave(slice3);

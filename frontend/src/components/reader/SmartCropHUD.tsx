@@ -96,7 +96,7 @@ export const SmartCropHUD: React.FC<SmartCropHUDProps> = ({
         <div className="flex items-center justify-between border-b border-zinc-800 pb-3">
           <div className="flex items-center gap-3">
             <div className="w-8 h-8 rounded-lg bg-cyan-500/20 text-cyan-400 flex items-center justify-center font-bold text-lg border border-cyan-500/30">
-              ✂️
+              CROP
             </div>
             <div>
               <h2 className="text-base font-semibold text-zinc-100">
@@ -111,9 +111,7 @@ export const SmartCropHUD: React.FC<SmartCropHUDProps> = ({
             onClick={onClose}
             className="text-zinc-400 hover:text-zinc-100 p-1.5 rounded-lg hover:bg-zinc-800 transition-colors"
             aria-label="Cerrar panel de recorte inteligente"
-          >
-            ✕
-          </button>
+          >&times;</button>
         </div>
 
         {/* Master Toggle */}

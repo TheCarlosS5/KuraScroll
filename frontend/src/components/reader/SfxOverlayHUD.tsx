@@ -223,9 +223,7 @@ export const SfxOverlayHUD: React.FC<SfxOverlayHUDProps> = ({
               data-testid="sfx-popover-close-btn"
               onClick={() => onSelectAnnotation(null)}
               className="text-zinc-400 hover:text-zinc-100 px-1 text-sm font-mono leading-none"
-            >
-              ✕
-            </button>
+             aria-label="Cerrar">&times;</button>
           </div>
 
           <div className="mt-2 space-y-1 font-sans text-xs">

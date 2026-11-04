@@ -84,9 +84,7 @@ export const LanPairingModal: React.FC<LanPairingModalProps> = ({
             onClick={closeModal}
             className="text-zinc-400 hover:text-white p-1 rounded transition-colors"
             title="Cerrar modal (Esc)"
-          >
-            ✕
-          </button>
+           aria-label="Cerrar">&times;</button>
         </div>
 
         {/* Body */}
@@ -123,7 +121,7 @@ export const LanPairingModal: React.FC<LanPairingModalProps> = ({
                 onClick={handleCopyUrl}
                 className="px-2 py-1 bg-zinc-800 hover:bg-zinc-700 text-zinc-200 rounded text-[11px] font-sans font-medium transition-colors shrink-0"
               >
-                {copied ? '✓ Copiado' : 'Copiar URL'}
+                {copied ? 'Copiado' : 'Copiar URL'}
               </button>
             </div>
           )}

@@ -10,8 +10,8 @@ describe('Sprint 73 - AmbientSoundscapeHUD Component Tests', () => {
   });
 
   const sampleTracks: SoundscapeTrack[] = [
-    { id: 'rain', name: 'Lluvia en Ventana', icon: '🌧️', volume: 60, isPlaying: true },
-    { id: 'campfire', name: 'Hoguera & Campamento', icon: '🔥', volume: 40, isPlaying: false },
+    { id: 'rain', name: 'Lluvia en Ventana', icon: 'rain', volume: 60, isPlaying: true },
+    { id: 'campfire', name: 'Hoguera & Campamento', icon: 'campfire', volume: 40, isPlaying: false },
   ];
 
   it('renders null when isOpen is false', () => {

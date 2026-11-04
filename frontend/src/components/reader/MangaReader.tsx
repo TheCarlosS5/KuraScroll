@@ -248,13 +248,12 @@ export const MangaReader: React.FC<MangaReaderProps> = ({
         if (pageWrapperRef.current) {
           gsap.fromTo(
             pageWrapperRef.current,
-            { opacity: 0, scale: 0.98 },
+            { opacity: 0 },
             {
               opacity: 1,
-              scale: 1,
-              duration: 0.45,
-              ease: 'power3.out',
-              clearProps: 'transform',
+              duration: 0.15,
+              ease: 'power2.out',
+              clearProps: 'opacity',
             }
           );
         }
@@ -265,11 +264,10 @@ export const MangaReader: React.FC<MangaReaderProps> = ({
           } else {
             gsap.fromTo(
               ambientGlowRef.current,
-              { opacity: 0, scale: 1.05 },
+              { opacity: 0 },
               {
                 opacity: targetGlowOpacity,
-                scale: 1.15,
-                duration: 0.7,
+                duration: 0.3,
                 ease: 'power2.out',
               }
             );
@@ -279,12 +277,12 @@ export const MangaReader: React.FC<MangaReaderProps> = ({
         if (pillRef.current) {
           gsap.fromTo(
             pillRef.current,
-            { opacity: 0, y: 12 },
+            { opacity: 0, y: 8 },
             {
               opacity: 1,
               y: 0,
-              duration: 0.4,
-              ease: 'back.out(1.4)',
+              duration: 0.2,
+              ease: 'power2.out',
             }
           );
         }
@@ -292,9 +290,7 @@ export const MangaReader: React.FC<MangaReaderProps> = ({
       }
 
       const isAdvancing = currentPage > prevPageRef.current;
-      // Japanese Manga RTL: advancing enters from left (-35px); retreating enters from right (35px)
-      // Western LTR: advancing enters from right (35px); retreating enters from left (-35px)
-      const slideDistance = 35;
+      const slideDistance = 16;
       const xOffset =
         mode === 'RTL'
           ? isAdvancing
@@ -304,47 +300,33 @@ export const MangaReader: React.FC<MangaReaderProps> = ({
           ? slideDistance
           : -slideDistance;
 
-      const tiltAngle =
-        mode === 'RTL'
-          ? isAdvancing
-            ? -2.5
-            : 2.5
-          : isAdvancing
-          ? 2.5
-          : -2.5;
-
       if (pageWrapperRef.current) {
         gsap.fromTo(
           pageWrapperRef.current,
           {
-            opacity: 0,
+            opacity: 0.3,
             x: xOffset,
-            rotateY: tiltAngle,
-            scale: 0.99,
           },
           {
             opacity: 1,
             x: 0,
-            rotateY: 0,
-            scale: 1,
-            duration: 0.38,
-            ease: 'power3.out',
-            clearProps: 'transform',
+            duration: 0.12,
+            ease: 'power2.out',
+            clearProps: 'transform,opacity',
           }
         );
       }
 
       if (ambientGlowRef.current) {
         if (!ambilightEnabled) {
-          gsap.to(ambientGlowRef.current, { opacity: 0, duration: 0.2 });
+          gsap.to(ambientGlowRef.current, { opacity: 0, duration: 0.15 });
         } else {
           gsap.fromTo(
             ambientGlowRef.current,
-            { opacity: 0.08 * (ambilightIntensity / 100), scale: 1.05 },
+            { opacity: 0.08 * (ambilightIntensity / 100) },
             {
               opacity: targetGlowOpacity,
-              scale: 1.15,
-              duration: 0.65,
+              duration: 0.25,
               ease: 'power2.out',
             }
           );
@@ -404,18 +386,21 @@ export const MangaReader: React.FC<MangaReaderProps> = ({
   return (
     <div
       ref={containerRef}
-      style={{ perspective: '1200px' }}
       className="relative w-full h-[calc(100vh-60px)] flex items-center justify-center bg-[#080c14] overflow-hidden select-none"
     >
       {/* Soft Ambient Lighting reflecting comic mood behind active page / spread */}
-      <div className="absolute inset-0 flex items-center justify-center pointer-events-none overflow-hidden select-none z-0">
+      <div
+        className={`absolute inset-0 flex items-center justify-center pointer-events-none overflow-hidden select-none z-0 ${
+          ambilightEnabled ? '' : 'hidden'
+        }`}
+      >
         <img
           ref={ambientGlowRef}
           src={imageUrl}
           alt=""
           aria-hidden="true"
           style={{ opacity: ambilightEnabled ? undefined : 0 }}
-          className={`w-full ${isShowingTwoPages ? 'max-w-6xl' : 'max-w-4xl'} max-h-[85vh] object-contain filter blur-[56px] sm:blur-[72px] saturate-[1.6] opacity-30 select-none pointer-events-none transform-gpu`}
+          className={`w-full ${isShowingTwoPages ? 'max-w-6xl' : 'max-w-4xl'} max-h-[85vh] object-contain filter blur-[32px] saturate-[1.3] opacity-30 select-none pointer-events-none transform-gpu`}
         />
         <div className="absolute inset-0 bg-radial from-transparent via-[#080c14]/30 to-[#080c14]/90 pointer-events-none" />
       </div>
@@ -423,8 +408,7 @@ export const MangaReader: React.FC<MangaReaderProps> = ({
       {/* Current Page or Double-Page Spread Display with Zero CLS */}
       <div
         ref={pageWrapperRef}
-        style={{ transformStyle: 'preserve-3d' }}
-        className="max-h-full max-w-full flex items-center justify-center relative shadow-2xl z-10 transform-gpu"
+        className="max-h-full max-w-full flex items-center justify-center relative shadow-2xl z-10"
         data-testid="manga-spread-container"
       >
         {isShowingTwoPages ? (

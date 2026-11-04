@@ -7,6 +7,7 @@ import { optimizeImageToWebP, PageMetadata } from './image-processor.js';
 import { DatabaseInstance } from '../db/database.js';
 import { SeriesRepository } from '../repositories/series-repository.js';
 import { ChapterRepository } from '../repositories/chapter-repository.js';
+import { assertArchiveFileSize, getValidatedEntryData, validateArchiveEntries } from './archive-extractor.js';
 
 export interface DetectedChapter {
   chapterNumber: number;
@@ -52,6 +53,8 @@ const JUNK_BASENAMES = new Set([
 
 const VALID_IMAGE_EXTENSIONS = new Set(['.png', '.jpg', '.jpeg', '.webp', '.avif', '.gif']);
 const VALID_ARCHIVE_EXTENSIONS = new Set(['.cbz', '.zip']);
+const MAX_CHAPTER_PAGE_COUNT = 5_000;
+const MAX_CHAPTER_INPUT_BYTES = 256 * 1024 * 1024;
 
 export function isJunkEntry(entryName: string): boolean {
   const normalized = entryName.replace(/\\/g, '/');
@@ -264,6 +267,12 @@ export function detectArchiveStructure(entries: string[]): ArchiveStructure {
 
 export async function ingestVolumeArchive(params: IngestVolumeArchiveParams): Promise<IngestVolumeArchiveResult> {
   const vol = params.volumeNumber ?? 1;
+  if (!/^[a-zA-Z0-9][a-zA-Z0-9._-]{0,150}$/.test(params.seriesSlug) ||
+      params.seriesSlug === '.' || params.seriesSlug === '..' ||
+      !Number.isSafeInteger(vol) || vol < 0) {
+    throw new Error('Invalid series slug or volume number');
+  }
+  await assertArchiveFileSize(params.sourceArchive);
   const maxImageWidth = params.maxImageWidth ?? 1440;
   const webpQuality = params.webpQuality ?? 82;
 
@@ -275,6 +284,7 @@ export async function ingestVolumeArchive(params: IngestVolumeArchiveParams): Pr
   }
 
   const entries = zip.getEntries();
+  validateArchiveEntries(entries);
   const entryNames = entries.map((e) => e.entryName);
   const structure = detectArchiveStructure(entryNames);
 
@@ -319,6 +329,15 @@ export async function ingestVolumeArchive(params: IngestVolumeArchiveParams): Pr
 
     // Collect image buffers to optimize
     const imagePayloads: Array<{ buffer: Buffer; name: string }> = [];
+    let chapterInputBytes = 0;
+
+    const addPayload = (buffer: Buffer, name: string): void => {
+      chapterInputBytes += buffer.length;
+      if (imagePayloads.length >= MAX_CHAPTER_PAGE_COUNT || chapterInputBytes > MAX_CHAPTER_INPUT_BYTES) {
+        throw new Error(`Chapter ${chapNum} exceeds its page or input-size limit`);
+      }
+      imagePayloads.push({ buffer, name });
+    };
 
     for (const entryName of detected.entryNames) {
       const ext = path.extname(entryName).toLowerCase();
@@ -327,9 +346,11 @@ export async function ingestVolumeArchive(params: IngestVolumeArchiveParams): Pr
         // Nested archive: extract images inside nested zip
         const zipEntry = zip.getEntry(entryName);
         if (zipEntry) {
-          const nestedZipBuffer = zipEntry.getData();
+          const nestedZipBuffer = getValidatedEntryData(zipEntry);
           const nestedZip = new AdmZip(nestedZipBuffer);
-          const innerEntries = nestedZip.getEntries().filter((e) => {
+          const nestedEntries = nestedZip.getEntries();
+          validateArchiveEntries(nestedEntries);
+          const innerEntries = nestedEntries.filter((e) => {
             if (e.isDirectory) return false;
             if (isJunkEntry(e.entryName)) return false;
             return VALID_IMAGE_EXTENSIONS.has(path.extname(e.entryName).toLowerCase());
@@ -339,20 +360,14 @@ export async function ingestVolumeArchive(params: IngestVolumeArchiveParams): Pr
           for (const innerName of sortedInner) {
             const innerEntry = nestedZip.getEntry(innerName);
             if (innerEntry) {
-              imagePayloads.push({
-                buffer: innerEntry.getData(),
-                name: path.basename(innerName),
-              });
+              addPayload(getValidatedEntryData(innerEntry), path.basename(innerName));
             }
           }
         }
       } else {
         const zipEntry = zip.getEntry(entryName);
         if (zipEntry) {
-          imagePayloads.push({
-            buffer: zipEntry.getData(),
-            name: path.basename(entryName),
-          });
+          addPayload(getValidatedEntryData(zipEntry), path.basename(entryName));
         }
       }
     }

@@ -117,9 +117,7 @@ export const AcousticReverbHUD: React.FC<AcousticReverbHUDProps> = ({
             fontSize: '14px',
             padding: '2px 6px',
           }}
-        >
-          ✕
-        </button>
+        >&times;</button>
       </div>
 
       {/* SVG Impulse Response Decay Envelope */}

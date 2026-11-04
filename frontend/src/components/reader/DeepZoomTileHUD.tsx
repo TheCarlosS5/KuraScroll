@@ -109,9 +109,7 @@ export const DeepZoomTileHUD: React.FC<DeepZoomTileHUDProps> = ({
               aria-label="Cerrar Deep-Zoom HUD"
               onClick={onClose}
               className="text-zinc-400 hover:text-zinc-100 px-1 font-mono text-sm leading-none"
-            >
-              ✕
-            </button>
+            >&times;</button>
           )}
         </div>
       </div>

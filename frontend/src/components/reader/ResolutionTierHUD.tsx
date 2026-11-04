@@ -45,7 +45,7 @@ export const ResolutionTierHUD: React.FC<ResolutionTierHUDProps> = ({ resolution
       }}
     >
       <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-        <span style={{ color: '#00e5ff', fontWeight: 'bold' }}>📐</span>
+        <span style={{ color: '#00e5ff', fontWeight: 'bold', fontSize: '11px' }}>TIER</span>
         <span style={{ fontWeight: 600 }}>
           {targetWidth}px
         </span>

@@ -50,28 +50,28 @@ export const TIER_CONFIG: Record<
     colorHex: '#F59E0B',
     bgClass: 'bg-amber-500',
     textClass: 'text-amber-400',
-    badge: '🔥 EPIC'
+    badge: 'EPIC'
   },
   deep: {
     label: 'Deep Focus Panel',
     colorHex: '#8B5CF6',
     bgClass: 'bg-violet-500',
     textClass: 'text-violet-400',
-    badge: '⚡ DEEP'
+    badge: 'DEEP'
   },
   flow: {
     label: 'Steady Flow',
     colorHex: '#06B6D4',
     bgClass: 'bg-cyan-500',
     textClass: 'text-cyan-400',
-    badge: '🌊 FLOW'
+    badge: 'FLOW'
   },
   breeze: {
     label: 'Brisk Skim',
     colorHex: '#475569',
     bgClass: 'bg-slate-600',
     textClass: 'text-slate-400',
-    badge: '🍃 BREEZE'
+    badge: 'BREEZE'
   }
 };
 

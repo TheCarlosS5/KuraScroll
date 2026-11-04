@@ -35,7 +35,7 @@ export const ReadingVelocityHUD: React.FC<ReadingVelocityHUDProps> = ({
         title="Mostrar velocidad de lectura"
         className="fixed top-4 right-20 z-40 px-2 py-1 bg-neutral-900/90 border border-neutral-700/60 rounded text-[11px] text-neutral-400 hover:text-neutral-200 transition-colors shadow-sm"
       >
-        ⏱️
+        CADENCE
       </button>
     );
   }
@@ -64,7 +64,7 @@ export const ReadingVelocityHUD: React.FC<ReadingVelocityHUDProps> = ({
     >
       {mode === 'time_remaining' && (
         <>
-          <span className="text-amber-400">⏱️</span>
+          <span className="text-amber-400">CADENCE</span>
           <span className="tabular-nums" data-testid="time-remaining-label">
             {pagesRemaining === 0 ? (
               <span className="text-emerald-400 font-bold">Capítulo finalizado</span>
@@ -86,7 +86,7 @@ export const ReadingVelocityHUD: React.FC<ReadingVelocityHUDProps> = ({
 
       {mode === 'pages_per_minute' && (
         <>
-          <span className="text-sky-400">⚡</span>
+          <span className="text-sky-400 text-xs font-mono">PACE</span>
           <span className="tabular-nums" data-testid="ppm-label">
             {pagesPerMinute} pág/min ({pagesRemaining} restantes)
           </span>

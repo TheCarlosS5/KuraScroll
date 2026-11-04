@@ -161,10 +161,10 @@ export const TextEqualizerHUD: React.FC<TextEqualizerHUDProps> = ({
                   whiteSpace: 'nowrap',
                 }}
               >
-                {pKey === 'newsprint_vintage' && '📰 Newsprint'}
-                {pKey === 'glossy_digital' && '💎 Glossy'}
-                {pKey === 'faded_doujin' && '🖋️ Faded Doujin'}
-                {pKey === 'custom' && '⚙️ Custom'}
+                {pKey === 'newsprint_vintage' && 'Newsprint'}
+                {pKey === 'glossy_digital' && 'Glossy'}
+                {pKey === 'faded_doujin' && 'Faded Doujin'}
+                {pKey === 'custom' && 'Custom'}
               </button>
             );
           })}

@@ -94,7 +94,9 @@ export function validateBackup(
       let decompressed: Buffer = input;
       if (isGzipBuffer(input)) {
         try {
-          decompressed = zlib.gunzipSync(input);
+          // Enforce the output cap during inflate so a gzip bomb cannot allocate
+          // an unbounded buffer before the post-decompression size check.
+          decompressed = zlib.gunzipSync(input, { maxOutputLength: maxPayloadBytes });
         } catch (err: any) {
           return {
             valid: false,
@@ -228,7 +230,14 @@ export function validateBackup(
 
     // Safety limit on total series count
     if (totalSeries > maxSeriesCount) {
-      errors.push(`Total series count (${totalSeries}) exceeds safety limit of ${maxSeriesCount} entries`);
+      return {
+        valid: false,
+        errors: [`Total series count (${totalSeries}) exceeds safety limit of ${maxSeriesCount} entries`],
+        warnings,
+        totalSeries,
+        totalChapters: 0,
+        validSeriesCount: 0,
+      };
     }
 
     // -----------------------------------------------------------------------
@@ -307,6 +316,12 @@ export function validateBackup(
           );
           seriesHasErrors = true;
         } else {
+          if (rawChapters.length > maxChaptersCount) {
+            errors.push(`Series at index [${i}] chapter count exceeds safety limit of ${maxChaptersCount} entries`);
+            seriesHasErrors = true;
+            totalChapters += rawChapters.length;
+            continue;
+          }
           for (let chIdx = 0; chIdx < rawChapters.length; chIdx++) {
             const ch = rawChapters[chIdx];
             if (!ch || typeof ch !== 'object' || Array.isArray(ch)) {
@@ -320,7 +335,7 @@ export function validateBackup(
             const rawNum = ch.chapterNumber ?? ch.chapter_number ?? ch.num;
             if (rawNum !== undefined && rawNum !== null) {
               const num = typeof rawNum === 'number' ? rawNum : Number(rawNum);
-              if (Number.isNaN(num)) {
+              if (!Number.isFinite(num) || Math.abs(num) > Number.MAX_SAFE_INTEGER) {
                 errors.push(
                   `Chapter at index [${chIdx}] in series "${item.title || 'untitled'}" has invalid/NaN chapter number (${JSON.stringify(rawNum)})`
                 );

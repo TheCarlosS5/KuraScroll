@@ -25,8 +25,8 @@ export interface SplitStitchHUDProps {
 
 const MODES: { id: SplitStitchMode; label: string; desc: string }[] = [
   { id: 'none', label: 'Original', desc: 'Sin división ni costura' },
-  { id: 'split_rtl', label: 'Dividir RTL', desc: 'Manga japonés (Der ➜ Izq)' },
-  { id: 'split_ltr', label: 'Dividir LTR', desc: 'Cómic/Manhwa (Izq ➜ Der)' },
+  { id: 'split_rtl', label: 'Dividir RTL', desc: 'Manga japonés (RTL)' },
+  { id: 'split_ltr', label: 'Dividir LTR', desc: 'Cómic/Manhwa (LTR)' },
   { id: 'stitch_webtoon', label: 'Coser Webtoon', desc: 'Cinta vertical continua' },
 ];
 
@@ -89,7 +89,7 @@ export const SplitStitchHUD: React.FC<SplitStitchHUDProps> = ({
         }}
       >
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-          <span style={{ fontSize: '18px' }}>✂️</span>
+          
           <span style={{ fontWeight: 600, fontSize: '14px' }}>
             División &amp; Costura Webtoon
           </span>
@@ -116,9 +116,7 @@ export const SplitStitchHUD: React.FC<SplitStitchHUDProps> = ({
             fontSize: '16px',
             padding: '4px',
           }}
-        >
-          ✕
-        </button>
+        >&times;</button>
       </div>
 
       {/* Enable Toggle */}

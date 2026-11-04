@@ -98,7 +98,7 @@ export const PageProjectionHUD: React.FC<PageProjectionHUDProps> = ({
         }}
       >
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-          <span style={{ fontSize: '18px' }}>📐</span>
+          
           <span style={{ fontWeight: 600, fontSize: '14px' }}>
             Perspectiva &amp; Ángulo 3D
           </span>
@@ -126,9 +126,7 @@ export const PageProjectionHUD: React.FC<PageProjectionHUDProps> = ({
             lineHeight: 1,
             padding: '4px',
           }}
-        >
-          ✕
-        </button>
+        >&times;</button>
       </div>
 
       {/* Main Switch */}

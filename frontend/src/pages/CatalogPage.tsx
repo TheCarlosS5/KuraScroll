@@ -197,18 +197,19 @@ export const CatalogPage: React.FC<CatalogPageProps> = ({
   return (
     <div className="max-w-7xl mx-auto px-4 lg:px-8 py-8">
       {/* Header Banner */}
-      <div className="text-center mb-8">
-        <h1 className="text-3xl md:text-5xl font-black text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-indigo-300 to-violet-500 tracking-tight">
+      {/* Header Banner */}
+      <div className="text-center mb-8 px-4">
+        <h1 className="text-2xl sm:text-3xl md:text-4xl font-extrabold text-zinc-100 tracking-tight">
           {isBookmarksView
-            ? 'Tus Mangas & Manhwas Guardados'
+            ? 'Mangas Guardados'
             : selectedCategory
-            ? `Biblioteca de ${selectedCategory.toUpperCase()}`
-            : 'Explorar Manga, Manhwa & Manhua'}
+            ? `Biblioteca de ${selectedCategory.charAt(0).toUpperCase() + selectedCategory.slice(1)}`
+            : 'Explorar Biblioteca'}
         </h1>
-        <p className="text-gray-400 text-sm md:text-base mt-2 max-w-xl mx-auto">
+        <p className="text-zinc-400 text-xs sm:text-sm mt-1.5 max-w-md mx-auto">
           {isBookmarksView
-            ? 'Lectura local optimizada almacenada en tu navegador.'
-            : 'Servidor local KuraScroll con compresión WebP y 4TB de almacenamiento.'}
+            ? 'Tus series favoritas sincronizadas localmente.'
+            : 'Tu colección personal de cómics, mangas y manhwas.'}
         </p>
       </div>
 
@@ -248,19 +249,19 @@ export const CatalogPage: React.FC<CatalogPageProps> = ({
       {/* Grid of Series Cards */}
       {loading ? (
         <div className="flex flex-col items-center justify-center py-24">
-          <div className="w-10 h-10 border-4 border-cyan-500/20 border-t-cyan-400 rounded-full animate-spin mb-4" />
-          <p className="text-sm text-gray-400">Cargando biblioteca...</p>
+          <div className="w-8 h-8 border-2 border-indigo-500/20 border-t-indigo-400 rounded-full animate-spin mb-3" />
+          <p className="text-xs text-zinc-400">Cargando biblioteca...</p>
         </div>
       ) : filteredItems.length === 0 ? (
-        <div className="text-center py-20 bg-gray-900/40 rounded-3xl border border-gray-800/80 p-8 max-w-lg mx-auto">
-          <BookOpen className="w-12 h-12 text-gray-600 mx-auto mb-3" />
-          <h3 className="text-lg font-bold text-gray-300">No se encontraron series</h3>
-          <p className="text-sm text-gray-400 mt-1 mb-4">
+        <div className="text-center py-12 sm:py-16 bg-zinc-900/40 rounded-2xl border border-zinc-800/80 p-5 sm:p-8 max-w-md mx-auto">
+          <BookOpen className="w-10 h-10 text-zinc-600 mx-auto mb-3" />
+          <h3 className="text-base font-semibold text-zinc-200">No se encontraron series</h3>
+          <p className="text-xs text-zinc-400 mt-1 mb-4 leading-relaxed break-words">
             {searchQuery
-              ? `No hay coincidencias para "${searchQuery}". Prueba con el título en Romaji o Kanji.`
+              ? `No hay coincidencias para "${searchQuery}".`
               : items.length > 0
               ? 'No hay series que coincidan con los filtros seleccionados.'
-              : 'Usa el comando CLI para importar tu primer capítulo a la biblioteca.'}
+              : 'Coloca archivos .cbz o .zip en data/storage/incoming o usa el ingestor CLI.'}
           </p>
           {(selectedType !== 'all' ||
             selectedStatus !== 'all' ||
@@ -269,7 +270,7 @@ export const CatalogPage: React.FC<CatalogPageProps> = ({
             onlyFavorites) && (
             <button
               onClick={handleResetFilters}
-              className="px-4 py-2 rounded-xl bg-gray-800 hover:bg-gray-700 text-cyan-400 text-xs font-semibold transition-colors cursor-pointer"
+              className="px-4 py-1.5 rounded-lg bg-zinc-800 hover:bg-zinc-700 text-zinc-200 text-xs font-medium transition-colors cursor-pointer"
             >
               Restablecer filtros
             </button>

@@ -115,9 +115,7 @@ export const StickyNoteOverlay: React.FC<StickyNoteOverlayProps> = ({
                       type="button"
                       onClick={() => setActivePinId(null)}
                       className="text-neutral-400 hover:text-neutral-100 text-xs px-1"
-                    >
-                      ✕
-                    </button>
+                     aria-label="Cerrar">&times;</button>
                   </div>
                 </div>
 
@@ -128,7 +126,7 @@ export const StickyNoteOverlay: React.FC<StickyNoteOverlayProps> = ({
                     onClick={() => toggleRevealSpoiler(ann.id)}
                     className="px-2 py-1.5 bg-neutral-900 border border-dashed border-red-900/60 rounded text-[11px] text-neutral-400 cursor-pointer text-center select-none hover:bg-neutral-850"
                   >
-                    ⚠️ <span className="font-semibold text-red-400">Spoiler</span> (Clic para mostrar)
+                    <span className="font-semibold text-red-400">Spoiler</span> (Clic para mostrar)
                   </div>
                 ) : (
                   <p className={`text-xs leading-relaxed break-words ${colorStyle.text}`}>

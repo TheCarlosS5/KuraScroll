@@ -126,7 +126,7 @@ export async function runCli(): Promise<void> {
       destinationDir: parsed.destination!,
       differential: !parsed.full,
     });
-    console.log(`\x1b[32m✔ Snapshot completado!\x1b[0m Tipo: ${report.type}, Capítulos copiados: ${report.chaptersCopied}, Omitidos: ${report.chaptersSkipped}, Bytes: ${report.bytesCopied} (${report.durationMs}ms)`);
+    console.log(`\x1b[32m[OK] Snapshot completado!\x1b[0m Tipo: ${report.type}, Capítulos copiados: ${report.chaptersCopied}, Omitidos: ${report.chaptersSkipped}, Bytes: ${report.bytesCopied} (${report.durationMs}ms)`);
     return;
   }
 
@@ -134,7 +134,7 @@ export async function runCli(): Promise<void> {
     console.log(`\x1b[36m[KuraScroll Ingest CLI]\x1b[0m Importando backup desde '${parsed.file}'...`);
     const buffer = await fs.promises.readFile(parsed.file!);
     const report = await importToSqlite({ db, backup: buffer, strict: false });
-    console.log(`\x1b[32m✔ Migración completada!\x1b[0m Series importadas: ${report.seriesImported}, Capítulos: ${report.chaptersCreated} (${report.durationMs}ms)`);
+    console.log(`\x1b[32m[OK] Migración completada!\x1b[0m Series importadas: ${report.seriesImported}, Capítulos: ${report.chaptersCreated} (${report.durationMs}ms)`);
     return;
   }
 
@@ -148,20 +148,20 @@ export async function runCli(): Promise<void> {
       db,
     });
     const totalValidPages = volResult.chapters.reduce((sum, ch) => sum + ch.pageCount, 0);
-    console.log(`\x1b[32m✔ Volumen procesado con éxito!\x1b[0m Capítulos detectados: ${volResult.totalChapters}, Páginas WebP: ${totalValidPages}`);
+    console.log(`\x1b[32m[OK] Volumen procesado con éxito!\x1b[0m Capítulos detectados: ${volResult.totalChapters}, Páginas WebP: ${totalValidPages}`);
     return;
   }
 
   console.log(`\x1b[36m[KuraScroll Ingest CLI]\x1b[0m Iniciando ingesta para la serie '${parsed.series}'...`);
-  console.log(`📂 Archivo fuente: ${parsed.file}`);
-  console.log(`💾 Almacenamiento 4TB: ${storageRoot}`);
+  console.log(`[Source] Archivo fuente: ${parsed.file}`);
+  console.log(`[Target] Almacenamiento 4TB: ${storageRoot}`);
 
   const seriesRepo = new SeriesRepository(db);
   const chapterRepo = new ChapterRepository(db);
 
   let series = seriesRepo.getSeriesBySlug(parsed.series!);
   if (!series) {
-    console.log(`ℹ️ La serie '${parsed.series}' no existe aún en la base de datos. Creando entrada básica...`);
+    console.log(`[Info] La serie '${parsed.series}' no existe aún en la base de datos. Creando entrada básica...`);
     seriesRepo.createSeries({
       id: parsed.series!,
       slug: parsed.series!,
@@ -199,10 +199,10 @@ export async function runCli(): Promise<void> {
 
   chapterRepo.addPages(chapterId, result.pages);
 
-  console.log(`\x1b[32m✔ Ingesta completada con éxito en ${durationSec}s!\x1b[0m`);
-  console.log(`  📄 Total de páginas WebP optimizadas: ${result.pageCount}`);
-  console.log(`  📦 Peso total en disco: ${totalMB} MB`);
-  console.log(`  📁 Ruta relativa: ${result.relativeStorageDir}`);
+  console.log(`\x1b[32m[OK] Ingesta completada con éxito en ${durationSec}s!\x1b[0m`);
+  console.log(`  [Pages] Total de páginas WebP optimizadas: ${result.pageCount}`);
+  console.log(`  [Size] Peso total en disco: ${totalMB} MB`);
+  console.log(`  [Path] Ruta relativa: ${result.relativeStorageDir}`);
 }
 
 if (process.argv[1]?.endsWith('ingest-cli.ts')) {

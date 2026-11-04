@@ -108,9 +108,7 @@ export const ChromaticFringeHUD: React.FC<ChromaticFringeHUDProps> = ({
             lineHeight: 1,
             padding: '2px 6px',
           }}
-        >
-          ✕
-        </button>
+        >&times;</button>
       </div>
 
       {/* Preset Selector */}

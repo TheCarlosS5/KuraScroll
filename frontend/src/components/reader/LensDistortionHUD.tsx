@@ -125,7 +125,7 @@ export const LensDistortionHUD: React.FC<LensDistortionHUDProps> = ({
         className="fixed bottom-4 left-36 z-40 bg-zinc-900 border border-zinc-700 text-zinc-300 px-3 py-1.5 text-xs font-mono rounded shadow hover:bg-zinc-800 transition-colors"
         title="Open Lens Distortion & Chromatic Aberration HUD (Hotkey: C)"
       >
-        <span className="text-cyan-400 font-bold mr-1.5">🔬 OPTICS</span>
+        <span className="text-cyan-400 font-bold mr-1.5">OPTICS</span>
         <kbd className="bg-zinc-800 px-1 py-0.5 rounded text-[10px] text-zinc-400 border border-zinc-700">C</kbd>
       </button>
     );
@@ -141,7 +141,7 @@ export const LensDistortionHUD: React.FC<LensDistortionHUDProps> = ({
       {/* Header */}
       <div className="flex items-center justify-between border-b border-zinc-800 pb-2 mb-3">
         <div className="flex items-center gap-2">
-          <span className="text-cyan-400 font-bold text-sm">🔬 OPTICAL LENS & CHROMA</span>
+          <span className="text-cyan-400 font-bold text-sm">OPTICAL LENS & CHROMA</span>
           <span className="bg-zinc-800 text-zinc-400 border border-zinc-700 px-1.5 py-0.5 rounded text-[10px]">
             SLA 90
           </span>
@@ -155,9 +155,7 @@ export const LensDistortionHUD: React.FC<LensDistortionHUDProps> = ({
             onClick={() => setIsHUDOpen(false)}
             className="text-zinc-400 hover:text-white px-1"
             title="Close (C)"
-          >
-            ✕
-          </button>
+           aria-label="Cerrar">&times;</button>
         </div>
       </div>
 

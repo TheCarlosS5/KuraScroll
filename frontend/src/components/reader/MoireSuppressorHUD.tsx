@@ -143,7 +143,7 @@ export const MoireSuppressorHUD: React.FC<MoireSuppressorHUDProps> = ({
         className="fixed bottom-4 left-44 z-40 bg-zinc-900 border border-zinc-700 text-zinc-300 px-3 py-1.5 text-xs font-mono rounded shadow hover:bg-zinc-800 transition-colors"
         title="Open Moiré Suppressor HUD (Hotkey: M)"
       >
-        <span className="text-emerald-400 font-bold mr-1.5">⚡ MOIRÉ</span>
+        <span className="text-emerald-400 font-bold mr-1.5">MOIRÉ</span>
         <kbd className="bg-zinc-800 px-1 py-0.5 rounded text-[10px] text-zinc-400 border border-zinc-700">M</kbd>
       </button>
     );
@@ -159,7 +159,7 @@ export const MoireSuppressorHUD: React.FC<MoireSuppressorHUDProps> = ({
       {/* Header */}
       <div className="flex items-center justify-between pb-2 mb-3 border-b border-zinc-800">
         <div className="flex items-center gap-2">
-          <span className="text-emerald-400 font-bold">⚡ MOIRÉ SUPPRESSOR</span>
+          <span className="text-emerald-400 font-bold">MOIRÉ SUPPRESSOR</span>
           <span className="text-[10px] text-zinc-400">SLA 91</span>
         </div>
         <div className="flex items-center gap-2">
@@ -177,9 +177,7 @@ export const MoireSuppressorHUD: React.FC<MoireSuppressorHUDProps> = ({
             onClick={() => setIsHUDOpen(false)}
             className="text-zinc-400 hover:text-white px-1 font-bold"
             title="Close HUD (M)"
-          >
-            ✕
-          </button>
+           aria-label="Cerrar">&times;</button>
         </div>
       </div>
 

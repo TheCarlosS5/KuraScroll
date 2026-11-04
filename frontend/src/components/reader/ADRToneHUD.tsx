@@ -50,7 +50,7 @@ export const ADRToneHUD: React.FC<ADRToneHUDProps> = ({ seriesId }) => {
         }}
         title="Open ADR Tone Curve & Black-Crush HUD (Hotkey: R)"
       >
-        📈 ADR Tone [R]
+        ADR Tone [R]
       </button>
     );
   }
@@ -83,7 +83,7 @@ export const ADRToneHUD: React.FC<ADRToneHUDProps> = ({ seriesId }) => {
       {/* Header */}
       <div className="flex items-center justify-between pb-2 mb-3 border-b" style={{ borderColor: '#27272a' }}>
         <div className="flex items-center space-x-2">
-          <span className="text-sm font-semibold text-amber-400">📈 ADR Tone &amp; Black-Crush Recovery</span>
+          <span className="text-sm font-semibold text-amber-400">ADR Tone &amp; Black-Crush Recovery</span>
           <span className="text-[10px] px-1.5 py-0.5 rounded bg-zinc-800 text-zinc-400">
             SLA 87
           </span>

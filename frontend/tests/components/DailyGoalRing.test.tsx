@@ -15,12 +15,12 @@ describe('DailyGoalRing Component', () => {
 
   it('displays completion star icon when target is reached', () => {
     render(<DailyGoalRing current={35} target={30} />);
-    expect(screen.getByText('⭐')).toBeDefined();
+    expect(screen.getByTestId('goal-star')).toBeDefined();
   });
 
   it('displays target icon when in progress', () => {
     render(<DailyGoalRing current={10} target={30} />);
-    expect(screen.getByText('🎯')).toBeDefined();
+    expect(screen.getByTestId('goal-target')).toBeDefined();
   });
 
   it('renders percentage text when showText is true', () => {

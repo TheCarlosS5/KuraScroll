@@ -485,9 +485,9 @@ export async function runDaemon(): Promise<void> {
     : path.resolve(storageRoot, 'incoming');
   const dbPath = env.DB_PATH ? path.resolve(env.DB_PATH) : path.resolve('./data/kura-scroll.db');
 
-  console.log(`📂 Incoming Directory: ${incomingDir}`);
-  console.log(`💾 Storage Root:       ${storageRoot}`);
-  console.log(`🗄️ Database:           ${dbPath}`);
+  console.log(`[Incoming] Directory:    ${incomingDir}`);
+  console.log(`[Storage]  Root:         ${storageRoot}`);
+  console.log(`[Database] File:         ${dbPath}`);
 
   const db = createDatabase(dbPath);
   runMigrations(db);
@@ -501,7 +501,7 @@ export async function runDaemon(): Promise<void> {
   });
 
   watcher.on('ingested', (summary: IngestionSummary) => {
-    console.log(`\x1b[32m✔ [Ingested]\x1b[0m ${summary.seriesSlug} - Chapter ${summary.chapterNumber} (${summary.pageCount} pages, ${(summary.totalBytes / (1024 * 1024)).toFixed(2)} MB)`);
+    console.log(`\x1b[32m[OK] [Ingested]\x1b[0m ${summary.seriesSlug} - Chapter ${summary.chapterNumber} (${summary.pageCount} pages, ${(summary.totalBytes / (1024 * 1024)).toFixed(2)} MB)`);
     if (summary.destinationFile) {
       console.log(`   ↳ Moved to: ${summary.destinationFile}`);
     } else if (summary.deleted) {
@@ -510,11 +510,11 @@ export async function runDaemon(): Promise<void> {
   });
 
   watcher.on('error', (err) => {
-    console.error(`\x1b[31m✖ [Daemon Error]\x1b[0m ${err.message}`);
+    console.error(`\x1b[31m[ERROR] [Daemon Error]\x1b[0m ${err.message}`);
   });
 
   await watcher.start();
-  console.log('\x1b[32m✔ Watching for incoming chapters (.cbz, .zip). Press Ctrl+C to stop.\x1b[0m');
+  console.log('\x1b[32m[OK] Watching for incoming chapters (.cbz, .zip). Press Ctrl+C to stop.\x1b[0m');
 
   const shutdown = async () => {
     console.log('\nShutting down folder watcher daemon...');

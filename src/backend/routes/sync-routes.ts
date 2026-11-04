@@ -43,16 +43,36 @@ export function registerSyncRoutes(
         });
       }
 
-      const userId = body.userId || 'local_user';
+      let batchBytes = 0;
+      for (const mutation of body.mutations as unknown[]) {
+        if (!mutation || typeof mutation !== 'object' || Array.isArray(mutation)) {
+          return reply.status(400).send({ statusCode: 400, error: 'Bad Request', message: 'Each mutation must be an object' });
+        }
+        const item = mutation as Partial<ReplayMutationItem>;
+        if (typeof item.clientMutationId !== 'string' || item.clientMutationId.length < 1 || item.clientMutationId.length > 128 ||
+            !['UPDATE_PROGRESS', 'CREATE_BOOKMARK', 'DELETE_BOOKMARK'].includes(item.type || '') ||
+            !item.payload || typeof item.payload !== 'object' || Array.isArray(item.payload) ||
+            (item.timestamp !== undefined && (typeof item.timestamp !== 'string' || !Number.isFinite(Date.parse(item.timestamp))))) {
+          return reply.status(400).send({ statusCode: 400, error: 'Bad Request', message: 'Mutation envelope is invalid' });
+        }
+        batchBytes += Buffer.byteLength(JSON.stringify(mutation), 'utf8');
+        if (batchBytes > 512 * 1024) {
+          return reply.status(413).send({ statusCode: 413, error: 'Payload Too Large', message: 'Mutation batch exceeds 512 KiB' });
+        }
+      }
+
+      const rawUserId = typeof body?.userId === 'string' && body.userId.trim() ? body.userId.trim() : 'local_user';
+      const userId = rawUserId.replace(/[^a-zA-Z0-9_\-\.]/g, '').slice(0, 100) || 'local_user';
 
       try {
         const result = await syncService.replayMutations(userId, body.mutations);
         return reply.status(200).send(result);
       } catch (err: any) {
+        req.log.error({ err }, 'Offline sync replay failed');
         return reply.status(500).send({
           statusCode: 500,
           error: 'Internal Server Error',
-          message: err.message || 'Failed to replay mutations batch',
+          message: 'Failed to replay mutations batch. Check server logs.',
         });
       }
     }
@@ -67,7 +87,8 @@ export function registerSyncRoutes(
       req: FastifyRequest<{ Querystring: { userId?: string } }>,
       reply: FastifyReply
     ) => {
-      const userId = req.query?.userId || 'local_user';
+      const rawUserId = typeof req.query?.userId === 'string' && req.query.userId.trim() ? req.query.userId.trim() : 'local_user';
+      const userId = rawUserId.replace(/[^a-zA-Z0-9_\-\.]/g, '').slice(0, 100) || 'local_user';
 
       const stats = db
         .prepare(

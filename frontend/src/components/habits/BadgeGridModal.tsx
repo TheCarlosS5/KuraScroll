@@ -109,7 +109,7 @@ export const BadgeGridModal: React.FC<BadgeGridModalProps> = ({
         >
           <div>
             <h2 id="badge-modal-title" style={{ margin: 0, fontSize: '1.3rem', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <span>🏆</span> Logros & Medallas de Lectura
+              Logros & Medallas de Lectura
             </h2>
             <p style={{ margin: '4px 0 0', fontSize: '0.85rem', color: '#94A3B8' }}>
               Desbloquea medallas leyendo mangas, manteniendo rachas y descubriendo obras.
@@ -174,11 +174,11 @@ export const BadgeGridModal: React.FC<BadgeGridModalProps> = ({
         >
           {[
             { id: 'all', label: 'Todas' },
-            { id: 'volume', label: '📖 Volumen' },
-            { id: 'streak', label: '🔥 Racha' },
-            { id: 'time', label: '🌙 Horarios' },
-            { id: 'explorer', label: '🧭 Explorador' },
-            { id: 'collector', label: '👑 Colección' },
+            { id: 'volume', label: 'Volumen' },
+            { id: 'streak', label: 'Racha' },
+            { id: 'time', label: 'Horarios' },
+            { id: 'explorer', label: 'Explorador' },
+            { id: 'collector', label: 'Colección' },
           ].map((cat) => (
             <button
               key={cat.id}
@@ -235,7 +235,7 @@ export const BadgeGridModal: React.FC<BadgeGridModalProps> = ({
                 <div>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '8px' }}>
                     <span style={{ fontSize: '1.6rem', filter: badge.isUnlocked ? 'none' : 'grayscale(1)' }}>
-                      {badge.isUnlocked ? '⭐' : '🔒'}
+                      {badge.isUnlocked ? 'Unlocked' : 'Locked'}
                     </span>
                     <span
                       style={{
@@ -264,7 +264,7 @@ export const BadgeGridModal: React.FC<BadgeGridModalProps> = ({
                 <div style={{ marginTop: '12px' }}>
                   {badge.isUnlocked ? (
                     <div style={{ fontSize: '0.75rem', color: '#10B981', fontWeight: 600 }}>
-                      ✓ Desbloqueada
+                      Desbloqueada
                     </div>
                   ) : (
                     <div>

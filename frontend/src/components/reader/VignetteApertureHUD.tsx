@@ -52,7 +52,7 @@ export const VignetteApertureHUD: React.FC<VignetteApertureHUDProps> = ({ series
         }}
         title="Open Vignette & Aperture DoF HUD (Hotkey: V)"
       >
-        📷 Vignette DoF [V]
+        Vignette DoF [V]
       </button>
     );
   }
@@ -74,7 +74,7 @@ export const VignetteApertureHUD: React.FC<VignetteApertureHUDProps> = ({ series
       {/* Header */}
       <div className="flex items-center justify-between pb-2 mb-3 border-b" style={{ borderColor: '#27272a' }}>
         <div className="flex items-center space-x-2">
-          <span className="text-sm font-semibold text-purple-400">📷 Atmospheric Vignette &amp; DoF</span>
+          <span className="text-sm font-semibold text-purple-400">Atmospheric Vignette &amp; DoF</span>
           <span className="text-[10px] px-1.5 py-0.5 rounded bg-zinc-800 text-zinc-400">
             SLA 85
           </span>

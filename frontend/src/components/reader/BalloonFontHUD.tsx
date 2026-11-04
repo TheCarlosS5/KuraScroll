@@ -107,9 +107,7 @@ export const BalloonFontHUD: React.FC<BalloonFontHUDProps> = ({
             padding: '2px 6px',
             lineHeight: 1,
           }}
-        >
-          ✕
-        </button>
+        >&times;</button>
       </div>
 
       {/* Preset Buttons */}

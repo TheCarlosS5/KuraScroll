@@ -16,7 +16,7 @@ describe('OfflineMutationOutboxHUD Component (Sprint 35)', () => {
 
     expect(screen.getByTestId('offline-mutation-hud')).toBeDefined();
     expect(screen.getByText('Sincronizado')).toBeDefined();
-    expect(screen.getByText('✔')).toBeDefined();
+    expect(screen.getByText('OK')).toBeDefined();
   });
 
   it('renders offline state badge with pending count when disconnected', () => {
@@ -31,7 +31,7 @@ describe('OfflineMutationOutboxHUD Component (Sprint 35)', () => {
 
     expect(screen.getByTestId('offline-mutation-hud')).toBeDefined();
     expect(screen.getByText(/Sin conexión \(4 cambios pendientes\)/i)).toBeDefined();
-    expect(screen.getByText('⚡')).toBeDefined();
+    expect(screen.getByTestId('outbox-zap')).toBeDefined();
   });
 
   it('renders syncing indicator and rotating spinner when syncing', () => {

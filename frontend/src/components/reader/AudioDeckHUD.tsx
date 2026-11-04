@@ -77,7 +77,7 @@ export const AudioDeckHUD: React.FC<AudioDeckHUDProps> = ({
           transition: 'background 0.2s ease',
         }}
       >
-        {isMuted ? '🔇' : bgmVolume === 0 && sfxVolume === 0 ? '🔈' : '🔊'}
+        {isMuted ? 'Muted' : 'Audio'}
       </button>
 
       {/* Zero-Blur Animated Audio Wave Indicator */}

@@ -11,7 +11,7 @@ export interface CatalogFiltersProps {
   filteredCount: number;
   totalCount: number;
   onResetFilters?: () => void;
-  // Sprint 10.4: User Bookshelf & Collections Filters
+  // User Bookshelf & Collections Filters
   selectedShelf?: string;
   onSelectShelf?: (shelf: string) => void;
   onlyFavorites?: boolean;
@@ -74,16 +74,16 @@ export const CatalogFilters: React.FC<CatalogFiltersProps> = ({
   return (
     <div
       data-testid="catalog-filters"
-      className="bg-[#0b101b]/90 border border-gray-800/80 rounded-2xl p-4 md:p-5 mb-8 shadow-xl backdrop-blur-md transition-all"
+      className="w-full max-w-full bg-zinc-900/60 border border-zinc-800/80 rounded-xl p-3 sm:p-4 mb-6 shadow-sm transition-all overflow-hidden"
     >
       {/* Top Bar: Title, Favorites Toggle & Results Counter */}
-      <div className="flex flex-wrap items-center justify-between gap-3 mb-4 pb-3 border-b border-gray-800/60">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 mb-3 pb-2.5 border-b border-zinc-800/60">
         <div className="flex flex-wrap items-center gap-2">
-          <div className="p-1.5 rounded-lg bg-[#dc2626]/10 text-[#dc2626] border border-[#dc2626]/30">
-            <Filter className="w-4 h-4" />
+          <div className="p-1 rounded bg-zinc-800 text-zinc-300">
+            <Filter className="w-3.5 h-3.5" />
           </div>
-          <span className="text-sm font-bold text-gray-200 tracking-wide">
-            Filtros de Catálogo
+          <span className="text-xs font-semibold text-zinc-200">
+            Filtros
           </span>
 
           {/* Quick Toggle: Mis Favoritos */}
@@ -92,15 +92,15 @@ export const CatalogFilters: React.FC<CatalogFiltersProps> = ({
               type="button"
               data-testid="toggle-favorites-filter"
               onClick={() => onToggleOnlyFavorites(!onlyFavorites)}
-              className={`flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold border transition-all cursor-pointer ml-1 ${
+              className={`flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-medium border transition-colors cursor-pointer ${
                 onlyFavorites
-                  ? 'bg-[#dc2626]/20 border-[#dc2626] text-[#dc2626] shadow-[0_0_10px_rgba(220,38,38,0.3)]'
-                  : 'bg-gray-900 border-gray-800 text-gray-400 hover:text-white hover:bg-gray-800'
+                  ? 'bg-rose-950/60 border-rose-800/80 text-rose-300'
+                  : 'bg-zinc-800/60 border-zinc-700/60 text-zinc-400 hover:text-white'
               }`}
             >
               <Heart
-                className={`w-3.5 h-3.5 ${
-                  onlyFavorites ? 'fill-[#dc2626] text-[#dc2626]' : 'text-gray-400'
+                className={`w-3 h-3 ${
+                  onlyFavorites ? 'fill-rose-400 text-rose-400' : 'text-zinc-400'
                 }`}
               />
               <span>Mis Favoritos</span>
@@ -111,11 +111,11 @@ export const CatalogFilters: React.FC<CatalogFiltersProps> = ({
             <button
               data-testid="reset-filters-btn"
               onClick={onResetFilters}
-              className="flex items-center gap-1 text-xs text-[#dc2626] hover:text-red-400 font-medium ml-2 transition-colors cursor-pointer"
+              className="flex items-center gap-1 text-xs text-zinc-400 hover:text-zinc-200 font-medium ml-1 transition-colors cursor-pointer"
               title="Restablecer todos los filtros"
             >
               <RotateCcw className="w-3 h-3" />
-              <span>Limpiar filtros</span>
+              <span>Limpiar</span>
             </button>
           )}
         </div>
@@ -123,22 +123,22 @@ export const CatalogFilters: React.FC<CatalogFiltersProps> = ({
         {/* Filtered count badge */}
         <div
           data-testid="filter-results-counter"
-          className="text-xs font-medium text-gray-400 bg-gray-900/90 border border-gray-800 px-3 py-1 rounded-full shadow-inner"
+          className="text-[11px] text-zinc-400 bg-zinc-800/60 border border-zinc-800 px-2.5 py-0.5 rounded-full w-fit self-start sm:self-auto"
         >
-          Mostrando <strong className="text-cyan-400 font-bold">{filteredCount}</strong> de {totalCount} series
+          Mostrando <strong className="text-zinc-200 font-semibold">{filteredCount}</strong> de {totalCount} series
         </div>
       </div>
 
       {/* Filter Rows */}
-      <div className="flex flex-col gap-3.5">
-        {/* Row 0 (Sprint 10.4): Mi Biblioteca / Estantería */}
+      <div className="flex flex-col gap-2.5 text-xs">
+        {/* Row 0: Colección */}
         {onSelectShelf && (
-          <div className="flex flex-wrap items-center gap-2" role="group" aria-label="Filtro por Colección">
-            <span className="text-[11px] font-bold uppercase tracking-wider text-cyan-400 w-20 shrink-0 flex items-center gap-1">
-              <Bookmark className="w-3 h-3" />
+          <div className="flex flex-col sm:flex-row sm:items-center gap-1.5" role="group" aria-label="Filtro por Colección">
+            <span className="text-[11px] font-medium text-zinc-400 w-16 shrink-0 flex items-center gap-1">
+              <Bookmark className="w-3 h-3 text-zinc-400" />
               <span>Colección:</span>
             </span>
-            <div className="flex flex-wrap items-center gap-1.5">
+            <div className="flex flex-wrap items-center gap-1 min-w-0 flex-1">
               {SHELF_OPTIONS.map((opt) => {
                 const isActive = selectedShelf.toLowerCase() === opt.id.toLowerCase();
                 return (
@@ -147,15 +147,11 @@ export const CatalogFilters: React.FC<CatalogFiltersProps> = ({
                     data-testid={`filter-shelf-${opt.id}`}
                     onClick={() => onSelectShelf(opt.id)}
                     aria-pressed={isActive}
-                    className={`px-3 py-1 rounded-full text-xs font-medium transition-all duration-200 cursor-pointer ${
+                    className={`px-2.5 py-0.5 rounded-full text-xs font-medium transition-colors cursor-pointer ${
                       isActive
-                        ? 'bg-[#dc2626]/20 border border-[#dc2626] text-white font-semibold shadow-[0_0_10px_rgba(220,38,38,0.25)]'
-                        : 'bg-gray-900/60 hover:bg-gray-800/80 border border-gray-800 text-gray-400 hover:text-white'
+                        ? 'border-[#dc2626] bg-[#dc2626]/20 text-white font-semibold'
+                        : 'bg-zinc-800/40 hover:bg-zinc-800 border border-zinc-800 text-zinc-400 hover:text-white'
                     }`}
-                    style={{
-                      borderColor: isActive ? '#dc2626' : undefined,
-                      backgroundColor: isActive ? 'rgba(220, 38, 38, 0.2)' : undefined,
-                    }}
                   >
                     {opt.label}
                   </button>
@@ -166,11 +162,11 @@ export const CatalogFilters: React.FC<CatalogFiltersProps> = ({
         )}
 
         {/* Row 1: Tipo */}
-        <div className="flex flex-wrap items-center gap-2" role="group" aria-label="Filtro por Tipo">
-          <span className="text-[11px] font-bold uppercase tracking-wider text-gray-400 w-20 shrink-0">
+        <div className="flex flex-col sm:flex-row sm:items-center gap-1.5" role="group" aria-label="Filtro por Tipo">
+          <span className="text-[11px] font-medium text-zinc-400 w-16 shrink-0">
             Tipo:
           </span>
-          <div className="flex flex-wrap items-center gap-1.5">
+          <div className="flex flex-wrap items-center gap-1 min-w-0 flex-1">
             {TYPE_OPTIONS.map((opt) => {
               const isActive = selectedType.toLowerCase() === opt.id.toLowerCase();
               return (
@@ -179,15 +175,11 @@ export const CatalogFilters: React.FC<CatalogFiltersProps> = ({
                   data-testid={`filter-type-${opt.id}`}
                   onClick={() => onSelectType(opt.id)}
                   aria-pressed={isActive}
-                  className={`px-3 py-1 rounded-full text-xs font-medium transition-all duration-200 cursor-pointer ${
+                  className={`px-2.5 py-0.5 rounded-full text-xs font-medium transition-colors cursor-pointer ${
                     isActive
-                      ? 'bg-[#dc2626]/20 border border-[#dc2626] text-white font-semibold shadow-[0_0_10px_rgba(220,38,38,0.25)]'
-                      : 'bg-gray-900/60 hover:bg-gray-800/80 border border-gray-800 text-gray-400 hover:text-white'
+                      ? 'border-[#dc2626] bg-[#dc2626]/20 text-white font-semibold'
+                      : 'bg-zinc-800/40 hover:bg-zinc-800 border border-zinc-800 text-zinc-400 hover:text-white'
                   }`}
-                  style={{
-                    borderColor: isActive ? '#dc2626' : undefined,
-                    backgroundColor: isActive ? 'rgba(220, 38, 38, 0.2)' : undefined,
-                  }}
                 >
                   {opt.label}
                 </button>
@@ -197,11 +189,11 @@ export const CatalogFilters: React.FC<CatalogFiltersProps> = ({
         </div>
 
         {/* Row 2: Estado */}
-        <div className="flex flex-wrap items-center gap-2" role="group" aria-label="Filtro por Estado">
-          <span className="text-[11px] font-bold uppercase tracking-wider text-gray-400 w-20 shrink-0">
+        <div className="flex flex-col sm:flex-row sm:items-center gap-1.5" role="group" aria-label="Filtro por Estado">
+          <span className="text-[11px] font-medium text-zinc-400 w-16 shrink-0">
             Estado:
           </span>
-          <div className="flex flex-wrap items-center gap-1.5">
+          <div className="flex flex-wrap items-center gap-1 min-w-0 flex-1">
             {STATUS_OPTIONS.map((opt) => {
               const isActive = selectedStatus.toLowerCase() === opt.id.toLowerCase();
               return (
@@ -210,15 +202,11 @@ export const CatalogFilters: React.FC<CatalogFiltersProps> = ({
                   data-testid={`filter-status-${opt.id}`}
                   onClick={() => onSelectStatus(opt.id)}
                   aria-pressed={isActive}
-                  className={`px-3 py-1 rounded-full text-xs font-medium transition-all duration-200 cursor-pointer ${
+                  className={`px-2.5 py-0.5 rounded-full text-xs font-medium transition-colors cursor-pointer ${
                     isActive
-                      ? 'bg-[#dc2626]/20 border border-[#dc2626] text-white font-semibold shadow-[0_0_10px_rgba(220,38,38,0.25)]'
-                      : 'bg-gray-900/60 hover:bg-gray-800/80 border border-gray-800 text-gray-400 hover:text-white'
+                      ? 'border-[#dc2626] bg-[#dc2626]/20 text-white font-semibold'
+                      : 'bg-zinc-800/40 hover:bg-zinc-800 border border-zinc-800 text-zinc-400 hover:text-white'
                   }`}
-                  style={{
-                    borderColor: isActive ? '#dc2626' : undefined,
-                    backgroundColor: isActive ? 'rgba(220, 38, 38, 0.2)' : undefined,
-                  }}
                 >
                   {opt.label}
                 </button>
@@ -228,11 +216,11 @@ export const CatalogFilters: React.FC<CatalogFiltersProps> = ({
         </div>
 
         {/* Row 3: Géneros populares */}
-        <div className="flex flex-wrap items-center gap-2" role="group" aria-label="Filtro por Géneros">
-          <span className="text-[11px] font-bold uppercase tracking-wider text-gray-400 w-20 shrink-0">
+        <div className="flex flex-col sm:flex-row sm:items-center gap-1.5" role="group" aria-label="Filtro por Géneros">
+          <span className="text-[11px] font-medium text-zinc-400 w-16 shrink-0">
             Género:
           </span>
-          <div className="flex flex-wrap items-center gap-1.5">
+          <div className="flex flex-wrap items-center gap-1 min-w-0 flex-1">
             {GENRE_OPTIONS.map((opt) => {
               const isActive = selectedGenre.toLowerCase() === opt.id.toLowerCase();
               return (
@@ -241,15 +229,11 @@ export const CatalogFilters: React.FC<CatalogFiltersProps> = ({
                   data-testid={`filter-genre-${opt.id.toLowerCase().replace(/\s+/g, '-')}`}
                   onClick={() => onSelectGenre(opt.id)}
                   aria-pressed={isActive}
-                  className={`px-3 py-1 rounded-full text-xs font-medium transition-all duration-200 cursor-pointer ${
+                  className={`px-2.5 py-0.5 rounded-full text-xs font-medium transition-colors cursor-pointer ${
                     isActive
-                      ? 'bg-[#dc2626]/20 border border-[#dc2626] text-white font-semibold shadow-[0_0_10px_rgba(220,38,38,0.25)]'
-                      : 'bg-gray-900/60 hover:bg-gray-800/80 border border-gray-800 text-gray-400 hover:text-white'
+                      ? 'border-[#dc2626] bg-[#dc2626]/20 text-white font-semibold'
+                      : 'bg-zinc-800/40 hover:bg-zinc-800 border border-zinc-800 text-zinc-400 hover:text-white'
                   }`}
-                  style={{
-                    borderColor: isActive ? '#dc2626' : undefined,
-                    backgroundColor: isActive ? 'rgba(220, 38, 38, 0.2)' : undefined,
-                  }}
                 >
                   {opt.label}
                 </button>
@@ -261,3 +245,5 @@ export const CatalogFilters: React.FC<CatalogFiltersProps> = ({
     </div>
   );
 };
+
+export default CatalogFilters;

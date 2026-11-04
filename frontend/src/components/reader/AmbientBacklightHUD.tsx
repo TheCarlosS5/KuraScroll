@@ -92,7 +92,7 @@ export const AmbientBacklightHUD: React.FC<AmbientBacklightHUDProps> = ({
         }}
       >
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-          <span style={{ fontSize: '18px' }}>💡</span>
+          
           <span style={{ fontWeight: 600, fontSize: '14px' }}>
             Luz Ambiental &amp; Circadiana
           </span>
@@ -120,9 +120,7 @@ export const AmbientBacklightHUD: React.FC<AmbientBacklightHUDProps> = ({
             lineHeight: 1,
             padding: '4px',
           }}
-        >
-          ✕
-        </button>
+        >&times;</button>
       </div>
 
       {/* Main Switch */}

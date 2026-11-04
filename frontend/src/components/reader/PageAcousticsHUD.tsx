@@ -94,7 +94,7 @@ export const PageAcousticsHUD: React.FC<PageAcousticsHUDProps> = ({
         }}
       >
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-          <span style={{ fontSize: '18px' }}>📖🔊</span>
+          <span className="text-xs font-mono text-indigo-400">ACOUSTIC</span>
           <span style={{ fontWeight: 600, fontSize: '14px' }}>
             Acústica de Páginas &amp; Háptica
           </span>
@@ -122,9 +122,7 @@ export const PageAcousticsHUD: React.FC<PageAcousticsHUDProps> = ({
             lineHeight: 1,
             padding: '4px',
           }}
-        >
-          ✕
-        </button>
+        >&times;</button>
       </div>
 
       {/* Main Switch */}
@@ -283,7 +281,7 @@ export const PageAcousticsHUD: React.FC<PageAcousticsHUDProps> = ({
             cursor: 'pointer',
           }}
         >
-          🔊 Probar Crujido
+          Probar Crujido
         </button>
       </div>
 

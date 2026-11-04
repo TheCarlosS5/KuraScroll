@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Sparkles, ChevronLeft, ChevronRight, Clock, Compass } from 'lucide-react';
+import { Sparkles, ChevronLeft, ChevronRight, Compass } from 'lucide-react';
 
 export interface RecommendationCardItem {
   id: string;
@@ -39,7 +39,6 @@ export const SmartRecommendationsRow: React.FC<SmartRecommendationsRowProps> = (
           }
         }
       } catch {
-        // Network or offline fallback
       } finally {
         if (isMounted) setLoading(false);
       }
@@ -53,18 +52,18 @@ export const SmartRecommendationsRow: React.FC<SmartRecommendationsRowProps> = (
 
   const scroll = (direction: 'left' | 'right') => {
     if (scrollRef.current) {
-      const amount = direction === 'left' ? -320 : 320;
+      const amount = direction === 'left' ? -300 : 300;
       scrollRef.current.scrollBy({ left: amount, behavior: 'smooth' });
     }
   };
 
   if (loading) {
     return (
-      <div className="mb-10 animate-pulse" data-testid="recommendations-loading">
-        <div className="h-6 w-56 bg-gray-800 rounded mb-4" />
-        <div className="flex gap-4 overflow-hidden">
+      <div className="mb-8 animate-pulse" data-testid="recommendations-loading">
+        <div className="h-5 w-44 bg-zinc-800 rounded mb-3" />
+        <div className="flex gap-3 overflow-hidden">
           {[1, 2, 3, 4].map((i) => (
-            <div key={i} className="w-52 h-72 bg-gray-900 border border-gray-800 rounded-xl flex-shrink-0" />
+            <div key={i} className="w-44 h-64 bg-zinc-900 border border-zinc-800 rounded-xl flex-shrink-0" />
           ))}
         </div>
       </div>
@@ -76,47 +75,42 @@ export const SmartRecommendationsRow: React.FC<SmartRecommendationsRowProps> = (
   }
 
   return (
-    <section className="mb-10" aria-label="Recomendaciones personalizadas" data-testid="recommendations-section">
-      <div className="flex items-center justify-between mb-4">
+    <section className="mb-8 select-none" aria-label="Recomendaciones personalizadas" data-testid="recommendations-section">
+      <div className="flex items-center justify-between mb-3 px-1">
         <div className="flex items-center gap-2">
-          <div className="w-8 h-8 rounded-lg bg-indigo-950 border border-indigo-700/60 flex items-center justify-center text-indigo-400">
-            <Sparkles className="w-4 h-4" />
+          <div className="w-7 h-7 rounded-lg bg-indigo-950/80 border border-indigo-800/60 flex items-center justify-center text-indigo-400">
+            <Sparkles className="w-3.5 h-3.5" />
           </div>
           <div>
-            <h2 className="text-xl font-bold text-gray-100 flex items-center gap-2">
+            <h2 className="text-sm font-semibold text-zinc-100 flex items-center gap-2">
               Recomendados para ti
-              <span className="text-xs px-2 py-0.5 rounded-full bg-indigo-900/40 text-indigo-300 border border-indigo-700/40">
-                IA Ligera & Afinidad
-              </span>
             </h2>
-            <p className="text-xs text-gray-400">
-              Basado en tus hábitos de lectura y equilibrio de serendipia (Cero ML en disco).
+            <p className="text-[11px] text-zinc-400">
+              Basado en tus lecturas recientes.
             </p>
           </div>
         </div>
 
         {/* Carousel Arrow Controls */}
-        <div className="hidden sm:flex items-center gap-2">
+        <div className="hidden sm:flex items-center gap-1.5">
           <button
             onClick={() => scroll('left')}
-            className="p-1.5 rounded-lg bg-gray-900 border border-gray-800 text-gray-400 hover:text-white hover:bg-gray-800 transition-colors"
-            title="Desplazar a la izquierda"
-            aria-label="Desplazar a la izquierda"
+            className="p-1 rounded-lg bg-zinc-900 border border-zinc-800 hover:border-zinc-700 text-zinc-400 hover:text-white transition-colors cursor-pointer"
+            aria-label="Desplazar hacia la izquierda"
           >
-            <ChevronLeft className="w-4 h-4" />
+            <ChevronLeft className="w-3.5 h-3.5" />
           </button>
           <button
             onClick={() => scroll('right')}
-            className="p-1.5 rounded-lg bg-gray-900 border border-gray-800 text-gray-400 hover:text-white hover:bg-gray-800 transition-colors"
-            title="Desplazar a la derecha"
-            aria-label="Desplazar a la derecha"
+            className="p-1 rounded-lg bg-zinc-900 border border-zinc-800 hover:border-zinc-700 text-zinc-400 hover:text-white transition-colors cursor-pointer"
+            aria-label="Desplazar hacia la derecha"
           >
-            <ChevronRight className="w-4 h-4" />
+            <ChevronRight className="w-3.5 h-3.5" />
           </button>
         </div>
       </div>
 
-      {/* Horizontal Scrollable Shelf (Optimized for Intel GMA 4500MHD: no blurs, pure transform) */}
+      {/* Recommendations Horizontal Carousel */}
       <div
         ref={scrollRef}
         tabIndex={0}
@@ -124,30 +118,26 @@ export const SmartRecommendationsRow: React.FC<SmartRecommendationsRowProps> = (
           if (e.key === 'ArrowLeft') scroll('left');
           if (e.key === 'ArrowRight') scroll('right');
         }}
-        className="flex gap-4 overflow-x-auto pb-4 pt-1 scrollbar-thin scrollbar-thumb-gray-800 focus:outline-none"
+        className="flex gap-3 overflow-x-auto pb-2 scrollbar-none focus:outline-none"
       >
         {items.map((item) => {
-          const isHighAffinity = item.affinityScore >= 80;
-          const isMediumAffinity = item.affinityScore >= 50;
           const isSerendipity = item.reasonType === 'serendipity';
 
           const pillBg = isSerendipity
-            ? 'bg-purple-950/80 text-purple-300 border-purple-800/60'
-            : isHighAffinity
-            ? 'bg-emerald-950/80 text-emerald-300 border-emerald-800/60'
-            : isMediumAffinity
-            ? 'bg-amber-950/80 text-amber-300 border-amber-800/60'
-            : 'bg-cyan-950/80 text-cyan-300 border-cyan-800/60';
+            ? 'bg-purple-950/70 text-purple-300 border-purple-800/60'
+            : item.affinityScore >= 80
+            ? 'bg-emerald-950/70 text-emerald-300 border-emerald-800/60'
+            : 'bg-zinc-800 text-zinc-300 border-zinc-700';
 
           return (
             <div
               key={item.id}
               onClick={() => onSelectSeries(item.slug)}
-              className="group relative w-48 sm:w-56 flex-shrink-0 bg-gray-900/90 border border-gray-800/80 hover:border-indigo-500/80 rounded-xl overflow-hidden cursor-pointer transition-all duration-200 hover:-translate-y-1"
+              className="group relative w-40 sm:w-48 flex-shrink-0 bg-zinc-900/60 border border-zinc-800/80 hover:border-zinc-700 rounded-xl overflow-hidden cursor-pointer transition-all duration-200 active:scale-[0.98] shadow-sm flex flex-col"
               data-testid={`recommendation-card-${item.slug}`}
             >
               {/* Cover Image Container */}
-              <div className="relative aspect-[3/4] w-full bg-gray-950 overflow-hidden">
+              <div className="relative aspect-[2/3] w-full bg-zinc-950 overflow-hidden">
                 {item.coverImage ? (
                   <img
                     src={item.coverImage}
@@ -156,18 +146,18 @@ export const SmartRecommendationsRow: React.FC<SmartRecommendationsRowProps> = (
                     className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
                   />
                 ) : (
-                  <div className="w-full h-full flex flex-col items-center justify-center p-4 text-center bg-gray-950">
-                    <Compass className="w-8 h-8 text-gray-700 mb-2" />
-                    <span className="text-xs text-gray-500 font-medium line-clamp-2">
+                  <div className="w-full h-full flex flex-col items-center justify-center p-3 text-center bg-zinc-900">
+                    <Compass className="w-6 h-6 text-zinc-600 mb-1.5" />
+                    <span className="text-[11px] text-zinc-400 font-medium line-clamp-2">
                       {item.titlePrimary}
                     </span>
                   </div>
                 )}
 
-                {/* Score / Discovery Badge in Top Right */}
+                {/* Score / Discovery Badge */}
                 <div className="absolute top-2 right-2">
                   <span
-                    className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold border ${pillBg}`}
+                    className={`inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-medium border ${pillBg}`}
                   >
                     {isSerendipity ? 'Salto' : item.affinityScore > 0 ? `${item.affinityScore}% match` : 'Popular'}
                   </span>
@@ -175,40 +165,29 @@ export const SmartRecommendationsRow: React.FC<SmartRecommendationsRowProps> = (
 
                 {/* Format pill (Manga / Manhwa / Manhua) */}
                 <div className="absolute bottom-2 left-2">
-                  <span className="px-1.5 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-gray-950/90 border border-gray-800 text-gray-300">
+                  <span className="px-1.5 py-0.5 rounded text-[9px] font-semibold uppercase tracking-wider bg-zinc-950/90 border border-zinc-800 text-zinc-300">
                     {item.type}
                   </span>
                 </div>
               </div>
 
-              {/* Card Meta Content */}
-              <div className="p-3">
-                {/* Otaku Reason Micro-Badge */}
-                <p
-                  className="text-[11px] font-medium text-indigo-400 line-clamp-1 mb-1"
-                  title={item.reasonBadge}
-                >
-                  {item.reasonBadge}
-                </p>
-
-                {/* Title */}
-                <h3
-                  className="text-sm font-semibold text-gray-100 group-hover:text-indigo-300 line-clamp-1 transition-colors"
-                  title={item.titlePrimary}
-                >
+              {/* Card Meta Footer */}
+              <div className="p-2.5 flex flex-col justify-between flex-1 gap-1">
+                <h3 className="font-medium text-xs text-zinc-100 group-hover:text-white line-clamp-1 transition-colors">
                   {item.titlePrimary}
                 </h3>
 
-                {/* Estimated reading time per chapter */}
-                <div className="mt-2 flex items-center justify-between text-[11px] text-gray-400">
-                  <span className="flex items-center gap-1 text-gray-400">
-                    <Clock className="w-3 h-3 text-cyan-400" />
+                {item.reasonBadge && (
+                  <p className="text-[10px] text-zinc-400 line-clamp-1">
+                    {item.reasonBadge}
+                  </p>
+                )}
+
+                {item.estimatedChapterMinutes > 0 && (
+                  <span className="text-[10px] text-zinc-400">
                     ~{item.estimatedChapterMinutes} min / cap
                   </span>
-                  <span className="text-[10px] text-gray-400 uppercase">
-                    {item.genres[0] || 'Aventura'}
-                  </span>
-                </div>
+                )}
               </div>
             </div>
           );
@@ -217,3 +196,5 @@ export const SmartRecommendationsRow: React.FC<SmartRecommendationsRowProps> = (
     </section>
   );
 };
+
+export default SmartRecommendationsRow;

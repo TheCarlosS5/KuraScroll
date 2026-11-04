@@ -20,12 +20,12 @@ export interface SoundscapeTrack {
 }
 
 export const INITIAL_SOUNDSCAPE_TRACKS: SoundscapeTrack[] = [
-  { id: 'rain', name: 'Lluvia en Ventana', icon: '🌧️', volume: 60, isPlaying: false },
-  { id: 'campfire', name: 'Hoguera & Campamento', icon: '🔥', volume: 50, isPlaying: false },
-  { id: 'wind', name: 'Viento & Niebla', icon: '💨', volume: 40, isPlaying: false },
-  { id: 'tavern', name: 'Taberna Medieval', icon: '🍺', volume: 50, isPlaying: false },
-  { id: 'mystery', name: 'Misterio & Susurros', icon: '🕯️', volume: 45, isPlaying: false },
-  { id: 'lofi_zen', name: 'Lo-Fi Zen Study', icon: '☕', volume: 55, isPlaying: false },
+  { id: 'rain', name: 'Lluvia en Ventana', icon: 'rain', volume: 60, isPlaying: false },
+  { id: 'campfire', name: 'Hoguera & Campamento', icon: 'campfire', volume: 50, isPlaying: false },
+  { id: 'wind', name: 'Viento & Niebla', icon: 'wind', volume: 40, isPlaying: false },
+  { id: 'tavern', name: 'Taberna Medieval', icon: 'tavern', volume: 50, isPlaying: false },
+  { id: 'mystery', name: 'Misterio & Susurros', icon: 'mystery', volume: 45, isPlaying: false },
+  { id: 'lofi_zen', name: 'Lo-Fi Zen Study', icon: 'lofi_zen', volume: 55, isPlaying: false },
 ];
 
 export interface UseAmbientSoundscapeOptions {

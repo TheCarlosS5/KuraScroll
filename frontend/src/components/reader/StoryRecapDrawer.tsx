@@ -172,9 +172,7 @@ export const StoryRecapDrawer: React.FC<StoryRecapDrawerProps> = ({
                 borderRadius: '4px',
               }}
               title="Cerrar resumen"
-            >
-              ✕
-            </button>
+             aria-label="Cerrar">&times;</button>
           </div>
 
           <h2 style={{ margin: 0, fontSize: '18px', fontWeight: 600, color: '#fafafa' }}>
@@ -194,7 +192,7 @@ export const StoryRecapDrawer: React.FC<StoryRecapDrawerProps> = ({
               gap: '6px',
             }}
           >
-            <span>🛡️</span>
+            
             <span>
               Resumen hasta el <strong>Cap. {throughChapterSeq}</strong> (100% Anti-Spoiler para Cap. {currentChapterNumber})
             </span>
@@ -298,7 +296,7 @@ export const StoryRecapDrawer: React.FC<StoryRecapDrawerProps> = ({
                     gap: '4px',
                   }}
                 >
-                  <strong style={{ fontSize: '13px', color: '#fdba74' }}>⚠️ Estado al final del arco:</strong>
+                  <strong style={{ fontSize: '13px', color: '#fdba74' }}>Estado al final del arco:</strong>
                   <span style={{ fontSize: '12px', color: '#fed7aa', lineHeight: '1.5' }}>
                     {cliffhangerWarning}
                   </span>

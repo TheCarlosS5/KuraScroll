@@ -18,6 +18,10 @@ export interface DeepZoomRoutesOptions {
   cacheRoot?: string;
 }
 
+function isValidChapterId(value: string): boolean {
+  return /^[a-zA-Z0-9][a-zA-Z0-9._-]{0,199}$/.test(value) && !value.includes('..');
+}
+
 export const deepZoomRoutes: FastifyPluginAsync<DeepZoomRoutesOptions> = async (
   fastify: FastifyInstance,
   opts: DeepZoomRoutesOptions
@@ -41,7 +45,7 @@ export const deepZoomRoutes: FastifyPluginAsync<DeepZoomRoutesOptions> = async (
     const { chapterId, pageNumber } = request.params;
     const pageNum = parseInt(pageNumber, 10);
 
-    if (isNaN(pageNum) || pageNum < 0) {
+    if (!isValidChapterId(chapterId) || !/^\d+$/.test(pageNumber) || !Number.isSafeInteger(pageNum) || pageNum < 0 || pageNum > 100_000) {
       return reply.status(400).send({
         statusCode: 400,
         error: 'Bad Request',
@@ -56,9 +60,13 @@ export const deepZoomRoutes: FastifyPluginAsync<DeepZoomRoutesOptions> = async (
       const w = parseInt(request.query.width, 10);
       const h = parseInt(request.query.height, 10);
       const s = request.query.tileSize ? parseInt(request.query.tileSize, 10) : undefined;
-      if (!isNaN(w) && !isNaN(h) && w > 0 && h > 0) {
-        manifest = service.registerOrGetManifest(chapterId, pageNum, w, h, s);
+      if (!/^\d+$/.test(request.query.width) || !/^\d+$/.test(request.query.height) ||
+          !Number.isSafeInteger(w) || !Number.isSafeInteger(h) || w < 1 || h < 1 ||
+          w > 20_000 || h > 20_000 || w * h > 40_000_000 ||
+          (request.query.tileSize !== undefined && (!/^\d+$/.test(request.query.tileSize) || !Number.isSafeInteger(s!) || s! < 64 || s! > 1024))) {
+        return reply.status(400).send({ statusCode: 400, error: 'Bad Request', message: 'Invalid image dimensions or tile size' });
       }
+      manifest = service.registerOrGetManifest(chapterId, pageNum, w, h, s);
     }
 
     if (!manifest) {
@@ -88,7 +96,12 @@ export const deepZoomRoutes: FastifyPluginAsync<DeepZoomRoutesOptions> = async (
     const pageNum = parseInt(pageNumber, 10);
     const { width, height, tileSize, overlap } = request.body ?? {};
 
-    if (isNaN(pageNum) || pageNum < 0 || !width || !height || width <= 0 || height <= 0) {
+    if (!isValidChapterId(chapterId) || !/^\d+$/.test(pageNumber) || !Number.isSafeInteger(pageNum) || pageNum < 0 || pageNum > 100_000 ||
+        !Number.isSafeInteger(width) || !Number.isSafeInteger(height) || !width || !height ||
+        width < 1 || height < 1 ||
+        width > 20_000 || height > 20_000 || width * height > 40_000_000 ||
+        (tileSize !== undefined && (!Number.isSafeInteger(tileSize) || tileSize < 64 || tileSize > 1024)) ||
+        (overlap !== undefined && (!Number.isSafeInteger(overlap) || overlap < 0 || overlap > 64))) {
       return reply.status(400).send({
         statusCode: 400,
         error: 'Bad Request',
@@ -156,7 +169,9 @@ export const deepZoomRoutes: FastifyPluginAsync<DeepZoomRoutesOptions> = async (
     const levelNum = parseInt(level, 10);
 
     const match = tile.match(/^(\d+)_(\d+)\.webp$/);
-    if (!match || isNaN(pageNum) || isNaN(levelNum)) {
+    if (!isValidChapterId(chapterId) || !match || !/^\d+$/.test(pageNumber) || !/^\d+$/.test(level) ||
+        !Number.isSafeInteger(pageNum) || pageNum > 100_000 ||
+        !Number.isSafeInteger(levelNum) || levelNum > 16) {
       return reply.status(400).send({
         statusCode: 400,
         error: 'Bad Request',
@@ -180,11 +195,11 @@ export const deepZoomRoutes: FastifyPluginAsync<DeepZoomRoutesOptions> = async (
       reply.header('ETag', tileData.etag);
       return reply.status(200).send(tileData.buffer);
     } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : String(err);
+      request.log.error({ err }, 'Deep zoom tile generation failed');
       return reply.status(500).send({
         statusCode: 500,
         error: 'Internal Server Error',
-        message: `Failed to fetch tile: ${msg}`,
+        message: 'Failed to fetch tile. Check server logs.',
       });
     }
   });

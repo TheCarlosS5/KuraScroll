@@ -197,25 +197,25 @@ export const HistoryPage: React.FC<HistoryPageProps> = ({
       {/* Header & Stats */}
       {historyItems.length > 0 ? (
         <div className="history-header-anim mb-8">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-gray-800/80">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-5 border-b border-zinc-800/80">
             <div>
-              <div className="flex items-center gap-2.5">
-                <div className="p-2 rounded-xl bg-cyan-500/10 text-cyan-400 border border-cyan-500/20">
-                  <History className="w-6 h-6" />
+              <div className="flex items-center gap-2">
+                <div className="p-1.5 rounded-lg bg-zinc-800 text-zinc-300">
+                  <History className="w-5 h-5" />
                 </div>
-                <h1 className="text-2xl font-black tracking-tight text-white">
+                <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-white">
                   Historial de Lectura
                 </h1>
               </div>
-              <p className="text-sm text-gray-400 mt-1">
-                Continúa donde lo dejaste. Tu progreso se conserva en tu almacenamiento local.
+              <p className="text-xs text-zinc-400 mt-1">
+                Continúa donde lo dejaste.
               </p>
             </div>
 
             {/* Quick Actions */}
             <button
               onClick={handleClearAll}
-              className="self-start sm:self-auto flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-rose-400 hover:text-rose-300 bg-rose-950/40 hover:bg-rose-950/70 border border-rose-800/40 rounded-xl transition-colors"
+              className="self-start sm:self-auto flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-rose-400 hover:text-rose-300 bg-rose-950/30 hover:bg-rose-950/60 border border-rose-800/30 rounded-lg transition-colors cursor-pointer"
               title="Vaciar todo el historial"
             >
               <Trash2 className="w-3.5 h-3.5" />
@@ -224,25 +224,25 @@ export const HistoryPage: React.FC<HistoryPageProps> = ({
           </div>
 
           {/* Reading Statistics Banner */}
-          <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 mt-6">
-            <div className="p-4 rounded-2xl bg-[#0f172a]/80 border border-white/5 backdrop-blur-md">
-              <span className="text-xs text-gray-400 font-medium">Series en Lectura</span>
-              <p className="text-2xl font-extrabold text-cyan-400 mt-1">
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 mt-4">
+            <div className="p-3.5 rounded-xl bg-zinc-900/60 border border-zinc-800/80">
+              <span className="text-[11px] text-zinc-400 font-medium">Series en Lectura</span>
+              <p className="text-xl font-bold text-zinc-100 mt-1">
                 {historyItems.length}
               </p>
             </div>
-            <div className="p-4 rounded-2xl bg-[#0f172a]/80 border border-white/5 backdrop-blur-md">
-              <span className="text-xs text-gray-400 font-medium">Última Sesión</span>
-              <p className="text-base font-bold text-gray-200 mt-1.5 truncate">
+            <div className="p-3.5 rounded-xl bg-zinc-900/60 border border-zinc-800/80">
+              <span className="text-[11px] text-zinc-400 font-medium">Última Sesión</span>
+              <p className="text-sm font-semibold text-zinc-200 mt-1.5 truncate">
                 {historyItems[0] ? formatRelativeTime(historyItems[0].timestamp) : 'N/A'}
               </p>
             </div>
-            <div className="col-span-2 sm:col-span-1 p-4 rounded-2xl bg-[#0f172a]/80 border border-white/5 backdrop-blur-md flex items-center justify-between">
+            <div className="col-span-2 sm:col-span-1 p-3.5 rounded-xl bg-zinc-900/60 border border-zinc-800/80 flex items-center justify-between">
               <div>
-                <span className="text-xs text-gray-400 font-medium">Almacenamiento</span>
-                <p className="text-sm font-semibold text-emerald-400 mt-1 flex items-center gap-1.5">
-                  <Sparkles className="w-3.5 h-3.5" />
-                  IndexedDB Local
+                <span className="text-[11px] text-zinc-400 font-medium">Sincronización</span>
+                <p className="text-xs font-medium text-emerald-400 mt-1 flex items-center gap-1.5">
+                  <Sparkles className="w-3 h-3" />
+                  Almacenamiento Local
                 </p>
               </div>
             </div>
@@ -252,17 +252,17 @@ export const HistoryPage: React.FC<HistoryPageProps> = ({
 
       {/* History Grid */}
       {historyItems.length > 0 ? (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
           {historyItems.map((item) => {
             const badgeColor =
               typeBadgeColors[item.type.toLowerCase()] ||
-              'bg-gray-800 text-gray-300 border-gray-700';
+              'bg-zinc-800 text-zinc-300 border-zinc-700';
 
             return (
               <div
                 key={item.seriesId}
                 data-testid={`history-card-${item.seriesId}`}
-                className="history-card group relative bg-[#0e1422] rounded-2xl border border-gray-800/80 overflow-hidden hover:border-cyan-500/50 hover:shadow-[0_0_25px_rgba(0,229,255,0.15)] transition-all duration-300 flex flex-col justify-between"
+                className="history-card group relative bg-zinc-900/60 rounded-xl border border-zinc-800/80 overflow-hidden hover:border-zinc-700 transition-all duration-200 flex flex-col justify-between active:scale-[0.98]"
               >
                 {/* Top: Card Header & Cover */}
                 <div>

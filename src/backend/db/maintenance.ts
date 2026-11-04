@@ -128,7 +128,7 @@ if (process.argv[1]?.endsWith('maintenance.ts') || process.argv[1]?.endsWith('ma
   console.log(`\x1b[36m[DB Maintenance]\x1b[0m Executing maintenance on: ${dbPath}`);
   const db = createDatabase(dbPath);
   const result = runDatabaseMaintenance(db);
-  console.log(`\x1b[32m✔ Maintenance completed.\x1b[0m Integrity: ${result.ok ? 'OK' : 'FAILED'}`);
+  console.log(`\x1b[32m[OK] Maintenance completed.\x1b[0m Integrity: ${result.ok ? 'OK' : 'FAILED'}`);
   console.log(JSON.stringify(result, null, 2));
   db.close();
 }

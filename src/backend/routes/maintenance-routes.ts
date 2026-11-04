@@ -30,7 +30,7 @@ export function registerMaintenanceRoutes(
   });
 
   // Trigger non-blocking storage compaction and WAL checkpointer
-  app.post('/api/v1/admin/maintenance/compact', async (_req, reply) => {
+  app.post('/api/v1/admin/maintenance/compact', async (req, reply) => {
     try {
       const report = await compactor.runCompaction();
       return {
@@ -38,6 +38,7 @@ export function registerMaintenanceRoutes(
         report,
       };
     } catch (err: any) {
+      req.log.error({ err }, 'Storage compaction failed');
       if (err.message && err.message.includes('already in progress')) {
         reply.status(409);
         return {
@@ -50,7 +51,7 @@ export function registerMaintenanceRoutes(
       return {
         statusCode: 500,
         error: 'Internal Server Error',
-        message: err.message || 'Compaction failed',
+        message: 'Compaction failed. Check server logs.',
       };
     }
   });

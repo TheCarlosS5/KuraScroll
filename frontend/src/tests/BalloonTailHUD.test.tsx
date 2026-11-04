@@ -39,7 +39,7 @@ describe('BalloonTailHUD Component', () => {
     expect(sliders.length).toBeGreaterThanOrEqual(3);
 
     // Close HUD
-    const closeBtn = screen.getByText('✕');
+    const closeBtn = screen.getByRole('button', { name: /cerrar|×/i });
     fireEvent.click(closeBtn);
     expect(screen.queryByTestId('balloon-tail-hud')).toBeNull();
   });

@@ -5,7 +5,7 @@ import pLimit from 'p-limit';
 import sharp from 'sharp';
 import { optimizeImageToWebP, PageMetadata } from './image-processor.js';
 import { naturalSort } from '../utils/natural-sort.js';
-import { isPathSafe } from './archive-extractor.js';
+import { assertArchiveFileSize, getValidatedEntryData, isPathSafe, validateArchiveEntries } from './archive-extractor.js';
 import { DatabaseInstance } from '../db/database.js';
 import { ChapterRepository } from '../repositories/chapter-repository.js';
 import { AdaptiveIngestionController } from './adaptive-ingestion-controller.js';
@@ -14,6 +14,8 @@ import { AdaptiveIngestionController } from './adaptive-ingestion-controller.js'
 sharp.cache(false);
 
 const VALID_IMAGE_EXTENSIONS = new Set(['.png', '.jpg', '.jpeg', '.webp', '.avif', '.gif']);
+const MAX_VOLUME_CHAPTER_PAGES = 5_000;
+const MAX_VOLUME_CHAPTER_INPUT_BYTES = 256 * 1024 * 1024;
 
 export interface IngestVolumeParams {
   storageRoot: string;
@@ -205,6 +207,12 @@ export function detectVolumeChapters(zip: AdmZip, destDir: string): { groups: Ch
  * Ingests a multi-chapter volume archive with fault tolerance and idempotence.
  */
 export async function ingestVolumeArchive(params: IngestVolumeParams): Promise<VolumeIngestResult> {
+  if (!/^[a-zA-Z0-9][a-zA-Z0-9._-]{0,150}$/.test(params.seriesSlug) ||
+      params.seriesSlug === '.' || params.seriesSlug === '..' ||
+      !Number.isSafeInteger(params.volumeNumber ?? 1) || (params.volumeNumber ?? 1) < 0) {
+    throw new Error('Invalid series slug or volume number');
+  }
+  await assertArchiveFileSize(params.sourcePath);
   const vol = params.volumeNumber ?? 1;
   const tempExtractBase = path.resolve(
     params.storageRoot,
@@ -218,6 +226,8 @@ export async function ingestVolumeArchive(params: IngestVolumeParams): Promise<V
   } catch (err: any) {
     throw new Error(`Failed to open volume archive '${path.basename(params.sourcePath)}': ${err.message}`);
   }
+
+  validateArchiveEntries(zip.getEntries());
 
   const { groups, warnings: detectionWarnings } = detectVolumeChapters(zip, tempExtractBase);
   const allWarnings: string[] = [...detectionWarnings];
@@ -240,6 +250,7 @@ export async function ingestVolumeArchive(params: IngestVolumeParams): Promise<V
     const validPages: PageMetadata[] = [];
     const chapterWarnings: string[] = [];
     let skippedCount = 0;
+    let inputBytes = 0;
 
     // Process pages sequentially or with controlled concurrency
     for (let idx = 0; idx < group.entries.length; idx++) {
@@ -247,11 +258,16 @@ export async function ingestVolumeArchive(params: IngestVolumeParams): Promise<V
       let entryBuffer: Buffer;
 
       try {
-        entryBuffer = entry.getData();
+        entryBuffer = getValidatedEntryData(entry);
       } catch (err: any) {
         chapterWarnings.push(`Corrupt entry bytes in "${entry.entryName}": ${err.message}`);
         skippedCount++;
         continue;
+      }
+
+      inputBytes += entryBuffer.length;
+      if (validPages.length >= MAX_VOLUME_CHAPTER_PAGES || inputBytes > MAX_VOLUME_CHAPTER_INPUT_BYTES) {
+        throw new Error(`Chapter ${chapNum} exceeds its page or input-size limit`);
       }
 
       // Check minimum buffer size for image headers

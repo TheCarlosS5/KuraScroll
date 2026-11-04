@@ -69,7 +69,7 @@ export const AmbientSoundscapeHUD: React.FC<AmbientSoundscapeHUDProps> = ({
         {/* Header */}
         <div className="flex justify-between items-center pb-2 border-b border-zinc-800">
           <div className="flex items-center gap-2">
-            <span className="text-base" role="img" aria-label="headphones">🎧</span>
+            
             <div>
               <h2 id="soundscape-modal-title" className="text-sm font-bold text-indigo-400">
                 Mezclador de Paisajes Sonoros (B)
@@ -82,9 +82,7 @@ export const AmbientSoundscapeHUD: React.FC<AmbientSoundscapeHUDProps> = ({
             onClick={onClose}
             className="text-zinc-400 hover:text-white cursor-pointer text-lg leading-none p-1"
             aria-label="Cerrar mezclador"
-          >
-            ✕
-          </button>
+          >&times;</button>
         </div>
 
         {/* Master Control */}
@@ -128,7 +126,7 @@ export const AmbientSoundscapeHUD: React.FC<AmbientSoundscapeHUDProps> = ({
             >
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                  <span className="text-sm">{track.icon}</span>
+                  <span className="w-2 h-2 rounded-full bg-indigo-400 inline-block" />
                   <span className="text-xs font-semibold text-gray-200">{track.name}</span>
                 </div>
                 <button

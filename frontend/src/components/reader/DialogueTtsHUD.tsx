@@ -109,7 +109,7 @@ export const DialogueTtsHUD: React.FC<DialogueTtsHUDProps> = ({
         }}
       >
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-          <span style={{ fontSize: '18px' }}>🎙️</span>
+          
           <span style={{ fontWeight: 600, fontSize: '14px' }}>
             Voz Dinámica &amp; TTS
           </span>
@@ -136,9 +136,7 @@ export const DialogueTtsHUD: React.FC<DialogueTtsHUDProps> = ({
             fontSize: '16px',
             padding: '4px',
           }}
-        >
-          ✕
-        </button>
+        >&times;</button>
       </div>
 
       {/* Current Bubble Status Card */}
@@ -224,7 +222,7 @@ export const DialogueTtsHUD: React.FC<DialogueTtsHUDProps> = ({
             fontSize: '14px',
           }}
         >
-          ⏮
+          {'|<<'}
         </button>
 
         {isPlaying ? (
@@ -242,7 +240,7 @@ export const DialogueTtsHUD: React.FC<DialogueTtsHUDProps> = ({
               fontSize: '14px',
             }}
           >
-            ⏸ Pausar
+            Pausar
           </button>
         ) : isPaused ? (
           <button
@@ -297,7 +295,7 @@ export const DialogueTtsHUD: React.FC<DialogueTtsHUDProps> = ({
             fontSize: '14px',
           }}
         >
-          ⏹
+          []
         </button>
 
         <button
@@ -315,7 +313,7 @@ export const DialogueTtsHUD: React.FC<DialogueTtsHUDProps> = ({
             fontSize: '14px',
           }}
         >
-          ⏭
+          {'>>|'}
         </button>
       </div>
 

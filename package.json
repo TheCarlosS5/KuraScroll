@@ -12,7 +12,9 @@
     "test:all": "vitest run && npm --prefix frontend run test",
     "test:sla": "tsx scripts/benchmark-sla.ts",
     "ingest": "tsx src/backend/cli/ingest-cli.ts",
-    "watch:incoming": "tsx src/backend/daemon/folder-watcher.ts"
+    "watch:incoming": "tsx src/backend/daemon/folder-watcher.ts",
+    "purge:data": "tsx scripts/purge-test-data.ts",
+    "ingest:pdf": "tsx scripts/ingest-pdf-mangas.ts"
   },
   "keywords": ["manga", "manhwa", "manhua", "webtoon", "reader", "kura-stream"],
   "author": "Carlos & Antigravity Orchestrator",

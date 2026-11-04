@@ -16,21 +16,21 @@ const STATE_CONFIG: Record<
 > = {
   nominal_60: {
     label: '60 FPS',
-    icon: '🟢',
+    icon: 'NORMAL',
     textClass: 'text-emerald-400',
     bgClass: 'bg-emerald-950/40',
     borderClass: 'border-emerald-500/40',
   },
   paced_30: {
     label: '30 FPS Paced',
-    icon: '🟡',
+    icon: 'WARM',
     textClass: 'text-amber-400',
     bgClass: 'bg-amber-950/40',
     borderClass: 'border-amber-500/40',
   },
   emergency_step: {
     label: 'Step Mode',
-    icon: '🟠',
+    icon: 'HOT',
     textClass: 'text-orange-400',
     bgClass: 'bg-orange-950/40',
     borderClass: 'border-orange-500/40',

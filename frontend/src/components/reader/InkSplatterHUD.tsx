@@ -51,7 +51,7 @@ export const InkSplatterHUD: React.FC<InkSplatterHUDProps> = ({
         className="fixed bottom-4 left-[54rem] z-40 bg-zinc-900 border border-zinc-700 text-zinc-300 px-3 py-1.5 text-xs font-mono rounded shadow hover:bg-zinc-800 transition-colors"
         title="Open Ink Splatter & Bleed Feathering HUD (Hotkey: Shift + S)"
       >
-        <span className="text-rose-400 font-bold mr-1.5">💥 INK SPLATTER</span>
+        <span className="text-rose-400 font-bold mr-1.5">INK SPLATTER</span>
         <kbd className="bg-zinc-800 px-1 py-0.5 rounded text-[10px] text-zinc-400 border border-zinc-700">⇧S</kbd>
       </button>
     );
@@ -67,7 +67,7 @@ export const InkSplatterHUD: React.FC<InkSplatterHUDProps> = ({
       {/* Header */}
       <div className="flex items-center justify-between pb-2 mb-3 border-b border-zinc-800">
         <div className="flex items-center gap-2">
-          <span className="text-rose-400 font-bold">💥 INK SPLATTER</span>
+          <span className="text-rose-400 font-bold">INK SPLATTER</span>
           <span className="text-[10px] text-zinc-400">SLA 98</span>
         </div>
         <div className="flex items-center gap-2">
@@ -87,9 +87,7 @@ export const InkSplatterHUD: React.FC<InkSplatterHUDProps> = ({
             onClick={toggleHud}
             className="text-zinc-500 hover:text-zinc-300 text-sm leading-none px-1"
             title="Close HUD (Shift + S)"
-          >
-            ✕
-          </button>
+           aria-label="Cerrar">&times;</button>
         </div>
       </div>
 

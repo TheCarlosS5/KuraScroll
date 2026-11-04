@@ -110,9 +110,7 @@ export const BalloonCollisionHUD: React.FC<BalloonCollisionHUDProps> = ({
             padding: '2px 6px',
             lineHeight: 1,
           }}
-        >
-          ✕
-        </button>
+        >&times;</button>
       </div>
 
       {/* Preset Buttons */}

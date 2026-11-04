@@ -77,9 +77,7 @@ export const StorageVaultHUD: React.FC<StorageVaultHUDProps> = ({
             onClick={onClose}
             className="text-zinc-400 hover:text-white cursor-pointer text-lg leading-none p-1"
             aria-label="Cerrar bóveda"
-          >
-            ✕
-          </button>
+          >&times;</button>
         </div>
 
         {/* Quota Progress Bar */}
@@ -144,7 +142,7 @@ export const StorageVaultHUD: React.FC<StorageVaultHUDProps> = ({
                         : 'bg-zinc-800 text-zinc-400 hover:text-zinc-200'
                     }`}
                   >
-                    {ch.isPinned ? '📌 Fijado' : 'Fijar'}
+                    {ch.isPinned ? 'Fijado' : 'Fijar'}
                   </button>
                   <button
                     data-testid={`delete-btn-${ch.id}`}

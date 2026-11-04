@@ -40,7 +40,7 @@ describe('AnnotationDeckHUD & StickyNoteOverlay Unit Tests (Sprint 52)', () => {
       anchorX: 10.0,
       anchorY: 10.0,
       annotationType: 'reaction',
-      contentText: 'Hilarious facial expression 😂',
+      contentText: 'Hilarious facial expression',
       colorPreset: 'green',
       isSpoiler: false,
       createdAt: '2026-11-02T00:10:00Z',

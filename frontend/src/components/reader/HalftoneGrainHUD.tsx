@@ -51,7 +51,7 @@ export const HalftoneGrainHUD: React.FC<HalftoneGrainHUDProps> = ({ seriesId }) 
         }}
         title="Open Halftone Paper Grain HUD (Hotkey: G)"
       >
-        📰 Paper Grain [G]
+        Paper Grain [G]
       </button>
     );
   }
@@ -70,7 +70,7 @@ export const HalftoneGrainHUD: React.FC<HalftoneGrainHUDProps> = ({ seriesId }) 
       {/* Header */}
       <div className="flex items-center justify-between pb-2 mb-3 border-b" style={{ borderColor: '#27272a' }}>
         <div className="flex items-center space-x-2">
-          <span className="text-sm font-semibold text-amber-400">📰 Halftone Grain</span>
+          <span className="text-sm font-semibold text-amber-400">Halftone Grain</span>
           <span className="text-[10px] px-1.5 py-0.5 rounded bg-zinc-800 text-zinc-400">
             SLA 79
           </span>
@@ -88,9 +88,7 @@ export const HalftoneGrainHUD: React.FC<HalftoneGrainHUDProps> = ({ seriesId }) 
           <button
             onClick={() => setIsHUDOpen(false)}
             className="text-zinc-400 hover:text-zinc-200 px-1 py-0.5 rounded hover:bg-zinc-800"
-          >
-            ✕
-          </button>
+           aria-label="Cerrar">&times;</button>
         </div>
       </div>
 

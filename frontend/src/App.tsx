@@ -10,10 +10,29 @@ import { StorageTelemetryModal } from './components/settings/StorageTelemetryMod
 import { OfflineMutationOutboxHUD } from './components/sync/OfflineMutationOutboxHUD.js';
 
 export function App() {
-  const [view, setView] = useState<'catalog' | 'bookmarks' | 'history' | 'detail' | 'reader'>('catalog');
+  const [view, setView] = useState<'catalog' | 'bookmarks' | 'history' | 'detail' | 'reader'>(() => {
+    try {
+      const params = new URLSearchParams(window.location.search);
+      if (params.has('chapter')) return 'reader';
+      if (params.has('series')) return 'detail';
+    } catch {}
+    return 'catalog';
+  });
   const [selectedCategory, setSelectedCategory] = useState<string | undefined>(undefined);
-  const [selectedSeriesSlug, setSelectedSeriesSlug] = useState<string | null>(null);
-  const [selectedChapterId, setSelectedChapterId] = useState<string | null>(null);
+  const [selectedSeriesSlug, setSelectedSeriesSlug] = useState<string | null>(() => {
+    try {
+      return new URLSearchParams(window.location.search).get('series');
+    } catch {
+      return null;
+    }
+  });
+  const [selectedChapterId, setSelectedChapterId] = useState<string | null>(() => {
+    try {
+      return new URLSearchParams(window.location.search).get('chapter');
+    } catch {
+      return null;
+    }
+  });
   const [isBackupOpen, setIsBackupOpen] = useState(false);
   const [isSisterModalOpen, setIsSisterModalOpen] = useState(false);
   const [isStorageModalOpen, setIsStorageModalOpen] = useState(false);
@@ -40,7 +59,7 @@ export function App() {
   };
 
   return (
-    <div className="min-h-screen bg-[#080c14] text-white flex flex-col">
+    <div className="min-h-screen bg-[#090d16] text-zinc-100 flex flex-col antialiased overflow-x-hidden w-full max-w-full">
       {/* Show Navbar on all views except full reader */}
       {view !== 'reader' && (
         <Navbar

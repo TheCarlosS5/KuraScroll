@@ -160,10 +160,10 @@ export const PanelPacingHUD: React.FC<PanelPacingHUDProps> = ({
                   whiteSpace: 'nowrap',
                 }}
               >
-                {pKey === 'cinematic_smooth' && '🎬 Cinematic'}
-                {pKey === 'dynamic_action' && '⚡ Fast Action'}
-                {pKey === 'instant_cut' && '✂️ Instant Cut'}
-                {pKey === 'custom' && '⚙️ Custom'}
+                {pKey === 'cinematic_smooth' && 'Cinematic'}
+                {pKey === 'dynamic_action' && 'Fast Action'}
+                {pKey === 'instant_cut' && 'Instant Cut'}
+                {pKey === 'custom' && 'Custom'}
               </button>
             );
           })}
@@ -256,7 +256,7 @@ export const PanelPacingHUD: React.FC<PanelPacingHUDProps> = ({
               color: '#a1a1aa',
             }}
           >
-            ➔ zoom {scale.toFixed(2)}x
+            {'-> zoom '}{scale.toFixed(2)}x
           </div>
         </div>
       </div>

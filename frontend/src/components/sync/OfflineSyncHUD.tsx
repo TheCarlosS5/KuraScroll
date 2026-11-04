@@ -67,9 +67,9 @@ export const OfflineSyncHUD: React.FC<OfflineSyncHUDProps> = (props) => {
         {status === 'syncing' ? (
           <span className="sync-spinner inline-block w-3.5 h-3.5 border-2 border-current border-t-transparent rounded-full" />
         ) : status === 'offline' ? (
-          <span className="text-amber-400">⚡</span>
+          <span className="text-amber-400 font-mono text-xs">SYNC</span>
         ) : (
-          <span className="text-emerald-400">✔</span>
+          <span className="text-emerald-400 font-mono text-xs">OK</span>
         )}
 
         <span>

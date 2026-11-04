@@ -48,7 +48,7 @@ export const CJKKerningHUD: React.FC<CJKKerningHUDProps> = ({ seriesId }) => {
         }}
         title="Open CJK Kerning & Stroke Density HUD (Hotkey: K)"
       >
-        🔤 CJK Kerning [K]
+        CJK Kerning [K]
       </button>
     );
   }
@@ -70,7 +70,7 @@ export const CJKKerningHUD: React.FC<CJKKerningHUDProps> = ({ seriesId }) => {
       {/* Header */}
       <div className="flex items-center justify-between pb-2 mb-3 border-b" style={{ borderColor: '#27272a' }}>
         <div className="flex items-center space-x-2">
-          <span className="text-sm font-semibold text-blue-400">🔤 CJK Kerning &amp; Stroke Density</span>
+          <span className="text-sm font-semibold text-blue-400">CJK Kerning &amp; Stroke Density</span>
           <span className="text-[10px] px-1.5 py-0.5 rounded bg-zinc-800 text-zinc-400">
             SLA 88
           </span>

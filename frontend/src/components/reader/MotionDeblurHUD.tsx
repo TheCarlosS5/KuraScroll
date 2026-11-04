@@ -58,7 +58,7 @@ export const MotionDeblurHUD: React.FC<MotionDeblurHUDProps> = ({
         className="fixed bottom-4 left-[38rem] z-40 bg-zinc-900 border border-zinc-700 text-zinc-300 px-3 py-1.5 text-xs font-mono rounded shadow hover:bg-zinc-800 transition-colors"
         title="Open Motion Deblur & Response Overdrive HUD (Hotkey: Shift + M)"
       >
-        <span className="text-violet-400 font-bold mr-1.5">⚡ OVERDRIVE</span>
+        <span className="text-violet-400 font-bold mr-1.5">OVERDRIVE</span>
         <kbd className="bg-zinc-800 px-1 py-0.5 rounded text-[10px] text-zinc-400 border border-zinc-700">⇧M</kbd>
       </button>
     );
@@ -74,7 +74,7 @@ export const MotionDeblurHUD: React.FC<MotionDeblurHUDProps> = ({
       {/* Header */}
       <div className="flex items-center justify-between pb-2 mb-3 border-b border-zinc-800">
         <div className="flex items-center gap-2">
-          <span className="text-violet-400 font-bold">⚡ MOTION OVERDRIVE</span>
+          <span className="text-violet-400 font-bold">MOTION OVERDRIVE</span>
           <span className="text-[10px] text-zinc-400">SLA 96</span>
         </div>
         <div className="flex items-center gap-2">
@@ -92,9 +92,7 @@ export const MotionDeblurHUD: React.FC<MotionDeblurHUDProps> = ({
             onClick={() => setIsHUDOpen(false)}
             className="text-zinc-400 hover:text-white px-1 text-sm font-bold"
             title="Close HUD (Shift+M)"
-          >
-            ✕
-          </button>
+           aria-label="Cerrar">&times;</button>
         </div>
       </div>
 

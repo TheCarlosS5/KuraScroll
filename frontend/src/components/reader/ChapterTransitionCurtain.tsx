@@ -113,7 +113,7 @@ export const ChapterTransitionCurtain: React.FC<ChapterTransitionCurtainProps> =
         >
           {isLast ? (
             <>
-              <div style={{ fontSize: '36px', marginBottom: '12px' }}>🎉</div>
+              <div className="text-indigo-400 font-bold text-sm tracking-wider uppercase mb-3">CAPÍTULO COMPLETADO</div>
               <h2 style={{ fontSize: '20px', fontWeight: 700, margin: '0 0 8px 0' }}>
                 ¡Capítulo Final Alcanzado!
               </h2>
@@ -175,7 +175,7 @@ export const ChapterTransitionCurtain: React.FC<ChapterTransitionCurtainProps> =
                     marginBottom: '20px',
                   }}
                 >
-                  <span>⏱️</span>
+                  <span className="text-zinc-500 font-mono text-xs">TIEMPO:</span>
                   <span>~{nextChapter?.estimatedReadMinutes ?? 3} min de lectura estimada</span>
                 </div>
               )}
@@ -274,7 +274,7 @@ export const ChapterTransitionCurtain: React.FC<ChapterTransitionCurtainProps> =
         }}
       >
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-          <span style={{ fontSize: '18px' }}>📑</span>
+          
           <span style={{ fontWeight: 600, fontSize: '14px' }}>
             Transición de Capítulos
           </span>
@@ -302,9 +302,7 @@ export const ChapterTransitionCurtain: React.FC<ChapterTransitionCurtainProps> =
             lineHeight: 1,
             padding: '4px',
           }}
-        >
-          ✕
-        </button>
+        >&times;</button>
       </div>
 
       {/* Main Switch */}
@@ -377,7 +375,7 @@ export const ChapterTransitionCurtain: React.FC<ChapterTransitionCurtainProps> =
                     {st.desc}
                   </div>
                 </div>
-                {isSelected && <span style={{ fontSize: '14px' }}>✓</span>}
+                {isSelected && <span className="text-emerald-400 font-bold text-xs">[OK]</span>}
               </button>
             );
           })}

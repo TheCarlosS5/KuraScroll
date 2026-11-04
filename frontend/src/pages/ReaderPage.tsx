@@ -136,8 +136,13 @@ export const ReaderPage: React.FC<ReaderPageProps> = ({
   }, [chapterId]);
 
   const handlePageChange = (page: number) => {
-    setCurrentPage(page);
-    saveProgress(chapterId, page, 0, page === manifest?.pages?.length);
+    const pageCount = manifest?.pages?.length ?? 1;
+    if (!Number.isSafeInteger(page) || pageCount < 1) return;
+    const nextPage = Math.min(pageCount, Math.max(1, page));
+    if (nextPage === currentPage) return;
+
+    setCurrentPage(nextPage);
+    saveProgress(chapterId, nextPage, 0, nextPage === pageCount);
 
     const duration = readingTracker.recordPageAdvance();
     if (duration >= 1.5 && duration <= 300 && seriesId) {
@@ -153,14 +158,14 @@ export const ReaderPage: React.FC<ReaderPageProps> = ({
     }
 
     const total = manifest?.pages?.length || 1;
-    const estimate = readingTracker.estimateRemainingChapterTime(page, total);
+    const estimate = readingTracker.estimateRemainingChapterTime(nextPage, total);
     setReadingPaceText(estimate.formattedRemaining);
 
-    // Sprint 39: Update Ambient Glow with Chromatic Hysteresis
-    if (!shouldBypassAmbilight(displaySettings?.thermalSaverEnabled)) {
+    // Sprint 39: Update Ambient Glow with Chromatic Hysteresis (only when enabled)
+    if (displaySettings?.ambilightEnabled && !shouldBypassAmbilight(displaySettings?.thermalSaverEnabled)) {
       setTimeout(() => {
         if (typeof document !== 'undefined') {
-          const activeImg = document.querySelector<HTMLImageElement>(`img[alt="Página ${page}"]`);
+          const activeImg = document.querySelector<HTMLImageElement>(`img[alt="Página ${nextPage}"]`);
           if (activeImg && activeImg.complete && activeImg.naturalWidth > 0) {
             setAmbientColor((prev) => {
               const res = extractAmbientColor(activeImg, prev);
@@ -236,7 +241,7 @@ export const ReaderPage: React.FC<ReaderPageProps> = ({
           chapterId,
           pageIndex: currentPage,
         });
-        setBookmarkToast(`📌 Página ${currentPage} guardada en marcadores (offline)`);
+        setBookmarkToast(`Página ${currentPage} guardada en marcadores (offline)`);
         setTimeout(() => setBookmarkToast(null), 2500);
         return;
       }
@@ -251,7 +256,7 @@ export const ReaderPage: React.FC<ReaderPageProps> = ({
         }),
       });
       if (res.ok) {
-        setBookmarkToast(`📌 Página ${currentPage} guardada en marcadores`);
+        setBookmarkToast(`Página ${currentPage} guardada en marcadores`);
         setTimeout(() => setBookmarkToast(null), 2500);
         fetchQuickNavData(seriesId);
       } else {
@@ -263,7 +268,7 @@ export const ReaderPage: React.FC<ReaderPageProps> = ({
         chapterId,
         pageIndex: currentPage,
       });
-      setBookmarkToast(`📌 Página ${currentPage} guardada en marcadores (local)`);
+      setBookmarkToast(`Página ${currentPage} guardada en marcadores (local)`);
       setTimeout(() => setBookmarkToast(null), 2500);
     }
   };
@@ -308,7 +313,7 @@ export const ReaderPage: React.FC<ReaderPageProps> = ({
     return (
       <div className="flex flex-col items-center justify-center min-h-screen bg-black text-white">
         <div className="w-10 h-10 border-4 border-cyan-500/20 border-t-cyan-400 rounded-full animate-spin mb-4" />
-        <p className="text-gray-400 text-sm">Cargando páginas desde el almacenamiento 4TB...</p>
+        <p className="text-zinc-400 text-sm">Cargando capítulo...</p>
       </div>
     );
   }
@@ -495,7 +500,7 @@ export const ReaderPage: React.FC<ReaderPageProps> = ({
       {bookmarkToast && (
         <div
           data-testid="bookmark-toast"
-          className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 px-4 py-2 rounded-xl bg-neutral-900/95 border border-amber-500/50 text-amber-300 text-xs font-semibold shadow-2xl flex items-center gap-2 animate-bounce"
+          className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 px-3.5 py-2 rounded-lg bg-zinc-900/95 border border-zinc-700/80 text-zinc-100 text-xs font-medium shadow-xl flex items-center gap-2 transition-all duration-200"
         >
           <span>{bookmarkToast}</span>
         </div>

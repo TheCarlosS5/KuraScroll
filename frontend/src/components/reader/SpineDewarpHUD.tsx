@@ -84,7 +84,7 @@ export const SpineDewarpHUD: React.FC<SpineDewarpHUDProps> = ({
         {/* Header */}
         <div className="flex justify-between items-center pb-2 border-b border-zinc-800">
           <div className="flex items-center gap-2">
-            <span className="text-base" role="img" aria-label="book-spine">📖</span>
+            
             <div>
               <h2 id="spine-dewarp-title" className="text-sm font-bold text-amber-400">
                 Aplanador de Lomo Tankōbon (W)
@@ -97,9 +97,7 @@ export const SpineDewarpHUD: React.FC<SpineDewarpHUDProps> = ({
             onClick={onClose}
             className="text-zinc-400 hover:text-white cursor-pointer text-lg leading-none p-1"
             aria-label="Cerrar aplanador"
-          >
-            ✕
-          </button>
+          >&times;</button>
         </div>
 
         {/* Enable / Status Toggle */}

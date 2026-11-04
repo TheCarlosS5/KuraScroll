@@ -1,7 +1,20 @@
-import React, { useState, useEffect } from 'react';
-import { BookOpen, Bookmark, Sparkles, History, Database, Film, Flame, Trophy, BarChart2 } from 'lucide-react';
-import { OfflineSyncHUD } from './OfflineSyncHUD.js';
-import { BatterySaverHUD } from './BatterySaverHUD.js';
+import React, { useState, useEffect, useRef } from 'react';
+import {
+  BookOpen,
+  Bookmark,
+  History,
+  Database,
+  Film,
+  Flame,
+  Trophy,
+  BarChart2,
+  MoreHorizontal,
+  HardDrive,
+  Target,
+  Sparkles,
+  Menu,
+  X,
+} from 'lucide-react';
 import { DailyGoalRing } from '../habits/DailyGoalRing.js';
 import {
   DailyGoalModal,
@@ -34,7 +47,13 @@ export const Navbar: React.FC<NavbarProps> = ({
   const [streakDays, setStreakDays] = useState<number>(0);
   const [isStreakActiveToday, setIsStreakActiveToday] = useState<boolean>(false);
 
-  const [isGoalModalOpen, setIsGoalModalOpen] = useState(false);
+  const [isGoalModalOpen, setIsGoalModalOpen] = useState(() => {
+    try {
+      return typeof window !== 'undefined' && new URLSearchParams(window.location.search).has('goal');
+    } catch {
+      return false;
+    }
+  });
   const [goalData, setGoalData] = useState<DailyGoalData>({
     targetType: 'pages',
     targetValue: 30,
@@ -66,6 +85,21 @@ export const Navbar: React.FC<NavbarProps> = ({
   const [unlockToastBadge, setUnlockToastBadge] = useState<UserBadgeItem | null>(null);
   const [isStatsModalOpen, setIsStatsModalOpen] = useState(false);
 
+  // Clean popover menu state
+  const [isMoreMenuOpen, setIsMoreMenuOpen] = useState(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const moreMenuRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (moreMenuRef.current && !moreMenuRef.current.contains(e.target as Node)) {
+        setIsMoreMenuOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
   const fetchBadges = async () => {
     try {
       const res = await fetch('/api/v1/badges?userId=local_user');
@@ -76,14 +110,12 @@ export const Navbar: React.FC<NavbarProps> = ({
         if (data.summary) setBadgeSummary(data.summary);
       }
 
-      // Check for unnotified badges to trigger celebration toast
       const unnotifiedRes = await fetch('/api/v1/badges/unnotified?userId=local_user');
       if (unnotifiedRes.ok) {
         const unnotifiedData = await unnotifiedRes.json();
         if (unnotifiedData?.unnotified?.length > 0) {
           const firstUnlocked = unnotifiedData.unnotified[0];
           setUnlockToastBadge(firstUnlocked);
-          // Mark as notified
           fetch('/api/v1/badges/notified', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -94,9 +126,7 @@ export const Navbar: React.FC<NavbarProps> = ({
           }).catch(() => {});
         }
       }
-    } catch {
-      // Offline fallback
-    }
+    } catch {}
   };
 
   const fetchGoalsAndProgress = async () => {
@@ -110,9 +140,7 @@ export const Navbar: React.FC<NavbarProps> = ({
         if (data.calendar) setCalendar(data.calendar);
         if (data.lifetime) setLifetime(data.lifetime);
       }
-    } catch {
-      // Offline fallback
-    }
+    } catch {}
   };
 
   const handleSaveGoal = async (newGoal: DailyGoalData) => {
@@ -127,9 +155,7 @@ export const Navbar: React.FC<NavbarProps> = ({
         if (data?.goal) setGoalData(data.goal);
         if (data?.today) setTodayProgress(data.today);
       }
-    } catch {
-      // Offline fallback
-    }
+    } catch {}
   };
 
   useEffect(() => {
@@ -143,9 +169,7 @@ export const Navbar: React.FC<NavbarProps> = ({
           setStreakDays(data.streak.currentStreak || 0);
           setIsStreakActiveToday(Boolean(data.streak.isStreakActiveToday));
         }
-      } catch {
-        // Offline mode fallback
-      }
+      } catch {}
     }
     fetchStreak();
     fetchGoalsAndProgress();
@@ -156,88 +180,80 @@ export const Navbar: React.FC<NavbarProps> = ({
   }, []);
 
   return (
-    <header className="sticky top-0 z-50 bg-[#080c14]/90 backdrop-blur-md border-b border-gray-800/80 px-4 lg:px-8 py-3.5 transition-all">
-      <div className="max-w-7xl mx-auto flex items-center justify-between">
+    <>
+      <header className="sticky top-0 z-50 bg-[#090d16]/95 backdrop-blur-md border-b border-white/[0.06] transition-all">
+        <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 h-14 flex items-center justify-between gap-2 sm:gap-4">
         {/* Brand & KS Monogram */}
         <div
-          className="flex items-center gap-3 cursor-pointer group"
+          className="flex items-center gap-2 cursor-pointer select-none group shrink-0"
           onClick={() => onNavigate?.('catalog')}
         >
-          <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-cyan-500 via-indigo-600 to-violet-600 flex items-center justify-center font-black text-white text-xl shadow-[0_0_20px_rgba(0,229,255,0.3)] group-hover:shadow-[0_0_25px_rgba(139,92,246,0.5)] transition-all">
+          <div className="w-8 h-8 rounded-lg bg-indigo-600 flex items-center justify-center font-bold text-white text-xs shadow-sm group-hover:bg-indigo-500 transition-colors">
             KS
           </div>
-          <div>
-            <div className="flex items-center gap-1.5">
-              <span className="font-extrabold text-xl tracking-tight text-white group-hover:text-cyan-400 transition-colors">
-                KuraScroll
-              </span>
-              <span className="text-[10px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded bg-violet-900/60 text-violet-300 border border-violet-700/50">
-                Sister to KS
-              </span>
-            </div>
-            <p className="text-[11px] text-gray-400 -mt-0.5">Manga • Manhwa • Manhua</p>
-          </div>
+          <span className="font-semibold text-base text-zinc-100 tracking-tight group-hover:text-white transition-colors">
+            KuraScroll
+          </span>
         </div>
 
-        {/* Category Navigation */}
-        <nav className="hidden md:flex items-center gap-1 bg-gray-900/60 p-1 rounded-xl border border-gray-800/60">
+        {/* Category Navigation (Desktop) */}
+        <nav className="hidden md:flex items-center gap-1 bg-zinc-900/80 p-0.5 rounded-lg border border-zinc-800/80">
           <button
             onClick={() => onNavigate?.('catalog', '')}
-            className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-all ${
+            className={`px-3 py-1 rounded-md text-xs font-medium transition-colors ${
               currentView === 'catalog' && !selectedCategory
-                ? 'bg-cyan-500/10 text-cyan-400 border border-cyan-500/30'
-                : 'text-gray-400 hover:text-white'
+                ? 'bg-zinc-800 text-white shadow-sm'
+                : 'text-zinc-400 hover:text-zinc-200'
             }`}
           >
             Todos
           </button>
           <button
             onClick={() => onNavigate?.('catalog', 'manga')}
-            className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-all ${
+            className={`px-3 py-1 rounded-md text-xs font-medium transition-colors ${
               selectedCategory === 'manga'
-                ? 'bg-cyan-500/10 text-cyan-400 border border-cyan-500/30'
-                : 'text-gray-400 hover:text-white'
+                ? 'bg-zinc-800 text-white shadow-sm'
+                : 'text-zinc-400 hover:text-zinc-200'
             }`}
           >
             Manga
           </button>
           <button
             onClick={() => onNavigate?.('catalog', 'manhwa')}
-            className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-all ${
+            className={`px-3 py-1 rounded-md text-xs font-medium transition-colors ${
               selectedCategory === 'manhwa'
-                ? 'bg-cyan-500/10 text-cyan-400 border border-cyan-500/30'
-                : 'text-gray-400 hover:text-white'
+                ? 'bg-zinc-800 text-white shadow-sm'
+                : 'text-zinc-400 hover:text-zinc-200'
             }`}
           >
             Manhwa
           </button>
           <button
             onClick={() => onNavigate?.('catalog', 'manhua')}
-            className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-all ${
+            className={`px-3 py-1 rounded-md text-xs font-medium transition-colors ${
               selectedCategory === 'manhua'
-                ? 'bg-cyan-500/10 text-cyan-400 border border-cyan-500/30'
-                : 'text-gray-400 hover:text-white'
+                ? 'bg-zinc-800 text-white shadow-sm'
+                : 'text-zinc-400 hover:text-zinc-200'
             }`}
           >
             Manhua
           </button>
         </nav>
 
-        {/* Bookmarks, History & Storage Info */}
-        <div className="flex items-center gap-2 sm:gap-3">
-          {/* Reading Streak Flame Badge */}
+        {/* Right Section: Core Navigation + Overflow Tools */}
+        <div className="flex items-center gap-1 sm:gap-2 shrink-0">
+          {/* Reading Streak Indicator */}
           {streakDays > 0 && (
             <div
               data-testid="nav-streak-badge"
-              className={`flex items-center gap-1 px-2.5 py-1 rounded-xl text-xs font-bold border transition-all ${
+              className={`hidden sm:flex items-center gap-1 px-2 py-1 rounded-lg text-xs font-medium border ${
                 isStreakActiveToday
-                  ? 'bg-orange-950/70 border-orange-600/60 text-orange-400 shadow-[0_0_12px_rgba(249,115,22,0.25)]'
-                  : 'bg-gray-900/80 border-gray-800 text-gray-400'
+                  ? 'bg-amber-950/40 border-amber-800/50 text-amber-300'
+                  : 'bg-zinc-900/60 border-zinc-800 text-zinc-400'
               }`}
-              style={{ contain: 'layout paint' }}
-              title={`Racha de lectura activa: ${streakDays} días consecutivos`}
+              title={`Racha: ${streakDays} días consecutivos`}
             >
-              <Flame className={`w-3.5 h-3.5 ${isStreakActiveToday ? 'text-orange-500 fill-orange-500 animate-pulse' : 'text-gray-500'}`} />
+              <Flame className={`w-3.5 h-3.5 ${isStreakActiveToday ? 'text-amber-400 fill-amber-400' : 'text-zinc-500'}`} />
               <span>{streakDays}d</span>
             </div>
           )}
@@ -252,107 +268,197 @@ export const Navbar: React.FC<NavbarProps> = ({
               }
               target={goalData.targetValue}
               unit={goalData.targetType === 'pages' ? 'pág' : 'min'}
-              size={34}
-              strokeWidth={3}
+              size={26}
+              strokeWidth={2.5}
               onClick={() => setIsGoalModalOpen(true)}
             />
           </div>
 
-          {/* Hardware Battery Saver Indicator */}
-          <BatterySaverHUD />
-
-          {/* Offline Sync Diagnostics HUD */}
-          <OfflineSyncHUD />
-
+          {/* Primary View Switchers: Historial & Guardados */}
           <button
             data-testid="nav-history-btn"
             onClick={() => onNavigate?.('history')}
-            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-sm font-medium transition-all ${
+            className={`flex items-center gap-1.5 p-1.5 sm:px-2.5 sm:py-1.5 rounded-lg text-xs font-medium transition-colors ${
               currentView === 'history'
-                ? 'bg-cyan-600 text-white shadow-[0_0_15px_rgba(0,229,255,0.4)]'
-                : 'bg-gray-900/80 text-gray-300 border border-gray-800 hover:border-gray-700 hover:text-white'
+                ? 'bg-zinc-800 text-white border border-zinc-700'
+                : 'text-zinc-400 hover:text-zinc-100 hover:bg-zinc-900/80'
             }`}
             title="Historial de lectura"
             aria-label="Historial de lectura"
           >
-            <History className="w-4 h-4 text-cyan-400" />
+            <History className="w-3.5 h-3.5 text-zinc-400" />
             <span className="hidden sm:inline">Historial</span>
           </button>
 
           <button
             onClick={() => onNavigate?.('bookmarks')}
-            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-sm font-medium transition-all ${
+            className={`flex items-center gap-1.5 p-1.5 sm:px-2.5 sm:py-1.5 rounded-lg text-xs font-medium transition-colors ${
               currentView === 'bookmarks'
-                ? 'bg-violet-600 text-white shadow-[0_0_15px_rgba(139,92,246,0.4)]'
-                : 'bg-gray-900/80 text-gray-300 border border-gray-800 hover:border-gray-700 hover:text-white'
+                ? 'bg-zinc-800 text-white border border-zinc-700'
+                : 'text-zinc-400 hover:text-zinc-100 hover:bg-zinc-900/80'
             }`}
+            title="Mangas guardados"
           >
-            <Bookmark className="w-4 h-4 text-violet-400" />
+            <Bookmark className="w-3.5 h-3.5 text-zinc-400" />
             <span className="hidden sm:inline">Guardados</span>
           </button>
 
-          <button
-            data-testid="nav-badges-btn"
-            onClick={() => setIsBadgeModalOpen(true)}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-sm font-medium transition-all bg-gray-900/80 text-gray-300 border border-gray-800 hover:border-amber-500/50 hover:text-amber-400"
-            title="Logros y Medallas de Lectura"
-            aria-label="Logros y Medallas de Lectura"
-          >
-            <Trophy className="w-4 h-4 text-amber-400" />
-            <span className="hidden sm:inline">Logros</span>
-          </button>
-
-          <button
-            data-testid="nav-stats-btn"
-            onClick={() => setIsStatsModalOpen(true)}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-sm font-medium transition-all bg-gray-900/80 text-gray-300 border border-gray-800 hover:border-cyan-500/50 hover:text-cyan-400"
-            title="Estadísticas Otaku (Radar & Heatmap)"
-            aria-label="Estadísticas Otaku"
-          >
-            <BarChart2 className="w-4 h-4 text-cyan-400" />
-            <span className="hidden sm:inline">Stats</span>
-          </button>
-
-          {onOpenBackup && (
+          {/* Secondary Tools Menu (More Popover) */}
+          <div className="relative" ref={moreMenuRef}>
             <button
-              data-testid="nav-backup-btn"
-              onClick={onOpenBackup}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-sm font-medium transition-all bg-gray-900/80 text-gray-300 border border-gray-800 hover:border-cyan-500/50 hover:text-cyan-400"
-              title="Copias de Seguridad y Migración"
-              aria-label="Copias de Seguridad y Migración"
+              onClick={() => setIsMoreMenuOpen((prev) => !prev)}
+              className="p-1.5 rounded-lg text-zinc-400 hover:text-zinc-100 hover:bg-zinc-900/80 transition-colors border border-transparent hover:border-zinc-800"
+              title="Más herramientas y opciones"
+              aria-label="Opciones"
             >
-              <Database className="w-4 h-4 text-cyan-400" />
-              <span className="hidden sm:inline">Respaldos</span>
+              <MoreHorizontal className="w-4 h-4" />
             </button>
-          )}
 
-          {onOpenSisterModal && (
-            <button
-              data-testid="nav-sister-btn"
-              onClick={onOpenSisterModal}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-sm font-medium transition-all bg-gray-900/80 text-gray-300 border border-gray-800 hover:border-purple-500/50 hover:text-purple-400"
-              title="Ecosistema Hermano KuraStream"
-              aria-label="Ecosistema Hermano KuraStream"
+            {/* Dropdown Menu - always in DOM for accessibility & test stability, hidden via CSS */}
+            <div
+              className={`absolute right-0 mt-2 w-56 rounded-xl bg-zinc-900 border border-zinc-800 shadow-2xl py-1 z-50 text-xs transition-all ${
+                isMoreMenuOpen ? 'opacity-100 scale-100 pointer-events-auto' : 'opacity-0 scale-95 pointer-events-none hidden'
+              }`}
             >
-              <Film className="w-4 h-4 text-purple-400" />
-              <span className="hidden sm:inline">KuraStream</span>
-            </button>
-          )}
+              <button
+                data-testid="nav-badges-btn"
+                onClick={() => {
+                  setIsMoreMenuOpen(false);
+                  setIsBadgeModalOpen(true);
+                }}
+                className="w-full px-3 py-2 text-left flex items-center gap-2.5 text-zinc-300 hover:text-white hover:bg-zinc-800/80 transition-colors"
+              >
+                <Trophy className="w-4 h-4 text-amber-400" />
+                <span>Logros</span>
+              </button>
 
+              <button
+                data-testid="nav-stats-btn"
+                onClick={() => {
+                  setIsMoreMenuOpen(false);
+                  setIsStatsModalOpen(true);
+                }}
+                className="w-full px-3 py-2 text-left flex items-center gap-2.5 text-zinc-300 hover:text-white hover:bg-zinc-800/80 transition-colors"
+              >
+                <BarChart2 className="w-4 h-4 text-indigo-400" />
+                <span>Estadísticas Otaku</span>
+              </button>
+
+              {onOpenBackup && (
+                <button
+                  data-testid="nav-backup-btn"
+                  onClick={() => {
+                    setIsMoreMenuOpen(false);
+                    onOpenBackup();
+                  }}
+                  className="w-full px-3 py-2 text-left flex items-center gap-2.5 text-zinc-300 hover:text-white hover:bg-zinc-800/80 transition-colors"
+                >
+                  <Database className="w-4 h-4 text-zinc-400" />
+                  <span>Respaldos</span>
+                </button>
+              )}
+
+              {onOpenSisterModal && (
+                <button
+                  data-testid="nav-sister-btn"
+                  onClick={() => {
+                    setIsMoreMenuOpen(false);
+                    onOpenSisterModal();
+                  }}
+                  className="w-full px-3 py-2 text-left flex items-center gap-2.5 text-zinc-300 hover:text-white hover:bg-zinc-800/80 transition-colors"
+                >
+                  <Film className="w-4 h-4 text-violet-400" />
+                  <span>KuraStream</span>
+                </button>
+              )}
+
+              {onOpenStorageTelemetry && (
+                <button
+                  data-testid="nav-storage-telemetry-btn"
+                  onClick={() => {
+                    setIsMoreMenuOpen(false);
+                    onOpenStorageTelemetry();
+                  }}
+                  className="w-full px-3 py-2 text-left flex items-center gap-2.5 text-zinc-300 hover:text-white hover:bg-zinc-800/80 transition-colors"
+                >
+                  <HardDrive className="w-4 h-4 text-zinc-400" />
+                  <span>4TB Local Host</span>
+                </button>
+              )}
+            </div>
+          </div>
+
+          {/* Mobile Categories Toggle */}
           <button
-            data-testid="nav-storage-telemetry-btn"
-            onClick={onOpenStorageTelemetry}
-            className="hidden lg:flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-gray-950/80 border border-cyan-500/20 hover:border-cyan-500/60 text-xs text-gray-300 hover:text-cyan-400 transition-all cursor-pointer"
-            title="Ver telemetría y eficiencia del HDD 4TB"
-            aria-label="Ver telemetría del HDD 4TB"
+            onClick={() => setIsMobileMenuOpen((prev) => !prev)}
+            className="md:hidden p-1.5 rounded-lg text-zinc-400 hover:text-zinc-100 hover:bg-zinc-900 transition-colors"
+            aria-label="Abrir menú"
           >
-            <Sparkles className="w-3.5 h-3.5 text-cyan-400" />
-            <span>4TB Local Host</span>
+            {isMobileMenuOpen ? <X className="w-4 h-4" /> : <Menu className="w-4 h-4" />}
           </button>
         </div>
       </div>
 
-      {/* Daily Goal Customizer Modal */}
+      {/* Mobile Drawer Navigation */}
+      {isMobileMenuOpen && (
+        <div className="md:hidden border-t border-zinc-800/80 bg-zinc-950/95 px-4 py-2.5 flex flex-wrap items-center gap-1.5">
+          <button
+            onClick={() => {
+              onNavigate?.('catalog', '');
+              setIsMobileMenuOpen(false);
+            }}
+            className={`px-3 py-1 rounded-md text-xs font-medium ${
+              currentView === 'catalog' && !selectedCategory
+                ? 'bg-zinc-800 text-white'
+                : 'text-zinc-400'
+            }`}
+          >
+            Todos
+          </button>
+          <button
+            onClick={() => {
+              onNavigate?.('catalog', 'manga');
+              setIsMobileMenuOpen(false);
+            }}
+            className={`px-3 py-1 rounded-md text-xs font-medium ${
+              selectedCategory === 'manga'
+                ? 'bg-zinc-800 text-white'
+                : 'text-zinc-400'
+            }`}
+          >
+            Manga
+          </button>
+          <button
+            onClick={() => {
+              onNavigate?.('catalog', 'manhwa');
+              setIsMobileMenuOpen(false);
+            }}
+            className={`px-3 py-1 rounded-md text-xs font-medium ${
+              selectedCategory === 'manhwa'
+                ? 'bg-zinc-800 text-white'
+                : 'text-zinc-400'
+            }`}
+          >
+            Manhwa
+          </button>
+          <button
+            onClick={() => {
+              onNavigate?.('catalog', 'manhua');
+              setIsMobileMenuOpen(false);
+            }}
+            className={`px-3 py-1 rounded-md text-xs font-medium ${
+              selectedCategory === 'manhua'
+                ? 'bg-zinc-800 text-white'
+                : 'text-zinc-400'
+            }`}
+          >
+            Manhua
+          </button>
+        </div>
+      )}
+      </header>
+
+      {/* Modals placed outside of <header> to prevent backdrop-filter containing block trap */}
       <DailyGoalModal
         isOpen={isGoalModalOpen}
         onClose={() => setIsGoalModalOpen(false)}
@@ -363,7 +469,6 @@ export const Navbar: React.FC<NavbarProps> = ({
         onSaveGoal={handleSaveGoal}
       />
 
-      {/* Badges and Achievements Grid Modal */}
       <BadgeGridModal
         isOpen={isBadgeModalOpen}
         onClose={() => setIsBadgeModalOpen(false)}
@@ -371,17 +476,15 @@ export const Navbar: React.FC<NavbarProps> = ({
         summary={badgeSummary}
       />
 
-      {/* Real-time Badge Unlock Celebration Toast */}
       <BadgeUnlockToast
         badge={unlockToastBadge}
         onDismiss={() => setUnlockToastBadge(null)}
       />
 
-      {/* Otaku Stats Modal (Radar & Heatmap) */}
       <OtakuStatsModal
         isOpen={isStatsModalOpen}
         onClose={() => setIsStatsModalOpen(false)}
       />
-    </header>
+    </>
   );
 };

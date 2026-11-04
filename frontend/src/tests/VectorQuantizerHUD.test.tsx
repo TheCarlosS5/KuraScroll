@@ -78,14 +78,14 @@ describe('VectorQuantizerHUD Component', () => {
     expect(screen.getByRole('region', { name: /Vector Quantizer HUD/i })).toBeDefined();
     expect(screen.getByText('Vector Search & Spoiler Shield')).toBeDefined();
     expect(screen.getByText('[Q]')).toBeDefined();
-    expect(screen.getByText('🛡️ SPOILER SHIELDED')).toBeDefined();
+    expect(screen.getByText('SPOILER SHIELDED')).toBeDefined();
     expect(screen.getByText('0.75')).toBeDefined();
     expect(screen.getByText('64 dim')).toBeDefined();
     expect(screen.getAllByText('5').length).toBeGreaterThanOrEqual(1);
     expect(screen.getAllByText('ACTIVE').length).toBeGreaterThanOrEqual(1);
 
     // Mode switch
-    const compactBtn = screen.getByText('📦 Compact 32d');
+    const compactBtn = screen.getByText('Compact 32d');
     fireEvent.click(compactBtn);
     expect(onModeChange).toHaveBeenCalledWith('compact_scalar');
 

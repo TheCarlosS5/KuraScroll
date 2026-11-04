@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Search, X, Globe, Sparkles } from 'lucide-react';
+import { Search, X } from 'lucide-react';
 
 export interface SearchBarProps {
   onSearch: (query: string) => void;
@@ -25,46 +25,38 @@ export const SearchBar: React.FC<SearchBarProps> = ({
   }, [value, debounceMs, onSearch]);
 
   return (
-    <div className="w-full max-w-3xl mx-auto my-6 px-4">
-      <div className="relative group">
-        <div className="absolute inset-0 bg-gradient-to-r from-cyan-500/20 to-violet-500/20 rounded-2xl blur-md group-hover:blur-lg transition-all opacity-70 group-hover:opacity-100" />
-        <div className="relative flex items-center bg-[#0d131f] border border-gray-800 rounded-2xl px-4 py-3 shadow-2xl focus-within:border-cyan-500/80 transition-all">
-          <Search className="w-5 h-5 text-gray-400 group-focus-within:text-cyan-400 transition-colors mr-3" />
-          <input
-            type="text"
-            value={value}
-            onChange={(e) => setValue(e.target.value)}
-            placeholder="Buscar por título en Español, Romaji, English o 漢字..."
-            className="w-full bg-transparent text-white placeholder-gray-500 text-sm md:text-base outline-none"
-          />
-          {value && (
-            <button
-              onClick={() => setValue('')}
-              className="p-1 rounded-lg text-gray-400 hover:text-white hover:bg-gray-800"
-            >
-              <X className="w-4 h-4" />
-            </button>
-          )}
-        </div>
+    <div className="w-full max-w-2xl mx-auto my-5">
+      <div className="relative flex items-center bg-zinc-900/90 border border-zinc-800 hover:border-zinc-700/80 focus-within:border-zinc-600 rounded-xl px-3.5 py-2.5 shadow-sm transition-all min-w-0">
+        <Search className="w-4 h-4 text-zinc-400 mr-2.5 shrink-0" />
+        <input
+          type="text"
+          value={value}
+          onChange={(e) => setValue(e.target.value)}
+          placeholder="Buscar por título..."
+          className="w-full min-w-0 bg-transparent text-zinc-100 placeholder-zinc-500 text-sm outline-none"
+        />
+        {value && (
+          <button
+            onClick={() => setValue('')}
+            className="p-1 rounded-md text-zinc-400 hover:text-white hover:bg-zinc-800 transition-colors"
+            aria-label="Limpiar búsqueda"
+          >
+            <X className="w-3.5 h-3.5" />
+          </button>
+        )}
       </div>
 
-      {/* Multilingual Support Badges */}
-      <div className="flex flex-wrap items-center justify-center gap-2 mt-2.5 text-xs text-gray-400">
-        <span className="flex items-center gap-1 text-[11px] text-gray-400">
-          <Globe className="w-3 h-3 text-cyan-400" />
-          Búsqueda unificada:
-        </span>
-        <span className="px-2 py-0.5 rounded-full bg-gray-900 border border-gray-800 text-gray-400">
-          Romaji
-        </span>
-        <span className="px-2 py-0.5 rounded-full bg-gray-900 border border-gray-800 text-gray-400">
-          English
-        </span>
-        <span className="px-2 py-0.5 rounded-full bg-gray-900 border border-gray-800 text-gray-400">
+      {/* Multilingual Support Badges (Discreet, responsive) */}
+      <div className="flex flex-wrap items-center justify-center gap-1.5 mt-2 text-[11px] text-zinc-500 select-none">
+        <span className="text-zinc-500">Búsqueda:</span>
+        <span className="px-1.5 py-0.2 rounded bg-zinc-900/60 border border-zinc-800/80 text-zinc-400">
           Español
         </span>
-        <span className="px-2 py-0.5 rounded-full bg-gray-900 border border-gray-800 text-gray-400">
-          Kanji / Hangul
+        <span className="px-1.5 py-0.2 rounded bg-zinc-900/60 border border-zinc-800/80 text-zinc-400">
+          Romaji
+        </span>
+        <span className="px-1.5 py-0.2 rounded bg-zinc-900/60 border border-zinc-800/80 text-zinc-400">
+          Kanji
         </span>
       </div>
     </div>

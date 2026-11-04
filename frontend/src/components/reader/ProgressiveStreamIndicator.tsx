@@ -81,7 +81,7 @@ export const ProgressiveStreamIndicator: React.FC<ProgressiveStreamIndicatorProp
             color: '#f4f4f5',
           }}
         >
-          <span style={{ color: '#00e5ff' }}>⚡</span>
+          <span style={{ color: '#00e5ff', fontSize: '10px', fontWeight: 'bold' }}>STREAM</span>
           <span>Página {pageNumber}</span>
         </div>
 

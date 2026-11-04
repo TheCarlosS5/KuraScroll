@@ -86,7 +86,7 @@ describe('TextEqualizerHUD Component', () => {
     expect(screen.getByText('ENABLED')).toBeDefined();
 
     // Mode switch
-    const glossyBtn = screen.getByText('💎 Glossy');
+    const glossyBtn = screen.getByText('Glossy');
     fireEvent.click(glossyBtn);
     expect(onModeChange).toHaveBeenCalledWith('glossy_digital');
 

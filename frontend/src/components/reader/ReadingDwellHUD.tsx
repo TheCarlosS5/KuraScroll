@@ -163,10 +163,10 @@ export const ReadingDwellHUD: React.FC<ReadingDwellHUDProps> = ({
                   whiteSpace: 'nowrap',
                 }}
               >
-                {pKey === 'cadence_adaptive' && '⏱️ Adaptive'}
-                {pKey === 'action_heavy' && '⚡ Action Fast'}
-                {pKey === 'dialogue_dense' && '💬 Dialogue Dense'}
-                {pKey === 'custom' && '⚙️ Custom'}
+                {pKey === 'cadence_adaptive' && 'Adaptive'}
+                {pKey === 'action_heavy' && 'Action Fast'}
+                {pKey === 'dialogue_dense' && 'Dialogue Dense'}
+                {pKey === 'custom' && 'Custom'}
               </button>
             );
           })}

@@ -117,7 +117,7 @@ export const DailyGoalRing: React.FC<DailyGoalRingProps> = React.memo(function D
               transform: isCompleted ? 'scale(1.15)' : 'scale(1)',
             }}
           >
-            {isCompleted ? '⭐' : '🎯'}
+            {isCompleted ? <span data-testid="goal-star">100%</span> : <span data-testid="goal-target">GOAL</span>}
           </span>
         )}
       </div>

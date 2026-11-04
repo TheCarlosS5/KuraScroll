@@ -76,7 +76,7 @@ export const CloudlessSyncHUD: React.FC<CloudlessSyncHUDProps> = ({
             color: '#f4f4f5',
           }}
         >
-          <div className="text-2xl">🏆</div>
+          <div className="text-amber-400 font-bold text-sm">INSIGNIA</div>
           <div>
             <div className="text-xs font-bold text-amber-400 uppercase tracking-wider">
               ¡Hito de Lectura Desbloqueado!
@@ -87,9 +87,7 @@ export const CloudlessSyncHUD: React.FC<CloudlessSyncHUDProps> = ({
             onClick={onDismissMilestone}
             className="ml-2 text-zinc-400 hover:text-zinc-200 text-xs p-1"
             aria-label="Cerrar notificación de hito"
-          >
-            ✕
-          </button>
+          >&times;</button>
         </div>
       )}
 
@@ -115,7 +113,7 @@ export const CloudlessSyncHUD: React.FC<CloudlessSyncHUDProps> = ({
             <div className="flex items-center justify-between border-b border-zinc-800 pb-3">
               <div className="flex items-center gap-3">
                 <div className="w-8 h-8 rounded-lg bg-indigo-500/20 text-indigo-400 flex items-center justify-center font-bold text-lg border border-indigo-500/30">
-                  ⚡
+                  SYNC
                 </div>
                 <div>
                   <h2 className="text-base font-semibold text-zinc-100">
@@ -130,9 +128,7 @@ export const CloudlessSyncHUD: React.FC<CloudlessSyncHUDProps> = ({
                 onClick={onClose}
                 className="text-zinc-400 hover:text-zinc-100 p-1.5 rounded-lg hover:bg-zinc-800 transition-colors"
                 aria-label="Cerrar panel de sincronización local"
-              >
-                ✕
-              </button>
+              >&times;</button>
             </div>
 
             {/* Master Toggle */}
@@ -200,7 +196,7 @@ export const CloudlessSyncHUD: React.FC<CloudlessSyncHUDProps> = ({
               <div className="bg-zinc-900/90 p-3 rounded-lg border border-zinc-800 flex flex-col gap-1">
                 <span className="text-[11px] text-zinc-400">Racha de Lectura</span>
                 <span className="text-xl font-bold text-amber-400 font-mono">
-                  🔥 {streakDays} días
+                  {streakDays} días racha
                 </span>
                 <span className="text-[10px] text-zinc-500">Sesión continua</span>
               </div>

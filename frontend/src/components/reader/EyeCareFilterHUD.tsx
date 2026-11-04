@@ -26,11 +26,11 @@ export const PRESET_OPTIONS: Array<{
   icon: string;
   desc: string;
 }> = [
-  { id: 'default', label: 'Normal', icon: '☀️', desc: 'Fidelidad original sin alteraciones' },
-  { id: 'sepia_warm', label: 'Sepia Cálido', icon: '🌅', desc: 'Atenuación de luz azul para noche' },
-  { id: 'oled_dark', label: 'OLED Puro', icon: '🌑', desc: 'Fondo negro profundo de alto contraste' },
-  { id: 'smart_invert', label: 'Smart Invert', icon: '🌓', desc: 'Inversión respetando portadas a color' },
-  { id: 'e_ink_high_contrast', label: 'E-Ink Papel', icon: '📄', desc: 'Textura mate monocromática para lectura' },
+  { id: 'default', label: 'Normal', icon: 'NORM', desc: 'Fidelidad original sin alteraciones' },
+  { id: 'sepia_warm', label: 'Sepia Cálido', icon: 'WARM', desc: 'Atenuación de luz azul para noche' },
+  { id: 'oled_dark', label: 'OLED Puro', icon: 'OLED', desc: 'Fondo negro profundo de alto contraste' },
+  { id: 'smart_invert', label: 'Smart Invert', icon: 'INV', desc: 'Inversión respetando portadas a color' },
+  { id: 'e_ink_high_contrast', label: 'E-Ink Papel', icon: 'E-INK', desc: 'Textura mate monocromática para lectura' },
 ];
 
 export const EyeCareFilterHUD: React.FC<EyeCareFilterHUDProps> = ({
@@ -86,7 +86,7 @@ export const EyeCareFilterHUD: React.FC<EyeCareFilterHUDProps> = ({
       {/* Header */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-          <span style={{ fontSize: '14px' }}>👁️</span>
+          <span className="text-xs font-mono text-cyan-400">EYE</span>
           <span style={{ fontWeight: 600, color: '#f4f4f5' }}>Cuidado Visual (OLED / E-Ink)</span>
         </div>
         <button
@@ -161,7 +161,7 @@ export const EyeCareFilterHUD: React.FC<EyeCareFilterHUDProps> = ({
             gap: '6px',
           }}
         >
-          <span>{isMonochromePage ? '✓' : 'ℹ'}</span>
+          <span>{isMonochromePage ? '[OK]' : '[INFO]'}</span>
           <span>
             {isMonochromePage
               ? 'Página monocromo: Inversión OLED activa'

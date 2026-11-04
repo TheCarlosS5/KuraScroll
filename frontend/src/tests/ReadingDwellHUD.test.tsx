@@ -86,7 +86,7 @@ describe('ReadingDwellHUD Component', () => {
     expect(screen.getByText('ENABLED')).toBeDefined();
 
     // Mode switch
-    const actionBtn = screen.getByText('⚡ Action Fast');
+    const actionBtn = screen.getByText('Action Fast');
     fireEvent.click(actionBtn);
     expect(onModeChange).toHaveBeenCalledWith('action_heavy');
 

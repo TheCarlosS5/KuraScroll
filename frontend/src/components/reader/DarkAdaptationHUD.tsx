@@ -48,7 +48,7 @@ export const DarkAdaptationHUD: React.FC<DarkAdaptationHUDProps> = ({ seriesId }
         }}
         title="Open Dark Adaptation Retinal HUD (Hotkey: D)"
       >
-        🌙 Dark Adapt [D]
+        Dark Adapt [D]
       </button>
     );
   }
@@ -67,7 +67,7 @@ export const DarkAdaptationHUD: React.FC<DarkAdaptationHUDProps> = ({ seriesId }
       {/* Header */}
       <div className="flex items-center justify-between pb-2 mb-3 border-b" style={{ borderColor: '#27272a' }}>
         <div className="flex items-center space-x-2">
-          <span className="text-sm font-semibold text-indigo-400">🌙 Retinal Adaptation</span>
+          <span className="text-sm font-semibold text-indigo-400">Retinal Adaptation</span>
           <span className="text-[10px] px-1.5 py-0.5 rounded bg-zinc-800 text-zinc-400">
             SLA 82
           </span>

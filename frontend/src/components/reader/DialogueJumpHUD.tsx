@@ -124,7 +124,7 @@ export const DialogueJumpHUD: React.FC<DialogueJumpHUDProps> = ({
             gap: '10px',
           }}
         >
-          <span style={{ fontSize: '16px', color: '#00e5ff' }}>💬</span>
+          
           <input
             ref={inputRef}
             type="text"
@@ -156,9 +156,7 @@ export const DialogueJumpHUD: React.FC<DialogueJumpHUDProps> = ({
                 fontSize: '14px',
                 padding: '4px',
               }}
-            >
-              ✕
-            </button>
+            >&times;</button>
           )}
           <button
             type="button"
@@ -220,7 +218,7 @@ export const DialogueJumpHUD: React.FC<DialogueJumpHUDProps> = ({
               style={{ cursor: 'pointer' }}
             />
             <span style={{ color: protectSpoilers ? '#38bdf8' : '#71717a' }}>
-              🛡️ Protección Anti-Spoiler
+              Protección Anti-Spoiler
             </span>
           </label>
         </div>

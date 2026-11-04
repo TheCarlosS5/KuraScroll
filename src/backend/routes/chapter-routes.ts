@@ -12,10 +12,31 @@ import { IOPriority } from '../storage/io/io-priority.js';
 import { resolveAssetTier, resolveIOPriority, ASSET_TIER_CONFIG } from '../config/asset-tier-config.js';
 import { CbzArchiveStreamer, CbzPageItem } from '../services/cbz-archive-streamer.js';
 
+function resolveUnderRoot(root: string, relativePath: unknown): string | null {
+  if (typeof relativePath !== 'string' || !relativePath || path.isAbsolute(relativePath)) return null;
+  const resolvedRoot = path.resolve(root);
+  const resolvedPath = path.resolve(resolvedRoot, relativePath);
+  const relative = path.relative(resolvedRoot, resolvedPath);
+  if (!relative || relative === '..' || relative.startsWith(`..${path.sep}`) || path.isAbsolute(relative)) return null;
+  return resolvedPath;
+}
+
+function isRealPathUnderRoot(root: string, candidate: string): boolean {
+  try {
+    const realRoot = fs.realpathSync(root);
+    const realCandidate = fs.realpathSync(candidate);
+    const relative = path.relative(realRoot, realCandidate);
+    return relative !== '' && relative !== '..' && !relative.startsWith(`..${path.sep}`) && !path.isAbsolute(relative);
+  } catch {
+    return false;
+  }
+}
+
 export function registerChapterRoutes(
   app: FastifyInstance,
   db: DatabaseInstance,
-  storageRoot: string
+  storageRoot: string,
+  incomingRoot = path.resolve(storageRoot, 'incoming')
 ): void {
   const repo = new ChapterRepository(db);
   const integrityService = new ImageIntegrityService({ db, storageRoot });
@@ -73,8 +94,10 @@ export function registerChapterRoutes(
           const chapter = repo.getChapter(chapterId);
           if (!chapter) return null;
 
-          const physicalPath = path.join(storageRoot, chapter.storagePath, pageFile);
-          if (!fs.existsSync(physicalPath)) return null;
+          const chapterDir = resolveUnderRoot(storageRoot, chapter.storagePath);
+          if (!chapterDir) return null;
+          const physicalPath = path.resolve(chapterDir, pageFile);
+          if (!resolveUnderRoot(chapterDir, pageFile) || !fs.existsSync(physicalPath) || !isRealPathUnderRoot(storageRoot, physicalPath)) return null;
 
           try {
             const fileBuffer = await fs.promises.readFile(physicalPath);
@@ -136,11 +159,20 @@ export function registerChapterRoutes(
     const seriesStmt = db.prepare('SELECT title_primary, synopsis, author FROM series WHERE id = ?');
     const series = seriesStmt.get(chapter.seriesId) as any;
 
-    const pageItems: CbzPageItem[] = pages.map((p) => ({
-      pageNumber: p.pageNumber,
-      fileName: p.fileName,
-      absolutePath: path.join(storageRoot, chapter.storagePath, p.fileName),
-    }));
+    const chapterDir = resolveUnderRoot(storageRoot, chapter.storagePath);
+    if (!chapterDir) {
+      reply.status(409);
+      return { statusCode: 409, error: 'Conflict', message: 'Chapter has an invalid storage path' };
+    }
+    const pageItems: CbzPageItem[] = [];
+    for (const page of pages) {
+      const absolutePath = resolveUnderRoot(chapterDir, page.fileName);
+      if (!absolutePath || !isRealPathUnderRoot(storageRoot, absolutePath)) {
+        reply.status(409);
+        return { statusCode: 409, error: 'Conflict', message: 'Chapter contains an invalid page path' };
+      }
+      pageItems.push({ pageNumber: page.pageNumber, fileName: path.basename(page.fileName), absolutePath });
+    }
 
     const safeTitle = (series?.title_primary || 'Chapter').replace(/[^a-zA-Z0-9_\-\. ]/g, '');
     const padNum = String(chapter.chapterNumber).padStart(3, '0');
@@ -185,7 +217,14 @@ export function registerChapterRoutes(
       thermalSaver?: boolean;
     };
 
-    if (!body || !body.seriesSlug || typeof body.chapterNumber !== 'number' || !body.sourcePath) {
+    if (!body || typeof body.seriesSlug !== 'string' || !body.seriesSlug ||
+        !Number.isSafeInteger(body.chapterNumber) || body.chapterNumber < 0 ||
+        body.chapterNumber > 1_000_000 ||
+        (body.volumeNumber !== undefined &&
+          (!Number.isSafeInteger(body.volumeNumber) || body.volumeNumber < 0 || body.volumeNumber > 1_000_000)) ||
+        typeof body.sourcePath !== 'string' || !body.sourcePath || body.sourcePath.length > 4096 ||
+        (body.title !== undefined && (typeof body.title !== 'string' || body.title.length > 500)) ||
+        (body.thermalSaver !== undefined && typeof body.thermalSaver !== 'boolean')) {
       reply.status(400);
       return {
         statusCode: 400,
@@ -195,7 +234,7 @@ export function registerChapterRoutes(
     }
 
     // Verify series exists in database
-    const seriesStmt = db.prepare('SELECT id FROM series WHERE slug = ?');
+    const seriesStmt = db.prepare('SELECT id, slug FROM series WHERE slug = ?');
     const seriesRow = seriesStmt.get(body.seriesSlug) as any;
     if (!seriesRow) {
       reply.status(404);
@@ -206,29 +245,58 @@ export function registerChapterRoutes(
       };
     }
 
+    let sourcePath = body.sourcePath;
+    if (!fs.existsSync(sourcePath)) {
+      const candidate = path.resolve(incomingRoot, body.sourcePath);
+      if (fs.existsSync(candidate)) {
+        sourcePath = candidate;
+      } else {
+        reply.status(400);
+        return { statusCode: 400, error: 'Bad Request', message: 'Source must be an existing file or folder inside the configured incoming directory' };
+      }
+    }
+
+    if (!/^[a-zA-Z0-9][a-zA-Z0-9._-]{0,150}$/.test(seriesRow.slug) ||
+        seriesRow.slug === '.' || seriesRow.slug === '..') {
+      reply.status(409);
+      return { statusCode: 409, error: 'Conflict', message: 'Series has an invalid storage slug' };
+    }
+
     try {
       const ingestResult = await ingestChapter({
         storageRoot,
-        seriesSlug: body.seriesSlug,
+        seriesSlug: seriesRow.slug,
         volumeNumber: body.volumeNumber ?? 1,
         chapterNumber: body.chapterNumber,
-        sourcePath: body.sourcePath,
+        sourcePath,
         thermalSaver: body.thermalSaver,
       });
 
       const chapterId = `${body.seriesSlug}-c${body.chapterNumber}`;
+      let transactionStarted = false;
+      try {
+        db.exec('BEGIN IMMEDIATE;');
+        transactionStarted = true;
+        repo.createChapter({
+          id: chapterId,
+          seriesId: seriesRow.id,
+          volumeId: null,
+          chapterNumber: body.chapterNumber,
+          title: body.title ?? `Chapter ${body.chapterNumber}`,
+          pageCount: ingestResult.pageCount,
+          storagePath: ingestResult.relativeStorageDir,
+        });
 
-      repo.createChapter({
-        id: chapterId,
-        seriesId: seriesRow.id,
-        volumeId: null,
-        chapterNumber: body.chapterNumber,
-        title: body.title ?? `Chapter ${body.chapterNumber}`,
-        pageCount: ingestResult.pageCount,
-        storagePath: ingestResult.relativeStorageDir,
-      });
-
-      repo.addPages(chapterId, ingestResult.pages);
+        repo.addPages(chapterId, ingestResult.pages);
+        db.exec('COMMIT;');
+        transactionStarted = false;
+      } catch (error) {
+        if (transactionStarted) {
+          try { db.exec('ROLLBACK;'); } catch { /* Preserve the original failure. */ }
+        }
+        await fs.promises.rm(ingestResult.absoluteStorageDir, { recursive: true, force: true });
+        throw error;
+      }
 
       return {
         success: true,
@@ -238,6 +306,7 @@ export function registerChapterRoutes(
         totalBytes: ingestResult.totalBytes,
       };
     } catch (err: any) {
+      console.error('[chapter-ingest] failed:', err);
       reply.status(400);
       return {
         statusCode: 400,

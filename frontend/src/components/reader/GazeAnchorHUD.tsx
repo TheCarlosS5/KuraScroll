@@ -95,7 +95,7 @@ export const GazeAnchorHUD: React.FC<GazeAnchorHUDProps> = ({
         <div className="flex items-center justify-between border-b border-zinc-800 pb-3">
           <div className="flex items-center gap-3">
             <div className="w-8 h-8 rounded-lg bg-emerald-500/20 text-emerald-400 flex items-center justify-center font-bold text-lg border border-emerald-500/30">
-              👁️
+              GAZE
             </div>
             <div>
               <h2 className="text-base font-semibold text-zinc-100">
@@ -110,9 +110,7 @@ export const GazeAnchorHUD: React.FC<GazeAnchorHUDProps> = ({
             onClick={onClose}
             className="text-zinc-400 hover:text-zinc-100 p-1.5 rounded-lg hover:bg-zinc-800 transition-colors"
             aria-label="Cerrar panel de anclaje de mirada"
-          >
-            ✕
-          </button>
+          >&times;</button>
         </div>
 
         {/* Master Toggle */}

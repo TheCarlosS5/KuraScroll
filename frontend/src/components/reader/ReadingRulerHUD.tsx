@@ -228,9 +228,7 @@ export const ReadingRulerHUD: React.FC<ReadingRulerHUDProps> = ({
             onClick={onToggleVisibility}
             className="text-zinc-400 hover:text-zinc-100 cursor-pointer p-0.5"
             title="Ocultar regla (Tecla U)"
-          >
-            ✕
-          </button>
+           aria-label="Cerrar">&times;</button>
         </div>
 
         {/* Mode Selector */}
@@ -281,7 +279,7 @@ export const ReadingRulerHUD: React.FC<ReadingRulerHUDProps> = ({
                 isPaused ? 'bg-amber-600 text-white' : 'bg-emerald-600 text-white'
               }`}
             >
-              {isPaused ? '▶ Reanudar' : '⏸ Pausar [Espacio]'}
+              {isPaused ? 'Reanudar' : 'Pausar [Espacio]'}
             </button>
           )}
         </div>

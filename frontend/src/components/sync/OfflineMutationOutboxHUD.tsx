@@ -18,7 +18,7 @@ export const OfflineMutationOutboxHUD: React.FC<OfflineMutationOutboxHUDProps> =
     isOnline: typeof navigator !== 'undefined' ? navigator.onLine : true,
   });
 
-  const [visible, setVisible] = useState(true);
+  const [visible, setVisible] = useState(props.status !== undefined);
 
   // Subscribe to singleton SyncCoordinator if props are not explicitly controlling state
   useEffect(() => {
@@ -68,9 +68,9 @@ export const OfflineMutationOutboxHUD: React.FC<OfflineMutationOutboxHUDProps> =
         {status === 'syncing' ? (
           <span className="sync-spinner inline-block w-3.5 h-3.5 border-2 border-current border-t-transparent rounded-full" />
         ) : status === 'offline' ? (
-          <span className="text-amber-400">⚡</span>
+          <span className="text-amber-400 font-mono text-xs" data-testid="outbox-zap">SYNC</span>
         ) : (
-          <span className="text-emerald-400">✔</span>
+          <span className="text-emerald-400 font-mono text-xs">OK</span>
         )}
 
         <span>

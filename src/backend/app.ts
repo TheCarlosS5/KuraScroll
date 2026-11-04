@@ -3,6 +3,7 @@ import cors from '@fastify/cors';
 import fastifyStatic from '@fastify/static';
 import path from 'node:path';
 import fs from 'node:fs';
+import crypto from 'node:crypto';
 import { DatabaseInstance, createDatabase, runMigrations } from './db/database.js';
 import { registerSeriesRoutes } from './routes/series-routes.js';
 import { registerChapterRoutes } from './routes/chapter-routes.js';
@@ -198,6 +199,9 @@ import { DifferentialMirrorService } from './services/differential-mirror-servic
 export interface AppOptions {
   db?: DatabaseInstance;
   storageRoot?: string;
+  incomingRoot?: string;
+  apiToken?: string;
+  corsOrigins?: string[];
   bodyLimit?: number;
   backupDaemon?: BackupDaemon;
   eventBus?: EventBus;
@@ -279,20 +283,46 @@ export interface AppOptions {
 }
 
 export function buildApp(options: AppOptions = {}): FastifyInstance {
+  const apiToken = options.apiToken ?? process.env.API_TOKEN;
   const bodyLimit = options.bodyLimit ?? 1048576; // Default: 1MB body limit
   const app = Fastify({
-    logger: false,
+    logger: true,
     bodyLimit,
+  });
+
+  app.setErrorHandler((error, request, reply) => {
+    request.log.error({ err: error }, 'Request failed');
+    const statusCode = error.statusCode && error.statusCode >= 400 && error.statusCode < 500
+      ? error.statusCode
+      : 500;
+
+    if (statusCode === 413 || (error as any).code === 'FST_ERR_CTP_BODY_TOO_LARGE') {
+      return reply.code(413).send({
+        statusCode: 413,
+        error: 'Payload Too Large',
+        message: error.message || 'Request body is too large',
+      });
+    }
+
+    return reply.code(statusCode).send({
+      statusCode,
+      error: statusCode >= 500 ? 'Internal Server Error' : (error.name || 'Bad Request'),
+      message: statusCode >= 500 ? 'Request failed. Check server logs.' : (error.message || 'Request could not be processed.'),
+    });
   });
 
   const storageRoot = options.storageRoot
     ? path.resolve(options.storageRoot)
     : path.resolve('./data/storage');
+  const incomingRoot = options.incomingRoot
+    ? path.resolve(options.incomingRoot)
+    : path.resolve(storageRoot, 'incoming');
 
   if (!fs.existsSync(storageRoot)) {
     fs.mkdirSync(storageRoot, { recursive: true });
   }
 
+  const ownsDatabase = !options.db;
   const db = options.db ?? (() => {
     const defaultDbPath = path.resolve('./data/kura-scroll.db');
     const instance = createDatabase(defaultDbPath);
@@ -300,11 +330,42 @@ export function buildApp(options: AppOptions = {}): FastifyInstance {
     return instance;
   })();
 
-  // Enable CORS for local development and companion apps
+  if (ownsDatabase) {
+    app.addHook('onClose', async () => {
+      db.close();
+    });
+  }
+
+  // Allow only known local frontend origins by default. Deployments can provide
+  // an explicit comma-separated allowlist through KURA_CORS_ORIGINS.
+  const configuredOrigins = options.corsOrigins ?? (process.env.KURA_CORS_ORIGINS ?? '')
+    .split(',')
+    .map((origin) => origin.trim())
+    .filter(Boolean);
+  const allowedOrigins = new Set(configuredOrigins.length > 0
+    ? configuredOrigins
+    : ['http://localhost:5173', 'http://127.0.0.1:5173']);
   app.register(cors, {
-    origin: true,
+    origin: (origin, callback) => callback(null, !origin || allowedOrigins.has(origin)),
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   });
+
+  // A configured token protects every API and static storage request. Keep the
+  // health probe and CORS preflight public so deployment checks can work.
+  if (apiToken) {
+    app.addHook('onRequest', async (request, reply) => {
+      if (request.url === '/health' || request.method === 'OPTIONS') return;
+      const authorization = request.headers.authorization;
+      const supplied = request.headers['x-api-token'] ??
+        (authorization?.startsWith('Bearer ') ? authorization.slice(7) : '');
+      const suppliedBuffer = Buffer.from(typeof supplied === 'string' ? supplied : '');
+      const expectedBuffer = Buffer.from(apiToken);
+      if (suppliedBuffer.length !== expectedBuffer.length ||
+          !crypto.timingSafeEqual(suppliedBuffer, expectedBuffer)) {
+        return reply.code(401).send({ statusCode: 401, error: 'Unauthorized', message: 'Valid API token required' });
+      }
+    });
+  }
 
   // Serve 4TB storage assets with immutable long-term caching
   app.register(fastifyStatic, {
@@ -326,7 +387,7 @@ export function buildApp(options: AppOptions = {}): FastifyInstance {
 
   // Register domain route modules
   registerSeriesRoutes(app, db);
-  registerChapterRoutes(app, db, storageRoot);
+  registerChapterRoutes(app, db, storageRoot, incomingRoot);
   registerProgressRoutes(app, db);
   registerAnalyticsRoutes(app, db);
   registerBadgeRoutes(app, db);
@@ -372,7 +433,7 @@ export function buildApp(options: AppOptions = {}): FastifyInstance {
       adaptiveController: options.adaptiveController,
     });
 
-  registerBackupRoutes(app, db, backupDaemon, differentialMirror);
+  registerBackupRoutes(app, db, backupDaemon, differentialMirror, path.resolve(storageRoot, 'backups', 'mirrors'), storageRoot);
   registerEventRoutes(app, options.eventBus);
   registerTelemetryRoutes(app, { db, storageRoot, adaptiveController: options.adaptiveController });
   registerMaintenanceRoutes(app, { db, storageRoot });

@@ -23,10 +23,10 @@ export const SPREAD_OPTIONS: Array<{
   icon: string;
   desc: string;
 }> = [
-  { id: 'auto_split', label: 'Auto-Split', icon: '✂️', desc: 'Divide dobles páginas anchas automáticamente' },
-  { id: 'force_single', label: 'Página Simple', icon: '📄', desc: 'Muestra cada archivo íntegro sin división' },
-  { id: 'dual_spread', label: 'Doble Página', icon: '📖', desc: 'Lado a lado estilo tomo Tankōbon abierto' },
-  { id: 'webtoon_stitch', label: 'Webtoon Stitch', icon: '🧵', desc: 'Tira continua vertical con eliminación de fisuras' },
+  { id: 'auto_split', label: 'Auto-Split', icon: 'CUT', desc: 'Divide dobles páginas anchas automáticamente' },
+  { id: 'force_single', label: 'Página Simple', icon: 'PAGE', desc: 'Muestra cada archivo íntegro sin división' },
+  { id: 'dual_spread', label: 'Doble Página', icon: 'SPREAD', desc: 'Lado a lado estilo tomo Tankōbon abierto' },
+  { id: 'webtoon_stitch', label: 'Webtoon Stitch', icon: 'STITCH', desc: 'Tira continua vertical con eliminación de fisuras' },
 ];
 
 export const SpreadLayoutHUD: React.FC<SpreadLayoutHUDProps> = ({
@@ -80,7 +80,7 @@ export const SpreadLayoutHUD: React.FC<SpreadLayoutHUDProps> = ({
       {/* Header */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-          <span style={{ fontSize: '14px' }}>📐</span>
+          
           <span style={{ fontWeight: 600, color: '#f4f4f5' }}>Geometría & Spreads (S)</span>
         </div>
         <button
@@ -100,7 +100,7 @@ export const SpreadLayoutHUD: React.FC<SpreadLayoutHUDProps> = ({
             gap: '4px',
           }}
         >
-          <span>{readingDirection === 'rtl' ? '🇯🇵 Manga (RTL)' : '🌐 Manhwa (LTR)'}</span>
+          <span>{readingDirection === 'rtl' ? 'Manga (RTL)' : 'Manhwa (LTR)'}</span>
         </button>
       </div>
 
@@ -160,7 +160,7 @@ export const SpreadLayoutHUD: React.FC<SpreadLayoutHUDProps> = ({
             gap: '6px',
           }}
         >
-          <span>✓</span>
+          <span className="text-emerald-400 font-bold">[OK]</span>
           <span>Doble página detectada (Aspect ratio &gt; 1.25) — Dividida virtualmente</span>
         </div>
       )}

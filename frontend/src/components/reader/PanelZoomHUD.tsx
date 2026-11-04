@@ -69,7 +69,7 @@ export const PanelZoomHUD: React.FC<PanelZoomHUDProps> = ({
         }}
         title="Alternar Zoom de Viñeta (Z)"
       >
-        {isZoomed ? '🔍 Viñeta Enfocada' : '🔍 Modo Viñetas'}
+        {isZoomed ? 'Viñeta Enfocada' : 'Modo Viñetas'}
       </button>
 
       {isZoomed && (
@@ -139,9 +139,7 @@ export const PanelZoomHUD: React.FC<PanelZoomHUDProps> = ({
               fontSize: '12px'
             }}
             title="Salir del zoom (Esc)"
-          >
-            ✕
-          </button>
+           aria-label="Cerrar">&times;</button>
         </>
       )}
     </div>

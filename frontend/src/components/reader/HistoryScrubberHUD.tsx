@@ -122,9 +122,7 @@ export const HistoryScrubberHUD: React.FC<HistoryScrubberHUDProps> = ({
             lineHeight: 1,
             padding: '2px 6px',
           }}
-        >
-          ✕
-        </button>
+        >&times;</button>
       </div>
 
       {/* Mode Selector */}

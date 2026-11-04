@@ -288,6 +288,13 @@ export class DeepZoomTileService {
     tileSize: number = this.defaultTileSize,
     overlap: number = this.defaultOverlap
   ): DeepZoomManifest {
+    this.validatePageIdentity(chapterId, pageNumber);
+    if (!Number.isSafeInteger(originalWidth) || !Number.isSafeInteger(originalHeight) ||
+        originalWidth < 1 || originalHeight < 1 || originalWidth > 20_000 || originalHeight > 20_000 ||
+        originalWidth * originalHeight > 40_000_000 || !Number.isSafeInteger(tileSize) ||
+        tileSize < 64 || tileSize > 1024 || !Number.isSafeInteger(overlap) || overlap < 0 || overlap > 64) {
+      throw new Error('Invalid dimensions, tile size, or overlap');
+    }
     const existing = this.getManifest(chapterId, pageNumber);
     if (
       existing &&
@@ -338,6 +345,7 @@ export class DeepZoomTileService {
   }
 
   public getManifest(chapterId: string, pageNumber: number): DeepZoomManifest | null {
+    this.validatePageIdentity(chapterId, pageNumber);
     const stmt = this.stmtCache.get('selectManifest')!;
     const row = stmt.get(chapterId, pageNumber) as
       | {
@@ -393,6 +401,12 @@ export class DeepZoomTileService {
     col: number,
     row: number
   ): Promise<{ buffer: Buffer; contentType: string; etag: string }> {
+    this.validatePageIdentity(chapterId, pageNumber);
+    if (!Number.isSafeInteger(level) || level < 0 || level > 16 ||
+        !Number.isSafeInteger(col) || col < 0 || col > 50_000 ||
+        !Number.isSafeInteger(row) || row < 0 || row > 50_000) {
+      throw new Error('Invalid tile coordinates');
+    }
     const tileDir = path.join(
       this.cacheRoot,
       chapterId,
@@ -466,5 +480,12 @@ export class DeepZoomTileService {
 
     const etag = `"${crypto.createHash('md5').update(tileBuffer).digest('hex')}"`;
     return { buffer: tileBuffer, contentType: 'image/webp', etag };
+  }
+
+  private validatePageIdentity(chapterId: string, pageNumber: number): void {
+    if (!/^[a-zA-Z0-9][a-zA-Z0-9._-]{0,199}$/.test(chapterId) || chapterId.includes('..') ||
+        !Number.isSafeInteger(pageNumber) || pageNumber < 0 || pageNumber > 100_000) {
+      throw new Error('Invalid chapter ID or page number');
+    }
   }
 }

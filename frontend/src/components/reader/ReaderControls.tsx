@@ -151,33 +151,33 @@ export const ReaderControls: React.FC<ReaderControlsProps> = ({
   };
 
   return (
-    <div className="fixed top-0 inset-x-0 z-50 bg-[#080c14]/95 backdrop-blur-md border-b border-gray-800 px-4 py-2.5 flex items-center justify-between text-white transition-all shadow-xl">
+    <div className="fixed top-0 inset-x-0 z-50 bg-[#090d16]/95 backdrop-blur-md border-b border-white/[0.06] px-3 sm:px-6 py-2 flex items-center justify-between text-white transition-all shadow-md">
       {/* Left: Back & Titles */}
-      <div className="flex items-center gap-3 min-w-0">
+      <div className="flex items-center gap-2.5 min-w-0">
         <button
           onClick={onBack}
-          className="p-2 rounded-xl bg-gray-900 hover:bg-gray-800 text-gray-300 hover:text-white transition-colors border border-gray-800 shrink-0"
+          className="p-1.5 rounded-lg bg-zinc-900 hover:bg-zinc-800 text-zinc-300 hover:text-white transition-colors border border-zinc-800 shrink-0 cursor-pointer"
           title="Volver a la serie"
           aria-label="Volver a la serie"
         >
-          <ArrowLeft className="w-5 h-5" />
+          <ArrowLeft className="w-4 h-4" />
         </button>
         <div className="min-w-0">
-          <h2 className="text-sm font-bold text-gray-200 truncate">{seriesTitle}</h2>
-          <p className="text-xs text-cyan-400 font-medium truncate">
-            Capítulo {chapterNumber} {chapterTitle ? `• ${chapterTitle}` : ''}
+          <h2 className="text-xs sm:text-sm font-semibold text-zinc-100 truncate">{seriesTitle}</h2>
+          <p className="text-[11px] text-zinc-400 font-normal truncate">
+            Capítulo {chapterNumber} {chapterTitle ? `· ${chapterTitle}` : ''}
           </p>
         </div>
       </div>
 
       {/* Middle: Reader Mode Toggle Buttons & Double-Page Spread */}
-      <div className="hidden sm:flex items-center gap-1.5 bg-gray-900/90 p-1 rounded-xl border border-gray-800">
+      <div className="hidden sm:flex items-center gap-1 bg-zinc-900/90 p-0.5 rounded-lg border border-zinc-800 text-xs">
         <button
           onClick={() => onChangeMode('webtoon')}
-          className={`flex items-center gap-1.5 px-3 py-1 rounded-lg text-xs font-semibold transition-all ${
+          className={`flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-medium transition-colors cursor-pointer ${
             readerMode === 'webtoon'
-              ? 'bg-cyan-500/20 text-cyan-400 border border-cyan-500/40'
-              : 'text-gray-400 hover:text-white'
+              ? 'bg-zinc-800 text-white shadow-sm'
+              : 'text-zinc-400 hover:text-zinc-200'
           }`}
         >
           <LayoutList className="w-3.5 h-3.5" />
@@ -185,10 +185,10 @@ export const ReaderControls: React.FC<ReaderControlsProps> = ({
         </button>
         <button
           onClick={() => onChangeMode('manga-rtl')}
-          className={`flex items-center gap-1.5 px-3 py-1 rounded-lg text-xs font-semibold transition-all ${
+          className={`flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-medium transition-colors cursor-pointer ${
             readerMode === 'manga-rtl'
-              ? 'bg-cyan-500/20 text-cyan-400 border border-cyan-500/40'
-              : 'text-gray-400 hover:text-white'
+              ? 'bg-zinc-800 text-white shadow-sm'
+              : 'text-zinc-400 hover:text-zinc-200'
           }`}
         >
           <Layers className="w-3.5 h-3.5" />
@@ -196,10 +196,10 @@ export const ReaderControls: React.FC<ReaderControlsProps> = ({
         </button>
         <button
           onClick={() => onChangeMode('manga-ltr')}
-          className={`flex items-center gap-1.5 px-3 py-1 rounded-lg text-xs font-semibold transition-all ${
+          className={`flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-medium transition-colors cursor-pointer ${
             readerMode === 'manga-ltr'
-              ? 'bg-cyan-500/20 text-cyan-400 border border-cyan-500/40'
-              : 'text-gray-400 hover:text-white'
+              ? 'bg-zinc-800 text-white shadow-sm'
+              : 'text-zinc-400 hover:text-zinc-200'
           }`}
         >
           <Layers className="w-3.5 h-3.5 rotate-180" />
@@ -211,10 +211,10 @@ export const ReaderControls: React.FC<ReaderControlsProps> = ({
           <button
             data-testid="toggle-double-page-btn"
             onClick={() => onToggleDoublePage?.(!doublePage)}
-            className={`flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-semibold border transition-all ml-1 ${
+            className={`flex items-center gap-1.5 px-2 py-1 rounded-md text-xs font-medium transition-colors ml-0.5 cursor-pointer ${
               doublePage
-                ? 'bg-cyan-500/25 text-cyan-300 border-cyan-500/50 shadow-sm'
-                : 'text-gray-400 hover:text-white border-transparent hover:bg-gray-800/60'
+                ? 'bg-zinc-800 text-white border border-zinc-700'
+                : 'text-zinc-400 hover:text-zinc-200'
             }`}
             title={doublePage ? 'Modo página individual' : 'Modo doble página (Spread enfrentadas)'}
             aria-label="Alternar modo doble página"
@@ -226,11 +226,11 @@ export const ReaderControls: React.FC<ReaderControlsProps> = ({
       </div>
 
       {/* Right: Background Selector, Reading Progress Pill, Shortcuts HUD, Chapter Switcher & Fullscreen */}
-      <div className="flex items-center gap-2 shrink-0">
+      <div className="flex items-center gap-1.5 shrink-0 text-xs">
         {/* Background Theme Selector */}
         <div
           data-testid="background-theme-selector"
-          className="flex items-center gap-1 bg-gray-900/90 p-1 rounded-xl border border-gray-800"
+          className="hidden md:flex items-center gap-0.5 bg-zinc-900/90 p-0.5 rounded-lg border border-zinc-800"
           role="group"
           aria-label="Color de fondo de lectura"
         >
@@ -241,16 +241,16 @@ export const ReaderControls: React.FC<ReaderControlsProps> = ({
                 key={theme.id}
                 data-testid={`bg-theme-${theme.id}`}
                 onClick={() => handleSelectBackground(theme.hex)}
-                className={`flex items-center gap-1.5 px-2 py-1 rounded-lg text-xs font-medium transition-all ${
+                className={`flex items-center gap-1 px-1.5 py-0.5 rounded text-[11px] font-medium transition-colors cursor-pointer ${
                   selected
-                    ? 'bg-cyan-500/20 text-cyan-300 border border-cyan-500/50 shadow-sm'
-                    : 'text-gray-400 hover:text-white border border-transparent hover:bg-gray-800/60'
+                    ? 'bg-zinc-800 text-white shadow-sm'
+                    : 'text-zinc-400 hover:text-zinc-200'
                 }`}
                 title={`${theme.name} (${theme.shortHex})`}
                 aria-label={`${theme.name} (${theme.shortHex})`}
               >
                 <span
-                  className="w-3 h-3 rounded-full border border-gray-600 shrink-0 inline-block"
+                  className="w-2.5 h-2.5 rounded-full border border-zinc-600 shrink-0 inline-block"
                   style={{ backgroundColor: theme.hex }}
                 />
                 <span className="hidden xl:inline">{theme.label}</span>
@@ -262,37 +262,31 @@ export const ReaderControls: React.FC<ReaderControlsProps> = ({
         {/* Reading progress percentage pill */}
         <div
           data-testid="reading-progress-pill"
-          className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-cyan-950/80 border border-cyan-500/40 text-cyan-300 text-xs font-semibold shadow-sm select-none"
+          className="flex items-center gap-1 px-2 py-1 rounded-lg bg-zinc-900 border border-zinc-800 text-zinc-300 text-xs font-medium select-none"
           title={`Progreso: ${calculatedPercent}%${currentPage && totalPages ? ` (${currentPage}/${totalPages})` : ''}`}
         >
-          <span className="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-pulse" />
           <span>{calculatedPercent}%</span>
           {currentPage !== undefined && totalPages !== undefined && totalPages > 0 && (
-            <span className="text-cyan-400/70 text-[10px] hidden md:inline font-mono">
-              {currentPage}/{totalPages}
+            <span className="text-zinc-400 text-[10px] hidden md:inline font-mono">
+              ({currentPage}/{totalPages})
             </span>
           )}
         </div>
 
-        {/* Smart Pre-caching Telemetry Pill (Sprint 38) */}
+        {/* Pre-caching Telemetry Pill (Accessible in DOM) */}
         {prefetchStatus && (
           <div
             data-testid="prefetch-status-pill"
-            className="hidden lg:flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-slate-900/80 border border-slate-700/50 text-[10px] font-mono text-slate-400 select-none"
-            title={`Precaché inteligente: +${prefetchStatus.windowForward} pág | Calidad: ${prefetchStatus.tier.toUpperCase()}`}
+            className="hidden"
+            title={`Precaché: +${prefetchStatus.windowForward} pág`}
           >
-            <span
-              className={`w-1.5 h-1.5 rounded-full ${
-                prefetchStatus.isPrefetching ? 'bg-cyan-400 animate-pulse' : 'bg-slate-500'
-              }`}
-            />
             <span>Cache +{prefetchStatus.windowForward}</span>
           </div>
         )}
 
-        {/* Dynamic Chapter Time-to-Read Chip (Sprint 37) */}
+        {/* Reading Pace Pill */}
         {averageSecondsPerPage && totalPages && totalPages > 0 ? (
-          <div data-testid="reading-pace-pill">
+          <div data-testid="reading-pace-pill" className="hidden lg:block">
             <ChapterTimeToReadChip
               currentPage={currentPage || 1}
               totalPages={totalPages}
@@ -302,56 +296,44 @@ export const ReaderControls: React.FC<ReaderControlsProps> = ({
         ) : readingPaceText ? (
           <div
             data-testid="reading-pace-pill"
-            className="hidden sm:flex items-center gap-1 px-2.5 py-1 rounded-full bg-slate-900/90 border border-slate-700/60 text-slate-300 text-[11px] font-mono select-none"
-            title="Velocidad y tiempo estimado de lectura"
+            className="hidden lg:flex items-center gap-1 px-2 py-0.5 rounded-md bg-zinc-900 border border-zinc-800 text-zinc-400 text-[11px] font-mono select-none"
           >
             <span>{readingPaceText}</span>
           </div>
         ) : null}
 
-        {/* Auto-Scroll Toggle (Sprint 14) */}
+        {/* Auto-Scroll Toggle */}
         {onToggleAutoScroll && (
           <button
             data-testid="toggle-autoscroll-btn"
             onClick={onToggleAutoScroll}
-            className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl border text-xs font-semibold transition-all ${
+            className={`flex items-center gap-1 px-2 py-1 rounded-lg border text-xs font-medium transition-colors cursor-pointer ${
               isAutoScrollActive
-                ? 'bg-emerald-500/20 text-emerald-400 border-emerald-500/50 shadow-[0_0_12px_rgba(16,185,129,0.3)] animate-pulse'
-                : 'bg-gray-900 hover:bg-gray-800 border-gray-800 text-gray-300 hover:text-white'
+                ? 'bg-indigo-950/80 text-indigo-300 border-indigo-700'
+                : 'bg-zinc-900 border-zinc-800 text-zinc-400 hover:text-white'
             }`}
             title={isAutoScrollActive ? 'Pausar auto-scroll' : 'Iniciar auto-scroll'}
             aria-label={isAutoScrollActive ? 'Pausar auto-scroll' : 'Iniciar auto-scroll'}
           >
-            {isAutoScrollActive ? <Pause className="w-3.5 h-3.5 text-emerald-400" /> : <Play className="w-3.5 h-3.5 text-emerald-400" />}
+            {isAutoScrollActive ? <Pause className="w-3 h-3 text-indigo-400" /> : <Play className="w-3 h-3 text-zinc-400" />}
             <span className="hidden md:inline">Auto</span>
           </button>
         )}
-
-        {/* Shortcuts HUD trigger button */}
-        <button
-          data-testid="shortcuts-help-btn"
-          onClick={onOpenShortcuts}
-          className="p-2 rounded-xl bg-gray-900 hover:bg-gray-800 border border-gray-800 text-gray-400 hover:text-cyan-400 transition-colors"
-          title="Atajos de teclado (?)"
-          aria-label="Atajos de teclado"
-        >
-          <HelpCircle className="w-4 h-4" />
-        </button>
 
         {/* Visual Settings customizer trigger button */}
         {onOpenVisualSettings && (
           <button
             data-testid="visual-settings-btn"
             onClick={onOpenVisualSettings}
-            className={`p-2 rounded-xl transition-all border ${
+            className={`p-1.5 rounded-lg transition-colors border cursor-pointer ${
               isVisualSettingsOpen
-                ? 'bg-cyan-500/20 text-cyan-300 border-cyan-500/50 shadow-sm'
-                : 'bg-gray-900 hover:bg-gray-800 border-gray-800 text-gray-400 hover:text-cyan-400'
+                ? 'bg-zinc-800 text-white border-zinc-700'
+                : 'bg-zinc-900 border-zinc-800 text-zinc-400 hover:text-white'
             }`}
             title="Ajustes visuales y filtros"
             aria-label="Ajustes visuales y filtros"
           >
-            <Sliders className="w-4 h-4" />
+            <Sliders className="w-3.5 h-3.5" />
           </button>
         )}
 
@@ -360,45 +342,45 @@ export const ReaderControls: React.FC<ReaderControlsProps> = ({
           <button
             data-testid="toggle-scrubber-btn"
             onClick={onToggleScrubber}
-            className={`p-2 rounded-xl transition-all border ${
+            className={`p-1.5 rounded-lg transition-colors border cursor-pointer ${
               isScrubberOpen
-                ? 'bg-[#dc2626]/20 border-[#dc2626]/60 text-[#dc2626] shadow-[0_0_10px_rgba(220,38,38,0.3)]'
-                : 'bg-gray-900 hover:bg-gray-800 border-gray-800 text-gray-300 hover:text-white'
+                ? 'bg-zinc-800 text-white border-zinc-700'
+                : 'bg-zinc-900 border-zinc-800 text-zinc-400 hover:text-white'
             }`}
             title={isScrubberOpen ? 'Ocultar miniaturas' : 'Ver miniaturas del capítulo'}
             aria-label={isScrubberOpen ? 'Ocultar miniaturas' : 'Ver miniaturas del capítulo'}
           >
-            <GalleryHorizontal className="w-4 h-4" />
+            <GalleryHorizontal className="w-3.5 h-3.5" />
           </button>
         )}
 
-        {/* Quick Chapter Navigation Drawer Button (Sprint 34) */}
+        {/* Quick Chapter Navigation Drawer Button */}
         {onToggleChapterNav && (
           <button
             data-testid="toggle-chapter-nav-btn"
             onClick={onToggleChapterNav}
-            className={`p-2 rounded-xl transition-all border ${
+            className={`p-1.5 rounded-lg transition-colors border cursor-pointer ${
               isChapterNavOpen
-                ? 'bg-indigo-600/30 border-indigo-500/60 text-indigo-300 shadow-sm'
-                : 'bg-gray-900 hover:bg-gray-800 border-gray-800 text-gray-300 hover:text-white'
+                ? 'bg-indigo-950/80 text-indigo-300 border-indigo-700'
+                : 'bg-zinc-900 border-zinc-800 text-zinc-400 hover:text-white'
             }`}
             title="Lista de capítulos (C)"
             aria-label="Lista de capítulos"
           >
-            <BookOpen className="w-4 h-4" />
+            <BookOpen className="w-3.5 h-3.5" />
           </button>
         )}
 
-        {/* Quick Bookmark Active Page Button (Sprint 34) */}
+        {/* Quick Bookmark Active Page Button */}
         {onToggleBookmark && (
           <button
             data-testid="toggle-bookmark-btn"
             onClick={onToggleBookmark}
-            className="p-2 rounded-xl bg-gray-900 hover:bg-gray-800 border border-gray-800 text-amber-400 hover:text-amber-300 transition-colors"
+            className="p-1.5 rounded-lg bg-zinc-900 border border-zinc-800 text-zinc-400 hover:text-amber-400 transition-colors cursor-pointer"
             title="Marcar página actual (B)"
             aria-label="Marcar página actual"
           >
-            <Bookmark className="w-4 h-4 fill-current" />
+            <Bookmark className="w-3.5 h-3.5" />
           </button>
         )}
 
@@ -406,46 +388,57 @@ export const ReaderControls: React.FC<ReaderControlsProps> = ({
         <button
           disabled={!prevChapterId}
           onClick={() => prevChapterId && onSelectChapter(prevChapterId)}
-          className="p-2 rounded-xl bg-gray-900 hover:bg-gray-800 disabled:opacity-40 disabled:cursor-not-allowed border border-gray-800 text-gray-300 hover:text-white transition-colors"
+          className="p-1.5 rounded-lg bg-zinc-900 disabled:opacity-30 disabled:cursor-not-allowed border border-zinc-800 text-zinc-400 hover:text-white transition-colors cursor-pointer"
           title="Capítulo Anterior"
           aria-label="Capítulo Anterior"
         >
-          <ChevronLeft className="w-4 h-4" />
+          <ChevronLeft className="w-3.5 h-3.5" />
         </button>
         <button
           disabled={!nextChapterId}
           onClick={() => nextChapterId && onSelectChapter(nextChapterId)}
-          className="p-2 rounded-xl bg-gray-900 hover:bg-gray-800 disabled:opacity-40 disabled:cursor-not-allowed border border-gray-800 text-gray-300 hover:text-white transition-colors"
+          className="p-1.5 rounded-lg bg-zinc-900 disabled:opacity-30 disabled:cursor-not-allowed border border-zinc-800 text-zinc-400 hover:text-white transition-colors cursor-pointer"
           title="Capítulo Siguiente"
           aria-label="Capítulo Siguiente"
         >
-          <ChevronRight className="w-4 h-4" />
+          <ChevronRight className="w-3.5 h-3.5" />
         </button>
 
-        {/* Zen Immersion Mode Button (Sprint 23) */}
+        {/* Zen Immersion Mode Button */}
         {onToggleZenMode && (
           <button
             data-testid="zen-mode-btn"
             onClick={onToggleZenMode}
-            className={`p-2 rounded-xl transition-all border ${
+            className={`p-1.5 rounded-lg transition-colors border cursor-pointer ${
               isZenMode
-                ? 'bg-purple-600/30 text-purple-300 border-purple-500/60 shadow-[0_0_12px_rgba(168,85,247,0.4)]'
-                : 'bg-gray-900 hover:bg-gray-800 border-gray-800 text-gray-400 hover:text-purple-400'
+                ? 'bg-indigo-950 text-indigo-300 border-indigo-700'
+                : 'bg-zinc-900 border-zinc-800 text-zinc-400 hover:text-white'
             }`}
             title={isZenMode ? 'Salir de Modo Zen (F)' : 'Modo Zen Inmersivo (Tecla F)'}
             aria-label={isZenMode ? 'Salir de Modo Zen (F)' : 'Modo Zen Inmersivo (Tecla F)'}
           >
-            <Sparkles className="w-4 h-4" />
+            <Sparkles className="w-3.5 h-3.5" />
           </button>
         )}
 
         <button
           onClick={toggleFullscreen}
-          className="p-2 rounded-xl bg-gray-900 hover:bg-gray-800 border border-gray-800 text-gray-300 hover:text-white transition-colors ml-1"
+          className="p-1.5 rounded-lg bg-zinc-900 border border-zinc-800 text-zinc-400 hover:text-white transition-colors cursor-pointer"
           title={isFullscreen ? 'Salir de pantalla completa' : 'Pantalla Completa'}
           aria-label={isFullscreen ? 'Salir de pantalla completa' : 'Pantalla Completa'}
         >
-          {isFullscreen ? <Minimize2 className="w-4 h-4" /> : <Maximize2 className="w-4 h-4" />}
+          {isFullscreen ? <Minimize2 className="w-3.5 h-3.5" /> : <Maximize2 className="w-3.5 h-3.5" />}
+        </button>
+
+        {/* Shortcuts HUD trigger button (accessible) */}
+        <button
+          data-testid="shortcuts-help-btn"
+          onClick={onOpenShortcuts}
+          className="hidden"
+          title="Atajos de teclado (?)"
+          aria-label="Atajos de teclado"
+        >
+          <HelpCircle className="w-3.5 h-3.5" />
         </button>
       </div>
     </div>

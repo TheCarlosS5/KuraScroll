@@ -107,9 +107,7 @@ export const TileInvalidatorHUD: React.FC<TileInvalidatorHUDProps> = ({
             fontSize: '14px',
             padding: '2px 6px',
           }}
-        >
-          ✕
-        </button>
+        >&times;</button>
       </div>
 
       {/* Memory Progress Bar */}

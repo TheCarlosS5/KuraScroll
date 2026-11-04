@@ -48,7 +48,7 @@ export const UnsharpMaskHUD: React.FC<UnsharpMaskHUDProps> = ({ seriesId }) => {
         }}
         title="Open Unsharp Mask Sharpening HUD (Hotkey: U)"
       >
-        🗡️ Unsharp Mask [U]
+        Unsharp Mask [U]
       </button>
     );
   }
@@ -69,7 +69,7 @@ export const UnsharpMaskHUD: React.FC<UnsharpMaskHUDProps> = ({ seriesId }) => {
       {/* Header */}
       <div className="flex items-center justify-between pb-2 mb-3 border-b" style={{ borderColor: '#27272a' }}>
         <div className="flex items-center space-x-2">
-          <span className="text-sm font-semibold text-emerald-400">🗡️ Unsharp Mask Sharpening</span>
+          <span className="text-sm font-semibold text-emerald-400">Unsharp Mask Sharpening</span>
           <span className="text-[10px] px-1.5 py-0.5 rounded bg-zinc-800 text-zinc-400">
             SLA 86
           </span>

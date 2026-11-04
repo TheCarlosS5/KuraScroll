@@ -31,7 +31,7 @@ describe('Sprint 60 - DialogueJumpHUD Component Tests', () => {
 
     expect(screen.getByRole('dialog')).toBeDefined();
     expect(screen.getByPlaceholderText('Buscar frase, diálogo o personaje (CJK o texto)...')).toBeDefined();
-    expect(screen.getByText('🛡️ Protección Anti-Spoiler')).toBeDefined();
+    expect(screen.getByText('Protección Anti-Spoiler')).toBeDefined();
   });
 
   it('calls onClose when ESC button is clicked or Escape key pressed', () => {

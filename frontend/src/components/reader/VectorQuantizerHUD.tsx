@@ -165,10 +165,10 @@ export const VectorQuantizerHUD: React.FC<VectorQuantizerHUDProps> = ({
                   whiteSpace: 'nowrap',
                 }}
               >
-                {pKey === 'int8_quantized' && '🔢 Int8 Quantized'}
-                {pKey === 'compact_scalar' && '📦 Compact 32d'}
-                {pKey === 'exact_cosine' && '🎯 Exact 128d'}
-                {pKey === 'custom' && '⚙️ Custom'}
+                {pKey === 'int8_quantized' && 'Int8 Quantized'}
+                {pKey === 'compact_scalar' && 'Compact 32d'}
+                {pKey === 'exact_cosine' && 'Exact 128d'}
+                {pKey === 'custom' && 'Custom'}
               </button>
             );
           })}
@@ -194,7 +194,7 @@ export const VectorQuantizerHUD: React.FC<VectorQuantizerHUDProps> = ({
               fontWeight: 600,
             }}
           >
-            {isSpoilerShielded ? '🛡️ SPOILER SHIELDED' : (isMatch ? '✓ LORE REVEALED' : 'NO MATCH')}
+            {isSpoilerShielded ? 'SPOILER SHIELDED' : (isMatch ? 'LORE REVEALED' : 'NO MATCH')}
           </span>
         </div>
 

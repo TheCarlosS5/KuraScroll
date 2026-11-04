@@ -84,7 +84,7 @@ describe('PanelPacingHUD Component', () => {
     expect(screen.getByText('ACTIVE')).toBeDefined();
 
     // Mode switch
-    const actionBtn = screen.getByText('⚡ Fast Action');
+    const actionBtn = screen.getByText('Fast Action');
     fireEvent.click(actionBtn);
     expect(onModeChange).toHaveBeenCalledWith('dynamic_action');
 

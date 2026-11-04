@@ -61,7 +61,7 @@ describe('BadgeGridModal Component', () => {
     expect(screen.getByText('Primer Paso')).toBeDefined();
     expect(screen.getByText('Devorador de Páginas I')).toBeDefined();
     expect(screen.getByText('Búho Nocturno')).toBeDefined();
-    expect(screen.getByText('✓ Desbloqueada')).toBeDefined();
+    expect(screen.getByText('Desbloqueada')).toBeDefined();
     expect(screen.getByText('40 / 100')).toBeDefined();
   });
 
@@ -74,7 +74,7 @@ describe('BadgeGridModal Component', () => {
       />
     );
 
-    const timeTab = screen.getByText('🌙 Horarios');
+    const timeTab = screen.getByText('Horarios');
     fireEvent.click(timeTab);
 
     expect(screen.getByText('Búho Nocturno')).toBeDefined();

@@ -42,7 +42,7 @@ describe('DailyGoalModal Component', () => {
     );
 
     // Switch to minutes
-    const minutesBtn = screen.getByText('⏱️ Minutos de lectura');
+    const minutesBtn = screen.getByText('Minutos de lectura');
     fireEvent.click(minutesBtn);
 
     // Click preset 50

@@ -51,7 +51,7 @@ export const CelluloseReliefHUD: React.FC<CelluloseReliefHUDProps> = ({
         className="fixed bottom-4 left-[46rem] z-40 bg-zinc-900 border border-zinc-700 text-zinc-300 px-3 py-1.5 text-xs font-mono rounded shadow hover:bg-zinc-800 transition-colors"
         title="Open Cellulose Relief & Paper Texture HUD (Hotkey: Shift + F)"
       >
-        <span className="text-amber-400 font-bold mr-1.5">📜 PAPER FIBER</span>
+        <span className="text-amber-400 font-bold mr-1.5">PAPER FIBER</span>
         <kbd className="bg-zinc-800 px-1 py-0.5 rounded text-[10px] text-zinc-400 border border-zinc-700">⇧F</kbd>
       </button>
     );
@@ -69,7 +69,7 @@ export const CelluloseReliefHUD: React.FC<CelluloseReliefHUDProps> = ({
       {/* Header */}
       <div className="flex items-center justify-between pb-2 mb-3 border-b border-zinc-800">
         <div className="flex items-center gap-2">
-          <span className="text-amber-400 font-bold">📜 CELLULOSE RELIEF</span>
+          <span className="text-amber-400 font-bold">CELLULOSE RELIEF</span>
           <span className="text-[10px] text-zinc-400">SLA 97</span>
         </div>
         <div className="flex items-center gap-2">
@@ -89,9 +89,7 @@ export const CelluloseReliefHUD: React.FC<CelluloseReliefHUDProps> = ({
             onClick={toggleHud}
             className="text-zinc-500 hover:text-zinc-300 text-sm leading-none px-1"
             title="Close HUD (Shift + F)"
-          >
-            ✕
-          </button>
+           aria-label="Cerrar">&times;</button>
         </div>
       </div>
 

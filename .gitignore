@@ -14,3 +14,4 @@ tmp/
 tests/**/tmp-*/
 tmp-*/
 scratch/
+.agents/

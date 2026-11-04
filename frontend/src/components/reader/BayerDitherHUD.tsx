@@ -50,7 +50,7 @@ export const BayerDitherHUD: React.FC<BayerDitherHUDProps> = ({ seriesId }) => {
         }}
         title="Open Bayer Dither De-Banding HUD (Hotkey: B)"
       >
-        🏁 Bayer Dither [B]
+        Bayer Dither [B]
       </button>
     );
   }
@@ -71,7 +71,7 @@ export const BayerDitherHUD: React.FC<BayerDitherHUDProps> = ({ seriesId }) => {
       {/* Header */}
       <div className="flex items-center justify-between pb-2 mb-3 border-b" style={{ borderColor: '#27272a' }}>
         <div className="flex items-center space-x-2">
-          <span className="text-sm font-semibold text-rose-400">🏁 Bayer Dither Matrix</span>
+          <span className="text-sm font-semibold text-rose-400">Bayer Dither Matrix</span>
           <span className="text-[10px] px-1.5 py-0.5 rounded bg-zinc-800 text-zinc-400">
             SLA 83
           </span>
@@ -244,7 +244,7 @@ export const BayerDitherHUD: React.FC<BayerDitherHUDProps> = ({ seriesId }) => {
           className="py-1 px-2 rounded bg-zinc-800 border border-zinc-700 text-zinc-300 hover:bg-zinc-700 text-[10px]"
           title="Sample random pixel"
         >
-          🎲 Random
+          Random
         </button>
       </div>
     </div>

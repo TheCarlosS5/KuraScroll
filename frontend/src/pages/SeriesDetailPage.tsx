@@ -1,23 +1,35 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { localClientStorage, SeriesShelfType } from '../services/local-storage-service.js';
-import { ArrowLeft, BookOpen, Heart, Library, CheckCircle2, Clock, Globe, Download } from 'lucide-react';
+import { ArrowLeft, BookOpen, Heart, Library, CheckCircle2, Clock, Globe, Download, Flag, Camera } from 'lucide-react';
+import { CommentSection } from '../components/comments/CommentSection.js';
+import { ReportModal } from '../components/moderation/ReportModal.js';
+import { SafeUser } from '../services/auth-service.js';
 
 export interface SeriesDetailPageProps {
   slug: string;
+  currentUser?: SafeUser | null;
   onBack: () => void;
   onReadChapter: (chapterId: string) => void;
+  onAddChapter?: (seriesId: string, title: string) => void;
+  onRequireAuth?: () => void;
 }
 
 export const SeriesDetailPage: React.FC<SeriesDetailPageProps> = ({
   slug,
+  currentUser,
   onBack,
   onReadChapter,
+  onAddChapter,
+  onRequireAuth,
 }) => {
   const [series, setSeries] = useState<any | null>(null);
   const [loading, setLoading] = useState(true);
   const [shelf, setShelf] = useState<SeriesShelfType>('none');
   const [isFavorite, setIsFavorite] = useState(false);
   const [lastReadChapterId, setLastReadChapterId] = useState<string | null>(null);
+  const [isReportOpen, setIsReportOpen] = useState(false);
+  const [coverUploading, setCoverUploading] = useState(false);
+  const coverInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     async function loadDetail() {
@@ -41,9 +53,20 @@ export const SeriesDetailPage: React.FC<SeriesDetailPageProps> = ({
             }
           }
 
-          const progress = await localClientStorage.getProgress(data.id || slug);
+          let progress = null;
+          if (currentUser) {
+            const progressResponse = await fetch(`/api/v1/progress/${encodeURIComponent(data.id || slug)}`, {
+              credentials: 'include',
+              headers: { 'X-Requested-With': 'KuraScrollSPA' },
+            });
+            if (progressResponse.ok) progress = await progressResponse.json();
+          } else {
+            progress = await localClientStorage.getProgress(data.id || slug);
+          }
           if (progress) {
-            setLastReadChapterId(progress.chapterId);
+            setLastReadChapterId(progress.chapterId || null);
+          } else {
+            setLastReadChapterId(null);
           }
         }
       } catch (e) {
@@ -54,7 +77,7 @@ export const SeriesDetailPage: React.FC<SeriesDetailPageProps> = ({
     }
 
     loadDetail();
-  }, [slug]);
+  }, [slug, currentUser?.id]);
 
   const handleShelfChange = async (newShelf: SeriesShelfType) => {
     setShelf(newShelf);
@@ -93,6 +116,49 @@ export const SeriesDetailPage: React.FC<SeriesDetailPageProps> = ({
   const chapters = series.chapters || [];
   const firstChapterId = chapters[0]?.id;
   const continueChapterId = lastReadChapterId || firstChapterId;
+  const canManageSeries = Boolean(currentUser && (
+    currentUser.id === series.uploaderUserId || currentUser.role === 'admin' || currentUser.role === 'moderator'
+  ));
+
+  const handleCoverUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (file.size > 10 * 1024 * 1024) {
+      alert('La imagen de portada debe pesar menos de 10 MB.');
+      return;
+    }
+    const allowedMimes = ['image/jpeg', 'image/png', 'image/webp'];
+    if (!allowedMimes.includes(file.type)) {
+      alert('Formato de portada no compatible. Utilice JPG, PNG o WebP.');
+      return;
+    }
+
+    setCoverUploading(true);
+    try {
+      const formData = new FormData();
+      formData.append('cover', file);
+      const res = await fetch(`/api/v1/manga/${encodeURIComponent(series.id)}/cover`, {
+        method: 'POST',
+        headers: { 'X-Requested-With': 'KuraScrollSPA' },
+        credentials: 'include',
+        body: formData,
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        throw new Error(data.message || `Error al actualizar portada (${res.status})`);
+      }
+      setSeries((prev: any) => ({
+        ...prev,
+        coverImage: data.coverUrl,
+      }));
+    } catch (err: any) {
+      alert(err.message || 'Error al actualizar portada');
+    } finally {
+      setCoverUploading(false);
+      if (coverInputRef.current) coverInputRef.current.value = '';
+    }
+  };
 
   const shelfLabels: Record<SeriesShelfType, string> = {
     none: 'Añadir a Biblioteca...',
@@ -117,7 +183,7 @@ export const SeriesDetailPage: React.FC<SeriesDetailPageProps> = ({
       <div className="grid grid-cols-1 md:grid-cols-4 gap-8 bg-zinc-900/60 rounded-2xl border border-zinc-800/80 p-6 md:p-8 shadow-sm">
         {/* Cover Art */}
         <div className="md:col-span-1">
-          <div className="aspect-[2/3] w-full rounded-xl overflow-hidden bg-zinc-950 shadow-md border border-zinc-800">
+          <div className="group relative aspect-[2/3] w-full rounded-xl overflow-hidden bg-zinc-950 shadow-md border border-zinc-800">
             {series.coverImage ? (
               <img
                 src={series.coverImage}
@@ -128,6 +194,27 @@ export const SeriesDetailPage: React.FC<SeriesDetailPageProps> = ({
               <div className="w-full h-full flex items-center justify-center bg-zinc-900">
                 <BookOpen className="w-12 h-12 text-zinc-600" />
               </div>
+            )}
+
+            {canManageSeries && (
+              <>
+                <input
+                  type="file"
+                  ref={coverInputRef}
+                  onChange={handleCoverUpload}
+                  accept="image/png,image/jpeg,image/webp"
+                  className="hidden"
+                />
+                <button
+                  type="button"
+                  onClick={() => coverInputRef.current?.click()}
+                  disabled={coverUploading}
+                  className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 flex flex-col items-center justify-center text-white transition-opacity text-xs font-semibold cursor-pointer"
+                >
+                  <Camera className="w-6 h-6 mb-1 text-cyan-300" />
+                  <span>{coverUploading ? 'Subiendo...' : 'Cambiar portada'}</span>
+                </button>
+              </>
             )}
           </div>
         </div>
@@ -178,6 +265,22 @@ export const SeriesDetailPage: React.FC<SeriesDetailPageProps> = ({
 
           {/* Action Buttons: Read, Shelf Selector & Favorite */}
           <div className="flex flex-wrap items-center gap-3 mt-6 pt-5 border-t border-zinc-800/60">
+            {canManageSeries && onAddChapter && (
+              <button
+                type="button"
+                onClick={() => onAddChapter(series.id, series.titlePrimary)}
+                className="px-4 py-2.5 rounded-xl bg-cyan-600/20 hover:bg-cyan-600/30 border border-cyan-500/40 text-cyan-300 font-semibold text-sm transition-colors"
+              >
+                Subir capítulo
+              </button>
+            )}
+            <button
+              type="button"
+              onClick={() => currentUser ? setIsReportOpen(true) : onRequireAuth?.()}
+              className="inline-flex items-center gap-1.5 px-3 py-2.5 rounded-xl border border-gray-700 text-gray-400 hover:text-amber-300 hover:border-amber-700 text-xs font-semibold transition-colors"
+            >
+              <Flag className="w-3.5 h-3.5" /> Reportar manga
+            </button>
             {continueChapterId && (
               <button
                 onClick={() => onReadChapter(continueChapterId)}
@@ -299,6 +402,24 @@ export const SeriesDetailPage: React.FC<SeriesDetailPageProps> = ({
               );
             })}
           </div>
+        )}
+
+        {/* Community Comments Section */}
+        {series && (
+          <CommentSection
+            targetType="series"
+            targetId={series.id}
+            currentUser={currentUser || null}
+            onRequireAuth={onRequireAuth || (() => {})}
+          />
+        )}
+        {series && isReportOpen && (
+          <ReportModal
+            isOpen={isReportOpen}
+            onClose={() => setIsReportOpen(false)}
+            targetType="series"
+            targetId={series.id}
+          />
         )}
       </div>
     </div>

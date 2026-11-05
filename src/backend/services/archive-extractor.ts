@@ -20,7 +20,14 @@ export async function assertArchiveFileSize(archivePath: string): Promise<void> 
 export function validateArchiveEntries(entries: AdmZip.IZipEntry[]): void {
   if (entries.length > MAX_ENTRIES) throw new Error(`Archive contains too many entries (maximum ${MAX_ENTRIES})`);
   let total = 0;
+  const canonicalNames = new Set<string>();
   for (const entry of entries) {
+    const normalizedName = path.posix.normalize(entry.entryName.replace(/[\\]+/g, '/')).replace(/\/$/, '');
+    const canonicalName = process.platform === 'win32' ? normalizedName.toLowerCase() : normalizedName;
+    if (!normalizedName || normalizedName === '.' || canonicalNames.has(canonicalName)) {
+      throw new Error(`Archive contains duplicate or invalid entry path: ${entry.entryName}`);
+    }
+    canonicalNames.add(canonicalName);
     if (entry.isDirectory) continue;
     const size = Number(entry.header.size);
     const compressedSize = Number(entry.header.compressedSize);

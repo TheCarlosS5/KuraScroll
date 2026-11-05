@@ -32,4 +32,39 @@ export function runMigrations(db: DatabaseInstance): void {
   const schemaPath = path.resolve(__dirname, 'schema.sql');
   const ddl = fs.readFileSync(schemaPath, 'utf-8');
   db.exec(ddl);
+
+  // Backward-compatible schema evolution for multi-user / community platform
+  try {
+    const seriesCols = db.prepare('PRAGMA table_info(series)').all() as Array<{ name: string }>;
+    const colNames = new Set(seriesCols.map((c) => c.name));
+
+    if (!colNames.has('uploader_user_id')) {
+      db.exec("ALTER TABLE series ADD COLUMN uploader_user_id TEXT REFERENCES users(id) ON DELETE SET NULL;");
+    }
+    if (!colNames.has('visibility')) {
+      db.exec("ALTER TABLE series ADD COLUMN visibility TEXT NOT NULL DEFAULT 'published';");
+    }
+  } catch (err) {
+    console.warn('[Database] Column evolution for series:', err);
+  }
+
+  try {
+    const chapterCols = db.prepare('PRAGMA table_info(chapters)').all() as Array<{ name: string }>;
+    const colNames = new Set(chapterCols.map((c) => c.name));
+
+    if (!colNames.has('visibility')) {
+      db.exec("ALTER TABLE chapters ADD COLUMN visibility TEXT NOT NULL DEFAULT 'published';");
+    }
+  } catch (err) {
+    console.warn('[Database] Column evolution for chapters:', err);
+  }
+
+  try {
+    const pageCols = db.prepare('PRAGMA table_info(chapter_pages)').all() as Array<{ name: string }>;
+    if (!pageCols.some((column) => column.name === 'file_size_bytes')) {
+      db.exec('ALTER TABLE chapter_pages ADD COLUMN file_size_bytes INTEGER NOT NULL DEFAULT 0;');
+    }
+  } catch (err) {
+    console.warn('[Database] Column evolution for chapter_pages:', err);
+  }
 }

@@ -6,20 +6,22 @@ const HOST = process.env.HOST || '127.0.0.1';
 const STORAGE_ROOT = process.env.STORAGE_ROOT || path.resolve('./data/storage');
 const INCOMING_ROOT = process.env.INCOMING_DIR || path.resolve(STORAGE_ROOT, 'incoming');
 const API_TOKEN = process.env.API_TOKEN;
+const PUBLIC_PLATFORM_MODE = process.env.PUBLIC_PLATFORM_MODE === 'true';
 const isLoopbackHost = HOST === 'localhost' || HOST === '127.0.0.1' || HOST === '::1';
 
 if (!Number.isInteger(PORT) || PORT < 1 || PORT > 65535) {
   throw new Error('PORT must be an integer between 1 and 65535');
 }
 
-if (!isLoopbackHost && (!API_TOKEN || API_TOKEN.length < 32)) {
-  throw new Error('A random API_TOKEN of at least 32 characters is required when HOST exposes the API beyond loopback');
+if (!isLoopbackHost && (!API_TOKEN || API_TOKEN.length < 32) && !PUBLIC_PLATFORM_MODE) {
+  throw new Error('Set a 32+ character API_TOKEN for private API access or PUBLIC_PLATFORM_MODE=true for the session-authenticated web platform.');
 }
 
 const app = buildApp({
   storageRoot: STORAGE_ROOT,
   incomingRoot: INCOMING_ROOT,
-  apiToken: API_TOKEN,
+  apiToken: PUBLIC_PLATFORM_MODE ? undefined : API_TOKEN,
+  publicPlatform: PUBLIC_PLATFORM_MODE,
 });
 
 app.listen({ port: PORT, host: HOST }, (err, address) => {

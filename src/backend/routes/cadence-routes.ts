@@ -5,6 +5,9 @@
 
 import { FastifyInstance, FastifyPluginAsync } from 'fastify';
 import { DatabaseInstance } from '../db/database.js';
+import { AuthService } from '../services/auth-service.js';
+import { createAuthMiddleware } from '../middleware/auth-middleware.js';
+import { getAppConfig } from '../config/app-config.js';
 import {
   ReadingCadenceService,
   ReadingMode,
@@ -20,6 +23,11 @@ export const cadenceRoutes: FastifyPluginAsync<CadenceRoutesOptions> = async (
   opts: CadenceRoutesOptions
 ) => {
   const service = opts.cadenceService ?? new ReadingCadenceService(opts.db);
+  const config = getAppConfig();
+  const auth = createAuthMiddleware(new AuthService(opts.db));
+  const cadencePreHandler = config.publicPlatform
+    ? [auth.attachUser, auth.requireAuth]
+    : [auth.attachUser];
 
   /**
    * GET /api/v1/users/:userId/cadence
@@ -28,8 +36,8 @@ export const cadenceRoutes: FastifyPluginAsync<CadenceRoutesOptions> = async (
   fastify.get<{
     Params: { userId: string };
     Querystring: { mode?: ReadingMode };
-  }>('/api/v1/users/:userId/cadence', async (request, reply) => {
-    const { userId } = request.params;
+  }>('/api/v1/users/:userId/cadence', { preHandler: cadencePreHandler }, async (request, reply) => {
+    const userId = config.publicPlatform ? request.user!.id : request.params.userId;
     const mode = request.query?.mode || 'manga';
 
     if (!userId) {
@@ -61,7 +69,7 @@ export const cadenceRoutes: FastifyPluginAsync<CadenceRoutesOptions> = async (
       isDoubleSpread?: boolean;
       totalPages?: number;
     };
-  }>('/api/v1/cadence/record-transition', async (request, reply) => {
+  }>('/api/v1/cadence/record-transition', { preHandler: cadencePreHandler }, async (request, reply) => {
     const body = request.body;
 
     if (
@@ -79,7 +87,7 @@ export const cadenceRoutes: FastifyPluginAsync<CadenceRoutesOptions> = async (
     }
 
     const result = service.recordTransition({
-      userId: body.userId,
+      userId: config.publicPlatform ? request.user!.id : body.userId,
       chapterId: body.chapterId,
       pageNumber: Number(body.pageNumber),
       dwellSeconds: Number(body.dwellSeconds),

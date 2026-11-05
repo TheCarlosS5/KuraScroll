@@ -17,6 +17,8 @@ export interface InsertSeriesInput {
   anilistId?: number;
   mangadexId?: string;
   genres?: string[];
+  uploaderUserId?: string;
+  visibility?: 'draft' | 'published' | 'under_review' | 'removed';
 }
 
 export interface SeriesTitleInput {
@@ -40,6 +42,8 @@ export interface Series {
   releaseYear: number | null;
   anilistId: number | null;
   mangadexId: string | null;
+  uploaderUserId?: string | null;
+  visibility?: string;
   createdAt: string;
   updatedAt: string;
   highlightedTitle?: string;
@@ -56,6 +60,8 @@ export interface ListSeriesOptions {
   type?: string;
   status?: string;
   genre?: string;
+  visibility?: string;
+  uploaderUserId?: string;
   page?: number;
   limit?: number;
 }
@@ -67,8 +73,9 @@ export class SeriesRepository {
     const stmt = this.db.prepare(`
       INSERT INTO series (
         id, slug, title_primary, type, status, demographic, synopsis,
-        cover_image, banner_image, author, artist, release_year, anilist_id, mangadex_id
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        cover_image, banner_image, author, artist, release_year, anilist_id, mangadex_id,
+        uploader_user_id, visibility
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `);
 
     stmt.run(
@@ -85,7 +92,9 @@ export class SeriesRepository {
       input.artist ?? null,
       input.releaseYear ?? null,
       input.anilistId ?? null,
-      input.mangadexId ?? null
+      input.mangadexId ?? null,
+      input.uploaderUserId ?? null,
+      input.visibility ?? 'published'
     );
 
     if (input.genres && input.genres.length > 0) {
@@ -169,6 +178,8 @@ export class SeriesRepository {
       releaseYear: row.release_year,
       anilistId: row.anilist_id,
       mangadexId: row.mangadex_id,
+      uploaderUserId: row.uploader_user_id ?? null,
+      visibility: row.visibility ?? 'published',
       createdAt: row.created_at,
       updatedAt: row.updated_at,
       titles: titleRows.map((t) => ({
@@ -243,6 +254,18 @@ export class SeriesRepository {
       params.push(genrePattern, genrePattern);
     }
 
+    if (options.visibility) {
+      conditions.push('s.visibility = ?');
+      params.push(options.visibility);
+    } else {
+      conditions.push("(s.visibility = 'published' OR s.visibility IS NULL)");
+    }
+
+    if (options.uploaderUserId) {
+      conditions.push('s.uploader_user_id = ?');
+      params.push(options.uploaderUserId);
+    }
+
     const where = conditions.length > 0 ? `WHERE ${conditions.join(' AND ')}` : '';
 
     try {
@@ -301,6 +324,8 @@ export class SeriesRepository {
       releaseYear: row.release_year,
       anilistId: row.anilist_id,
       mangadexId: row.mangadex_id,
+      uploaderUserId: row.uploader_user_id ?? null,
+      visibility: row.visibility ?? 'published',
       createdAt: row.created_at,
       updatedAt: row.updated_at,
       highlightedTitle,

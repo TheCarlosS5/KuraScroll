@@ -45,8 +45,12 @@ KuraScroll enforces 98 automated microsecond-level hardware SLAs benchmarked aga
 
 ## Getting Started
 
+### Cloud Community Deployment
+
+KuraScroll includes an optional public community mode with user accounts, profiles, manga publishing, chapter comments, moderation, and a Docker Compose deployment for a single server with persistent storage. Start with [DEPLOY.md](DEPLOY.md) and the [implementation plan](docs/superpowers/plans/2026-11-05-cloud-community-master-plan.md). A live deployment still requires a host, HTTPS domain, production secrets, and (if enabled) SMTP credentials.
+
 ### Prerequisites
-- Node.js 20.x or higher
+- Node.js 22.x or higher (the backend uses `node:sqlite`)
 - npm 10.x or higher
 - Git
 

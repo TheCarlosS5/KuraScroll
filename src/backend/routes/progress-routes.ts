@@ -1,12 +1,26 @@
 import { FastifyInstance } from 'fastify';
 import { DatabaseInstance } from '../db/database.js';
 import { ReadingStreakService } from '../services/reading-streak-service.js';
+import { AuthService } from '../services/auth-service.js';
+import { extractSessionToken } from '../middleware/auth-middleware.js';
 
 export function registerProgressRoutes(app: FastifyInstance, db: DatabaseInstance): void {
+  const authService = new AuthService(db);
+
+  function getEffectiveUserId(req: any, fallback?: string): string {
+    if (req.user?.id) return req.user.id;
+    const token = extractSessionToken(req);
+    if (token) {
+      const user = authService.validateSessionToken(token);
+      if (user) return user.id;
+    }
+    return fallback || 'local_user';
+  }
+
   // Get recent reading progress list (Must be declared before :seriesId)
   app.get('/api/v1/progress/recent', async (req, reply) => {
     const query = req.query as { userId?: string; limit?: string; titlePref?: string };
-    const userId = query.userId || 'local_user';
+    const userId = getEffectiveUserId(req, query.userId);
     const limit = query.limit ? Math.min(50, Math.max(1, Number.parseInt(query.limit, 10))) : 15;
     const titlePref = (query.titlePref || '').toLowerCase();
 
@@ -117,7 +131,7 @@ export function registerProgressRoutes(app: FastifyInstance, db: DatabaseInstanc
   app.get('/api/v1/progress/:seriesId', async (req, reply) => {
     const { seriesId } = req.params as { seriesId: string };
     const query = req.query as { userId?: string; titlePref?: string };
-    const userId = query.userId || 'local_user';
+    const userId = getEffectiveUserId(req, query.userId);
     const titlePref = (query.titlePref || '').toLowerCase();
 
     const stmt = db.prepare(`
@@ -219,7 +233,7 @@ export function registerProgressRoutes(app: FastifyInstance, db: DatabaseInstanc
       };
     }
 
-    const userId = body.userId || 'local_user';
+    const userId = getEffectiveUserId(req, body.userId);
     const scrollOffsetY = body.scrollOffsetY ?? 0;
     const isCompleted = body.isCompleted ? 1 : 0;
 
@@ -249,5 +263,18 @@ export function registerProgressRoutes(app: FastifyInstance, db: DatabaseInstanc
       isCompleted,
       streak,
     };
+  });
+
+  app.delete('/api/v1/progress/:seriesId', async (req) => {
+    const { seriesId } = req.params as { seriesId: string };
+    const userId = getEffectiveUserId(req);
+    const result = db.prepare('DELETE FROM user_progress WHERE user_id = ? AND series_id = ?').run(userId, seriesId);
+    return { success: true, deleted: Number(result.changes || 0) };
+  });
+
+  app.delete('/api/v1/progress', async (req) => {
+    const userId = getEffectiveUserId(req);
+    const result = db.prepare('DELETE FROM user_progress WHERE user_id = ?').run(userId);
+    return { success: true, deleted: Number(result.changes || 0) };
   });
 }

@@ -4,6 +4,7 @@ import {
   localClientStorage,
   LocalReadingProgress,
 } from '../services/local-storage-service.js';
+import { SafeUser } from '../services/auth-service.js';
 import {
   History,
   Clock,
@@ -28,8 +29,10 @@ export interface HistoryItem extends LocalReadingProgress {
 
 export interface HistoryPageProps {
   onSelectSeries?: (slug: string) => void;
-  onContinueReading?: (chapterId: string, seriesSlug?: string) => void;
+  onContinueReading?: (chapterId: string, seriesSlug?: string, pageNumber?: number) => void;
   onExploreCatalog?: () => void;
+  currentUser?: SafeUser | null;
+  authLoading?: boolean;
 }
 
 function formatRelativeTime(timestamp: number): string {
@@ -52,14 +55,47 @@ export const HistoryPage: React.FC<HistoryPageProps> = ({
   onSelectSeries,
   onContinueReading,
   onExploreCatalog,
+  currentUser,
+  authLoading = false,
 }) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const [historyItems, setHistoryItems] = useState<HistoryItem[]>([]);
   const [loading, setLoading] = useState(true);
+  const [historyError, setHistoryError] = useState<string | null>(null);
 
   const loadHistory = async () => {
     setLoading(true);
+    setHistoryError(null);
     try {
+      // Account progress belongs to the signed-in user. Never fall back to shared IndexedDB
+      // when the server is unavailable, because another account may have used this browser.
+      if (currentUser) {
+        const res = await fetch('/api/v1/progress/recent?limit=50', {
+          credentials: 'include',
+          headers: { 'X-Requested-With': 'KuraScrollSPA' },
+        });
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const data = await res.json();
+        const serverItems: HistoryItem[] = (data.items || []).map((row: any) => ({
+          seriesId: row.seriesId,
+          chapterId: row.chapterId,
+          pageNumber: row.pageNumber || 1,
+          scrollOffsetY: row.resume?.scrollOffsetY || 0,
+          timestamp: row.updatedAt ? new Date(row.updatedAt).getTime() : Date.now(),
+          title: row.seriesTitle || row.titlePreferred || 'Sin título',
+          slug: row.seriesSlug || row.seriesId,
+          type: 'Manga',
+          coverImage: row.thumbnails?.cover || null,
+          totalChapters: null,
+          chapterNumber: row.chapterNumber ?? null,
+          chapterTitle: row.chapterTitle || null,
+          progressPercent: row.progressPercent || 0,
+        }));
+        setHistoryItems(serverItems);
+        return;
+      }
+
+      // Guest-only local history.
       const records = await localClientStorage.getAllProgress();
       // Sort by latest read timestamp descending
       const sorted = [...records].sort((a, b) => b.timestamp - a.timestamp);
@@ -117,16 +153,20 @@ export const HistoryPage: React.FC<HistoryPageProps> = ({
 
       setHistoryItems(enriched);
     } catch (e) {
-      console.error('Failed to load reading history from IndexedDB:', e);
+      console.error('Failed to load reading history:', e);
       setHistoryItems([]);
+      setHistoryError(currentUser
+        ? 'No se pudo cargar el historial de tu cuenta. Inténtalo de nuevo.'
+        : 'No se pudo cargar el historial local.');
     } finally {
       setLoading(false);
     }
   };
 
   useEffect(() => {
+    if (authLoading) return;
     loadHistory();
-  }, []);
+  }, [authLoading, currentUser?.id]);
 
   // Staggered GSAP animations for history cards and stats
   useEffect(() => {
@@ -166,13 +206,43 @@ export const HistoryPage: React.FC<HistoryPageProps> = ({
   }, [loading, historyItems.length]);
 
   const handleDeleteItem = async (seriesId: string) => {
-    await localClientStorage.deleteProgress(seriesId);
-    setHistoryItems((prev) => prev.filter((item) => item.seriesId !== seriesId));
+    try {
+      if (currentUser) {
+        const res = await fetch(`/api/v1/progress/${encodeURIComponent(seriesId)}`, {
+          method: 'DELETE',
+          credentials: 'include',
+          headers: { 'X-Requested-With': 'KuraScrollSPA' },
+        });
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      } else {
+        await localClientStorage.deleteProgress(seriesId);
+      }
+      setHistoryItems((prev) => prev.filter((item) => item.seriesId !== seriesId));
+    } catch {
+      window.alert('No se pudo eliminar este registro del historial.');
+    }
   };
 
   const handleClearAll = async () => {
-    if (window.confirm('¿Deseas vaciar todo tu historial de lectura local?')) {
-      await localClientStorage.clearAllProgress();
+    const prompt = currentUser
+      ? '¿Deseas eliminar todo el historial de lectura de tu cuenta?'
+      : '¿Deseas vaciar todo tu historial de lectura local?';
+    if (window.confirm(prompt)) {
+      try {
+        if (currentUser) {
+          const res = await fetch('/api/v1/progress', {
+            method: 'DELETE',
+            credentials: 'include',
+            headers: { 'X-Requested-With': 'KuraScrollSPA' },
+          });
+          if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        } else {
+          await localClientStorage.clearAllProgress();
+        }
+      } catch {
+        window.alert('No se pudo vaciar el historial.');
+        return;
+      }
       setHistoryItems([]);
     }
   };
@@ -194,6 +264,11 @@ export const HistoryPage: React.FC<HistoryPageProps> = ({
 
   return (
     <div ref={containerRef} className="max-w-7xl mx-auto px-4 lg:px-8 py-8">
+      {historyError && (
+        <div role="alert" className="mb-5 rounded-xl border border-red-800/70 bg-red-950/40 px-4 py-3 text-sm text-red-200">
+          {historyError}
+        </div>
+      )}
       {/* Header & Stats */}
       {historyItems.length > 0 ? (
         <div className="history-header-anim mb-8">
@@ -242,7 +317,7 @@ export const HistoryPage: React.FC<HistoryPageProps> = ({
                 <span className="text-[11px] text-zinc-400 font-medium">Sincronización</span>
                 <p className="text-xs font-medium text-emerald-400 mt-1 flex items-center gap-1.5">
                   <Sparkles className="w-3 h-3" />
-                  Almacenamiento Local
+                  {currentUser ? 'Cuenta KuraScroll' : 'Almacenamiento Local'}
                 </p>
               </div>
             </div>
@@ -359,7 +434,7 @@ export const HistoryPage: React.FC<HistoryPageProps> = ({
                 <div className="p-4 pt-0">
                   <button
                     data-testid={`continue-btn-${item.seriesId}`}
-                    onClick={() => onContinueReading?.(item.chapterId, item.slug)}
+                    onClick={() => onContinueReading?.(item.chapterId, item.slug, item.pageNumber)}
                     className="flex items-center justify-center gap-2 w-full py-2.5 px-4 rounded-xl bg-gradient-to-r from-cyan-600 to-indigo-600 hover:from-cyan-500 hover:to-indigo-500 text-white text-xs font-bold shadow-[0_0_15px_rgba(0,229,255,0.2)] hover:shadow-[0_0_20px_rgba(0,229,255,0.4)] transition-all cursor-pointer"
                   >
                     <Play className="w-3.5 h-3.5 fill-current" />

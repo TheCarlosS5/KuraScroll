@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { Flag, MessageSquare, X } from 'lucide-react';
 import { WebtoonReader } from '../components/reader/WebtoonReader.js';
 import { MangaReader } from '../components/reader/MangaReader.js';
 import { ReaderControls } from '../components/reader/ReaderControls.js';
@@ -14,12 +15,16 @@ import {
   loadReaderDisplaySettings,
 } from '../components/reader/ReaderVisualSettingsModal.js';
 import { useReadingProgress } from '../hooks/useReadingProgress.js';
+import { localClientStorage } from '../services/local-storage-service.js';
 import { useAutoScroll } from '../hooks/useAutoScroll.js';
 import { useZenModeGSAP } from '../hooks/useZenModeGSAP.js';
 import { ReadingStatsTracker } from '../services/reading-stats-service.js';
 import { syncCoordinator } from '../services/sync-coordinator.js';
 import { AdaptivePrefetchEngine, PrefetchTelemetry } from '../reader/AdaptivePrefetchEngine.js';
 import { AmbilightBackdrop } from '../components/reader/AmbilightBackdrop.js';
+import { CommentSection } from '../components/comments/CommentSection.js';
+import { ReportModal } from '../components/moderation/ReportModal.js';
+import type { SafeUser } from '../services/auth-service.js';
 import {
   extractAmbientColor,
   DEFAULT_AMBIENT_RGB,
@@ -29,20 +34,28 @@ import {
 
 export interface ReaderPageProps {
   chapterId: string;
+  initialPageNumber?: number;
   onBack: () => void;
-  onSelectChapter: (newChapterId: string) => void;
+  onSelectChapter: (newChapterId: string, pageNumber?: number) => void;
+  currentUser?: SafeUser | null;
+  onRequireAuth?: (pageNumber?: number) => void;
 }
 
 export const ReaderPage: React.FC<ReaderPageProps> = ({
   chapterId,
+  initialPageNumber = 1,
   onBack,
   onSelectChapter,
+  currentUser = null,
+  onRequireAuth = () => {},
 }) => {
   const [manifest, setManifest] = useState<any | null>(null);
   const [loading, setLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
   const [readerMode, setReaderMode] = useState<'webtoon' | 'manga-rtl' | 'manga-ltr'>('webtoon');
   const [showControls, setShowControls] = useState(true);
+  const [isCommentsOpen, setIsCommentsOpen] = useState(false);
+  const [isChapterReportOpen, setIsChapterReportOpen] = useState(false);
   const [isScrubberOpen, setIsScrubberOpen] = useState(false);
   const [doublePage, setDoublePage] = useState<boolean>(() => {
     try {
@@ -108,7 +121,7 @@ export const ReaderPage: React.FC<ReaderPageProps> = ({
   };
 
   const seriesId = manifest?.chapter?.seriesId || '';
-  const { saveProgress } = useReadingProgress(seriesId);
+  const { saveProgress } = useReadingProgress(seriesId, currentUser?.id);
 
   useEffect(() => {
     async function loadChapter() {
@@ -118,7 +131,30 @@ export const ReaderPage: React.FC<ReaderPageProps> = ({
         if (res.ok) {
           const data = await res.json();
           setManifest(data);
-          setCurrentPage(1);
+          let resumePage = initialPageNumber;
+          if (currentUser && data.chapter?.seriesId) {
+            try {
+              const progressRes = await fetch(`/api/v1/progress/${encodeURIComponent(data.chapter.seriesId)}`, {
+                credentials: 'include',
+                headers: { 'X-Requested-With': 'KuraScrollSPA' },
+              });
+              if (progressRes.ok) {
+                const progress = await progressRes.json();
+                resumePage = progress.chapterId === chapterId ? Number(progress.pageNumber) || resumePage : 1;
+              }
+            } catch {
+              // Keep the explicit resume page when account progress cannot be reached.
+            }
+          } else if (!currentUser && data.chapter?.seriesId) {
+            try {
+              const progress = await localClientStorage.getProgress(data.chapter.seriesId);
+              if (progress?.chapterId === chapterId) resumePage = progress.pageNumber;
+            } catch {
+              // Keep the explicit resume page when local history is unavailable.
+            }
+          }
+          const pageCount = Math.max(1, data.pages?.length || data.chapter?.pageCount || 1);
+          setCurrentPage(Math.min(pageCount, Math.max(1, Math.floor(resumePage) || 1)));
 
           // Infer default mode: Korean manhwa -> webtoon, Japanese manga -> manga-rtl
           if (data.chapter?.storagePath?.includes('manhwa')) {
@@ -133,7 +169,7 @@ export const ReaderPage: React.FC<ReaderPageProps> = ({
     }
 
     loadChapter();
-  }, [chapterId]);
+  }, [chapterId, initialPageNumber, currentUser?.id]);
 
   const handlePageChange = (page: number) => {
     const pageCount = manifest?.pages?.length ?? 1;
@@ -426,6 +462,19 @@ export const ReaderPage: React.FC<ReaderPageProps> = ({
         </div>
       )}
 
+      <button
+        type="button"
+        onClick={(event) => {
+          event.stopPropagation();
+          setIsCommentsOpen(true);
+        }}
+        aria-label="Abrir comentarios del capítulo"
+        className="fixed right-4 bottom-16 z-40 flex items-center gap-2 rounded-full border border-zinc-700 bg-zinc-900/95 px-3.5 py-2.5 text-xs font-semibold text-zinc-100 shadow-xl hover:border-cyan-500/60 hover:text-cyan-300"
+      >
+        <MessageSquare className="h-4 w-4" />
+        <span>Comentarios</span>
+      </button>
+
       {/* Main Reader Engine Canvas */}
       <div
         ref={canvasRef}
@@ -487,7 +536,7 @@ export const ReaderPage: React.FC<ReaderPageProps> = ({
         currentChapterId={chapterId}
         currentPage={currentPage}
         onSelectChapter={(newChId, page) => {
-          onSelectChapter(newChId);
+          onSelectChapter(newChId, page);
           if (page) setCurrentPage(page);
         }}
         quickIndexData={quickIndexData}
@@ -495,6 +544,58 @@ export const ReaderPage: React.FC<ReaderPageProps> = ({
         onDeleteBookmark={handleDeleteBookmark}
         onToggleActiveBookmark={handleToggleActiveBookmark}
       />
+
+      {isCommentsOpen && (
+        <div
+          className="fixed inset-0 z-[70] bg-black/60"
+          role="presentation"
+          onClick={() => setIsCommentsOpen(false)}
+        >
+          <aside
+            role="dialog"
+            aria-modal="true"
+            aria-label="Comentarios del capítulo"
+            className="absolute inset-y-0 right-0 w-full max-w-lg overflow-y-auto border-l border-zinc-800 bg-[#0b101d] shadow-2xl"
+            onClick={(event) => event.stopPropagation()}
+          >
+            <div className="sticky top-0 z-10 flex items-center justify-between border-b border-zinc-800 bg-[#0b101d] px-5 py-4">
+              <h2 className="text-sm font-semibold text-zinc-100">Comentarios del capítulo</h2>
+              <div className="flex items-center gap-1">
+                <button
+                  type="button"
+                  onClick={() => currentUser ? setIsChapterReportOpen(true) : onRequireAuth?.(currentPage)}
+                  className="inline-flex items-center gap-1 rounded-lg px-2 py-2 text-xs text-zinc-400 hover:bg-zinc-800 hover:text-amber-300"
+                >
+                  <Flag className="h-3.5 w-3.5" /> Reportar
+                </button>
+              <button
+                type="button"
+                onClick={() => setIsCommentsOpen(false)}
+                aria-label="Cerrar comentarios"
+                className="rounded-lg p-2 text-zinc-400 hover:bg-zinc-800 hover:text-white"
+              >
+                <X className="h-4 w-4" />
+              </button>
+              </div>
+            </div>
+            <CommentSection
+              targetType="chapter"
+              targetId={chapterId}
+              currentUser={currentUser}
+              onRequireAuth={() => onRequireAuth(currentPage)}
+            />
+          </aside>
+        </div>
+      )}
+
+      {isChapterReportOpen && (
+        <ReportModal
+          isOpen={isChapterReportOpen}
+          onClose={() => setIsChapterReportOpen(false)}
+          targetType="chapter"
+          targetId={chapterId}
+        />
+      )}
 
       {/* Instant Bookmark Toast Feedback */}
       {bookmarkToast && (

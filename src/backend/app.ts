@@ -1,6 +1,7 @@
 import Fastify, { FastifyInstance } from 'fastify';
 import cors from '@fastify/cors';
 import fastifyStatic from '@fastify/static';
+import multipart from '@fastify/multipart';
 import path from 'node:path';
 import fs from 'node:fs';
 import crypto from 'node:crypto';
@@ -16,6 +17,15 @@ import { bookmarkRoutes } from './routes/bookmark-routes.js';
 import { registerSyncRoutes } from './routes/sync-routes.js';
 import { registerStatsRoutes } from './routes/stats-routes.js';
 import { registerHealthRoutes } from './routes/health-routes.js';
+import { registerAuthRoutes } from './routes/auth-routes.js';
+import { registerProfileRoutes } from './routes/profile-routes.js';
+import { registerCommentRoutes } from './routes/comment-routes.js';
+import { registerModerationRoutes } from './routes/moderation-routes.js';
+import { registerUploadRoutes } from './routes/upload-routes.js';
+import { csrfGuard } from './middleware/csrf-guard.js';
+import { AuthService } from './services/auth-service.js';
+import { extractSessionToken } from './middleware/auth-middleware.js';
+import { getAppConfig } from './config/app-config.js';
 import { registerBackupRoutes } from './routes/backup-routes.js';
 import { BackupDaemon } from './daemon/backup-daemon.js';
 import { registerEventRoutes, EventBus } from './events/event-bus.js';
@@ -201,6 +211,7 @@ export interface AppOptions {
   storageRoot?: string;
   incomingRoot?: string;
   apiToken?: string;
+  publicPlatform?: boolean;
   corsOrigins?: string[];
   bodyLimit?: number;
   backupDaemon?: BackupDaemon;
@@ -283,31 +294,35 @@ export interface AppOptions {
 }
 
 export function buildApp(options: AppOptions = {}): FastifyInstance {
-  const apiToken = options.apiToken ?? process.env.API_TOKEN;
+  const publicPlatform = options.publicPlatform ?? process.env.PUBLIC_PLATFORM_MODE === 'true';
+  const apiToken = publicPlatform ? undefined : options.apiToken ?? process.env.API_TOKEN;
+  const appConfig = getAppConfig();
   const bodyLimit = options.bodyLimit ?? 1048576; // Default: 1MB body limit
   const app = Fastify({
     logger: true,
     bodyLimit,
+    trustProxy: process.env.TRUST_PROXY === 'true',
   });
 
   app.setErrorHandler((error, request, reply) => {
     request.log.error({ err: error }, 'Request failed');
-    const statusCode = error.statusCode && error.statusCode >= 400 && error.statusCode < 500
-      ? error.statusCode
+    const errorInfo = error as Error & { statusCode?: number; code?: string };
+    const statusCode = errorInfo.statusCode && errorInfo.statusCode >= 400 && errorInfo.statusCode < 500
+      ? errorInfo.statusCode
       : 500;
 
-    if (statusCode === 413 || (error as any).code === 'FST_ERR_CTP_BODY_TOO_LARGE') {
+    if (statusCode === 413 || errorInfo.code === 'FST_ERR_CTP_BODY_TOO_LARGE') {
       return reply.code(413).send({
         statusCode: 413,
         error: 'Payload Too Large',
-        message: error.message || 'Request body is too large',
+        message: errorInfo.message || 'Request body is too large',
       });
     }
 
     return reply.code(statusCode).send({
       statusCode,
-      error: statusCode >= 500 ? 'Internal Server Error' : (error.name || 'Bad Request'),
-      message: statusCode >= 500 ? 'Request failed. Check server logs.' : (error.message || 'Request could not be processed.'),
+      error: statusCode >= 500 ? 'Internal Server Error' : (errorInfo.name || 'Bad Request'),
+      message: statusCode >= 500 ? 'Request failed. Check server logs.' : (errorInfo.message || 'Request could not be processed.'),
     });
   });
 
@@ -348,7 +363,204 @@ export function buildApp(options: AppOptions = {}): FastifyInstance {
   app.register(cors, {
     origin: (origin, callback) => callback(null, !origin || allowedOrigins.has(origin)),
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    credentials: true,
   });
+  app.register(multipart, {
+    throwFileSizeLimit: false,
+    limits: {
+      fileSize: appConfig.upload.maxFileSizeMb * 1024 * 1024,
+      files: appConfig.upload.maxPagesPerChapter,
+      fields: 10,
+      fieldSize: 1024,
+      parts: appConfig.upload.maxPagesPerChapter + 10,
+    },
+  });
+
+  // CSRF Protection for state-changing browser mutations
+  app.addHook('preValidation', csrfGuard);
+
+  if (publicPlatform) {
+    const authService = new AuthService(db);
+    app.addHook('preHandler', async (request, reply) => {
+      const routePath = request.url.split('?')[0];
+      if (request.method === 'OPTIONS') return;
+      if (routePath.startsWith('/storage/')) {
+        let relativePath: string;
+        try {
+          relativePath = decodeURIComponent(routePath.slice('/storage/'.length)).replace(/\\/g, '/');
+        } catch {
+          return reply.code(404).send({ statusCode: 404, error: 'Not Found' });
+        }
+        const pathParts = relativePath.split('/');
+        if (!relativePath || relativePath.startsWith('/') || pathParts.some((part) => !part || part === '.' || part === '..')) {
+          return reply.code(404).send({ statusCode: 404, error: 'Not Found' });
+        }
+
+        // Only database-backed, generated avatar files are public profile photos.
+        const avatarMatch = /^avatars\/([0-9a-f-]{36})\.webp$/i.exec(relativePath);
+        if (avatarMatch) {
+          const avatarOwner = db.prepare('SELECT 1 FROM users WHERE id = ?').get(avatarMatch[1]);
+          if (avatarOwner) return;
+          return reply.code(404).send({ statusCode: 404, error: 'Not Found' });
+        }
+
+        const sessionToken = extractSessionToken(request);
+        const reqUser = sessionToken ? authService.validateSessionToken(sessionToken) : null;
+        if (reqUser) request.user = reqUser;
+
+        const separator = relativePath.lastIndexOf('/');
+        const chapterStoragePath = separator > 0 ? relativePath.slice(0, separator) : '';
+        const pageFileName = separator > 0 ? relativePath.slice(separator + 1) : '';
+        let publicPage = chapterStoragePath && pageFileName ? db.prepare(`
+          SELECT 1
+          FROM chapters c
+          JOIN series s ON s.id = c.series_id
+          JOIN chapter_pages p ON p.chapter_id = c.id
+          WHERE COALESCE(c.visibility, 'published') = 'published'
+            AND COALESCE(s.visibility, 'published') = 'published'
+            AND c.storage_path = ?
+            AND p.file_name = ?
+          LIMIT 1
+        `).get(chapterStoragePath, pageFileName) : null;
+        if (!publicPage && chapterStoragePath && pageFileName) {
+          // Preserve access for libraries whose stored path used Windows separators.
+          publicPage = db.prepare(`
+            SELECT 1
+            FROM chapters c
+            JOIN series s ON s.id = c.series_id
+            JOIN chapter_pages p ON p.chapter_id = c.id
+            WHERE COALESCE(c.visibility, 'published') = 'published'
+              AND COALESCE(s.visibility, 'published') = 'published'
+              AND REPLACE(c.storage_path, char(92), '/') = ?
+              AND p.file_name = ?
+            LIMIT 1
+          `).get(chapterStoragePath, pageFileName);
+        }
+
+        let authorizedDraftPage = false;
+        if (reqUser && chapterStoragePath && pageFileName) {
+          const ownerPage = db.prepare(`
+            SELECT 1
+            FROM chapters c
+            JOIN series s ON s.id = c.series_id
+            JOIN chapter_pages p ON p.chapter_id = c.id
+            WHERE (s.uploader_user_id = ? OR ? IN ('admin', 'moderator'))
+              AND (c.storage_path = ? OR REPLACE(c.storage_path, char(92), '/') = ?)
+              AND p.file_name = ?
+            LIMIT 1
+          `).get(reqUser.id, reqUser.role, chapterStoragePath, chapterStoragePath, pageFileName);
+          if (ownerPage) authorizedDraftPage = true;
+        }
+        if (publicPage || authorizedDraftPage) return;
+
+        const publicCover = db.prepare(`
+          SELECT 1 FROM series
+          WHERE COALESCE(visibility, 'published') = 'published'
+            AND (cover_image IN (?, ?, ?) OR banner_image IN (?, ?, ?))
+          LIMIT 1
+        `).get(relativePath, `/storage/${relativePath}`, `storage/${relativePath}`,
+               relativePath, `/storage/${relativePath}`, `storage/${relativePath}`);
+
+        let authorizedCover = false;
+        if (reqUser) {
+          const ownerCover = db.prepare(`
+            SELECT 1 FROM series
+            WHERE (cover_image IN (?, ?, ?) OR banner_image IN (?, ?, ?))
+              AND (uploader_user_id = ? OR ? IN ('admin', 'moderator'))
+            LIMIT 1
+          `).get(
+            relativePath, `/storage/${relativePath}`, `storage/${relativePath}`,
+            relativePath, `/storage/${relativePath}`, `storage/${relativePath}`,
+            reqUser.id, reqUser.role
+          );
+          if (ownerCover) authorizedCover = true;
+        }
+
+        if (!publicCover && !authorizedCover) {
+          return reply.code(404).send({ statusCode: 404, error: 'Not Found' });
+        }
+        return;
+      }
+      if (!routePath.startsWith('/api/')) return;
+
+      const isSafeMethod = ['GET', 'HEAD', 'OPTIONS'].includes(request.method);
+      const isPublicRead = ['GET', 'HEAD'].includes(request.method) && (
+        /^\/api\/v1\/series\/?$/.test(routePath) ||
+        /^\/api\/v1\/series\/[^/]+$/.test(routePath) ||
+        /^\/api\/v1\/chapters\/[^/]+$/.test(routePath) ||
+        /^\/api\/v1\/chapters\/[^/]+\/pages\/[^/]+$/.test(routePath) ||
+        /^\/api\/v1\/chapters\/[^/]+\/export\/cbz$/.test(routePath) ||
+        routePath === '/api/v1/comments' ||
+        /^\/api\/v1\/users\/[^/]+$/.test(routePath) ||
+        routePath === '/api/v1/auth/me'
+      );
+      if (isSafeMethod && isPublicRead) return;
+      if (!isSafeMethod && routePath.startsWith('/api/v1/auth/')) return;
+
+      const token = extractSessionToken(request);
+      const user = token ? authService.validateSessionToken(token) : null;
+      if (!user) {
+        return reply.code(401).send({
+          statusCode: 401,
+          error: 'Unauthorized',
+          message: 'Debe iniciar sesión para realizar esta acción.',
+        });
+      }
+      request.user = user;
+
+      if (user.role !== 'admin') {
+        const scopeUserFields = (value: unknown): void => {
+          if (!value || typeof value !== 'object') return;
+          if (Array.isArray(value)) {
+            value.forEach(scopeUserFields);
+            return;
+          }
+          const record = value as Record<string, unknown>;
+          for (const [key, nested] of Object.entries(record)) {
+            if (/^(?:user_?id|owner_?user_?id|reporter_?user_?id)$/i.test(key)) {
+              record[key] = user.id;
+            } else {
+              scopeUserFields(nested);
+            }
+          }
+          record.userId = user.id;
+          record.user_id = user.id;
+        };
+        scopeUserFields(request.query);
+        scopeUserFields(request.body);
+        scopeUserFields(request.params);
+
+        if (!isSafeMethod) {
+          const userWritePrefixes = [
+            '/api/v1/auth/',
+            '/api/v1/users/me',
+            '/api/v1/comments',
+            '/api/v1/reports',
+            '/api/v1/manga',
+            '/api/v1/progress',
+            '/api/v1/bookmarks',
+            '/api/v1/cadence',
+            '/api/v1/sync',
+            '/api/v1/analytics',
+            '/api/v1/preferences',
+            '/api/v1/user/preferences',
+            '/api/v1/reader',
+            '/api/v1/telemetry',
+          ];
+          const isUserScopedWrite = userWritePrefixes.some((prefix) => routePath === prefix || routePath.startsWith(`${prefix}/`));
+          const isModeratorReportWrite = user.role === 'moderator' &&
+            (routePath === '/api/v1/admin/reports' || routePath.startsWith('/api/v1/admin/reports/'));
+          if (!isUserScopedWrite && !isModeratorReportWrite) {
+            return reply.code(403).send({
+              statusCode: 403,
+              error: 'Forbidden',
+              message: 'Esta operación requiere permisos de administrador en el modo público.',
+            });
+          }
+        }
+      }
+    });
+  }
 
   // A configured token protects every API and static storage request. Keep the
   // health probe and CORS preflight public so deployment checks can work.
@@ -396,6 +608,13 @@ export function buildApp(options: AppOptions = {}): FastifyInstance {
   app.register(bookmarkRoutes, { db });
   registerSyncRoutes(app, db);
   registerStatsRoutes(app, db);
+
+  // Community & Cloud Platform Routes
+  registerAuthRoutes(app, db);
+  registerProfileRoutes(app, db, storageRoot);
+  registerCommentRoutes(app, db);
+  registerModerationRoutes(app, db);
+  registerUploadRoutes(app, db, storageRoot);
 
   const backupDaemon = options.backupDaemon ?? new BackupDaemon({
     db,
@@ -781,6 +1000,22 @@ export function buildApp(options: AppOptions = {}): FastifyInstance {
     inkSplatterService:
       options.inkSplatterService ?? new InkSplatterService(db),
   });
+
+  // Serve production compiled frontend when running in Docker or standalone mode
+  const frontendDistPath = path.resolve('./frontend/dist');
+  if (fs.existsSync(frontendDistPath)) {
+    app.register(fastifyStatic, {
+      root: frontendDistPath,
+      prefix: '/',
+      decorateReply: false,
+    });
+    app.setNotFoundHandler((request, reply) => {
+      if (request.url.startsWith('/api') || request.url.startsWith('/storage') || request.url === '/health') {
+        return reply.code(404).send({ statusCode: 404, error: 'Not Found', message: 'Route not found' });
+      }
+      return reply.sendFile('index.html', frontendDistPath);
+    });
+  }
 
   return app;
 }

@@ -25,6 +25,11 @@ export const CatalogPage: React.FC<CatalogPageProps> = ({
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
 
+  // Pagination state
+  const [page, setPage] = useState<number>(1);
+  const [totalItems, setTotalItems] = useState<number>(0);
+  const limit = 24;
+
   // Pill filter states
   const [selectedType, setSelectedType] = useState<string>(
     selectedCategory ? selectedCategory.toLowerCase() : 'all'
@@ -33,6 +38,10 @@ export const CatalogPage: React.FC<CatalogPageProps> = ({
   const [selectedGenre, setSelectedGenre] = useState<string>('all');
   const [selectedShelf, setSelectedShelf] = useState<string>('all');
   const [onlyFavorites, setOnlyFavorites] = useState<boolean>(false);
+
+  useEffect(() => {
+    setPage(1);
+  }, [searchQuery, selectedType, selectedStatus, selectedGenre, selectedShelf, onlyFavorites]);
 
   useEffect(() => {
     if (selectedCategory) {
@@ -72,6 +81,24 @@ export const CatalogPage: React.FC<CatalogPageProps> = ({
         let url = '/api/v1/series';
         const params = new URLSearchParams();
 
+        if (isBookmarksView) {
+          // In bookmarks view, fetch all published items to filter by saved bookmarks
+          params.append('limit', '100');
+        } else {
+          params.append('page', String(page));
+          params.append('limit', String(limit));
+
+          if (selectedType !== 'all') {
+            params.append('type', selectedType);
+          }
+          if (selectedStatus !== 'all') {
+            params.append('status', selectedStatus);
+          }
+          if (selectedGenre !== 'all') {
+            params.append('genre', selectedGenre);
+          }
+        }
+
         if (searchQuery.trim()) {
           params.append('q', searchQuery.trim());
         }
@@ -88,6 +115,9 @@ export const CatalogPage: React.FC<CatalogPageProps> = ({
           if (isBookmarksView) {
             const savedSlugs = await localClientStorage.getBookmarks();
             seriesList = seriesList.filter((s: any) => savedSlugs.includes(s.slug));
+            setTotalItems(seriesList.length);
+          } else {
+            setTotalItems(typeof data.total === 'number' ? data.total : seriesList.length);
           }
 
           setItems(seriesList);
@@ -100,7 +130,7 @@ export const CatalogPage: React.FC<CatalogPageProps> = ({
     }
 
     loadSeries();
-  }, [searchQuery, isBookmarksView]);
+  }, [page, searchQuery, selectedType, selectedStatus, selectedGenre, isBookmarksView]);
 
   const handleToggleFavorite = async (slug: string, isFav: boolean) => {
     const existing = shelves[slug] || { shelf: 'none', favorite: false };
@@ -114,6 +144,7 @@ export const CatalogPage: React.FC<CatalogPageProps> = ({
     setSelectedGenre('all');
     setSelectedShelf('all');
     setOnlyFavorites(false);
+    setPage(1);
   };
 
   // Client-side filtering across Shelf, Favorites, Type, Status, and Genres
@@ -300,6 +331,31 @@ export const CatalogPage: React.FC<CatalogPageProps> = ({
               />
             );
           })}
+        </div>
+      )}
+
+      {/* Pagination Controls */}
+      {!isBookmarksView && totalItems > limit && (
+        <div className="flex items-center justify-center gap-3 pt-8 mt-8 border-t border-zinc-800/80">
+          <button
+            type="button"
+            onClick={() => setPage((p) => Math.max(1, p - 1))}
+            disabled={page <= 1}
+            className="px-4 py-2 rounded-xl border border-zinc-700 bg-zinc-800 text-sm font-semibold text-zinc-200 hover:bg-zinc-700 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+          >
+            Anterior
+          </button>
+          <span className="text-sm text-zinc-400">
+            Página <strong className="text-zinc-100">{page}</strong> de <strong className="text-zinc-100">{Math.max(1, Math.ceil(totalItems / limit))}</strong>
+          </span>
+          <button
+            type="button"
+            onClick={() => setPage((p) => Math.min(Math.ceil(totalItems / limit), p + 1))}
+            disabled={page >= Math.ceil(totalItems / limit)}
+            className="px-4 py-2 rounded-xl border border-zinc-700 bg-zinc-800 text-sm font-semibold text-zinc-200 hover:bg-zinc-700 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+          >
+            Siguiente
+          </button>
         </div>
       )}
     </div>

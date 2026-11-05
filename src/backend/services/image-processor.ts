@@ -2,6 +2,16 @@ import sharp from 'sharp';
 import path from 'node:path';
 import fs from 'node:fs/promises';
 
+// Bound Sharp concurrency and memory cache for the 2GB VPS target:
+// - sharp.concurrency(1): Restrict libvips to 1 worker thread per image to prevent thread contention & RSS spikes
+// - sharp.cache: Cap cache memory to 16MB and set files: 0 to avoid holding open file descriptors (prevents Windows EBUSY on cleanup)
+sharp.concurrency(1);
+sharp.cache({
+  memory: 16,
+  files: 0,
+  items: 32,
+});
+
 export interface OptimizeOptions {
   pageNumber?: number;
   maxImageWidth?: number;

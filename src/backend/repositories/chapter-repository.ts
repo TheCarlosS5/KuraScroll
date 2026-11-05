@@ -10,6 +10,7 @@ export interface InsertChapterInput {
   scanlationGroup?: string | null;
   pageCount?: number;
   storagePath: string;
+  visibility?: string;
 }
 
 export interface ChapterPageRecord {
@@ -44,8 +45,8 @@ export class ChapterRepository {
 
   createChapter(input: InsertChapterInput): void {
     const stmt = this.db.prepare(`
-      INSERT INTO chapters (id, series_id, volume_id, chapter_number, title, scanlation_group, page_count, storage_path)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+      INSERT INTO chapters (id, series_id, volume_id, chapter_number, title, scanlation_group, page_count, storage_path, visibility)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
     `);
 
     stmt.run(
@@ -56,14 +57,15 @@ export class ChapterRepository {
       input.title ?? null,
       input.scanlationGroup ?? null,
       input.pageCount ?? 0,
-      input.storagePath
+      input.storagePath,
+      input.visibility ?? 'published'
     );
   }
 
   addPages(chapterId: string, pages: PageMetadata[]): void {
     const insertStmt = this.db.prepare(`
-      INSERT INTO chapter_pages (chapter_id, page_number, file_name, width, height, aspect_ratio, blurhash)
-      VALUES (?, ?, ?, ?, ?, ?, ?)
+      INSERT INTO chapter_pages (chapter_id, page_number, file_name, width, height, aspect_ratio, file_size_bytes, blurhash)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?)
     `);
 
     for (const p of pages) {
@@ -74,12 +76,17 @@ export class ChapterRepository {
         p.width,
         p.height,
         p.aspectRatio,
+        p.fileSizeBytes ?? 0,
         null
       );
     }
 
     // Update chapter page_count
-    this.db.prepare('UPDATE chapters SET page_count = ? WHERE id = ?').run(pages.length, chapterId);
+    this.db.prepare(`
+      UPDATE chapters
+      SET page_count = (SELECT COUNT(*) FROM chapter_pages WHERE chapter_id = ?)
+      WHERE id = ?
+    `).run(chapterId, chapterId);
   }
 
   getChapter(chapterId: string): { id: string; seriesId: string; storagePath: string } | null {

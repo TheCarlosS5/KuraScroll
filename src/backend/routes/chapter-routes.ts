@@ -11,6 +11,8 @@ import { sharedIOCoordinator } from '../storage/io/io-coordinator.js';
 import { IOPriority } from '../storage/io/io-priority.js';
 import { resolveAssetTier, resolveIOPriority, ASSET_TIER_CONFIG } from '../config/asset-tier-config.js';
 import { CbzArchiveStreamer, CbzPageItem } from '../services/cbz-archive-streamer.js';
+import { AuthService } from '../services/auth-service.js';
+import { extractSessionToken } from '../middleware/auth-middleware.js';
 
 function resolveUnderRoot(root: string, relativePath: unknown): string | null {
   if (typeof relativePath !== 'string' || !relativePath || path.isAbsolute(relativePath)) return null;
@@ -40,6 +42,30 @@ export function registerChapterRoutes(
 ): void {
   const repo = new ChapterRepository(db);
   const integrityService = new ImageIntegrityService({ db, storageRoot });
+  const authService = new AuthService(db);
+  const isChapterPublic = (chapterId: string): boolean => Boolean(db.prepare(`
+    SELECT 1
+    FROM chapters c
+    JOIN series s ON s.id = c.series_id
+    WHERE c.id = ?
+      AND COALESCE(c.visibility, 'published') = 'published'
+      AND COALESCE(s.visibility, 'published') = 'published'
+  `).get(chapterId));
+
+  const canAccessChapter = (req: any, chapterId: string): boolean => {
+    if (isChapterPublic(chapterId)) return true;
+    const token = extractSessionToken(req);
+    const user = token ? authService.validateSessionToken(token) : null;
+    if (!user) return false;
+    if (user.role === 'admin' || user.role === 'moderator') return true;
+    const row = db.prepare(`
+      SELECT s.uploader_user_id
+      FROM chapters c
+      JOIN series s ON s.id = c.series_id
+      WHERE c.id = ?
+    `).get(chapterId) as { uploader_user_id: string } | undefined;
+    return Boolean(row && row.uploader_user_id === user.id);
+  };
 
   // Cache metrics endpoint
   app.get('/api/v1/metrics/cache', async () => {
@@ -52,6 +78,10 @@ export function registerChapterRoutes(
   // Get chapter manifest with zero-CLS page dimensions & navigation pointers (LRU cached)
   app.get('/api/v1/chapters/:chapterId', async (req, reply) => {
     const { chapterId } = req.params as { chapterId: string };
+
+    if (!canAccessChapter(req, chapterId)) {
+      return reply.code(404).send({ statusCode: 404, error: 'Not Found', message: 'Capítulo no encontrado.' });
+    }
 
     const detail = await manifestLoader.getOrLoad(chapterId, async () => {
       const dbResult = repo.getChapterWithPages(chapterId);
@@ -75,6 +105,10 @@ export function registerChapterRoutes(
   // Get chapter page image directly with ByteLRU memory caching for 4TB HDD de-thrashing
   app.get('/api/v1/chapters/:chapterId/pages/:pageFile', async (req, reply) => {
     const { chapterId, pageFile } = req.params as { chapterId: string; pageFile: string };
+
+    if (!canAccessChapter(req, chapterId)) {
+      return reply.code(404).send({ statusCode: 404, error: 'Not Found', message: 'Capítulo no encontrado.' });
+    }
 
     // Prevent directory traversal on pageFile
     if (pageFile.includes('..') || pageFile.includes('/') || pageFile.includes('\\')) {
@@ -147,6 +181,9 @@ export function registerChapterRoutes(
   // Export chapter as standardized .cbz archive with streaming STORE compression (Sprint 40)
   app.get('/api/v1/chapters/:chapterId/export/cbz', async (req, reply) => {
     const { chapterId } = req.params as { chapterId: string };
+    if (!canAccessChapter(req, chapterId)) {
+      return reply.code(404).send({ statusCode: 404, error: 'Not Found', message: 'Capítulo no encontrado.' });
+    }
     const detail = repo.getChapterWithPages(chapterId);
 
     if (!detail) {

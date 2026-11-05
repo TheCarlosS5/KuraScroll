@@ -100,9 +100,13 @@ CREATE TABLE IF NOT EXISTS chapter_pages (
     width INTEGER NOT NULL,
     height INTEGER NOT NULL,
     aspect_ratio REAL NOT NULL,
+    file_size_bytes INTEGER NOT NULL DEFAULT 0,
     blurhash TEXT,
     UNIQUE(chapter_id, page_number)
 );
+
+CREATE INDEX IF NOT EXISTS idx_chapters_storage_path ON chapters(storage_path);
+CREATE INDEX IF NOT EXISTS idx_chapter_pages_chapter_file ON chapter_pages(chapter_id, file_name);
 
 -- Reading Progress & Bookmarks
 CREATE TABLE IF NOT EXISTS user_progress (
@@ -2170,3 +2174,92 @@ CREATE INDEX IF NOT EXISTS idx_ink_splatter_lookup
     ON ink_splatter_profiles(series_id);
 
 
+
+
+-- ==============================================================================
+-- Cloud & Community Platform Architecture
+-- Users, Sessions, Email Verification, Comments & Content Moderation
+-- ==============================================================================
+
+-- Master User Directory & Role-Based Access Control
+CREATE TABLE IF NOT EXISTS users (
+    id TEXT PRIMARY KEY,
+    handle TEXT UNIQUE NOT NULL CHECK(length(handle) BETWEEN 3 AND 30),
+    email TEXT UNIQUE NOT NULL,
+    display_name TEXT NOT NULL CHECK(length(display_name) BETWEEN 1 AND 60),
+    password_hash TEXT NOT NULL,
+    role TEXT NOT NULL DEFAULT 'user' CHECK(role IN ('user', 'moderator', 'admin')),
+    email_verified INTEGER NOT NULL DEFAULT 0 CHECK(email_verified IN (0, 1)),
+    avatar_url TEXT,
+    bio TEXT CHECK(bio IS NULL OR length(bio) <= 500),
+    created_at TEXT DEFAULT (datetime('now')),
+    updated_at TEXT DEFAULT (datetime('now'))
+);
+
+CREATE INDEX IF NOT EXISTS idx_users_handle ON users(handle);
+CREATE INDEX IF NOT EXISTS idx_users_email ON users(email);
+CREATE INDEX IF NOT EXISTS idx_users_role ON users(role);
+
+-- Secure Session Tokens (only hashed values stored in DB)
+CREATE TABLE IF NOT EXISTS sessions (
+    id TEXT PRIMARY KEY,
+    token_hash TEXT UNIQUE NOT NULL,
+    user_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    expires_at TEXT NOT NULL,
+    ip_address TEXT,
+    user_agent TEXT,
+    created_at TEXT DEFAULT (datetime('now'))
+);
+
+CREATE INDEX IF NOT EXISTS idx_sessions_token_hash ON sessions(token_hash);
+CREATE INDEX IF NOT EXISTS idx_sessions_user_id ON sessions(user_id);
+CREATE INDEX IF NOT EXISTS idx_sessions_expires_at ON sessions(expires_at);
+
+-- One-Time Email Verification Codes (hashed, single-use, rate-limited)
+CREATE TABLE IF NOT EXISTS email_verification_codes (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    code_hash TEXT NOT NULL,
+    expires_at TEXT NOT NULL,
+    used INTEGER NOT NULL DEFAULT 0 CHECK(used IN (0, 1)),
+    attempts INTEGER NOT NULL DEFAULT 0,
+    created_at TEXT DEFAULT (datetime('now'))
+);
+
+CREATE INDEX IF NOT EXISTS idx_email_verification_user ON email_verification_codes(user_id, used);
+
+-- Threaded Comments for Manga Series and Individual Chapters
+CREATE TABLE IF NOT EXISTS comments (
+    id TEXT PRIMARY KEY,
+    user_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    target_type TEXT NOT NULL CHECK(target_type IN ('series', 'chapter')),
+    target_id TEXT NOT NULL,
+    parent_id TEXT REFERENCES comments(id) ON DELETE CASCADE,
+    body TEXT NOT NULL CHECK(length(body) BETWEEN 1 AND 2000),
+    is_edited INTEGER NOT NULL DEFAULT 0 CHECK(is_edited IN (0, 1)),
+    is_deleted INTEGER NOT NULL DEFAULT 0 CHECK(is_deleted IN (0, 1)),
+    created_at TEXT DEFAULT (datetime('now')),
+    updated_at TEXT DEFAULT (datetime('now'))
+);
+
+CREATE INDEX IF NOT EXISTS idx_comments_target ON comments(target_type, target_id, created_at ASC);
+CREATE INDEX IF NOT EXISTS idx_comments_user ON comments(user_id);
+CREATE INDEX IF NOT EXISTS idx_comments_parent ON comments(parent_id);
+
+-- User Content Reports & Takedown Moderation Ledger
+CREATE TABLE IF NOT EXISTS content_reports (
+    id TEXT PRIMARY KEY,
+    reporter_user_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    target_type TEXT NOT NULL CHECK(target_type IN ('series', 'chapter', 'comment', 'user')),
+    target_id TEXT NOT NULL,
+    reason TEXT NOT NULL CHECK(reason IN ('spam', 'harassment', 'copyright', 'inappropriate', 'other')),
+    description TEXT CHECK(description IS NULL OR length(description) <= 1000),
+    status TEXT NOT NULL DEFAULT 'pending' CHECK(status IN ('pending', 'reviewed', 'resolved', 'dismissed')),
+    resolved_by TEXT REFERENCES users(id) ON DELETE SET NULL,
+    resolution_notes TEXT,
+    resolved_at TEXT,
+    created_at TEXT DEFAULT (datetime('now'))
+);
+
+CREATE INDEX IF NOT EXISTS idx_content_reports_status ON content_reports(status, created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_content_reports_target ON content_reports(target_type, target_id);

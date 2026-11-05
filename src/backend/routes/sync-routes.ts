@@ -2,6 +2,8 @@ import { FastifyInstance, FastifyRequest, FastifyReply } from 'fastify';
 import type { DatabaseInstance } from '../db/database.js';
 import { SyncReplayService, ReplayMutationItem } from '../services/sync-replay-service.js';
 import { IOCoordinator, sharedIOCoordinator } from '../storage/io/io-coordinator.js';
+import { AuthService } from '../services/auth-service.js';
+import { extractSessionToken } from '../middleware/auth-middleware.js';
 
 interface ReplayRequestBody {
   userId?: string;
@@ -14,6 +16,26 @@ export function registerSyncRoutes(
   ioCoordinator: IOCoordinator = sharedIOCoordinator
 ): void {
   const syncService = new SyncReplayService(db, ioCoordinator);
+  const authService = new AuthService(db);
+
+  function getEffectiveUserId(req: FastifyRequest, explicitId?: string): string {
+    if (explicitId && typeof explicitId === 'string' && explicitId.trim()) {
+      return explicitId.replace(/[^a-zA-Z0-9_\-\.]/g, '').slice(0, 100) || 'local_user';
+    }
+    if (req.user?.id) return req.user.id;
+    const token = extractSessionToken(req);
+    if (token) {
+      try {
+        const user = authService.validateSessionToken(token);
+        if (user) return user.id;
+      } catch {}
+    }
+    const headerUserId = req.headers['x-user-id'];
+    if (typeof headerUserId === 'string' && headerUserId.trim()) {
+      return headerUserId.replace(/[^a-zA-Z0-9_\-\.]/g, '').slice(0, 100) || 'local_user';
+    }
+    return 'local_user';
+  }
 
   /**
    * Replays up to 50 queued client mutations in an atomic, sequential batch
@@ -61,8 +83,7 @@ export function registerSyncRoutes(
         }
       }
 
-      const rawUserId = typeof body?.userId === 'string' && body.userId.trim() ? body.userId.trim() : 'local_user';
-      const userId = rawUserId.replace(/[^a-zA-Z0-9_\-\.]/g, '').slice(0, 100) || 'local_user';
+      const userId = getEffectiveUserId(req, body?.userId);
 
       try {
         const result = await syncService.replayMutations(userId, body.mutations);
@@ -87,8 +108,7 @@ export function registerSyncRoutes(
       req: FastifyRequest<{ Querystring: { userId?: string } }>,
       reply: FastifyReply
     ) => {
-      const rawUserId = typeof req.query?.userId === 'string' && req.query.userId.trim() ? req.query.userId.trim() : 'local_user';
-      const userId = rawUserId.replace(/[^a-zA-Z0-9_\-\.]/g, '').slice(0, 100) || 'local_user';
+      const userId = getEffectiveUserId(req, req.query?.userId);
 
       const stats = db
         .prepare(

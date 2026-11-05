@@ -83,7 +83,7 @@ describe('HistoryPage Component', () => {
     // Click "Continuar Leyendo"
     const continueBtn = screen.getByTestId('continue-btn-solo-leveling');
     fireEvent.click(continueBtn);
-    expect(handleContinueReading).toHaveBeenCalledWith('c15', 'solo-leveling');
+    expect(handleContinueReading).toHaveBeenCalledWith('c15', 'solo-leveling', 22);
   });
 
   it('allows deleting an individual series from history', async () => {

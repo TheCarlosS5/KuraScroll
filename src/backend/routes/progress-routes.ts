@@ -10,11 +10,16 @@ export function registerProgressRoutes(app: FastifyInstance, db: DatabaseInstanc
   function getEffectiveUserId(req: any, fallback?: string): string {
     if (req.user?.id) return req.user.id;
     const token = extractSessionToken(req);
+    if (fallback && typeof fallback === 'string' && fallback.trim()) return fallback.trim();
     if (token) {
-      const user = authService.validateSessionToken(token);
-      if (user) return user.id;
+      try {
+        const user = authService.validateSessionToken(token);
+        if (user) return user.id;
+      } catch {}
     }
-    return fallback || 'local_user';
+    const headerUserId = req.headers?.['x-user-id'];
+    if (typeof headerUserId === 'string' && headerUserId.trim()) return headerUserId.trim();
+    return 'local_user';
   }
 
   // Get recent reading progress list (Must be declared before :seriesId)

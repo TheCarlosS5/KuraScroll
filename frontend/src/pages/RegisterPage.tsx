@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
-import { UserPlus, ArrowLeft, AlertCircle, Mail, KeyRound, User, CheckCircle2 } from 'lucide-react';
+import { UserPlus, ArrowLeft, AlertCircle, Mail, KeyRound, User, CheckCircle2, Compass } from 'lucide-react';
 
 export interface RegisterPageProps {
   onSuccess: () => void;
   onNavigateLogin: () => void;
   onBack: () => void;
+  onSkip?: () => void;
   onRegister: (params: {
     handle: string;
     email: string;
@@ -19,6 +20,7 @@ export const RegisterPage: React.FC<RegisterPageProps> = ({
   onSuccess,
   onNavigateLogin,
   onBack,
+  onSkip,
   onRegister,
   onVerifyEmail,
   onResendCode,
@@ -34,6 +36,14 @@ export const RegisterPage: React.FC<RegisterPageProps> = ({
   const [requiresVerification, setRequiresVerification] = useState(false);
   const [verificationCode, setVerificationCode] = useState('');
   const [resendStatus, setResendStatus] = useState<string | null>(null);
+
+  const handleSkip = () => {
+    if (onSkip) {
+      onSkip();
+    } else {
+      onBack();
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -103,13 +113,26 @@ export const RegisterPage: React.FC<RegisterPageProps> = ({
   return (
     <div className="min-h-[80vh] flex items-center justify-center px-4 py-12">
       <div className="w-full max-w-md bg-[#0e1422] border border-gray-800 rounded-2xl p-6 sm:p-8 shadow-xl">
-        <button
-          onClick={onBack}
-          className="flex items-center gap-1.5 text-xs text-gray-400 hover:text-cyan-400 mb-6 transition-colors"
-        >
-          <ArrowLeft className="w-4 h-4" />
-          <span>Volver</span>
-        </button>
+        <div className="flex items-center justify-between mb-6">
+          <button
+            type="button"
+            onClick={onBack}
+            className="flex items-center gap-1.5 text-xs text-gray-400 hover:text-cyan-400 transition-colors"
+          >
+            <ArrowLeft className="w-4 h-4" />
+            <span>Volver</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={handleSkip}
+            title="Explorar el catálogo en modo invitado"
+            className="flex items-center gap-1.5 text-xs font-semibold text-gray-400 hover:text-cyan-400 bg-gray-800/60 hover:bg-gray-800 border border-gray-700/60 px-3 py-1.5 rounded-lg transition-colors"
+          >
+            <span>Omitir</span>
+            <Compass className="w-3.5 h-3.5 text-cyan-400" />
+          </button>
+        </div>
 
         {!requiresVerification ? (
           <>
@@ -219,16 +242,31 @@ export const RegisterPage: React.FC<RegisterPageProps> = ({
               </button>
             </form>
 
-            <div className="mt-6 pt-6 border-t border-gray-800 text-center">
+            <div className="mt-6 pt-6 border-t border-gray-800 text-center space-y-4">
               <p className="text-xs text-gray-400">
                 ¿Ya tienes una cuenta?{' '}
                 <button
+                  type="button"
                   onClick={onNavigateLogin}
                   className="text-cyan-400 font-semibold hover:underline"
                 >
                   Inicia sesión aquí
                 </button>
               </p>
+
+              <div className="pt-2">
+                <button
+                  type="button"
+                  onClick={handleSkip}
+                  className="w-full py-2.5 px-4 rounded-xl bg-gray-800/80 hover:bg-gray-700/80 border border-gray-700 text-gray-200 hover:text-white font-medium text-xs transition-colors flex items-center justify-center gap-2 group"
+                >
+                  <Compass className="w-4 h-4 text-cyan-400 group-hover:scale-110 transition-transform" />
+                  <span>Continuar como invitado (Omitir)</span>
+                </button>
+                <p className="text-[11px] text-gray-500 mt-1.5">
+                  Explora el catálogo y lee sin registrarte.
+                </p>
+              </div>
             </div>
           </>
         ) : (
@@ -283,6 +321,7 @@ export const RegisterPage: React.FC<RegisterPageProps> = ({
 
             <div className="mt-4 text-center">
               <button
+                type="button"
                 onClick={handleResend}
                 className="text-xs text-gray-400 hover:text-cyan-400 transition-colors"
               >

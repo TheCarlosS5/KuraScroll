@@ -16,13 +16,11 @@ export const bookmarkRoutes: FastifyPluginAsync<BookmarkRouteOptions> = async (
   const repo = new BookmarkRepository(options.db);
   const config = getAppConfig();
   const auth = createAuthMiddleware(new AuthService(options.db));
-  const bookmarkPreHandler = config.publicPlatform
-    ? [auth.attachUser, auth.requireAuth]
-    : [auth.attachUser];
+  const bookmarkPreHandler = [auth.attachUser];
   const getUserId = (request: Parameters<typeof auth.attachUser>[0]): string => {
-    if (config.publicPlatform) return request.user!.id;
+    if (request.user?.id) return request.user.id;
     const headerUserId = request.headers['x-user-id'];
-    return typeof headerUserId === 'string' && headerUserId ? headerUserId : request.user?.id || 'default';
+    return typeof headerUserId === 'string' && headerUserId.trim() ? headerUserId.trim() : 'local_user';
   };
 
   // Quick Index for Series Chapters, Progress, and Bookmark Counters (< 0.8ms SLA)

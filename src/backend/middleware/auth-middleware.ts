@@ -9,6 +9,17 @@ declare module 'fastify' {
   }
 }
 
+export const LOCAL_USER: SafeUser = {
+  id: 'local_user',
+  handle: 'local_user',
+  displayName: 'Local User',
+  role: 'user',
+  emailVerified: true,
+  avatarUrl: null,
+  bio: null,
+  createdAt: '2026-01-01T00:00:00.000Z',
+};
+
 export function extractSessionToken(request: FastifyRequest): string | null {
   // 1. From cookie header
   const cookieHeader = request.headers.cookie;
@@ -33,6 +44,15 @@ export function extractSessionToken(request: FastifyRequest): string | null {
   return null;
 }
 
+export function getEffectiveUserId(request: FastifyRequest, fallback: string = 'local_user'): string {
+  if (request.user?.id) return request.user.id;
+  const headerUserId = request.headers['x-user-id'];
+  if (typeof headerUserId === 'string' && headerUserId.trim()) {
+    return headerUserId.trim();
+  }
+  return fallback;
+}
+
 export function createAuthMiddleware(authService: AuthService) {
   const attachUser = async (request: FastifyRequest, _reply: FastifyReply): Promise<void> => {
     const token = extractSessionToken(request);
@@ -46,6 +66,21 @@ export function createAuthMiddleware(authService: AuthService) {
       request.user = user;
     } catch {
       request.user = null;
+    }
+  };
+
+  const attachUserOrLocal = async (request: FastifyRequest, _reply: FastifyReply): Promise<void> => {
+    const token = extractSessionToken(request);
+    if (!token) {
+      request.user = LOCAL_USER;
+      return;
+    }
+
+    try {
+      const user = authService.validateSessionToken(token);
+      request.user = user || LOCAL_USER;
+    } catch {
+      request.user = LOCAL_USER;
     }
   };
 
@@ -105,6 +140,7 @@ export function createAuthMiddleware(authService: AuthService) {
 
   return {
     attachUser,
+    attachUserOrLocal,
     requireAuth,
     requireRole,
     requireVerified,

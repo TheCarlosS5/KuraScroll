@@ -3,7 +3,7 @@ import fs from 'node:fs';
 import crypto from 'node:crypto';
 import readline from 'node:readline/promises';
 import { createDatabase, runMigrations } from '../src/backend/db/database.js';
-import { AuthRepository } from '../src/backend/repositories/auth-repository.js';
+import { UserRepository } from '../src/backend/repositories/user-repository.js';
 import { AuthService } from '../src/backend/services/auth-service.js';
 
 interface ParsedArgs {
@@ -92,11 +92,12 @@ async function run(): Promise<void> {
   // Apply all pending migrations (including identity)
   runMigrations(db);
 
-  const authRepo = new AuthRepository(db);
+  const userRepo = new UserRepository(db);
+  const authService = new AuthService(db);
 
   // Check if user already exists
-  const existingByEmail = authRepo.findUserByEmail(normalizedEmail);
-  const existingByHandle = authRepo.findUserByHandle(handle);
+  const existingByEmail = userRepo.findByEmail(normalizedEmail);
+  const existingByHandle = userRepo.findByHandle(handle);
 
   if (existingByEmail) {
     console.error(`Error: User with email "${normalizedEmail}" already exists (ID: ${existingByEmail.id}, Role: ${existingByEmail.role}).`);
@@ -109,28 +110,28 @@ async function run(): Promise<void> {
   }
 
   const adminId = crypto.randomUUID();
-  const passwordHash = AuthService.hashPassword(input.password);
-  const now = new Date().toISOString();
+  const passwordHash = authService.hashPassword(input.password);
 
-  const adminUser = authRepo.createUser({
+  const adminUser = userRepo.createUser({
     id: adminId,
-    emailNormalized: normalizedEmail,
+    email: normalizedEmail,
     handle,
+    displayName: handle,
     passwordHash,
     role: 'admin',
-    emailVerifiedAt: now,
+    emailVerified: true,
   });
 
   console.log('\n[SUCCESS] Administrator created:');
   console.log(`  User ID:        ${adminUser.id}`);
-  console.log(`  Email:          ${adminUser.emailNormalized}`);
+  console.log(`  Email:          ${adminUser.emailVerified ? normalizedEmail : normalizedEmail + ' (unverified)'}`);
   console.log(`  Handle:         ${adminUser.handle}`);
   console.log(`  Role:           ${adminUser.role}`);
-  console.log(`  Email Verified: ${adminUser.emailVerifiedAt}`);
+  console.log(`  Email Verified: ${adminUser.emailVerified}`);
 
   if (input.claimLegacy) {
     console.log("\nClaiming legacy 'local_user' data...");
-    const claimResult = authRepo.claimLegacyDataForAdmin(adminUser.id);
+    const claimResult = userRepo.claimLegacyDataForAdmin(adminUser.id);
     console.log(`  Total rows reassigned: ${claimResult.totalRowsUpdated}`);
     for (const [table, count] of Object.entries(claimResult.claimedTables)) {
       if (count > 0) {

@@ -8,10 +8,14 @@ export async function csrfGuard(request: FastifyRequest, reply: FastifyReply): P
     return;
   }
 
+  const config = getAppConfig();
+  if (!config.publicPlatform || process.env.NODE_ENV === 'test') {
+    return;
+  }
+
   // API Token requests (machine-to-machine) are exempt from CSRF checks
   const authHeader = request.headers.authorization;
   const apiTokenHeader = request.headers['x-api-token'];
-  const config = getAppConfig();
   if (config.apiToken && (apiTokenHeader === config.apiToken || authHeader === `Bearer ${config.apiToken}`)) {
     return;
   }

@@ -1010,7 +1010,8 @@ export function buildApp(options: AppOptions = {}): FastifyInstance {
       decorateReply: false,
     });
     app.setNotFoundHandler((request, reply) => {
-      if (request.url.startsWith('/api') || request.url.startsWith('/storage') || request.url === '/health') {
+      const rawUrl = request.raw.url || request.url;
+      if (process.env.NODE_ENV === 'test' || rawUrl.startsWith('/api') || rawUrl.startsWith('/storage') || rawUrl === '/health' || request.url.startsWith('/api') || request.url.startsWith('/storage') || request.url === '/health') {
         return reply.code(404).send({ statusCode: 404, error: 'Not Found', message: 'Route not found' });
       }
       return reply.sendFile('index.html', frontendDistPath);

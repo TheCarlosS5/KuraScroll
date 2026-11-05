@@ -252,6 +252,7 @@ export function App() {
             onSuccess={handleAuthSuccess}
             onNavigateRegister={() => setView('register')}
             onBack={handleAuthBack}
+            onSkip={() => setView('catalog')}
             onLogin={login}
             onVerifyEmail={verifyEmail}
             onResendCode={resendCode}
@@ -263,6 +264,7 @@ export function App() {
             onSuccess={handleAuthSuccess}
             onNavigateLogin={() => setView('login')}
             onBack={handleAuthBack}
+            onSkip={() => setView('catalog')}
             onRegister={register}
             onVerifyEmail={verifyEmail}
             onResendCode={resendCode}

@@ -168,6 +168,57 @@ export class UserRepository {
     };
   }
 
+  claimLegacyDataForAdmin(adminId: string): { totalRowsUpdated: number; claimedTables: Record<string, number> } {
+    const legacyUserIds = ['local_user', 'default-user', 'default_user', 'default'];
+    const tables = [
+      'user_progress',
+      'user_preferences',
+      'user_bookmarks',
+      'applied_mutations',
+      'user_daily_activity',
+      'user_badges',
+      'user_genre_read_stats',
+      'reading_goals',
+      'reading_sessions',
+      'chapter_page_annotations',
+      'reading_velocity_profiles',
+      'reading_session_cadence_logs',
+      'client_render_telemetry',
+      'reading_dwell_telemetry',
+      'impact_telemetry_batches',
+      'reader_bubble_preferences',
+      'user_paper_tone_profiles',
+      'ephemeral_tab_sessions',
+      'reading_ruler_preferences',
+      'offline_storage_vault',
+      'user_eyecare_profiles',
+      'user_soundscape_preferences',
+      'spine_dewarp_presets',
+    ];
+
+    let totalRowsUpdated = 0;
+    const claimedTables: Record<string, number> = {};
+
+    for (const table of tables) {
+      try {
+        let count = 0;
+        for (const legacyId of legacyUserIds) {
+          const res = this.db.prepare(`UPDATE OR IGNORE ${table} SET user_id = ? WHERE user_id = ?`).run(adminId, legacyId);
+          count += Number(res.changes || 0);
+          try {
+            this.db.prepare(`DELETE FROM ${table} WHERE user_id = ?`).run(legacyId);
+          } catch {}
+        }
+        claimedTables[table] = count;
+        totalRowsUpdated += count;
+      } catch {
+        // Table might not exist or doesn't have user_id
+      }
+    }
+
+    return { totalRowsUpdated, claimedTables };
+  }
+
   toSafeUser(user: UserRecord): SafeUser {
     return {
       id: user.id,

@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
-import { PlusCircle, ArrowLeft, AlertCircle, BookOpen, Upload } from 'lucide-react';
+import React, { useState, useRef } from 'react';
+import { PlusCircle, ArrowLeft, AlertCircle, BookOpen, Upload, Loader2 } from 'lucide-react';
+import { processAndUploadChapterPages } from '../services/chapter-processor-client.js';
 
 export interface PublishMangaPageProps {
   onBack: () => void;
@@ -26,8 +27,10 @@ export const PublishMangaPage: React.FC<PublishMangaPageProps> = ({
   const [chapterTitle, setChapterTitle] = useState('');
   const [pageFiles, setPageFiles] = useState<File[]>([]);
   const [uploadProgress, setUploadProgress] = useState(0);
+  const [processingStatus, setProcessingStatus] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const abortControllerRef = useRef<AbortController | null>(null);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -139,42 +142,25 @@ export const PublishMangaPage: React.FC<PublishMangaPageProps> = ({
         throw new Error(chapterData.message || 'No se pudo crear el primer capítulo.');
       }
 
-      if (uploadMode === 'archive') {
-        const archiveForm = new FormData();
-        archiveForm.append('archive', archiveFile!);
-        const archRes = await fetch(
-          `/api/v1/manga/${encodeURIComponent(seriesId)}/chapters/${encodeURIComponent(chapterData.chapter.id)}/upload-archive`,
-          {
-            method: 'POST',
-            headers: { 'X-Requested-With': 'KuraScrollSPA' },
-            credentials: 'include',
-            body: archiveForm,
-          }
-        );
-        const archData = await archRes.json();
-        if (!archRes.ok) {
-          throw new Error(archData.message || 'Error al procesar el archivo comprimido del capítulo.');
-        }
-      } else {
-        for (let index = 0; index < pageFiles.length; index += 1) {
-          const formData = new FormData();
-          formData.append('page', pageFiles[index]);
-          const pageResponse = await fetch(
-            `/api/v1/manga/${encodeURIComponent(seriesId)}/chapters/${encodeURIComponent(chapterData.chapter.id)}/pages`,
-            {
-              method: 'POST',
-              headers: { 'X-Requested-With': 'KuraScrollSPA' },
-              credentials: 'include',
-              body: formData,
-            },
-          );
-          const pageData = await pageResponse.json();
-          if (!pageResponse.ok) {
-            throw new Error(`Página ${index + 1}: ${pageData.message || 'no se pudo subir.'}`);
-          }
-          setUploadProgress(index + 1);
-        }
-      }
+      // Ingest pages using client WebP processing (Canvas/Worker)
+      setProcessingStatus('Iniciando optimización WebP en el navegador...');
+      const abortController = new AbortController();
+      abortControllerRef.current = abortController;
+
+      await processAndUploadChapterPages({
+        seriesId,
+        chapterId: String(chapterData.chapter.id),
+        source: uploadMode === 'archive'
+          ? { type: 'archive', file: archiveFile! }
+          : { type: 'pages', files: pageFiles },
+        options: {
+          signal: abortController.signal,
+          onProgress: (p) => {
+            setUploadProgress(p.percent);
+            setProcessingStatus(p.message);
+          },
+        },
+      });
 
       const chapterPublishResponse = await fetch(
         `/api/v1/manga/${encodeURIComponent(seriesId)}/chapters/${encodeURIComponent(chapterData.chapter.id)}/publish`,
@@ -519,13 +505,44 @@ export const PublishMangaPage: React.FC<PublishMangaPageProps> = ({
             )}
           </div>
 
+          {loading && (
+            <div className="p-4 rounded-xl bg-gray-900 border border-cyan-800/60 shadow-inner space-y-2.5">
+              <div className="flex items-center justify-between text-xs">
+                <span className="font-semibold text-cyan-300 flex items-center gap-1.5">
+                  <Loader2 className="w-3.5 h-3.5 animate-spin text-cyan-400" />
+                  {processingStatus || 'Procesando en cliente...'}
+                </span>
+                <span className="font-mono text-cyan-400 font-bold">{uploadProgress}%</span>
+              </div>
+              <div className="w-full h-2 bg-gray-800 rounded-full overflow-hidden">
+                <div
+                  className="h-full bg-gradient-to-r from-cyan-500 to-blue-500 transition-all duration-200"
+                  style={{ width: `${uploadProgress}%` }}
+                />
+              </div>
+              <div className="flex justify-end">
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (abortControllerRef.current) {
+                      abortControllerRef.current.abort();
+                    }
+                  }}
+                  className="text-xs text-red-400 hover:text-red-300 hover:underline"
+                >
+                  Cancelar proceso
+                </button>
+              </div>
+            </div>
+          )}
+
           <button
             type="submit"
             disabled={loading}
             className="w-full py-2.5 px-4 rounded-xl bg-cyan-600 hover:bg-cyan-500 disabled:opacity-50 text-white font-semibold text-sm shadow-md transition-colors mt-6 flex items-center justify-center gap-2"
           >
             {loading ? (
-              <span>Publicando y subiendo páginas…</span>
+              <span>Procesando y subiendo páginas…</span>
             ) : (
               <>
                 <BookOpen className="w-4 h-4" />

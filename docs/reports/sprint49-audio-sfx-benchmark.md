@@ -9,10 +9,10 @@
 - **Covering Index**: `idx_sfx_cues_chapter_page (chapter_id, page_number, cue_index ASC)`
 
 ## Measured Results
-- **Page Audio Cues Mean Latency**: `0.1011 ms` (SLA: $< 0.5\text{ ms}$)
-- **P50 Latency**: `0.0883 ms`
-- **P95 Latency**: `0.1520 ms`
-- **P99 Latency**: `0.4061 ms`
-- **Throughput**: `3336 page lookups/sec`
-- **Chapter Manifest Mean Latency**: `0.6744 ms` (SLA: $< 1.0\text{ ms}$)
-- **SLA Status**: **PASSED (4.9x faster than SLA)**
+- **Page Audio Cues Mean Latency**: `0.0424 ms` (SLA: $< 0.5\text{ ms}$)
+- **P50 Latency**: `0.0373 ms`
+- **P95 Latency**: `0.0592 ms`
+- **P99 Latency**: `0.1660 ms`
+- **Throughput**: `6890 page lookups/sec`
+- **Chapter Manifest Mean Latency**: `0.2733 ms` (SLA: $< 1.0\text{ ms}$)
+- **SLA Status**: **PASSED (11.8x faster than SLA)**

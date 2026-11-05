@@ -142,11 +142,18 @@ export class SyncCoordinator {
           timestamp: b.timestamp,
         }));
 
+        const isGuest = typeof localStorage !== 'undefined' && localStorage.getItem('kura_guest_mode') === 'true';
+        if (isGuest) {
+          // Do not replay outbox mutations to backend in guest mode
+          hasMore = false;
+          break;
+        }
+
         const res = await fetch('/api/v1/sync/replay', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
+          credentials: 'same-origin',
           body: JSON.stringify({
-            userId: 'local_user',
             mutations: mutationsPayload,
           }),
         });

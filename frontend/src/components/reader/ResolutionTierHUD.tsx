@@ -87,7 +87,7 @@ export const ResolutionTierHUD: React.FC<ResolutionTierHUDProps> = ({ resolution
           <option value="auto">Auto (DPR {dpr.toFixed(1)}x)</option>
           <option value="800">800px (Ahorro Datos)</option>
           <option value="1200">1200px (GMA 4500MHD Equilibrado)</option>
-          <option value="1600">1600px (Otaku Crisp 1080p)</option>
+          <option value="1600">1600px (Ultra Crisp 1080p)</option>
         </select>
       </div>
     </div>

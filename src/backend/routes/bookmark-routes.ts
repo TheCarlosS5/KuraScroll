@@ -12,36 +12,48 @@ export const bookmarkRoutes: FastifyPluginAsync<BookmarkRouteOptions> = async (
 ) => {
   const repo = new BookmarkRepository(options.db);
 
+  const getSessionUserId = (req: any, reply: any): string | null => {
+    reply.header('Cache-Control', 'no-store, no-cache, must-revalidate');
+    const sessionIdentity = req.sessionIdentity;
+    if (!sessionIdentity) {
+      reply.status(401).send({ statusCode: 401, error: 'Unauthorized', message: 'Authentication required' });
+      return null;
+    }
+    return sessionIdentity.userId;
+  };
+
   // Quick Index for Series Chapters, Progress, and Bookmark Counters (< 0.8ms SLA)
   app.get('/api/v1/series/:seriesId/chapters/quick-index', async (req, reply) => {
+    const userId = getSessionUserId(req, reply);
+    if (!userId) return;
     const { seriesId } = req.params as { seriesId: string };
-    const userId = (req.headers['x-user-id'] as string) || 'default';
-
     const quickIndex = repo.getSeriesQuickIndex(userId, seriesId);
     return quickIndex;
   });
 
   // Get all bookmarks for a specific series (chronological order)
   app.get('/api/v1/series/:seriesId/bookmarks', async (req, reply) => {
+    const userId = getSessionUserId(req, reply);
+    if (!userId) return;
     const { seriesId } = req.params as { seriesId: string };
-    const userId = (req.headers['x-user-id'] as string) || 'default';
-
     const bookmarks = repo.getBookmarksForSeries(userId, seriesId);
     return { seriesId, total: bookmarks.length, bookmarks };
   });
 
   // Get all bookmarks for active chapter
   app.get('/api/v1/chapters/:chapterId/bookmarks', async (req, reply) => {
+    const userId = getSessionUserId(req, reply);
+    if (!userId) return;
     const { chapterId } = req.params as { chapterId: string };
-    const userId = (req.headers['x-user-id'] as string) || 'default';
-
     const bookmarks = repo.getBookmarksForChapter(userId, chapterId);
     return { chapterId, total: bookmarks.length, bookmarks };
   });
 
   // Create or Update (UPSERT) a bookmark
   app.post('/api/v1/bookmarks', async (req, reply) => {
-    const userId = (req.headers['x-user-id'] as string) || 'default';
+    const userId = getSessionUserId(req, reply);
+    if (!userId) return;
+
     const body = req.body as {
       seriesId: string;
       chapterId: string;
@@ -81,9 +93,10 @@ export const bookmarkRoutes: FastifyPluginAsync<BookmarkRouteOptions> = async (
 
   // Delete bookmark by ID
   app.delete('/api/v1/bookmarks/:id', async (req, reply) => {
-    const { id } = req.params as { id: string };
-    const userId = (req.headers['x-user-id'] as string) || 'default';
+    const userId = getSessionUserId(req, reply);
+    if (!userId) return;
 
+    const { id } = req.params as { id: string };
     const numId = parseInt(id, 10);
     if (isNaN(numId)) {
       reply.status(400);
@@ -101,9 +114,10 @@ export const bookmarkRoutes: FastifyPluginAsync<BookmarkRouteOptions> = async (
 
   // Delete bookmark by location (chapterId + pageIndex)
   app.delete('/api/v1/chapters/:chapterId/bookmarks/:pageIndex', async (req, reply) => {
-    const { chapterId, pageIndex } = req.params as { chapterId: string; pageIndex: string };
-    const userId = (req.headers['x-user-id'] as string) || 'default';
+    const userId = getSessionUserId(req, reply);
+    if (!userId) return;
 
+    const { chapterId, pageIndex } = req.params as { chapterId: string; pageIndex: string };
     const numPageIndex = parseInt(pageIndex, 10);
     if (isNaN(numPageIndex)) {
       reply.status(400);

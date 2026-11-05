@@ -7,9 +7,9 @@
  */
 
 export const CACHE_NAMES = {
-  STATIC: 'kura-scroll-static-v1',
-  IMAGES: 'kura-scroll-images-v1',
-  API: 'kura-scroll-api-v1',
+  STATIC: 'kura-scroll-static-v2',
+  IMAGES: 'kura-scroll-images-v2',
+  API: 'kura-scroll-api-v2',
 } as const;
 
 export const PRECACHE_ASSETS = [
@@ -56,10 +56,54 @@ export function isImageRequest(url: URL): boolean {
 }
 
 /**
- * Predicate to identify API routes (chapter manifests, series catalog, search, navigation pointers).
+ * Strict allowlist of explicitly public API routes for offline caching.
+ * All other API paths (progress, preferences, auth, sync, uploads, admin, private user data)
+ * bypass the Cache API entirely.
  */
 export function isApiRequest(url: URL): boolean {
-  return url.pathname.startsWith('/api/v1/');
+  const p = url.pathname;
+  if (!p.startsWith('/api/v1/')) {
+    return false;
+  }
+
+  // 1. Series Catalog, Search, and Public Series Details
+  if (p === '/api/v1/series' || p === '/api/v1/series/search') {
+    return true;
+  }
+  if (/^\/api\/v1\/series\/[^/]+$/.test(p)) {
+    return true;
+  }
+  if (/^\/api\/v1\/series\/[^/]+\/chapters$/.test(p)) {
+    return true;
+  }
+  if (/^\/api\/v1\/series\/[^/]+\/comments$/.test(p)) {
+    return true;
+  }
+
+  // 2. Published Chapters, Manifests, Pages, Covers & Tile Metadata
+  if (/^\/api\/v1\/chapters\/[^/]+$/.test(p)) {
+    return true;
+  }
+  if (/^\/api\/v1\/chapters\/[^/]+\/manifest$/.test(p)) {
+    return true;
+  }
+  if (/^\/api\/v1\/chapters\/[^/]+\/pages\/[^/]+$/.test(p)) {
+    return true;
+  }
+  if (/^\/api\/v1\/covers\/[^/]+$/.test(p)) {
+    return true;
+  }
+  if (/^\/api\/v1\/tiles\/[^/]+\/[^/]+\/meta$/.test(p)) {
+    return true;
+  }
+
+  // 3. Public User Profiles (EXCLUDING /api/v1/users/me)
+  if (/^\/api\/v1\/users\/[^/]+$/.test(p) && p !== '/api/v1/users/me') {
+    return true;
+  }
+
+  // Strict fail-closed fallback: Any other /api/v1 route is bypassed from Cache API
+  return false;
 }
 
 /**
@@ -185,7 +229,10 @@ export async function handleNetworkFirst(request: Request, cacheName: string): P
   try {
     const networkResponse = await fetch(request);
     if (networkResponse && networkResponse.ok) {
-      cache.put(request, networkResponse.clone());
+      const cacheControl = networkResponse.headers.get('cache-control') || '';
+      if (!cacheControl.includes('no-store') && !cacheControl.includes('private')) {
+        cache.put(request, networkResponse.clone());
+      }
     }
     return networkResponse;
   } catch (error) {

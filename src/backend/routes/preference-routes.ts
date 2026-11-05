@@ -13,10 +13,13 @@ export function registerPreferenceRoutes(
    * GET /api/v1/user/preferences
    * Point lookup of reader color theme, battery saver, and prefetch policies.
    */
-  app.get('/api/v1/user/preferences', async (req: FastifyRequest) => {
-    const query = req.query as { userId?: string };
-    const userId = query.userId || 'default-user';
-    return prefRepo.getPreferences(userId);
+  app.get('/api/v1/user/preferences', async (req: FastifyRequest, reply: FastifyReply) => {
+    reply.header('Cache-Control', 'no-store, no-cache, must-revalidate');
+    const sessionIdentity = (req as any).sessionIdentity;
+    if (!sessionIdentity) {
+      return reply.code(401).send({ error: 'Unauthorized', message: 'Authentication required' });
+    }
+    return prefRepo.getPreferences(sessionIdentity.userId);
   });
 
   /**
@@ -24,8 +27,14 @@ export function registerPreferenceRoutes(
    * Synchronizes reader preferences and hardware battery policies.
    */
   app.put('/api/v1/user/preferences', async (req: FastifyRequest, reply: FastifyReply) => {
+    reply.header('Cache-Control', 'no-store, no-cache, must-revalidate');
+    const sessionIdentity = (req as any).sessionIdentity;
+    if (!sessionIdentity) {
+      return reply.code(401).send({ error: 'Unauthorized', message: 'Authentication required' });
+    }
+    const userId = sessionIdentity.userId;
+
     const body = req.body as {
-      userId?: string;
       readerTheme?: ReaderTheme;
       batterySaverEnabled?: boolean;
       adaptivePrefetch?: boolean;
@@ -39,7 +48,6 @@ export function registerPreferenceRoutes(
       });
     }
 
-    const userId = body.userId || 'default-user';
     const updated = prefRepo.updatePreferences(userId, {
       readerTheme: body.readerTheme,
       batterySaverEnabled: body.batterySaverEnabled,

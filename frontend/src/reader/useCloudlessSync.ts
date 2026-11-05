@@ -81,7 +81,7 @@ export function useCloudlessSync({
   const checkMilestone = useCallback((chapters: number) => {
     if (chapters === 10) setMilestoneUnlocked('¡Hito: 10 Capítulos Completados! (Iniciado)');
     else if (chapters === 25) setMilestoneUnlocked('¡Hito: 25 Capítulos Leídos! (Lector Ávido)');
-    else if (chapters === 50) setMilestoneUnlocked('¡Hito de Oro: 50 Capítulos! (Maestro Otaku)');
+    else if (chapters === 50) setMilestoneUnlocked('¡Hito de Oro: 50 Capítulos! (Maestro Lector)');
     else if (chapters === 100) setMilestoneUnlocked('¡Hito Legendario: 100 Capítulos Devorados!');
   }, []);
 

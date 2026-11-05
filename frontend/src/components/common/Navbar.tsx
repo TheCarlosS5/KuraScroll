@@ -341,7 +341,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                 className="w-full px-3 py-2 text-left flex items-center gap-2.5 text-zinc-300 hover:text-white hover:bg-zinc-800/80 transition-colors"
               >
                 <BarChart2 className="w-4 h-4 text-indigo-400" />
-                <span>Estadísticas Otaku</span>
+                <span>Estadísticas de Lectura</span>
               </button>
 
               {onOpenBackup && (

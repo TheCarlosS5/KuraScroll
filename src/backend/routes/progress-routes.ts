@@ -5,8 +5,13 @@ import { ReadingStreakService } from '../services/reading-streak-service.js';
 export function registerProgressRoutes(app: FastifyInstance, db: DatabaseInstance): void {
   // Get recent reading progress list (Must be declared before :seriesId)
   app.get('/api/v1/progress/recent', async (req, reply) => {
-    const query = req.query as { userId?: string; limit?: string; titlePref?: string };
-    const userId = query.userId || 'local_user';
+    reply.header('Cache-Control', 'no-store, no-cache, must-revalidate');
+    const sessionIdentity = (req as any).sessionIdentity;
+    if (!sessionIdentity) {
+      return reply.code(401).send({ statusCode: 401, error: 'Unauthorized', message: 'Authentication required' });
+    }
+    const userId = sessionIdentity.userId;
+    const query = req.query as { limit?: string; titlePref?: string };
     const limit = query.limit ? Math.min(50, Math.max(1, Number.parseInt(query.limit, 10))) : 15;
     const titlePref = (query.titlePref || '').toLowerCase();
 
@@ -115,9 +120,14 @@ export function registerProgressRoutes(app: FastifyInstance, db: DatabaseInstanc
 
   // Get reading progress for a series
   app.get('/api/v1/progress/:seriesId', async (req, reply) => {
+    reply.header('Cache-Control', 'no-store, no-cache, must-revalidate');
+    const sessionIdentity = (req as any).sessionIdentity;
+    if (!sessionIdentity) {
+      return reply.code(401).send({ statusCode: 401, error: 'Unauthorized', message: 'Authentication required' });
+    }
+    const userId = sessionIdentity.userId;
     const { seriesId } = req.params as { seriesId: string };
-    const query = req.query as { userId?: string; titlePref?: string };
-    const userId = query.userId || 'local_user';
+    const query = req.query as { titlePref?: string };
     const titlePref = (query.titlePref || '').toLowerCase();
 
     const stmt = db.prepare(`
@@ -201,8 +211,14 @@ export function registerProgressRoutes(app: FastifyInstance, db: DatabaseInstanc
 
   // Upsert reading progress
   app.post('/api/v1/progress', async (req, reply) => {
+    reply.header('Cache-Control', 'no-store, no-cache, must-revalidate');
+    const sessionIdentity = (req as any).sessionIdentity;
+    if (!sessionIdentity) {
+      return reply.code(401).send({ statusCode: 401, error: 'Unauthorized', message: 'Authentication required' });
+    }
+    const userId = sessionIdentity.userId;
+
     const body = req.body as {
-      userId?: string;
       seriesId: string;
       chapterId: string;
       pageNumber: number;
@@ -219,7 +235,6 @@ export function registerProgressRoutes(app: FastifyInstance, db: DatabaseInstanc
       };
     }
 
-    const userId = body.userId || 'local_user';
     const scrollOffsetY = body.scrollOffsetY ?? 0;
     const isCompleted = body.isCompleted ? 1 : 0;
 

@@ -76,4 +76,15 @@ describe('Navbar Component', () => {
     fireEvent.click(badgesBtn);
     expect(screen.getByText('Logros & Medallas de Lectura')).toBeDefined();
   });
+
+  it('renders reading stats button in more menu with updated label and opens modal', () => {
+    render(<Navbar onNavigate={() => {}} currentView="catalog" />);
+    const statsBtn = screen.getByTestId('nav-stats-btn');
+    expect(statsBtn).toBeDefined();
+    expect(screen.getByText('Estadísticas de Lectura')).toBeDefined();
+
+    fireEvent.click(statsBtn);
+    expect(screen.getByRole('dialog')).toBeDefined();
+    expect(screen.getByTestId('otaku-stats-modal')).toBeDefined();
+  });
 });

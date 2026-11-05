@@ -30,7 +30,7 @@ export class LocalStorageService {
   async init(): Promise<void> {
     if (this.db) return;
 
-    this.db = await openDB(this.dbName, 3, {
+    this.db = await openDB(this.dbName, 4, {
       upgrade(db) {
         if (!db.objectStoreNames.contains('reading_progress')) {
           db.createObjectStore('reading_progress', { keyPath: 'seriesId' });
@@ -43,6 +43,9 @@ export class LocalStorageService {
         }
         if (!db.objectStoreNames.contains('series_shelves')) {
           db.createObjectStore('series_shelves', { keyPath: 'seriesId' });
+        }
+        if (!db.objectStoreNames.contains('guest_reading_progress')) {
+          db.createObjectStore('guest_reading_progress', { keyPath: 'seriesId' });
         }
       },
     });
@@ -76,6 +79,60 @@ export class LocalStorageService {
     await this.init();
     if (!this.db) return;
     await this.db.clear('reading_progress');
+  }
+
+  // --- Isolated Guest Progress Store (IndexedDB) ---
+  async saveGuestProgress(progress: LocalReadingProgress): Promise<void> {
+    await this.init();
+    if (!this.db) return;
+    await this.db.put('guest_reading_progress', progress);
+  }
+
+  async getGuestProgress(seriesId: string): Promise<LocalReadingProgress | null> {
+    await this.init();
+    if (!this.db) return null;
+    return (await this.db.get('guest_reading_progress', seriesId)) || null;
+  }
+
+  async getAllGuestProgress(): Promise<LocalReadingProgress[]> {
+    await this.init();
+    if (!this.db) return [];
+    return await this.db.getAll('guest_reading_progress');
+  }
+
+  async deleteGuestProgress(seriesId: string): Promise<void> {
+    await this.init();
+    if (!this.db) return;
+    await this.db.delete('guest_reading_progress', seriesId);
+  }
+
+  async clearGuestProgress(): Promise<void> {
+    await this.init();
+    if (!this.db) return;
+    await this.db.clear('guest_reading_progress');
+  }
+
+  async importGuestProgressToAccount(): Promise<{ importedCount: number }> {
+    await this.init();
+    if (!this.db) return { importedCount: 0 };
+    const guestItems = await this.getAllGuestProgress();
+    let count = 0;
+    for (const item of guestItems) {
+      await this.saveProgress(item);
+      count++;
+    }
+    await this.clearGuestProgress();
+    return { importedCount: count };
+  }
+
+  async clearAccountLocalData(): Promise<void> {
+    await this.init();
+    if (!this.db) return;
+    await this.db.clear('reading_progress');
+    await this.db.clear('bookmarks');
+    await this.db.clear('sync_queue');
+    await this.db.clear('series_shelves');
+    // NOTE: Does NOT clear guest_reading_progress, preserving guest state
   }
 
   async enqueueSync(item: SyncQueueItem): Promise<void> {

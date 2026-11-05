@@ -114,7 +114,7 @@ export const OtakuStatsRadar: React.FC<OtakuStatsRadarProps> = ({
         height={size}
         viewBox={`0 0 ${size} ${size}`}
         className="overflow-visible"
-        aria-label="Gráfico Radar de Preferencias Otaku por Género"
+        aria-label="Gráfico Radar de Preferencias de Lectura por Género"
       >
         {/* Concentric Guide Polygons */}
         {guideRings.map((ring, idx) => (

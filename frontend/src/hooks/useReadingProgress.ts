@@ -11,7 +11,9 @@ export function useReadingProgress(seriesId: string) {
     scrollOffsetY = 0,
     isCompleted = false
   ) => {
-    // 1. Instant offline save to IndexedDB
+    const isGuest = typeof localStorage !== 'undefined' && localStorage.getItem('kura_guest_mode') === 'true';
+
+    // 1. Instant offline save to IndexedDB (guest store vs account store)
     const progress: LocalReadingProgress = {
       seriesId,
       chapterId,
@@ -19,9 +21,16 @@ export function useReadingProgress(seriesId: string) {
       scrollOffsetY,
       timestamp: Date.now(),
     };
+
+    if (isGuest) {
+      await localClientStorage.saveGuestProgress(progress);
+      // In guest mode, do not sync to backend
+      return;
+    }
+
     await localClientStorage.saveProgress(progress);
 
-    // 2. Debounced background sync to backend
+    // 2. Debounced background sync to backend for authenticated users
     if (syncTimer.current) {
       clearTimeout(syncTimer.current);
     }
@@ -42,8 +51,8 @@ export function useReadingProgress(seriesId: string) {
         const res = await fetch('/api/v1/progress', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
+          credentials: 'same-origin',
           body: JSON.stringify({
-            userId: 'local_user',
             seriesId,
             chapterId,
             pageNumber,

@@ -61,8 +61,16 @@ export function registerSyncRoutes(
         }
       }
 
-      const rawUserId = typeof body?.userId === 'string' && body.userId.trim() ? body.userId.trim() : 'local_user';
-      const userId = rawUserId.replace(/[^a-zA-Z0-9_\-\.]/g, '').slice(0, 100) || 'local_user';
+      reply.header('Cache-Control', 'no-store, no-cache, must-revalidate');
+      const sessionIdentity = (req as any).sessionIdentity;
+      if (!sessionIdentity) {
+        return reply.status(401).send({
+          statusCode: 401,
+          error: 'Unauthorized',
+          message: 'Authentication required for sync replay',
+        });
+      }
+      const userId = sessionIdentity.userId;
 
       try {
         const result = await syncService.replayMutations(userId, body.mutations);
@@ -87,8 +95,16 @@ export function registerSyncRoutes(
       req: FastifyRequest<{ Querystring: { userId?: string } }>,
       reply: FastifyReply
     ) => {
-      const rawUserId = typeof req.query?.userId === 'string' && req.query.userId.trim() ? req.query.userId.trim() : 'local_user';
-      const userId = rawUserId.replace(/[^a-zA-Z0-9_\-\.]/g, '').slice(0, 100) || 'local_user';
+      reply.header('Cache-Control', 'no-store, no-cache, must-revalidate');
+      const sessionIdentity = (req as any).sessionIdentity;
+      if (!sessionIdentity) {
+        return reply.status(401).send({
+          statusCode: 401,
+          error: 'Unauthorized',
+          message: 'Authentication required',
+        });
+      }
+      const userId = sessionIdentity.userId;
 
       const stats = db
         .prepare(

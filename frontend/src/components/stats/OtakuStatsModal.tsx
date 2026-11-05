@@ -81,7 +81,7 @@ export const OtakuStatsModal: React.FC<OtakuStatsModalProps> = ({
             </div>
             <div>
               <h2 id="otaku-stats-modal-title" className="text-lg font-bold text-white tracking-tight">
-                Estadísticas Otaku
+                Estadísticas de Lectura
               </h2>
               <p className="text-xs text-neutral-400">
                 Preferencias de lectura por género y actividad anual

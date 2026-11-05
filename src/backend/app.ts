@@ -13,6 +13,15 @@ import { registerBadgeRoutes } from './routes/badge-routes.js';
 import { registerRecommendationRoutes } from './routes/recommendation-routes.js';
 import { registerPreferenceRoutes } from './routes/preference-routes.js';
 import { bookmarkRoutes } from './routes/bookmark-routes.js';
+import { AuthRepository } from './repositories/auth-repository.js';
+import { EmailService } from './services/email-service.js';
+import { AuthService } from './services/auth-service.js';
+import { authenticationPlugin } from './plugins/authentication.js';
+import { registerAuthRoutes } from './routes/auth-routes.js';
+import { CommunityService } from './services/community-service.js';
+import { registerCommunityRoutes } from './routes/community-routes.js';
+import { ClientProcessedUploadService } from './services/client-processed-upload-service.js';
+import { registerClientUploadRoutes } from './routes/client-upload-routes.js';
 import { registerSyncRoutes } from './routes/sync-routes.js';
 import { registerStatsRoutes } from './routes/stats-routes.js';
 import { registerHealthRoutes } from './routes/health-routes.js';
@@ -290,24 +299,30 @@ export function buildApp(options: AppOptions = {}): FastifyInstance {
     bodyLimit,
   });
 
-  app.setErrorHandler((error, request, reply) => {
+  app.setErrorHandler((error: unknown, request, reply) => {
     request.log.error({ err: error }, 'Request failed');
-    const statusCode = error.statusCode && error.statusCode >= 400 && error.statusCode < 500
-      ? error.statusCode
+    const err = (error && typeof error === 'object' ? error : {}) as {
+      statusCode?: number;
+      code?: string;
+      name?: string;
+      message?: string;
+    };
+    const statusCode = err.statusCode && err.statusCode >= 400 && err.statusCode < 500
+      ? err.statusCode
       : 500;
 
-    if (statusCode === 413 || (error as any).code === 'FST_ERR_CTP_BODY_TOO_LARGE') {
+    if (statusCode === 413 || err.code === 'FST_ERR_CTP_BODY_TOO_LARGE') {
       return reply.code(413).send({
         statusCode: 413,
         error: 'Payload Too Large',
-        message: error.message || 'Request body is too large',
+        message: err.message || 'Request body is too large',
       });
     }
 
     return reply.code(statusCode).send({
       statusCode,
-      error: statusCode >= 500 ? 'Internal Server Error' : (error.name || 'Bad Request'),
-      message: statusCode >= 500 ? 'Request failed. Check server logs.' : (error.message || 'Request could not be processed.'),
+      error: statusCode >= 500 ? 'Internal Server Error' : (err.name || 'Bad Request'),
+      message: statusCode >= 500 ? 'Request failed. Check server logs.' : (err.message || 'Request could not be processed.'),
     });
   });
 
@@ -347,7 +362,35 @@ export function buildApp(options: AppOptions = {}): FastifyInstance {
     : ['http://localhost:5173', 'http://127.0.0.1:5173']);
   app.register(cors, {
     origin: (origin, callback) => callback(null, !origin || allowedOrigins.has(origin)),
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
+    credentials: true,
+  });
+
+  // Identity & Auth Plugin
+  const authRepo = new AuthRepository(db);
+  const emailService = new EmailService();
+  const authService = new AuthService(authRepo, emailService, {
+    appBaseUrl: process.env.PUBLIC_BASE_URL || 'http://localhost:5173',
+  });
+
+  app.register(authenticationPlugin, {
+    authService,
+    allowedOrigins: Array.from(allowedOrigins),
+  });
+
+  registerAuthRoutes(app, { authService });
+
+  // Community Service & Routes
+  const communityService = new CommunityService(db);
+  registerCommunityRoutes(app, { communityService, authService, db });
+
+  // Client Ingestion Upload Service & Routes
+  const clientUploadService = new ClientProcessedUploadService(db, storageRoot);
+  registerClientUploadRoutes(app, {
+    uploadService: clientUploadService,
+    authService,
+    db,
+    storageRoot,
   });
 
   // A configured token protects every API and static storage request. Keep the

@@ -1,23 +1,46 @@
 import React, { useState, useEffect } from 'react';
 import { localClientStorage, SeriesShelfType } from '../services/local-storage-service.js';
-import { ArrowLeft, BookOpen, Heart, Library, CheckCircle2, Clock, Globe, Download } from 'lucide-react';
+import { ArrowLeft, BookOpen, Heart, Library, CheckCircle2, Clock, Globe, Download, MessageSquare } from 'lucide-react';
+import { CommentComposer } from '../components/community/CommentComposer.js';
+import { CommentThread, CommentRecord } from '../components/community/CommentThread.js';
+import { SessionIdentity, authApiClient } from '../services/auth-api-client.js';
 
 export interface SeriesDetailPageProps {
   slug: string;
   onBack: () => void;
   onReadChapter: (chapterId: string) => void;
+  currentUser?: SessionIdentity | null;
+  onNavigateUser?: (handle: string) => void;
 }
 
 export const SeriesDetailPage: React.FC<SeriesDetailPageProps> = ({
   slug,
   onBack,
   onReadChapter,
+  currentUser,
+  onNavigateUser,
 }) => {
   const [series, setSeries] = useState<any | null>(null);
   const [loading, setLoading] = useState(true);
   const [shelf, setShelf] = useState<SeriesShelfType>('none');
   const [isFavorite, setIsFavorite] = useState(false);
   const [lastReadChapterId, setLastReadChapterId] = useState<string | null>(null);
+  const [currentUserSession, setCurrentUserSession] = useState<SessionIdentity | null>(currentUser || null);
+  const [newlyCreatedComment, setNewlyCreatedComment] = useState<CommentRecord | null>(null);
+
+  useEffect(() => {
+    if (currentUser !== undefined) {
+      setCurrentUserSession(currentUser);
+      return;
+    }
+    let isMounted = true;
+    authApiClient.getSession().then((session) => {
+      if (isMounted) setCurrentUserSession(session);
+    });
+    return () => {
+      isMounted = false;
+    };
+  }, [currentUser]);
 
   useEffect(() => {
     async function loadDetail() {
@@ -300,6 +323,38 @@ export const SeriesDetailPage: React.FC<SeriesDetailPageProps> = ({
             })}
           </div>
         )}
+      </div>
+
+      {/* Community Comments Section */}
+      <div className="mt-14 pt-10 border-t border-zinc-800/80">
+        <div className="flex items-center gap-2.5 mb-6">
+          <div className="w-8 h-8 rounded-lg bg-cyan-500/10 border border-cyan-500/20 flex items-center justify-center text-cyan-400">
+            <MessageSquare className="w-4 h-4" />
+          </div>
+          <div>
+            <h2 className="text-xl font-bold text-white tracking-tight">
+              Comentarios y Discusión
+            </h2>
+            <p className="text-xs text-zinc-400 mt-0.5">
+              Comparte tus impresiones de la serie con la comunidad.
+            </p>
+          </div>
+        </div>
+
+        <div className="space-y-6">
+          <CommentComposer
+            seriesSlug={slug}
+            currentUser={currentUserSession}
+            onCommentCreated={(created) => setNewlyCreatedComment(created)}
+          />
+
+          <CommentThread
+            seriesSlug={slug}
+            currentUser={currentUserSession}
+            newlyAddedComment={newlyCreatedComment}
+            onNavigateUser={onNavigateUser}
+          />
+        </div>
       </div>
     </div>
   );
